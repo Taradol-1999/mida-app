@@ -29,7 +29,7 @@ body {
 }
 
 @utility project-container {
-  width: min(100% - 2rem, 90rem);
+  width: min(100% - 2rem, 160rem);
   margin-inline: auto;
 }
 
