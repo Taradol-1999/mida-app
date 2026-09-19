@@ -178,25 +178,8 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         description={heroDescription}
         meta={`ราคาเริ่มต้น ${project.price}`}
       />
-      <section
-        id="overview"
-        className="project-container grid items-start gap-8 py-10 lg:grid-cols-[minmax(0,1.35fr)_minmax(22rem,.65fr)]"
-      >
+      <section id="overview" className="project-container py-14 md:py-20">
         <ProjectGallery items={project.galleryMedia} />
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="border-b border-slate-100 pb-3 text-base font-bold text-[#002D62]">
-            <i className="fa-solid fa-star mr-2 text-[#f5a623]" />
-            สิ่งอำนวยความสะดวกในโครงการ
-          </h2>
-          <div className="mt-4 grid gap-2 text-sm text-slate-600 sm:grid-cols-2">
-            {project.facilities.map((item) => (
-              <div key={item} className="rounded-lg bg-slate-50 p-3">
-                <i className="fa-solid fa-circle-check mr-2 text-[#002D62]" />
-                {item}
-              </div>
-            ))}
-          </div>
-        </div>
       </section>
       {project.houseTypes.length > 0 && (
         <section className="bg-white py-16">
@@ -204,6 +187,34 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
             <div className="gold-rule mb-3" />
             <h2 className="section-title">รูปแบบบ้านและราคาเริ่มต้น (House Types)</h2>
             <HouseTypeCarousel items={houseTypeItems} />
+          </div>
+        </section>
+      )}
+      {project.facilities.length > 0 && (
+        <section className="bg-[#002D62] py-14 text-white md:py-16">
+          <div className="project-container">
+            <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+              <div>
+                <span className="mb-3 block h-1 w-14 rounded-full bg-[#F5A623]" />
+                <h2 className="text-2xl font-extrabold md:text-3xl">สิ่งอำนวยความสะดวกในโครงการ</h2>
+              </div>
+              <p className="max-w-lg text-sm leading-6 text-blue-100">
+                พื้นที่และบริการที่ออกแบบมาเพื่อเติมเต็มทุกช่วงเวลาของการอยู่อาศัย
+              </p>
+            </div>
+            <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {project.facilities.map((item) => (
+                <div
+                  key={item}
+                  className="flex items-center gap-3 rounded-2xl border border-white/15 bg-white/10 p-4 text-sm font-semibold backdrop-blur-sm"
+                >
+                  <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#F5A623] text-[#002D62]">
+                    <i className="fa-solid fa-check" />
+                  </span>
+                  {item}
+                </div>
+              ))}
+            </div>
           </div>
         </section>
       )}

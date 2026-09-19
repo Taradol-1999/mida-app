@@ -1,20 +1,34 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 export type ProjectGalleryItem = { src: string; alt: string; type: "image" | "video" };
 
+const tileClasses = [
+  "lg:col-span-3",
+  "lg:col-span-3",
+  "lg:col-span-6",
+  "lg:col-span-6",
+  "lg:col-span-3",
+  "lg:col-span-3",
+];
+
 export function ProjectGallery({ items }: { items: ProjectGalleryItem[] }) {
-  const [active, setActive] = useState(0);
-  const thumbnailRefs = useRef<Array<HTMLButtonElement | null>>([]);
-  const current = items[active];
+  const [selected, setSelected] = useState<number | null>(null);
 
   useEffect(() => {
-    thumbnailRefs.current[active]?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
-  }, [active]);
+    if (selected === null) return;
+    const close = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setSelected(null);
+      if (event.key === "ArrowLeft") setSelected((value) => ((value ?? 0) - 1 + items.length) % items.length);
+      if (event.key === "ArrowRight") setSelected((value) => ((value ?? 0) + 1) % items.length);
+    };
+    window.addEventListener("keydown", close);
+    return () => window.removeEventListener("keydown", close);
+  }, [items.length, selected]);
 
-  if (!current) {
+  if (!items.length) {
     return (
       <div className="grid min-h-96 place-items-center rounded-3xl border border-dashed border-slate-300 bg-white text-sm font-semibold text-slate-500">
         <div className="text-center">
@@ -25,117 +39,121 @@ export function ProjectGallery({ items }: { items: ProjectGalleryItem[] }) {
     );
   }
 
-  function move(direction: -1 | 1) {
-    setActive((value) => (value + direction + items.length) % items.length);
-  }
+  const current = selected === null ? null : items[selected];
+  const move = (direction: -1 | 1) => {
+    setSelected((value) => ((value ?? 0) + direction + items.length) % items.length);
+  };
 
   return (
-    <div
-      className="overflow-hidden rounded-3xl border border-slate-200 bg-white p-2.5 shadow-[0_18px_55px_rgba(15,23,42,0.10)] sm:p-3"
-      aria-roledescription="carousel"
-      aria-label="แกลเลอรีโครงการ"
-      onKeyDown={(event) => {
-        if (event.key === "ArrowLeft") move(-1);
-        if (event.key === "ArrowRight") move(1);
-      }}
-    >
-      <div className="relative aspect-4/3 overflow-hidden rounded-[1.15rem] bg-slate-100 sm:aspect-16/10">
-        {current.type === "video" ? (
-          <video
-            key={current.src}
-            src={current.src}
-            controls
-            playsInline
-            preload="metadata"
-            aria-label={current.alt}
-            className="size-full object-cover"
-          />
-        ) : (
-          <Image
-            key={current.src}
-            src={current.src}
-            alt={current.alt}
-            fill
-            priority={active === 0}
-            unoptimized={current.src.includes("?")}
-            sizes="(min-width: 1280px) 62vw, (min-width: 1024px) 58vw, 100vw"
-            className="object-cover transition-opacity duration-300"
-          />
-        )}
-
-        <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between bg-linear-to-b from-black/35 to-transparent p-4 pb-12 text-white">
-          <span className="rounded-full bg-black/35 px-3 py-1 text-xs font-semibold backdrop-blur-md">
-            <i className="fa-regular fa-images mr-1.5" />
-            Gallery
-          </span>
-          <span className="rounded-full bg-black/35 px-3 py-1 text-xs font-semibold tabular-nums backdrop-blur-md">
-            {active + 1} / {items.length}
+    <>
+      <div className="mb-9 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <span className="mb-3 block h-1 w-14 rounded-full bg-[#F5A623]" />
+          <h2 className="text-3xl font-extrabold text-slate-950 md:text-4xl">อัลบั้มภาพ</h2>
+        </div>
+        <div className="flex justify-start sm:justify-end">
+          <span className="min-w-56 rounded-full bg-black px-8 py-3 text-center text-sm font-bold text-white md:min-w-72">
+            ภาพโครงการ
           </span>
         </div>
-
-        {items.length > 1 && (
-          <>
-            <button
-              type="button"
-              onClick={() => move(-1)}
-              aria-label="ภาพก่อนหน้า"
-              className="absolute left-3 top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full border border-white/70 bg-white/90 text-[#002D62] shadow-lg backdrop-blur transition hover:scale-105 hover:bg-white sm:left-4 sm:size-12"
-            >
-              <i className="fa-solid fa-chevron-left" aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              onClick={() => move(1)}
-              aria-label="ภาพถัดไป"
-              className="absolute right-3 top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full border border-white/70 bg-white/90 text-[#002D62] shadow-lg backdrop-blur transition hover:scale-105 hover:bg-white sm:right-4 sm:size-12"
-            >
-              <i className="fa-solid fa-chevron-right" aria-hidden="true" />
-            </button>
-          </>
-        )}
       </div>
 
-      {items.length > 1 && (
-        <div className="relative mt-3">
-          <div className="gallery-thumbnails flex snap-x gap-2.5 overflow-x-auto pb-2 sm:gap-3">
-            {items.map((item, index) => (
-              <button
-                ref={(element) => {
-                  thumbnailRefs.current[index] = element;
-                }}
-                key={`${item.src}-${index}`}
-                type="button"
-                onClick={() => setActive(index)}
-                aria-label={`เปิดสื่อ Gallery ลำดับที่ ${index + 1}`}
-                aria-current={index === active ? "true" : undefined}
-                className={`relative h-18 min-w-24 snap-center overflow-hidden rounded-xl border-2 bg-slate-100 transition sm:h-20 sm:min-w-28 ${
-                  index === active
-                    ? "border-[#F5A623] opacity-100 shadow-md"
-                    : "border-transparent opacity-65 hover:opacity-100"
-                }`}
-              >
-                {item.type === "video" ? (
-                  <>
-                    <video src={item.src} muted playsInline preload="metadata" className="size-full object-cover" />
-                    <span className="absolute inset-0 grid place-items-center bg-black/25 text-white">
-                      <i className="fa-solid fa-play grid size-8 place-items-center rounded-full bg-black/45 text-xs" />
-                    </span>
-                  </>
-                ) : (
-                  <Image
-                    src={item.src}
-                    alt=""
-                    fill
-                    unoptimized={item.src.includes("?")}
-                    sizes="112px"
-                    className="object-cover"
-                  />
-                )}
-              </button>
-            ))}
+      <div className="grid auto-rows-[15rem] grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-12">
+        {items.map((item, index) => (
+          <button
+            key={`${item.src}-${index}`}
+            type="button"
+            onClick={() => setSelected(index)}
+            aria-label={`ดูสื่อ Gallery ลำดับที่ ${index + 1}`}
+            className={`group relative overflow-hidden bg-slate-200 text-left ${tileClasses[index % tileClasses.length]} ${index === 0 ? "rounded-tl-2xl" : ""} ${index === 2 ? "rounded-tr-2xl" : ""}`}
+          >
+            {item.type === "video" ? (
+              <>
+                <video
+                  src={item.src}
+                  muted
+                  playsInline
+                  preload="metadata"
+                  className="size-full object-cover transition duration-500 group-hover:scale-105"
+                />
+                <span className="absolute inset-0 grid place-items-center bg-black/20 text-white">
+                  <i className="fa-solid fa-play grid size-14 place-items-center rounded-full border border-white/60 bg-black/40 text-lg backdrop-blur" />
+                </span>
+              </>
+            ) : (
+              <Image
+                src={item.src}
+                alt={item.alt}
+                fill
+                priority={index < 3}
+                unoptimized={item.src.includes("?")}
+                sizes="(min-width: 1024px) 50vw, (min-width: 640px) 50vw, 100vw"
+                className="object-cover transition duration-500 group-hover:scale-105"
+              />
+            )}
+            <span className="absolute inset-0 bg-black/0 transition group-hover:bg-black/15" />
+            <span className="absolute bottom-3 right-3 grid size-9 translate-y-2 place-items-center rounded-full bg-white/90 text-[#002D62] opacity-0 shadow transition group-hover:translate-y-0 group-hover:opacity-100">
+              <i className="fa-solid fa-up-right-and-down-left-from-center text-xs" />
+            </span>
+          </button>
+        ))}
+      </div>
+
+      {current && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={`ภาพโครงการ ${selected! + 1} จาก ${items.length}`}
+          className="fixed inset-0 z-50 grid place-items-center bg-black/90 p-4 backdrop-blur-sm"
+          onClick={() => setSelected(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setSelected(null)}
+            aria-label="ปิดแกลเลอรี"
+            className="absolute right-5 top-5 z-10 grid size-11 place-items-center rounded-full bg-white text-slate-950 shadow-lg"
+          >
+            <i className="fa-solid fa-xmark" />
+          </button>
+          <div className="relative h-[82vh] w-full max-w-6xl" onClick={(event) => event.stopPropagation()}>
+            {current.type === "video" ? (
+              <video src={current.src} controls autoPlay playsInline className="size-full object-contain" />
+            ) : (
+              <Image
+                src={current.src}
+                alt={current.alt}
+                fill
+                unoptimized={current.src.includes("?")}
+                sizes="100vw"
+                className="object-contain"
+              />
+            )}
+            {items.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => move(-1)}
+                  aria-label="ภาพก่อนหน้า"
+                  className="absolute left-2 top-1/2 grid size-12 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-[#002D62] shadow-lg sm:-left-16"
+                >
+                  <i className="fa-solid fa-chevron-left" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => move(1)}
+                  aria-label="ภาพถัดไป"
+                  className="absolute right-2 top-1/2 grid size-12 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-[#002D62] shadow-lg sm:-right-16"
+                >
+                  <i className="fa-solid fa-chevron-right" />
+                </button>
+              </>
+            )}
+            <span className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-black/60 px-4 py-2 text-xs font-bold text-white">
+              {selected! + 1} / {items.length}
+            </span>
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
