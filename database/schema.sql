@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS house_types (
   id CHAR(36) PRIMARY KEY,
   project_id CHAR(36) NOT NULL,
   name VARCHAR(255) NOT NULL,
+  description TEXT NULL,
   bedrooms TINYINT UNSIGNED NULL,
   bathrooms TINYINT UNSIGNED NULL,
   usable_area_sqm DECIMAL(8,2) NULL,

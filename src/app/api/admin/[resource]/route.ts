@@ -176,11 +176,12 @@ export async function POST(request: Request, context: RouteContext) {
       case "house-types":
         createdId = randomUUID();
         await pool.execute(
-          "INSERT INTO house_types (id, project_id, name, bedrooms, bathrooms, usable_area_sqm, starting_price) VALUES (?, ?, ?, ?, ?, ?, ?)",
+          "INSERT INTO house_types (id, project_id, name, description, bedrooms, bathrooms, usable_area_sqm, starting_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
           [
             createdId,
             value(body, "project_id"),
             value(body, "name"),
+            nullable(body, "description"),
             numberValue(body, "bedrooms"),
             numberValue(body, "bathrooms"),
             numberValue(body, "usable_area_sqm"),
@@ -287,10 +288,11 @@ export async function PATCH(request: Request, context: RouteContext) {
         break;
       case "house-types":
         await pool.execute(
-          "UPDATE house_types SET project_id=?, name=?, bedrooms=?, bathrooms=?, usable_area_sqm=?, starting_price=? WHERE id=?",
+          "UPDATE house_types SET project_id=?, name=?, description=?, bedrooms=?, bathrooms=?, usable_area_sqm=?, starting_price=? WHERE id=?",
           [
             value(body, "project_id"),
             value(body, "name"),
+            nullable(body, "description"),
             numberValue(body, "bedrooms"),
             numberValue(body, "bathrooms"),
             numberValue(body, "usable_area_sqm"),

@@ -31,6 +31,7 @@ const configs: Partial<Record<Section, DataConfig>> = {
       { key: "bathrooms", label: "ห้องน้ำ", type: "number" },
       { key: "usable_area_sqm", label: "พื้นที่ใช้สอย (ตร.ม.)", type: "number" },
       { key: "starting_price", label: "ราคาเริ่มต้น (บาท)", type: "number" },
+      { key: "description", label: "รายละเอียดแบบบ้าน", type: "textarea" },
     ],
   },
   facilities: {

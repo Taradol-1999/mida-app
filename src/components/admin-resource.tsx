@@ -81,6 +81,7 @@ const configs: Record<AdminResource, Config> = {
       { name: "bathrooms", label: "ห้องน้ำ", type: "number" },
       { name: "usable_area_sqm", label: "พื้นที่ใช้สอย (ตร.ม.)", type: "number" },
       { name: "starting_price", label: "ราคาเริ่มต้น (บาท)", type: "number" },
+      { name: "description", label: "รายละเอียดแบบบ้าน", type: "textarea", wide: true },
     ],
     columns: [
       ["project_name", "โครงการ"],

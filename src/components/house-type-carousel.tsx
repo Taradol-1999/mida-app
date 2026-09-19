@@ -6,6 +6,7 @@ import { useState } from "react";
 export type HouseTypeItem = {
   id: string;
   name: string;
+  description: string;
   bedrooms: number | string;
   bathrooms: number | string;
   usableArea: number | string;
@@ -57,6 +58,9 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
               <div className="absolute inset-x-0 bottom-0 p-6 text-white md:p-8">
                 <p className="text-xs font-bold tracking-widest text-[#f8c366]">HOUSE TYPE</p>
                 <h3 className="mt-2 text-2xl font-black md:text-3xl">{house.name}</h3>
+                {house.description && (
+                  <p className="mt-2 line-clamp-2 max-w-xl text-sm leading-6 text-white/80">{house.description}</p>
+                )}
                 <p className="mt-3 text-sm text-white/80">
                   {house.bedrooms} ห้องนอน · {house.bathrooms} ห้องน้ำ · {house.usableArea} ตร.ม.
                 </p>
