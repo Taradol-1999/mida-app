@@ -170,9 +170,23 @@ export function ProjectFilter() {
                   <i className="fa-solid fa-house-chimney text-4xl" />
                 </div>
               )}
-              <span className="absolute left-4 top-4 rounded-md bg-red-500 px-3 py-1 text-[10px] font-black tracking-wider text-white shadow">
-                {index === 0 ? "RECOMMENDED" : project.status === "พร้อมอยู่" ? "READY" : "NEW"}
-              </span>
+              <div className="absolute left-4 top-4 flex flex-wrap gap-2">
+                {Boolean(project.is_featured) && (
+                  <span className="rounded-md bg-red-500 px-3 py-1 text-[10px] font-black tracking-wider text-white shadow">
+                    RECOMMENDED
+                  </span>
+                )}
+                {project.status === "พร้อมอยู่" && (
+                  <span className="rounded-md bg-emerald-500 px-3 py-1 text-[10px] font-black tracking-wider text-white shadow">
+                    READY
+                  </span>
+                )}
+                {Boolean(project.is_new) && (
+                  <span className="rounded-md bg-[#002D62] px-3 py-1 text-[10px] font-black tracking-wider text-white shadow">
+                    NEW
+                  </span>
+                )}
+              </div>
               <div className="absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-[#001B3D]/75 to-transparent" />
             </div>
             <div className="flex flex-col gap-4 p-6 sm:flex-row sm:items-end sm:justify-between">
