@@ -33,10 +33,12 @@ export function HeroImageSlider({
   images,
   title,
   description,
+  meta,
 }: {
   images: HeroMedia[];
   title: string;
   description: string;
+  meta?: string;
 }) {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -79,7 +81,15 @@ export function HeroImageSlider({
               onEnded={() => setActive((current) => (current + 1) % images.length)}
             />
           ) : (
-            <Image src={image.src} alt={image.alt} fill priority={index === 0} sizes="100vw" className="object-cover" />
+            <Image
+              src={image.src}
+              alt={image.alt}
+              fill
+              unoptimized={image.src.includes("?")}
+              priority={index === 0}
+              sizes="100vw"
+              className="object-cover"
+            />
           )}
         </div>
       ))}
@@ -91,6 +101,7 @@ export function HeroImageSlider({
         <div className="max-w-3xl">
           <h1 className="max-w-2xl text-4xl font-extrabold leading-tight drop-shadow-md md:text-6xl">{title}</h1>
           <p className="mt-6 max-w-xl text-lg leading-8 text-slate-100 drop-shadow">{description}</p>
+          {meta && <p className="mt-5 text-xl font-extrabold text-[#f8c366] drop-shadow">{meta}</p>}
         </div>
       </div>
 

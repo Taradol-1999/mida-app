@@ -1,9 +1,10 @@
-/* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import type { RowDataPacket } from "mysql2";
 import { notFound } from "next/navigation";
+import { HeroImageSlider } from "@/components/hero-image-slider";
 import { LeadModal } from "@/components/lead-modal";
 import { NewsPromotionSlider, type NewsPromotionItem } from "@/components/news-promotion-slider";
+import { ProjectGallery, type ProjectGalleryItem } from "@/components/project-gallery";
 import { findProject } from "@/data/projects";
 import { db } from "@/lib/db";
 
@@ -34,6 +35,8 @@ async function getProject(slug: string) {
     houseTypes: [] as RowDataPacket[],
     promotions: [] as RowDataPacket[],
     news: [] as RowDataPacket[],
+    heroMedia: [] as ProjectGalleryItem[],
+    galleryMedia: [] as ProjectGalleryItem[],
     settings: emptySettings,
   };
   try {
@@ -70,11 +73,18 @@ async function getProject(slug: string) {
         .then(([items]) => items),
       db()
         .execute<RowDataPacket[]>(
-          "SELECT id FROM media_assets WHERE entity_type='projects' AND entity_id=? AND media_kind='cover' LIMIT 1",
+          "SELECT id, media_kind, original_name, mime_type FROM media_assets WHERE entity_type='projects' AND entity_id=? AND media_kind IN ('cover', 'hero') ORDER BY FIELD(media_kind, 'cover', 'hero'), sort_order, created_at",
           [row.id],
         )
         .then(([items]) => items),
     ]);
+    const media = mediaRows.map((item) => ({
+      src: `/api/admin/media?entityType=projects&entityId=${row.id}&mediaKind=${item.media_kind}&mediaId=${item.id}`,
+      alt: String(item.original_name || `ภาพโครงการ ${row.name_th}`),
+      type: String(item.mime_type).startsWith("video/") ? ("video" as const) : ("image" as const),
+    }));
+    const heroMedia = media.filter((_, index) => mediaRows[index].media_kind === "hero");
+    const cover = media.find((_, index) => mediaRows[index].media_kind === "cover");
     return {
       id: String(row.id),
       slug: row.slug,
@@ -91,7 +101,9 @@ async function getProject(slug: string) {
       promotions: promotionRows,
       news: newsRows,
       settings: { ...emptySettings, ...(settingRows[0] ?? {}) },
-      coverUrl: mediaRows.length ? `/api/admin/media?entityType=projects&entityId=${row.id}` : null,
+      coverUrl: cover?.src ?? null,
+      heroMedia: heroMedia.length ? heroMedia : cover ? [cover] : [],
+      galleryMedia: media,
     };
   } catch {
     return fallbackData;
@@ -125,11 +137,10 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
             aria-label={`กลับหน้าหลัก MIDA จากโครงการ ${project.name}`}
             className="flex min-w-0 items-center gap-2 font-extrabold text-[#002D62]"
           >
-            <span className="grid size-7 shrink-0 place-items-center rounded-full bg-red-500 text-xs text-white">
-              M
+            <span className="grid size-8 shrink-0 place-items-center rounded-full bg-red-500 text-xs text-white">
+              {String(project.name).charAt(0).toUpperCase()}
             </span>
-            <span className="shrink-0">MIDA</span>
-            <span className="truncate border-l border-slate-300 pl-2 text-sm sm:text-base">{project.name}</span>
+            <span className="truncate text-sm sm:text-base">{project.name}</span>
           </Link>
           <nav className="hidden items-center gap-5 text-xs font-semibold text-slate-600 lg:flex">
             <a href="#overview" className="border-b-2 border-[#002D62] pb-1 text-[#002D62]">
@@ -147,21 +158,14 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           </a>
         </div>
       </header>
-      <section className="relative flex h-90 items-center justify-center overflow-hidden bg-[#001B3D] p-8 text-center text-white">
-        {project.coverUrl && <img src={project.coverUrl} alt="" className="absolute inset-0 size-full object-cover" />}
-        <div className="absolute inset-0 bg-linear-to-b from-black/20 to-black/70" />
-        <div className="relative z-10 max-w-2xl">
-          <h1 className="mt-4 text-3xl font-black tracking-tight md:text-5xl">{heroTitle}</h1>
-          <p className="mt-4 text-sm leading-7 text-white/90">{heroDescription}</p>
-          <p className="mt-5 text-lg font-extrabold text-[#f8c366]">ราคาเริ่มต้น {project.price}</p>
-        </div>
-      </section>
+      <HeroImageSlider
+        images={project.heroMedia}
+        title={heroTitle}
+        description={heroDescription}
+        meta={`ราคาเริ่มต้น ${project.price}`}
+      />
       <section id="overview" className="project-container grid gap-8 py-10 lg:grid-cols-2">
-        <div className="min-h-64 overflow-hidden rounded-2xl border border-slate-200 bg-[linear-gradient(135deg,#aec4ce,#eff4f4_50%,#698796)] shadow-sm">
-          {project.coverUrl && (
-            <img src={project.coverUrl} alt={`ภาพโครงการ ${project.name}`} className="size-full object-cover" />
-          )}
-        </div>
+        <ProjectGallery items={project.galleryMedia} />
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <h2 className="border-b border-slate-100 pb-3 text-base font-bold text-[#002D62]">
             <i className="fa-solid fa-star mr-2 text-[#f5a623]" />
