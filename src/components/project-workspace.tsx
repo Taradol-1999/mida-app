@@ -147,6 +147,8 @@ export function ProjectWorkspace({
   const [busy, setBusy] = useState(false);
   const [heroFiles, setHeroFiles] = useState<File[]>([]);
   const [heroImages, setHeroImages] = useState<{ id: string; name: string; mimeType: string; url: string }[]>([]);
+  const [houseTypeImage, setHouseTypeImage] = useState<File | null>(null);
+  const [existingHouseTypeImage, setExistingHouseTypeImage] = useState<string | null>(null);
   const [stats, setStats] = useState({ leads: 0, homes: 0, promos: 0, news: 0 });
   const load = useCallback(async () => {
     if (section === "dashboard") {
@@ -205,12 +207,30 @@ export function ProjectWorkspace({
         ),
       });
     const result = await response.json();
-    setBusy(false);
     if (!response.ok) {
       setMessage(result.message ?? "บันทึกไม่สำเร็จ");
+      setBusy(false);
       return;
     }
+    const savedId = editingId ?? String(result.id ?? "");
+    if (section === "house-types" && houseTypeImage && savedId) {
+      const upload = new FormData();
+      upload.set("entityType", "house-types");
+      upload.set("entityId", savedId);
+      upload.set("mediaKind", "cover");
+      upload.set("file", houseTypeImage);
+      const imageResponse = await fetch("/api/admin/media", { method: "POST", body: upload });
+      if (!imageResponse.ok) {
+        const imageResult = await imageResponse.json();
+        setMessage(imageResult.message ?? "บันทึกแบบบ้านแล้ว แต่อัปโหลดรูปไม่สำเร็จ");
+        setBusy(false);
+        return;
+      }
+    }
     setMessage("บันทึกข้อมูลเรียบร้อย");
+    setBusy(false);
+    setHouseTypeImage(null);
+    setExistingHouseTypeImage(null);
     if (!settingMode) {
       setEditingId(null);
       setForm(empty(fields));
@@ -262,7 +282,7 @@ export function ProjectWorkspace({
     );
     if (response.ok) setHeroImages((items) => items.filter((item) => item.id !== id));
   };
-  const edit = (row: Record<string, unknown>) => {
+  const edit = async (row: Record<string, unknown>) => {
     setEditingId(String(row.id));
     setForm(
       Object.fromEntries(
@@ -272,6 +292,12 @@ export function ProjectWorkspace({
         ]),
       ),
     );
+    setHouseTypeImage(null);
+    if (section === "house-types") {
+      const response = await fetch(`/api/admin/media?entityType=house-types&entityId=${row.id}&mediaKind=cover&list=1`);
+      const data = response.ok ? await response.json() : { rows: [] };
+      setExistingHouseTypeImage(data.rows?.[0]?.url ?? null);
+    }
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
   if (section === "dashboard")
@@ -463,6 +489,28 @@ export function ProjectWorkspace({
               </label>
             ))}
           </div>
+          {section === "house-types" && (
+            <div className="mt-5">
+              <p className="text-sm font-semibold text-slate-700">รูปแบบบ้าน</p>
+              <label className="mt-2 flex min-h-28 cursor-pointer items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-4 text-center text-sm font-semibold text-slate-400 hover:border-indigo-400 hover:bg-indigo-50">
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="sr-only"
+                  onChange={(event) => setHouseTypeImage(event.target.files?.[0] ?? null)}
+                />
+                {existingHouseTypeImage && !houseTypeImage ? (
+                  <img src={existingHouseTypeImage} alt="รูปแบบบ้านปัจจุบัน" className="h-32 w-full object-cover" />
+                ) : (
+                  <span>
+                    <i className="fa-solid fa-image mr-2 text-xl text-indigo-500" />
+                    {houseTypeImage ? houseTypeImage.name : "คลิกเพื่อเพิ่มหรือเปลี่ยนรูปแบบบ้าน"}
+                  </span>
+                )}
+              </label>
+              <p className="mt-2 text-xs text-slate-400">รองรับ JPG, PNG และ WEBP ขนาดไม่เกิน 5 MB</p>
+            </div>
+          )}
           {message && <p className="mt-4 rounded-lg bg-indigo-50 px-3 py-2 text-sm text-indigo-700">{message}</p>}
           <div className="mt-5 flex gap-3">
             <button
@@ -478,6 +526,8 @@ export function ProjectWorkspace({
                 onClick={() => {
                   setEditingId(null);
                   setForm(empty(fields));
+                  setHouseTypeImage(null);
+                  setExistingHouseTypeImage(null);
                 }}
                 className="text-sm font-semibold text-slate-500"
               >
@@ -493,7 +543,7 @@ export function ProjectWorkspace({
               <button
                 type="button"
                 key={String(row.id)}
-                onClick={() => edit(row)}
+                onClick={() => void edit(row)}
                 className="w-full rounded-xl border border-slate-100 p-3 text-left hover:border-indigo-200 hover:bg-indigo-50"
               >
                 <p className="font-bold text-slate-700">

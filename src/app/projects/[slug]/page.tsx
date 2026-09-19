@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { RowDataPacket } from "mysql2";
 import { notFound } from "next/navigation";
 import { HeroImageSlider } from "@/components/hero-image-slider";
+import { HouseTypeCarousel, type HouseTypeItem } from "@/components/house-type-carousel";
 import { LeadModal } from "@/components/lead-modal";
 import { NewsPromotionSlider, type NewsPromotionItem } from "@/components/news-promotion-slider";
 import { ProjectGallery, type ProjectGalleryItem } from "@/components/project-gallery";
@@ -52,7 +53,9 @@ async function getProject(slug: string) {
         .then(([items]) => items),
       db()
         .execute<RowDataPacket[]>(
-          "SELECT name, bedrooms, bathrooms, usable_area_sqm, starting_price FROM house_types WHERE project_id = ? ORDER BY starting_price",
+          `SELECT h.id, h.name, h.bedrooms, h.bathrooms, h.usable_area_sqm, h.starting_price,
+           (SELECT m.id FROM media_assets m WHERE m.entity_type='house-types' AND m.entity_id=h.id AND m.media_kind='cover' LIMIT 1) AS image_id
+           FROM house_types h WHERE h.project_id = ? ORDER BY h.starting_price`,
           [row.id],
         )
         .then(([items]) => items),
@@ -128,6 +131,17 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
     ),
     ...project.news.map((item) => ["NEWS / EVENT", String(item.title), String(item.body ?? "")] as NewsPromotionItem),
   ];
+  const houseTypeItems: HouseTypeItem[] = project.houseTypes.map((house) => ({
+    id: String(house.id),
+    name: String(house.name),
+    bedrooms: String(house.bedrooms ?? "-"),
+    bathrooms: String(house.bathrooms ?? "-"),
+    usableArea: String(house.usable_area_sqm ?? "-"),
+    startingPrice: Number(house.starting_price ?? 0),
+    imageUrl: house.image_id
+      ? `/api/admin/media?entityType=house-types&entityId=${house.id}&mediaKind=cover&mediaId=${house.image_id}`
+      : null,
+  }));
   return (
     <main className="bg-slate-50">
       <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
@@ -186,20 +200,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           <div className="project-container">
             <div className="gold-rule mb-3" />
             <h2 className="section-title">รูปแบบบ้านและราคาเริ่มต้น (House Types)</h2>
-            <div className="mt-7 grid gap-4 md:grid-cols-3">
-              {project.houseTypes.map((house) => (
-                <article key={house.name} className="rounded-2xl border border-slate-200 p-5">
-                  <h3 className="font-extrabold text-[#002D62]">{house.name}</h3>
-                  <p className="mt-3 text-sm text-slate-600">
-                    {house.bedrooms} ห้องนอน · {house.bathrooms} ห้องน้ำ
-                  </p>
-                  <p className="mt-2 text-sm text-slate-600">พื้นที่ใช้สอย {house.usable_area_sqm} ตร.ม.</p>
-                  <p className="mt-4 font-extrabold text-[#F5A623]">
-                    เริ่ม {Number(house.starting_price).toLocaleString("th-TH")} บาท
-                  </p>
-                </article>
-              ))}
-            </div>
+            <HouseTypeCarousel items={houseTypeItems} />
           </div>
         </section>
       )}

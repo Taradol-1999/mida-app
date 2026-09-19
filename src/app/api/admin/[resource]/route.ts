@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import bcrypt from "bcryptjs";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 import { NextResponse } from "next/server";
@@ -151,6 +152,7 @@ export async function POST(request: Request, context: RouteContext) {
   if ("error" in access) return access.error;
   const body = (await request.json()) as Record<string, unknown>;
   const pool = db();
+  let createdId: string | undefined;
   try {
     switch (access.resource) {
       case "projects":
@@ -172,9 +174,11 @@ export async function POST(request: Request, context: RouteContext) {
         );
         break;
       case "house-types":
+        createdId = randomUUID();
         await pool.execute(
-          "INSERT INTO house_types (id, project_id, name, bedrooms, bathrooms, usable_area_sqm, starting_price) VALUES (UUID(), ?, ?, ?, ?, ?, ?)",
+          "INSERT INTO house_types (id, project_id, name, bedrooms, bathrooms, usable_area_sqm, starting_price) VALUES (?, ?, ?, ?, ?, ?, ?)",
           [
+            createdId,
             value(body, "project_id"),
             value(body, "name"),
             numberValue(body, "bedrooms"),
@@ -246,7 +250,7 @@ export async function POST(request: Request, context: RouteContext) {
       case "leads":
         return apiError("รายชื่อผู้สนใจมาจากแบบฟอร์มหน้าเว็บไซต์", 405);
     }
-    return NextResponse.json({ ok: true }, { status: 201 });
+    return NextResponse.json({ ok: true, id: createdId }, { status: 201 });
   } catch {
     return apiError("บันทึกข้อมูลไม่สำเร็จ กรุณาตรวจสอบข้อมูลซ้ำหรือข้อมูลที่ซ้ำกัน", 400);
   }

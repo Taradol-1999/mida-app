@@ -51,7 +51,7 @@ export async function GET(request: Request) {
   const { entityType, entityId, mediaKind, list } = valid(request);
   if (!isEntityType(entityType) || !idSchema.safeParse(entityId).success || !isKind(mediaKind))
     return NextResponse.json({ message: "คำขอรูปภาพไม่ถูกต้อง" }, { status: 400 });
-  if (entityType !== "projects" && !(await authorise()))
+  if (entityType !== "projects" && entityType !== "house-types" && !(await authorise()))
     return NextResponse.json({ message: "กรุณาเข้าสู่ระบบด้วยสิทธิ์ผู้ดูแล" }, { status: 401 });
   const [rows] = await db().execute<RowDataPacket[]>(
     "SELECT id, original_name, mime_type, storage_key FROM media_assets WHERE entity_type=? AND entity_id=? AND media_kind=? ORDER BY sort_order, created_at",

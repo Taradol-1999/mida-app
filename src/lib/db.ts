@@ -1,10 +1,10 @@
 import mysql, { type Pool } from "mysql2/promise";
 
-let pool: Pool | undefined;
+const globalForDatabase = globalThis as typeof globalThis & { midaMysqlPool?: Pool };
 
 export function db() {
-  if (!pool) {
-    pool = mysql.createPool({
+  if (!globalForDatabase.midaMysqlPool) {
+    globalForDatabase.midaMysqlPool = mysql.createPool({
       host: process.env.DB_HOST ?? "127.0.0.1",
       port: Number(process.env.DB_PORT ?? 3306),
       user: process.env.DB_USER ?? "root",
@@ -14,5 +14,5 @@ export function db() {
       connectionLimit: 10,
     });
   }
-  return pool;
+  return globalForDatabase.midaMysqlPool;
 }
