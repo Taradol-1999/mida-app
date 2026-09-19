@@ -111,7 +111,7 @@ CREATE TABLE IF NOT EXISTS site_content (
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- Image files uploaded by administrators. Files are stored locally in public/uploads;
+-- Image files uploaded by administrators are stored in UPLOADS_DIRECTORY;
 -- MySQL keeps only their metadata and ownership, never an external URL.
 CREATE TABLE IF NOT EXISTS media_assets (
   id CHAR(36) PRIMARY KEY,

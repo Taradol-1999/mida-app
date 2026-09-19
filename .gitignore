@@ -34,3 +34,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Uploaded media is stored outside the repository via UPLOADS_DIRECTORY.
+/public/uploads/

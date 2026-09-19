@@ -24,7 +24,8 @@ const mimeExtensions: Record<string, string> = {
   "video/mp4": "mp4",
   "video/webm": "webm",
 };
-const uploadsDirectory = path.join(process.cwd(), "public", "uploads");
+const uploadsDirectory = path.resolve(process.env.UPLOADS_DIRECTORY || path.join(process.cwd(), "public", "uploads"));
+const storedFilePath = (storageKey: unknown) => path.join(uploadsDirectory, path.basename(String(storageKey)));
 function isEntityType(value: string): value is EntityType {
   return value in entities;
 }
@@ -70,7 +71,7 @@ export async function GET(request: Request) {
   const media = mediaId ? rows.find((row) => row.id === mediaId) : rows[0];
   if (!media) return NextResponse.json({ message: "ยังไม่มีรูปภาพ" }, { status: 404 });
   try {
-    const file = await readFile(path.join(process.cwd(), "public", String(media.storage_key)));
+    const file = await readFile(storedFilePath(media.storage_key));
     return new Response(file, {
       headers: { "Content-Type": String(media.mime_type), "Cache-Control": "public, max-age=3600" },
     });
@@ -109,7 +110,7 @@ export async function POST(request: Request) {
   const storageKey = `uploads/${randomUUID()}.${extension}`;
   try {
     await mkdir(uploadsDirectory, { recursive: true });
-    await writeFile(path.join(process.cwd(), "public", storageKey), Buffer.from(await file.arrayBuffer()));
+    await writeFile(storedFilePath(storageKey), Buffer.from(await file.arrayBuffer()));
     if (mediaKind === "cover") {
       const [oldRows] = await db().execute<RowDataPacket[]>(
         "SELECT storage_key FROM media_assets WHERE entity_type=? AND entity_id=? AND media_kind='cover' LIMIT 1",
@@ -119,8 +120,7 @@ export async function POST(request: Request) {
         entityType,
         entityId,
       ]);
-      if (oldRows[0]?.storage_key)
-        await unlink(path.join(process.cwd(), "public", String(oldRows[0].storage_key))).catch(() => undefined);
+      if (oldRows[0]?.storage_key) await unlink(storedFilePath(oldRows[0].storage_key)).catch(() => undefined);
     }
     await db().execute(
       "INSERT INTO media_assets (id, entity_type, entity_id, media_kind, original_name, mime_type, file_size, storage_key, sort_order) VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, (SELECT COALESCE(MAX(sort_order), -1) + 1 FROM (SELECT sort_order FROM media_assets WHERE entity_type=? AND entity_id=? AND media_kind=?) AS ordered_media))",
@@ -160,6 +160,6 @@ export async function DELETE(request: Request) {
   );
   if (!rows[0]) return NextResponse.json({ message: "ไม่พบรูปภาพ" }, { status: 404 });
   await db().execute("DELETE FROM media_assets WHERE id=?", [mediaId]);
-  await unlink(path.join(process.cwd(), "public", String(rows[0].storage_key))).catch(() => undefined);
+  await unlink(storedFilePath(rows[0].storage_key)).catch(() => undefined);
   return NextResponse.json({ ok: true });
 }
