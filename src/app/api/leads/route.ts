@@ -14,9 +14,12 @@ export async function POST(request: Request) {
   const parsed = leadSchema.safeParse(await request.json());
   if (!parsed.success) return NextResponse.json({ message: "กรุณาตรวจสอบข้อมูลที่กรอก" }, { status: 400 });
   const value = parsed.data;
-  await db().execute(
-    "INSERT INTO leads (id, project_id, name, phone, email, budget) VALUES (UUID(), ?, ?, ?, ?, ?)",
-    [value.projectId ?? null, value.name, value.phone, value.email || null, value.budget ?? null],
-  );
+  await db().execute("INSERT INTO leads (id, project_id, name, phone, email, budget) VALUES (UUID(), ?, ?, ?, ?, ?)", [
+    value.projectId ?? null,
+    value.name,
+    value.phone,
+    value.email || null,
+    value.budget ?? null,
+  ]);
   return NextResponse.json({ ok: true }, { status: 201 });
 }

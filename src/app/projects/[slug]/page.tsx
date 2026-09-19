@@ -7,39 +7,258 @@ import { findProject } from "@/data/projects";
 import { db } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
-const emptySettings = { hero_title_th: null, hero_subtitle_th: null, phone: null, email: null, map_url: null, nearby_places_th: null };
-const projectType = (value: string) => value === "TOWNHOME" ? "ทาวน์โฮม" : value === "SEMI_DETACHED" ? "บ้านแฝด" : value === "COMMERCIAL" ? "อาคารพาณิชย์" : "บ้านเดี่ยว";
+const emptySettings = {
+  hero_title_th: null,
+  hero_subtitle_th: null,
+  phone: null,
+  email: null,
+  map_url: null,
+  nearby_places_th: null,
+};
+const projectType = (value: string) =>
+  value === "TOWNHOME"
+    ? "ทาวน์โฮม"
+    : value === "SEMI_DETACHED"
+      ? "บ้านแฝด"
+      : value === "COMMERCIAL"
+        ? "อาคารพาณิชย์"
+        : "บ้านเดี่ยว";
 
 async function getProject(slug: string) {
   const fallback = findProject(slug);
-  const fallbackData = fallback && { ...fallback, id: null, coverUrl: null, houseTypes: [] as RowDataPacket[], promotions: [] as RowDataPacket[], news: [] as RowDataPacket[], settings: emptySettings };
+  const fallbackData = fallback && {
+    ...fallback,
+    id: null,
+    coverUrl: null,
+    houseTypes: [] as RowDataPacket[],
+    promotions: [] as RowDataPacket[],
+    news: [] as RowDataPacket[],
+    settings: emptySettings,
+  };
   try {
-    const [rows] = await db().execute<RowDataPacket[]>("SELECT * FROM projects WHERE slug = ? AND status <> 'ARCHIVED' LIMIT 1", [slug]);
+    const [rows] = await db().execute<RowDataPacket[]>(
+      "SELECT * FROM projects WHERE slug = ? AND status <> 'ARCHIVED' LIMIT 1",
+      [slug],
+    );
     const row = rows[0];
     if (!row) return fallbackData;
     const [facilityRows, houseTypeRows, promotionRows, newsRows, settingRows, mediaRows] = await Promise.all([
-      db().execute<RowDataPacket[]>("SELECT name FROM facilities WHERE project_id = ? ORDER BY sort_order", [row.id]).then(([items]) => items),
-      db().execute<RowDataPacket[]>("SELECT name, bedrooms, bathrooms, usable_area_sqm, starting_price FROM house_types WHERE project_id = ? ORDER BY starting_price", [row.id]).then(([items]) => items),
-      db().execute<RowDataPacket[]>("SELECT title, body FROM promotions WHERE project_id = ? AND is_published=TRUE ORDER BY created_at DESC", [row.id]).then(([items]) => items),
-      db().execute<RowDataPacket[]>("SELECT title, body, published_at FROM news_items WHERE project_id = ? AND is_published=TRUE ORDER BY published_at DESC", [row.id]).then(([items]) => items),
-      db().execute<RowDataPacket[]>("SELECT * FROM project_settings WHERE project_id = ? LIMIT 1", [row.id]).then(([items]) => items),
-      db().execute<RowDataPacket[]>("SELECT id FROM media_assets WHERE entity_type='projects' AND entity_id=? AND media_kind='cover' LIMIT 1", [row.id]).then(([items]) => items),
+      db()
+        .execute<RowDataPacket[]>("SELECT name FROM facilities WHERE project_id = ? ORDER BY sort_order", [row.id])
+        .then(([items]) => items),
+      db()
+        .execute<RowDataPacket[]>(
+          "SELECT name, bedrooms, bathrooms, usable_area_sqm, starting_price FROM house_types WHERE project_id = ? ORDER BY starting_price",
+          [row.id],
+        )
+        .then(([items]) => items),
+      db()
+        .execute<RowDataPacket[]>(
+          "SELECT title, body FROM promotions WHERE project_id = ? AND is_published=TRUE ORDER BY created_at DESC",
+          [row.id],
+        )
+        .then(([items]) => items),
+      db()
+        .execute<RowDataPacket[]>(
+          "SELECT title, body, published_at FROM news_items WHERE project_id = ? AND is_published=TRUE ORDER BY published_at DESC",
+          [row.id],
+        )
+        .then(([items]) => items),
+      db()
+        .execute<RowDataPacket[]>("SELECT * FROM project_settings WHERE project_id = ? LIMIT 1", [row.id])
+        .then(([items]) => items),
+      db()
+        .execute<RowDataPacket[]>(
+          "SELECT id FROM media_assets WHERE entity_type='projects' AND entity_id=? AND media_kind='cover' LIMIT 1",
+          [row.id],
+        )
+        .then(([items]) => items),
     ]);
-    return { id: String(row.id), slug: row.slug, name: row.name_th, location: row.location, type: projectType(row.property_type), price: `${(Number(row.starting_price) / 1000000).toLocaleString("th-TH", { maximumFractionDigits: 3 })} ล้านบาท*`, status: row.status === "READY" ? "พร้อมอยู่" : "กำลังก่อสร้าง", label: "MIDA PROPERTY", description: row.description ?? "", facilities: facilityRows.map((facility) => facility.name), landmarks: fallback?.landmarks ?? ["โปรดเพิ่มสถานที่ใกล้เคียงจากหลังบ้าน"], houseTypes: houseTypeRows, promotions: promotionRows, news: newsRows, settings: { ...emptySettings, ...(settingRows[0] ?? {}) }, coverUrl: mediaRows.length ? `/api/admin/media?entityType=projects&entityId=${row.id}` : null };
-  } catch { return fallbackData; }
+    return {
+      id: String(row.id),
+      slug: row.slug,
+      name: row.name_th,
+      location: row.location,
+      type: projectType(row.property_type),
+      price: `${(Number(row.starting_price) / 1000000).toLocaleString("th-TH", { maximumFractionDigits: 3 })} ล้านบาท*`,
+      status: row.status === "READY" ? "พร้อมอยู่" : "กำลังก่อสร้าง",
+      label: "MIDA PROPERTY",
+      description: row.description ?? "",
+      facilities: facilityRows.map((facility) => facility.name),
+      landmarks: fallback?.landmarks ?? ["โปรดเพิ่มสถานที่ใกล้เคียงจากหลังบ้าน"],
+      houseTypes: houseTypeRows,
+      promotions: promotionRows,
+      news: newsRows,
+      settings: { ...emptySettings, ...(settingRows[0] ?? {}) },
+      coverUrl: mediaRows.length ? `/api/admin/media?entityType=projects&entityId=${row.id}` : null,
+    };
+  } catch {
+    return fallbackData;
+  }
 }
 
 export default async function ProjectPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params; const project = await getProject(slug); if (!project) notFound();
+  const { slug } = await params;
+  const project = await getProject(slug);
+  if (!project) notFound();
   const heroTitle = project.settings.hero_title_th || project.name;
   const heroDescription = project.settings.hero_subtitle_th || project.description;
-  const landmarks = project.settings.nearby_places_th ? String(project.settings.nearby_places_th).split("\n").map((item) => item.trim()).filter(Boolean) : project.landmarks;
-  return <main className="bg-slate-50"><header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur"><div className="container-page flex min-h-18 items-center justify-between gap-4"><Link href="/" className="flex items-center gap-2 font-extrabold text-[#002D62]"><span className="grid size-7 place-items-center rounded-full bg-red-500 text-xs text-white">M</span>MIDA PROJECT SITE <span className="hidden text-xs font-normal text-slate-400 sm:inline">| เฉพาะโครงการ</span></Link><nav className="hidden items-center gap-5 text-xs font-semibold text-slate-600 lg:flex"><a href="#overview" className="border-b-2 border-[#002D62] pb-1 text-[#002D62]">หน้าหลักโครงการ</a><a href="#project-promo-news" className="hover:text-[#002D62]">โปรโมชั่น ข่าวสาร & กิจกรรม</a><a href="#map" className="hover:text-[#002D62]">ติดต่อโครงการ</a></nav><a href="#register" className="rounded-lg bg-[#002D62] px-3 py-2 text-xs font-bold text-white">นัดชมโครงการ</a></div></header>
-    <section className="relative flex h-[360px] items-center justify-center overflow-hidden bg-[#001B3D] p-8 text-center text-white">{project.coverUrl && <img src={project.coverUrl} alt="" className="absolute inset-0 size-full object-cover" />}<div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/70" /><div className="relative z-10 max-w-2xl"><p className="inline-block rounded-md bg-red-500 px-3 py-1 text-[10px] font-black tracking-widest">PREMIUM RESIDENCES</p><h1 className="mt-4 text-3xl font-black tracking-tight md:text-5xl">{heroTitle}</h1><p className="mt-4 text-sm leading-7 text-white/90">{heroDescription}</p><p className="mt-5 text-lg font-extrabold text-[#f8c366]">ราคาเริ่มต้น {project.price}</p></div></section>
-    <section id="overview" className="container-page grid gap-6 py-8 lg:grid-cols-2"><div className="min-h-64 overflow-hidden rounded-2xl border border-slate-200 bg-[linear-gradient(135deg,#aec4ce,#eff4f4_50%,#698796)] shadow-sm">{project.coverUrl && <img src={project.coverUrl} alt={`ภาพโครงการ ${project.name}`} className="size-full object-cover" />}</div><div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"><h2 className="border-b border-slate-100 pb-3 text-base font-bold text-[#002D62]"><i className="fa-solid fa-star mr-2 text-[#f5a623]" />สิ่งอำนวยความสะดวกในโครงการ</h2><div className="mt-4 grid gap-2 text-sm text-slate-600 sm:grid-cols-2">{project.facilities.map((item) => <div key={item} className="rounded-lg bg-slate-50 p-3"><i className="fa-solid fa-circle-check mr-2 text-[#002D62]" />{item}</div>)}</div></div></section>
-    {project.houseTypes.length > 0 && <section className="bg-white py-16"><div className="container-page"><div className="gold-rule mb-3" /><h2 className="section-title">แบบบ้าน</h2><div className="mt-7 grid gap-4 md:grid-cols-3">{project.houseTypes.map((house) => <article key={house.name} className="rounded-2xl border border-slate-200 p-5"><h3 className="font-extrabold text-[#002D62]">{house.name}</h3><p className="mt-3 text-sm text-slate-600">{house.bedrooms} ห้องนอน · {house.bathrooms} ห้องน้ำ</p><p className="mt-2 text-sm text-slate-600">พื้นที่ใช้สอย {house.usable_area_sqm} ตร.ม.</p><p className="mt-4 font-extrabold text-[#F5A623]">เริ่ม {Number(house.starting_price).toLocaleString("th-TH")} บาท</p></article>)}</div></div></section>}
-    {(project.promotions.length > 0 || project.news.length > 0) && <section id="project-promo-news" className="container-page py-12"><div className="rounded-2xl border border-red-100 bg-red-50/60 p-6"><h2 className="text-lg font-bold text-red-800"><i className="fa-solid fa-fire mr-2" />โปรโมชั่น ข่าวสาร & กิจกรรมพิเศษ</h2><div className="mt-5 grid gap-4 md:grid-cols-2">{project.promotions.map((promotion) => <article key={promotion.title} className="rounded-xl border border-red-100 bg-white p-5"><p className="text-xs font-bold text-red-600">PROMOTION</p><h3 className="mt-2 font-extrabold text-[#002D62]">{promotion.title}</h3><p className="mt-2 text-sm leading-6 text-slate-600">{promotion.body}</p></article>)}{project.news.map((item) => <article key={item.title} className="rounded-xl border border-red-100 bg-white p-5"><p className="text-xs font-bold text-blue-600">NEWS / EVENT</p><h3 className="mt-2 font-extrabold text-[#002D62]">{item.title}</h3><p className="mt-2 text-sm leading-6 text-slate-600">{item.body}</p></article>)}</div></div></section>}
-    <section id="map" className="bg-white py-16"><div className="container-page"><h2 className="section-title">แผนที่และสถานที่ใกล้เคียง</h2><p className="mt-2 text-slate-500">ข้อมูลติดต่อและสถานที่ใกล้เคียงที่ตั้งค่าจากหลังบ้าน</p><div className="mt-7 grid gap-6 lg:grid-cols-[1.35fr_.65fr]"><div className="grid min-h-96 place-items-center rounded-2xl border-8 border-white bg-[linear-gradient(125deg,#9bb3bd_2%,#e9f0ee_2%_5%,#bdcfce_5%_8%,#f7f3df_8%_10%,#a8c0be_10%_14%,#e9eef0_14%)] shadow-inner"><div className="rounded-xl bg-[#002D62] px-5 py-3 text-center font-bold text-white shadow-xl">{project.name}<br /><span className="text-xs font-normal text-[#f8c366]">{project.location}</span>{project.settings.map_url && <a href={String(project.settings.map_url)} target="_blank" rel="noreferrer" className="mt-3 block text-xs underline">เปิด Google Maps</a>}</div></div><aside className="rounded-2xl bg-[#f5f7fa] p-6"><h3 className="font-extrabold text-[#002D62]">สถานที่ใกล้เคียง</h3><ul className="mt-4 space-y-3 text-sm text-slate-600">{landmarks.map((landmark) => <li key={landmark} className="border-b border-slate-200 pb-3">{landmark}</li>)}</ul></aside></div></div></section>
-    <section id="register" className="container-page py-16 text-center"><h2 className="section-title">รับข้อเสนอพิเศษ</h2><p className="mt-3 text-slate-500">ลงทะเบียนเพื่อรับข้อมูลโครงการและนัดหมายเข้าชม</p>{project.settings.phone && <p className="mt-3 font-bold text-[#002D62]">โทร {project.settings.phone}</p>}{project.settings.email && <p className="mt-1 text-sm text-slate-500">{project.settings.email}</p>}<p className="mt-3 text-xs text-slate-400">* ราคาและรายละเอียดเป็นข้อมูลจำลอง โปรดตรวจสอบกับฝ่ายขายก่อนตัดสินใจ</p></section><LeadModal />
-  </main>;
+  const landmarks = project.settings.nearby_places_th
+    ? String(project.settings.nearby_places_th)
+        .split("\n")
+        .map((item) => item.trim())
+        .filter(Boolean)
+    : project.landmarks;
+  return (
+    <main className="bg-slate-50">
+      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
+        <div className="container-page flex min-h-18 items-center justify-between gap-4">
+          <Link href="/" className="flex items-center gap-2 font-extrabold text-[#002D62]">
+            <span className="grid size-7 place-items-center rounded-full bg-red-500 text-xs text-white">M</span>MIDA
+            PROJECT SITE <span className="hidden text-xs font-normal text-slate-400 sm:inline">| เฉพาะโครงการ</span>
+          </Link>
+          <nav className="hidden items-center gap-5 text-xs font-semibold text-slate-600 lg:flex">
+            <a href="#overview" className="border-b-2 border-[#002D62] pb-1 text-[#002D62]">
+              หน้าหลักโครงการ
+            </a>
+            <a href="#project-promo-news" className="hover:text-[#002D62]">
+              โปรโมชั่น ข่าวสาร & กิจกรรม
+            </a>
+            <a href="#map" className="hover:text-[#002D62]">
+              ติดต่อโครงการ
+            </a>
+          </nav>
+          <a href="#register" className="rounded-lg bg-[#002D62] px-3 py-2 text-xs font-bold text-white">
+            นัดชมโครงการ
+          </a>
+        </div>
+      </header>
+      <section className="relative flex h-[360px] items-center justify-center overflow-hidden bg-[#001B3D] p-8 text-center text-white">
+        {project.coverUrl && <img src={project.coverUrl} alt="" className="absolute inset-0 size-full object-cover" />}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/70" />
+        <div className="relative z-10 max-w-2xl">
+          <p className="inline-block rounded-md bg-red-500 px-3 py-1 text-[10px] font-black tracking-widest">
+            PREMIUM RESIDENCES
+          </p>
+          <h1 className="mt-4 text-3xl font-black tracking-tight md:text-5xl">{heroTitle}</h1>
+          <p className="mt-4 text-sm leading-7 text-white/90">{heroDescription}</p>
+          <p className="mt-5 text-lg font-extrabold text-[#f8c366]">ราคาเริ่มต้น {project.price}</p>
+        </div>
+      </section>
+      <section id="overview" className="container-page grid gap-6 py-8 lg:grid-cols-2">
+        <div className="min-h-64 overflow-hidden rounded-2xl border border-slate-200 bg-[linear-gradient(135deg,#aec4ce,#eff4f4_50%,#698796)] shadow-sm">
+          {project.coverUrl && (
+            <img src={project.coverUrl} alt={`ภาพโครงการ ${project.name}`} className="size-full object-cover" />
+          )}
+        </div>
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="border-b border-slate-100 pb-3 text-base font-bold text-[#002D62]">
+            <i className="fa-solid fa-star mr-2 text-[#f5a623]" />
+            สิ่งอำนวยความสะดวกในโครงการ
+          </h2>
+          <div className="mt-4 grid gap-2 text-sm text-slate-600 sm:grid-cols-2">
+            {project.facilities.map((item) => (
+              <div key={item} className="rounded-lg bg-slate-50 p-3">
+                <i className="fa-solid fa-circle-check mr-2 text-[#002D62]" />
+                {item}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+      {project.houseTypes.length > 0 && (
+        <section className="bg-white py-16">
+          <div className="container-page">
+            <div className="gold-rule mb-3" />
+            <h2 className="section-title">แบบบ้าน</h2>
+            <div className="mt-7 grid gap-4 md:grid-cols-3">
+              {project.houseTypes.map((house) => (
+                <article key={house.name} className="rounded-2xl border border-slate-200 p-5">
+                  <h3 className="font-extrabold text-[#002D62]">{house.name}</h3>
+                  <p className="mt-3 text-sm text-slate-600">
+                    {house.bedrooms} ห้องนอน · {house.bathrooms} ห้องน้ำ
+                  </p>
+                  <p className="mt-2 text-sm text-slate-600">พื้นที่ใช้สอย {house.usable_area_sqm} ตร.ม.</p>
+                  <p className="mt-4 font-extrabold text-[#F5A623]">
+                    เริ่ม {Number(house.starting_price).toLocaleString("th-TH")} บาท
+                  </p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+      {(project.promotions.length > 0 || project.news.length > 0) && (
+        <section id="project-promo-news" className="container-page py-12">
+          <div className="rounded-2xl border border-red-100 bg-red-50/60 p-6">
+            <h2 className="text-lg font-bold text-red-800">
+              <i className="fa-solid fa-fire mr-2" />
+              โปรโมชั่น ข่าวสาร & กิจกรรมพิเศษ
+            </h2>
+            <div className="mt-5 grid gap-4 md:grid-cols-2">
+              {project.promotions.map((promotion) => (
+                <article key={promotion.title} className="rounded-xl border border-red-100 bg-white p-5">
+                  <p className="text-xs font-bold text-red-600">PROMOTION</p>
+                  <h3 className="mt-2 font-extrabold text-[#002D62]">{promotion.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">{promotion.body}</p>
+                </article>
+              ))}
+              {project.news.map((item) => (
+                <article key={item.title} className="rounded-xl border border-red-100 bg-white p-5">
+                  <p className="text-xs font-bold text-blue-600">NEWS / EVENT</p>
+                  <h3 className="mt-2 font-extrabold text-[#002D62]">{item.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">{item.body}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+      <section id="map" className="bg-white py-16">
+        <div className="container-page">
+          <h2 className="section-title">แผนที่และสถานที่ใกล้เคียง</h2>
+          <p className="mt-2 text-slate-500">ข้อมูลติดต่อและสถานที่ใกล้เคียงที่ตั้งค่าจากหลังบ้าน</p>
+          <div className="mt-7 grid gap-6 lg:grid-cols-[1.35fr_.65fr]">
+            <div className="grid min-h-96 place-items-center rounded-2xl border-8 border-white bg-[linear-gradient(125deg,#9bb3bd_2%,#e9f0ee_2%_5%,#bdcfce_5%_8%,#f7f3df_8%_10%,#a8c0be_10%_14%,#e9eef0_14%)] shadow-inner">
+              <div className="rounded-xl bg-[#002D62] px-5 py-3 text-center font-bold text-white shadow-xl">
+                {project.name}
+                <br />
+                <span className="text-xs font-normal text-[#f8c366]">{project.location}</span>
+                {project.settings.map_url && (
+                  <a
+                    href={String(project.settings.map_url)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-3 block text-xs underline"
+                  >
+                    เปิด Google Maps
+                  </a>
+                )}
+              </div>
+            </div>
+            <aside className="rounded-2xl bg-[#f5f7fa] p-6">
+              <h3 className="font-extrabold text-[#002D62]">สถานที่ใกล้เคียง</h3>
+              <ul className="mt-4 space-y-3 text-sm text-slate-600">
+                {landmarks.map((landmark) => (
+                  <li key={landmark} className="border-b border-slate-200 pb-3">
+                    {landmark}
+                  </li>
+                ))}
+              </ul>
+            </aside>
+          </div>
+        </div>
+      </section>
+      <section id="register" className="container-page py-16 text-center">
+        <h2 className="section-title">รับข้อเสนอพิเศษ</h2>
+        <p className="mt-3 text-slate-500">ลงทะเบียนเพื่อรับข้อมูลโครงการและนัดหมายเข้าชม</p>
+        {project.settings.phone && <p className="mt-3 font-bold text-[#002D62]">โทร {project.settings.phone}</p>}
+        {project.settings.email && <p className="mt-1 text-sm text-slate-500">{project.settings.email}</p>}
+        <p className="mt-3 text-xs text-slate-400">
+          * ราคาและรายละเอียดเป็นข้อมูลจำลอง โปรดตรวจสอบกับฝ่ายขายก่อนตัดสินใจ
+        </p>
+      </section>
+      <LeadModal />
+    </main>
+  );
 }

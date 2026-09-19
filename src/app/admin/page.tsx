@@ -10,23 +10,216 @@ async function dashboardData() {
     const pool = db();
     const [leadRows, projectRows, publishedRows, viewRows, averageRows, recentRows, byProjectRows] = await Promise.all([
       pool.query<RowDataPacket[]>("SELECT COUNT(*) AS total FROM leads").then(([rows]) => rows),
-      pool.query<RowDataPacket[]>("SELECT COUNT(*) AS total FROM projects WHERE status <> 'ARCHIVED'").then(([rows]) => rows),
-      pool.query<RowDataPacket[]>("SELECT (SELECT COUNT(*) FROM promotions WHERE is_published=TRUE) + (SELECT COUNT(*) FROM news_items WHERE is_published=TRUE) AS total").then(([rows]) => rows),
+      pool
+        .query<RowDataPacket[]>("SELECT COUNT(*) AS total FROM projects WHERE status <> 'ARCHIVED'")
+        .then(([rows]) => rows),
+      pool
+        .query<RowDataPacket[]>(
+          "SELECT (SELECT COUNT(*) FROM promotions WHERE is_published=TRUE) + (SELECT COUNT(*) FROM news_items WHERE is_published=TRUE) AS total",
+        )
+        .then(([rows]) => rows),
       pool.query<RowDataPacket[]>("SELECT COUNT(*) AS total FROM page_views").then(([rows]) => rows),
-      pool.query<RowDataPacket[]>("SELECT COALESCE(ROUND(AVG(duration_seconds)), 0) AS seconds FROM page_views WHERE duration_seconds IS NOT NULL").then(([rows]) => rows),
-      pool.query<RowDataPacket[]>("SELECT l.name, l.phone, l.status, l.created_at, p.name_th AS project_name FROM leads l LEFT JOIN projects p ON p.id=l.project_id ORDER BY l.created_at DESC LIMIT 5").then(([rows]) => rows),
-      pool.query<RowDataPacket[]>("SELECT COALESCE(p.name_th, 'เว็บไซต์กลาง') AS name, COUNT(l.id) AS total FROM leads l LEFT JOIN projects p ON p.id=l.project_id GROUP BY p.id, p.name_th ORDER BY total DESC LIMIT 5").then(([rows]) => rows),
+      pool
+        .query<RowDataPacket[]>(
+          "SELECT COALESCE(ROUND(AVG(duration_seconds)), 0) AS seconds FROM page_views WHERE duration_seconds IS NOT NULL",
+        )
+        .then(([rows]) => rows),
+      pool
+        .query<RowDataPacket[]>(
+          "SELECT l.name, l.phone, l.status, l.created_at, p.name_th AS project_name FROM leads l LEFT JOIN projects p ON p.id=l.project_id ORDER BY l.created_at DESC LIMIT 5",
+        )
+        .then(([rows]) => rows),
+      pool
+        .query<RowDataPacket[]>(
+          "SELECT COALESCE(p.name_th, 'เว็บไซต์กลาง') AS name, COUNT(l.id) AS total FROM leads l LEFT JOIN projects p ON p.id=l.project_id GROUP BY p.id, p.name_th ORDER BY total DESC LIMIT 5",
+        )
+        .then(([rows]) => rows),
     ]);
-    return { leads: Number(leadRows[0].total), projects: Number(projectRows[0].total), published: Number(publishedRows[0].total), views: Number(viewRows[0].total), seconds: Number(averageRows[0].seconds), recent: recentRows, byProject: byProjectRows };
-  } catch { return { leads: 0, projects: 0, published: 0, views: 0, seconds: 0, recent: [] as RowDataPacket[], byProject: [] as RowDataPacket[] }; }
+    return {
+      leads: Number(leadRows[0].total),
+      projects: Number(projectRows[0].total),
+      published: Number(publishedRows[0].total),
+      views: Number(viewRows[0].total),
+      seconds: Number(averageRows[0].seconds),
+      recent: recentRows,
+      byProject: byProjectRows,
+    };
+  } catch {
+    return {
+      leads: 0,
+      projects: 0,
+      published: 0,
+      views: 0,
+      seconds: 0,
+      recent: [] as RowDataPacket[],
+      byProject: [] as RowDataPacket[],
+    };
+  }
 }
 
-function duration(seconds: number) { return `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`; }
-function statusClass(status: string) { return status === "CONTACTED" || status === "CLOSED" ? "bg-emerald-100 text-emerald-700" : status === "QUALIFIED" ? "bg-indigo-100 text-indigo-700" : "bg-amber-100 text-amber-800"; }
+function duration(seconds: number) {
+  return `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
+}
+function statusClass(status: string) {
+  return status === "CONTACTED" || status === "CLOSED"
+    ? "bg-emerald-100 text-emerald-700"
+    : status === "QUALIFIED"
+      ? "bg-indigo-100 text-indigo-700"
+      : "bg-amber-100 text-amber-800";
+}
 
 export default async function AdminPage() {
   const data = await dashboardData();
-  const metrics: Metric[] = [{ label: "จำนวนการเข้าชมเว็บรวม", value: formatNumber(data.views), note: "ครั้ง", tone: "text-purple-700" }, { label: "ข้อมูลเฉลี่ยเวลาเข้าชม", value: duration(data.seconds), note: "นาที", tone: "text-purple-700" }, { label: "จำนวนผู้ลงทะเบียน", value: formatNumber(data.leads), note: "รายชื่อ", tone: "text-emerald-700" }];
+  const metrics: Metric[] = [
+    { label: "จำนวนการเข้าชมเว็บรวม", value: formatNumber(data.views), note: "ครั้ง", tone: "text-purple-700" },
+    { label: "ข้อมูลเฉลี่ยเวลาเข้าชม", value: duration(data.seconds), note: "นาที", tone: "text-purple-700" },
+    { label: "จำนวนผู้ลงทะเบียน", value: formatNumber(data.leads), note: "รายชื่อ", tone: "text-emerald-700" },
+  ];
   const maxLeads = Math.max(...data.byProject.map((row) => Number(row.total)), 1);
-  return <><header className="flex flex-col gap-4 border-b border-slate-200 pb-5 sm:flex-row sm:items-start sm:justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-indigo-500">Dashboard MD</p><h1 className="mt-1 text-xl font-bold text-slate-800">Dashboard MD <span className="font-normal text-slate-400">(ข้อมูลโดยรวมเว็บไซต์บริษัท)</span></h1></div><div className="flex flex-wrap items-center gap-2"><select className="rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-700"><option>เดือนปัจจุบัน</option></select><select className="rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-700"><option>2569</option></select><Link href="/api/admin/leads?format=csv" className="rounded-lg bg-purple-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-purple-700">⇩ สร้างรายงาน Leads</Link></div></header><div className="mt-6 grid gap-6 xl:grid-cols-[18rem_1fr]"><aside className="grid gap-4 sm:grid-cols-3 xl:grid-cols-1">{metrics.map((metric) => <section key={metric.label} className="rounded-2xl border border-purple-200 bg-purple-50 p-5 shadow-sm"><p className="text-xs font-bold uppercase tracking-wide text-purple-600">{metric.label}</p><p className={`mt-2 text-2xl font-bold ${metric.tone}`}>{metric.value} <span className="text-xs font-normal text-slate-500">{metric.note}</span></p></section>)}<section className="rounded-2xl border border-purple-200 bg-purple-50 p-5 shadow-sm"><p className="text-xs font-bold uppercase tracking-wide text-purple-600">โซเชียลมีเดียยอดนิยม</p><div className="mt-3 space-y-2 text-sm font-semibold text-slate-700"><p>1. Facebook <span className="float-right text-slate-400">55%</span></p><p>2. TikTok <span className="float-right text-slate-400">30%</span></p><p>3. LINE <span className="float-right text-slate-400">15%</span></p></div></section></aside><div className="grid gap-6 md:grid-cols-2"><section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><h2 className="text-sm font-bold text-slate-700">◉ จำนวนการลงทะเบียนทุกโครงการ</h2><div className="mt-5 space-y-3">{data.byProject.length ? data.byProject.map((row) => <div key={String(row.name)}><div className="mb-1 flex justify-between text-xs text-slate-500"><span className="truncate pr-3">{row.name}</span><span>{row.total}</span></div><div className="h-2 rounded-full bg-slate-100"><div className="h-2 rounded-full bg-indigo-500" style={{ width: `${(Number(row.total) / maxLeads) * 100}%` }} /></div></div>) : <p className="grid h-38 place-items-center rounded-xl bg-slate-50 text-sm text-slate-400">รอข้อมูลจากแบบฟอร์มลงทะเบียน</p>}</div></section><section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><h2 className="text-sm font-bold text-slate-700">▥ ภาพรวมเนื้อหาบนเว็บไซต์</h2><div className="mt-5 grid grid-cols-3 gap-3"><Link href="/admin/projects" className="rounded-xl bg-indigo-50 p-4 text-center"><b className="block text-2xl text-indigo-700">{data.projects}</b><span className="text-xs text-slate-500">โครงการ</span></Link><Link href="/admin/promotions" className="rounded-xl bg-purple-50 p-4 text-center"><b className="block text-2xl text-purple-700">{data.published}</b><span className="text-xs text-slate-500">เผยแพร่</span></Link><Link href="/admin/leads" className="rounded-xl bg-emerald-50 p-4 text-center"><b className="block text-2xl text-emerald-700">{data.leads}</b><span className="text-xs text-slate-500">Leads</span></Link></div><p className="mt-5 rounded-xl bg-slate-50 p-4 text-xs leading-5 text-slate-500">ข้อมูลการเข้าชมจะเพิ่มขึ้นเมื่อเชื่อมต่อระบบ Analytics หรือส่งข้อมูลเข้า `page_views`</p></section><section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:col-span-2"><div className="flex items-center justify-between"><div><h2 className="text-sm font-bold text-slate-700">▣ รายชื่อผู้ลงทะเบียนล่าสุด</h2><p className="mt-1 text-xs text-slate-400">ข้อมูลจริงจากแบบฟอร์มหน้าเว็บไซต์</p></div><Link href="/admin/leads" className="text-xs font-bold text-indigo-600 hover:underline">ดูทั้งหมด →</Link></div><div className="mt-4 overflow-x-auto"><table className="w-full min-w-150 text-left text-xs"><thead className="border-b border-slate-200 bg-slate-50 uppercase text-slate-500"><tr><th className="p-3">วันที่</th><th className="p-3">ชื่อ-นามสกุล</th><th className="p-3">โครงการ</th><th className="p-3">โทรศัพท์</th><th className="p-3">สถานะติดตาม</th></tr></thead><tbody className="divide-y divide-slate-100">{data.recent.length ? data.recent.map((lead) => <tr key={`${lead.name}-${lead.created_at}`}><td className="p-3 text-slate-500">{new Date(lead.created_at).toLocaleDateString("th-TH")}</td><td className="p-3 font-semibold text-slate-700">{lead.name}</td><td className="p-3 text-slate-600">{lead.project_name ?? "เว็บไซต์กลาง"}</td><td className="p-3 text-slate-600">{lead.phone}</td><td className="p-3"><span className={`rounded px-2 py-1 font-bold ${statusClass(String(lead.status))}`}>{lead.status}</span></td></tr>) : <tr><td colSpan={5} className="p-10 text-center text-slate-400">ยังไม่มีข้อมูลผู้ลงทะเบียน</td></tr>}</tbody></table></div></section></div></div></>;
+  return (
+    <>
+      <header className="flex flex-col gap-4 border-b border-slate-200 pb-5 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-indigo-500">Dashboard MD</p>
+          <h1 className="mt-1 text-xl font-bold text-slate-800">
+            Dashboard MD <span className="font-normal text-slate-400">(ข้อมูลโดยรวมเว็บไซต์บริษัท)</span>
+          </h1>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <select className="rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-700">
+            <option>เดือนปัจจุบัน</option>
+          </select>
+          <select className="rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-700">
+            <option>2569</option>
+          </select>
+          <Link
+            href="/api/admin/leads?format=csv"
+            className="rounded-lg bg-purple-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-purple-700"
+          >
+            ⇩ สร้างรายงาน Leads
+          </Link>
+        </div>
+      </header>
+      <div className="mt-6 grid gap-6 xl:grid-cols-[18rem_1fr]">
+        <aside className="grid gap-4 sm:grid-cols-3 xl:grid-cols-1">
+          {metrics.map((metric) => (
+            <section key={metric.label} className="rounded-2xl border border-purple-200 bg-purple-50 p-5 shadow-sm">
+              <p className="text-xs font-bold uppercase tracking-wide text-purple-600">{metric.label}</p>
+              <p className={`mt-2 text-2xl font-bold ${metric.tone}`}>
+                {metric.value} <span className="text-xs font-normal text-slate-500">{metric.note}</span>
+              </p>
+            </section>
+          ))}
+          <section className="rounded-2xl border border-purple-200 bg-purple-50 p-5 shadow-sm">
+            <p className="text-xs font-bold uppercase tracking-wide text-purple-600">โซเชียลมีเดียยอดนิยม</p>
+            <div className="mt-3 space-y-2 text-sm font-semibold text-slate-700">
+              <p>
+                1. Facebook <span className="float-right text-slate-400">55%</span>
+              </p>
+              <p>
+                2. TikTok <span className="float-right text-slate-400">30%</span>
+              </p>
+              <p>
+                3. LINE <span className="float-right text-slate-400">15%</span>
+              </p>
+            </div>
+          </section>
+        </aside>
+        <div className="grid gap-6 md:grid-cols-2">
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <h2 className="text-sm font-bold text-slate-700">◉ จำนวนการลงทะเบียนทุกโครงการ</h2>
+            <div className="mt-5 space-y-3">
+              {data.byProject.length ? (
+                data.byProject.map((row) => (
+                  <div key={String(row.name)}>
+                    <div className="mb-1 flex justify-between text-xs text-slate-500">
+                      <span className="truncate pr-3">{row.name}</span>
+                      <span>{row.total}</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-slate-100">
+                      <div
+                        className="h-2 rounded-full bg-indigo-500"
+                        style={{ width: `${(Number(row.total) / maxLeads) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="grid h-38 place-items-center rounded-xl bg-slate-50 text-sm text-slate-400">
+                  รอข้อมูลจากแบบฟอร์มลงทะเบียน
+                </p>
+              )}
+            </div>
+          </section>
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <h2 className="text-sm font-bold text-slate-700">▥ ภาพรวมเนื้อหาบนเว็บไซต์</h2>
+            <div className="mt-5 grid grid-cols-3 gap-3">
+              <Link href="/admin/projects" className="rounded-xl bg-indigo-50 p-4 text-center">
+                <b className="block text-2xl text-indigo-700">{data.projects}</b>
+                <span className="text-xs text-slate-500">โครงการ</span>
+              </Link>
+              <Link href="/admin/promotions" className="rounded-xl bg-purple-50 p-4 text-center">
+                <b className="block text-2xl text-purple-700">{data.published}</b>
+                <span className="text-xs text-slate-500">เผยแพร่</span>
+              </Link>
+              <Link href="/admin/leads" className="rounded-xl bg-emerald-50 p-4 text-center">
+                <b className="block text-2xl text-emerald-700">{data.leads}</b>
+                <span className="text-xs text-slate-500">Leads</span>
+              </Link>
+            </div>
+            <p className="mt-5 rounded-xl bg-slate-50 p-4 text-xs leading-5 text-slate-500">
+              ข้อมูลการเข้าชมจะเพิ่มขึ้นเมื่อเชื่อมต่อระบบ Analytics หรือส่งข้อมูลเข้า `page_views`
+            </p>
+          </section>
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:col-span-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-sm font-bold text-slate-700">▣ รายชื่อผู้ลงทะเบียนล่าสุด</h2>
+                <p className="mt-1 text-xs text-slate-400">ข้อมูลจริงจากแบบฟอร์มหน้าเว็บไซต์</p>
+              </div>
+              <Link href="/admin/leads" className="text-xs font-bold text-indigo-600 hover:underline">
+                ดูทั้งหมด →
+              </Link>
+            </div>
+            <div className="mt-4 overflow-x-auto">
+              <table className="w-full min-w-150 text-left text-xs">
+                <thead className="border-b border-slate-200 bg-slate-50 uppercase text-slate-500">
+                  <tr>
+                    <th className="p-3">วันที่</th>
+                    <th className="p-3">ชื่อ-นามสกุล</th>
+                    <th className="p-3">โครงการ</th>
+                    <th className="p-3">โทรศัพท์</th>
+                    <th className="p-3">สถานะติดตาม</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {data.recent.length ? (
+                    data.recent.map((lead) => (
+                      <tr key={`${lead.name}-${lead.created_at}`}>
+                        <td className="p-3 text-slate-500">{new Date(lead.created_at).toLocaleDateString("th-TH")}</td>
+                        <td className="p-3 font-semibold text-slate-700">{lead.name}</td>
+                        <td className="p-3 text-slate-600">{lead.project_name ?? "เว็บไซต์กลาง"}</td>
+                        <td className="p-3 text-slate-600">{lead.phone}</td>
+                        <td className="p-3">
+                          <span className={`rounded px-2 py-1 font-bold ${statusClass(String(lead.status))}`}>
+                            {lead.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={5} className="p-10 text-center text-slate-400">
+                        ยังไม่มีข้อมูลผู้ลงทะเบียน
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </div>
+    </>
+  );
 }

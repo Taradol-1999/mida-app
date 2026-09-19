@@ -8,6 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "db:init": "mysql -u root -p < database/schema.sql",
     "db:create-admin": "node scripts/create-admin.mjs"
   },
@@ -29,6 +31,7 @@
     "@types/react-dom": "^19.2.2",
     "eslint": "^9.38.0",
     "eslint-config-next": "^16.0.1",
+    "prettier": "^3.9.8",
     "tailwindcss": "^4.1.16",
     "typescript": "^5.9.3"
   }
