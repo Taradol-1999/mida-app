@@ -1,18 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { projects } from "@/data/projects";
+import { useEffect, useMemo, useState } from "react";
+import { projects, type Project } from "@/data/projects";
 
 export function ProjectFilter() {
+  const [catalogue, setCatalogue] = useState<Project[]>(projects);
   const [location, setLocation] = useState("ทั้งหมด");
   const [type, setType] = useState("ทั้งหมด");
   const [status, setStatus] = useState("ทั้งหมด");
-  const visible = useMemo(() => projects.filter((project) =>
+  useEffect(() => { fetch("/api/projects").then((response) => response.ok ? response.json() : []).then((data) => { if (Array.isArray(data) && data.length) setCatalogue(data); }).catch(() => undefined); }, []);
+  const visible = useMemo(() => catalogue.filter((project) =>
     (location === "ทั้งหมด" || project.location === location)
     && (type === "ทั้งหมด" || project.type === type)
     && (status === "ทั้งหมด" || project.status === status),
-  ), [location, type, status]);
+  ), [catalogue, location, type, status]);
   const selectStyle = "w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-700 outline-none focus:border-[#002D62]";
 
   return <section id="projects" className="container-page -mt-10 relative z-10 pb-16">

@@ -6,7 +6,7 @@ export type Project = {
   price: string;
   startingPrice: number;
   status: "พร้อมอยู่" | "กำลังก่อสร้าง";
-  label: "RECOMMENDED" | "NEW" | "FEATURED" | "LAKE VIEW";
+  label: string;
   description: string;
   facilities: string[];
   landmarks: string[];

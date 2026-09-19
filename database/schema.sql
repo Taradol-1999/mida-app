@@ -99,6 +99,14 @@ CREATE TABLE IF NOT EXISTS page_views (
   INDEX idx_page_views_created_at (created_at)
 );
 
+CREATE TABLE IF NOT EXISTS site_content (
+  id CHAR(36) PRIMARY KEY,
+  content_key VARCHAR(100) NOT NULL UNIQUE,
+  title VARCHAR(255) NOT NULL,
+  body TEXT NULL,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
 -- Public-project sample data based on midaproperty.com, captured 2026-09-19.
 -- Prices, availability, and marketing terms must be confirmed before public use.
 INSERT INTO projects (id, slug, name_th, location, property_type, starting_price, status, description) VALUES
@@ -122,3 +130,7 @@ INSERT IGNORE INTO facilities (id, project_id, name, description, sort_order) VA
 INSERT IGNORE INTO promotions (id, project_id, title, body, is_published) VALUES
   ('dba6db65-f538-49d0-aac8-47cd977ed301', 'dba6db65-f538-49d0-aac8-47cd977ed002', 'บ้านใหม่ พร้อมตกแต่ง', 'ข้อมูลจำลองสำหรับแสดงผลในระบบหลังบ้าน', TRUE),
   ('dba6db65-f538-49d0-aac8-47cd977ed302', 'dba6db65-f538-49d0-aac8-47cd977ed004', 'ข้อเสนอสำหรับบ้านใหม่', 'ข้อมูลจำลองสำหรับแสดงผลในระบบหลังบ้าน', TRUE);
+
+INSERT IGNORE INTO site_content (id, content_key, title, body) VALUES
+  ('dba6db65-f538-49d0-aac8-47cd977ed401', 'home_hero', 'พื้นที่ที่ตอบทุกนิยามของคำว่าบ้าน', 'ค้นพบโครงการคุณภาพจาก MIDA ที่ออกแบบเพื่อการอยู่อาศัยอย่างมีความสุข'),
+  ('dba6db65-f538-49d0-aac8-47cd977ed402', 'contact', 'ติดต่อ MIDA Property', 'โทร 02-000-0000 · Line @midaagency');

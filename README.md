@@ -6,7 +6,8 @@
 
 - หน้าเว็บไซต์ MIDA: Hero, ค้นหา/กรองโครงการ, รายการโครงการ, ข่าวสาร, ทำเล และปุ่มนัดชมแบบ popup
 - หน้ารายละเอียดโครงการ พร้อมส่วนแบบบ้าน ส่วนกลาง โปรโมชั่น และพื้นที่แผนที่สำหรับเชื่อม Google Maps 3D
-- หลังบ้าน `/admin` ที่ล็อกอินด้วย session แบบ HTTP-only cookie พร้อมสิทธิ์ `SUPER_ADMIN`, `ADMIN`, `USER`
+- หลังบ้าน `/admin` พร้อม dashboard และ CRUD สำหรับโครงการ, แบบบ้าน, ส่วนกลาง, โปรโมชั่น, ข่าวสาร, Leads, เนื้อหาเว็บ และผู้ใช้
+- สิทธิ์แบบ role-based: `SUPER_ADMIN` จัดการผู้ใช้ได้, `ADMIN` จัดการเนื้อหาได้, `USER` ไม่มีสิทธิ์เข้าหลังบ้าน
 - MySQL schema สำหรับโครงการ บ้าน สิ่งอำนวยความสะดวก โปรโมชั่น ข่าว Leads และข้อมูลสถิติ
 - API รับ Lead และ API เข้าสู่ระบบ/ออกจากระบบ
 
@@ -21,7 +22,7 @@
    DB_PASSWORD='your-password' node scripts/create-admin.mjs "MIDA Admin" admin@mida.local "choose-a-strong-password"
    ```
 
-5. เปิดเว็บ: `pnpm dev`
+5. เปิดเว็บ: `npm run dev:webpack`
 6. เข้าเว็บที่ `http://localhost:3000` และเข้าหลังบ้านที่ `http://localhost:3000/login`
 
 ## ใช้งานด้วย VS Code
@@ -33,13 +34,24 @@
 
 สามารถใช้ Terminal ใน VS Code โดยตรงด้วย `npm run dev:webpack` ได้เช่นกัน
 
+## เข้าใช้งานหลังบ้าน
+
+หลังรัน schema ใน environment เริ่มต้น จะมีบัญชี Super Admin สำหรับทดสอบ:
+
+```text
+username: admin@mida.local
+password: MidaAdmin@2026!
+```
+
+เปลี่ยนรหัสผ่านนี้ทันทีเมื่อขึ้นระบบจริง แล้วใช้เมนู **ผู้ใช้งานและสิทธิ์** เพื่อเพิ่มบัญชีผู้ดูแลเพิ่มเติม
+
 ## ตัวแปรแวดล้อม
 
 ดูรายการครบถ้วนใน `.env.example` ข้อมูลลับต้องอยู่ใน `.env.local` เท่านั้น และห้าม commit ไฟล์นี้
 
 ## Database
 
-ไฟล์ `database/schema.sql` สามารถรันซ้ำได้โดยไม่ลบข้อมูลเดิม และมี sample catalogue 4 โครงการที่อ้างอิงข้อมูลสาธารณะจาก [MIDA Property](https://www.midaproperty.com/) ได้แก่ Grand Village เพชรเกษม, Town Village Prapa, Roipruksa Lakeville และ THE CODE ลำพยา ราคาและสถานะเป็นข้อมูลตัวอย่าง จึงต้องยืนยันกับฝ่ายขายก่อนเผยแพร่จริง ตารางสำคัญคือ `users`, `projects`, `house_types`, `facilities`, `promotions`, `news_items`, `leads`, และ `page_views`
+ไฟล์ `database/schema.sql` สามารถรันซ้ำได้โดยไม่ลบข้อมูลเดิม และมี sample catalogue 4 โครงการที่อ้างอิงข้อมูลสาธารณะจาก [MIDA Property](https://www.midaproperty.com/) ได้แก่ Grand Village เพชรเกษม, Town Village Prapa, Roipruksa Lakeville และ THE CODE ลำพยา ราคาและสถานะเป็นข้อมูลตัวอย่าง จึงต้องยืนยันกับฝ่ายขายก่อนเผยแพร่จริง ตารางสำคัญคือ `users`, `projects`, `house_types`, `facilities`, `promotions`, `news_items`, `leads`, `site_content` และ `page_views`
 
 ## โครงสร้าง
 
