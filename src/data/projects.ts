@@ -14,6 +14,7 @@ export type Project = {
   has_cover?: boolean | number;
   is_featured?: boolean | number;
   is_new?: boolean | number;
+  tags?: string[] | string;
 };
 
 // Sample catalogue based on public information from midaproperty.com.

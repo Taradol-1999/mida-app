@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS projects (
   status ENUM('READY', 'CONSTRUCTION', 'ARCHIVED') NOT NULL DEFAULT 'CONSTRUCTION',
   is_featured BOOLEAN NOT NULL DEFAULT FALSE,
   is_new BOOLEAN NOT NULL DEFAULT TRUE,
+  tags JSON NULL,
   description TEXT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -151,6 +152,14 @@ INSERT INTO projects (id, slug, name_th, location, property_type, starting_price
   ('dba6db65-f538-49d0-aac8-47cd977ed003', 'roipruksa-lakeville', 'Roipruksa Lakeville', 'นครปฐม', 'DETACHED_HOUSE', 5290000.00, 'READY', 'บ้านเดี่ยวบรรยากาศริมทะเลสาบส่วนตัว พร้อมพื้นที่พักผ่อนสำหรับครอบครัว'),
   ('dba6db65-f538-49d0-aac8-47cd977ed004', 'the-code-lamphaya', 'THE CODE ลำพยา', 'นครปฐม', 'DETACHED_HOUSE', 3000000.00, 'CONSTRUCTION', 'บ้านสไตล์โมเดิร์นที่ออกแบบเพื่อทุกจังหวะการใช้ชีวิต บนทำเลลำพยา')
 ON DUPLICATE KEY UPDATE name_th = VALUES(name_th), location = VALUES(location), property_type = VALUES(property_type), starting_price = VALUES(starting_price), status = VALUES(status), description = VALUES(description);
+
+UPDATE projects
+SET tags = CASE
+  WHEN slug = 'grand-village-petchkasem' THEN JSON_ARRAY('โครงการแนะนำ', 'โครงการล่าสุด', 'พร้อมเข้าอยู่ได้ทันที')
+  WHEN status = 'READY' THEN JSON_ARRAY('โครงการล่าสุด', 'พร้อมเข้าอยู่ได้ทันที')
+  ELSE JSON_ARRAY('โครงการล่าสุด')
+END
+WHERE tags IS NULL;
 
 INSERT IGNORE INTO house_types (id, project_id, name, bedrooms, bathrooms, usable_area_sqm, starting_price) VALUES
   ('dba6db65-f538-49d0-aac8-47cd977ed101', 'dba6db65-f538-49d0-aac8-47cd977ed002', 'TOWNHOME', 3, 2, 120.00, 2159000.00),

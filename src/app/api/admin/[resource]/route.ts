@@ -32,6 +32,13 @@ function numberValue(body: Record<string, unknown>, key: string) {
 function boolValue(body: Record<string, unknown>, key: string) {
   return body[key] === true || body[key] === "true" || body[key] === 1;
 }
+function tagValue(body: Record<string, unknown>) {
+  const tags = value(body, "tags")
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter(Boolean);
+  return JSON.stringify([...new Set(tags)]);
+}
 function mysqlDate(body: Record<string, unknown>, key: string) {
   const result = value(body, key);
   return result ? result.replace("T", " ") : null;
@@ -148,7 +155,7 @@ export async function POST(request: Request, context: RouteContext) {
     switch (access.resource) {
       case "projects":
         await pool.execute(
-          "INSERT INTO projects (id, slug, name_th, name_en, location, property_type, starting_price, status, is_featured, is_new, description) VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+          "INSERT INTO projects (id, slug, name_th, name_en, location, property_type, starting_price, status, is_featured, is_new, tags, description) VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
           [
             value(body, "slug"),
             value(body, "name_th"),
@@ -159,6 +166,7 @@ export async function POST(request: Request, context: RouteContext) {
             value(body, "status"),
             boolValue(body, "is_featured"),
             boolValue(body, "is_new"),
+            tagValue(body),
             nullable(body, "description"),
           ],
         );
@@ -256,7 +264,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     switch (access.resource) {
       case "projects":
         await pool.execute(
-          "UPDATE projects SET slug=?, name_th=?, name_en=?, location=?, property_type=?, starting_price=?, status=?, is_featured=?, is_new=?, description=? WHERE id=?",
+          "UPDATE projects SET slug=?, name_th=?, name_en=?, location=?, property_type=?, starting_price=?, status=?, is_featured=?, is_new=?, tags=?, description=? WHERE id=?",
           [
             value(body, "slug"),
             value(body, "name_th"),
@@ -267,6 +275,7 @@ export async function PATCH(request: Request, context: RouteContext) {
             value(body, "status"),
             boolValue(body, "is_featured"),
             boolValue(body, "is_new"),
+            tagValue(body),
             nullable(body, "description"),
             id,
           ],

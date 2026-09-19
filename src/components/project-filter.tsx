@@ -26,13 +26,28 @@ function matchesPrice(startingPrice: number, range: string) {
   return true;
 }
 
+function tagsOf(project: Project) {
+  if (Array.isArray(project.tags)) return project.tags;
+  try {
+    const tags = JSON.parse(String(project.tags ?? "[]"));
+    return Array.isArray(tags) ? tags.map(String) : [];
+  } catch {
+    return String(project.tags ?? "")
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter(Boolean);
+  }
+}
+
+const preferredTagOrder = ["โครงการแนะนำ", "โครงการล่าสุด", "พร้อมเข้าอยู่ได้ทันที"];
+
 export function ProjectFilter() {
   const [catalogue, setCatalogue] = useState<Project[]>(projects);
   const [location, setLocation] = useState("ทั้งหมด");
   const [type, setType] = useState("ทั้งหมด");
   const [priceRange, setPriceRange] = useState("all");
   const [status, setStatus] = useState("ทั้งหมด");
-  const [tag, setTag] = useState<"all" | "featured" | "new" | "ready">("all");
+  const [tag, setTag] = useState("all");
   useEffect(() => {
     fetch("/api/projects")
       .then((response) => (response.ok ? response.json() : []))
@@ -45,6 +60,18 @@ export function ProjectFilter() {
     () => ["ทั้งหมด", ...Array.from(new Set(catalogue.map((project) => project.location)))],
     [catalogue],
   );
+  const tagOptions = useMemo(
+    () =>
+      Array.from(new Set(catalogue.flatMap(tagsOf))).sort((a, b) => {
+        const aIndex = preferredTagOrder.indexOf(a);
+        const bIndex = preferredTagOrder.indexOf(b);
+        if (aIndex === -1 && bIndex === -1) return a.localeCompare(b, "th");
+        if (aIndex === -1) return 1;
+        if (bIndex === -1) return -1;
+        return aIndex - bIndex;
+      }),
+    [catalogue],
+  );
   const visible = useMemo(
     () =>
       catalogue.filter(
@@ -53,10 +80,7 @@ export function ProjectFilter() {
           (type === "ทั้งหมด" || project.type === type) &&
           matchesPrice(Number(project.startingPrice), priceRange) &&
           (status === "ทั้งหมด" || project.status === status) &&
-          (tag === "all" ||
-            (tag === "featured" && Boolean(project.is_featured)) ||
-            (tag === "new" && Boolean(project.is_new)) ||
-            (tag === "ready" && project.status === "พร้อมอยู่")),
+          (tag === "all" || tagsOf(project).includes(tag)),
       ),
     [catalogue, location, priceRange, status, tag, type],
   );
@@ -132,19 +156,14 @@ export function ProjectFilter() {
           </span>
         </div>
         <div className="mt-6 flex gap-2 overflow-x-auto pb-3">
-          {(
-            [
-              ["featured", "✦ โครงการแนะนำ"],
-              ["new", "โครงการล่าสุด"],
-              ["ready", "พร้อมเข้าอยู่ได้ทันที"],
-            ] as const
-          ).map(([value, label]) => (
+          {tagOptions.map((label) => (
             <button
-              key={value}
+              key={label}
               type="button"
-              onClick={() => setTag((current) => (current === value ? "all" : value))}
-              className={`shrink-0 rounded-full px-5 py-2.5 text-xs font-bold transition ${tag === value ? "bg-[#002D62] text-white shadow-sm" : "border border-slate-200 bg-white text-slate-600 hover:border-[#002D62]"}`}
+              onClick={() => setTag((current) => (current === label ? "all" : label))}
+              className={`shrink-0 rounded-full px-5 py-2.5 text-xs font-bold transition ${tag === label ? "bg-[#002D62] text-white shadow-sm" : "border border-slate-200 bg-white text-slate-600 hover:border-[#002D62]"}`}
             >
+              {label === "โครงการแนะนำ" ? "✦ " : ""}
               {label}
             </button>
           ))}
@@ -171,21 +190,14 @@ export function ProjectFilter() {
                 </div>
               )}
               <div className="absolute left-4 top-4 flex flex-wrap gap-2">
-                {Boolean(project.is_featured) && (
-                  <span className="rounded-md bg-red-500 px-3 py-1 text-[10px] font-black tracking-wider text-white shadow">
-                    RECOMMENDED
+                {tagsOf(project).map((projectTag, tagIndex) => (
+                  <span
+                    key={projectTag}
+                    className={`rounded-md px-3 py-1 text-[10px] font-black text-white shadow ${tagIndex % 3 === 0 ? "bg-red-500" : tagIndex % 3 === 1 ? "bg-emerald-500" : "bg-[#002D62]"}`}
+                  >
+                    {projectTag}
                   </span>
-                )}
-                {project.status === "พร้อมอยู่" && (
-                  <span className="rounded-md bg-emerald-500 px-3 py-1 text-[10px] font-black tracking-wider text-white shadow">
-                    READY
-                  </span>
-                )}
-                {Boolean(project.is_new) && (
-                  <span className="rounded-md bg-[#002D62] px-3 py-1 text-[10px] font-black tracking-wider text-white shadow">
-                    NEW
-                  </span>
-                )}
+                ))}
               </div>
               <div className="absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-[#001B3D]/75 to-transparent" />
             </div>

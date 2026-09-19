@@ -18,9 +18,10 @@ type Project = {
   status: string;
   is_featured: boolean;
   is_new: boolean;
+  tags: string[] | string | null;
   description: string | null;
 };
-type Form = Omit<Project, "id">;
+type Form = Omit<Project, "id" | "tags"> & { tags: string };
 const emptyForm: Form = {
   slug: "",
   name_th: "",
@@ -31,6 +32,7 @@ const emptyForm: Form = {
   status: "READY",
   is_featured: false,
   is_new: true,
+  tags: "",
   description: "",
 };
 const inputClass =
@@ -75,6 +77,15 @@ export function ProjectEditor({ selectedProjectId }: { selectedProjectId?: strin
       status: project.status,
       is_featured: Boolean(project.is_featured),
       is_new: Boolean(project.is_new),
+      tags: Array.isArray(project.tags)
+        ? project.tags.join(", ")
+        : (() => {
+            try {
+              return JSON.parse(String(project.tags ?? "[]")).join(", ");
+            } catch {
+              return String(project.tags ?? "");
+            }
+          })(),
       description: project.description ?? "",
     });
     setImageMissing(false);
@@ -247,26 +258,18 @@ export function ProjectEditor({ selectedProjectId }: { selectedProjectId?: strin
                 <option value="ARCHIVED">เก็บถาวร / ซ่อน</option>
               </select>
             </label>
-            <div className="grid gap-2 sm:grid-cols-2 md:col-span-2">
-              <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm font-semibold text-slate-700">
-                <input
-                  type="checkbox"
-                  checked={form.is_featured}
-                  onChange={(event) => setField("is_featured", event.target.checked)}
-                  className="size-4 accent-indigo-600"
-                />
-                ✦ โครงการแนะนำ
-              </label>
-              <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm font-semibold text-slate-700">
-                <input
-                  type="checkbox"
-                  checked={form.is_new}
-                  onChange={(event) => setField("is_new", event.target.checked)}
-                  className="size-4 accent-indigo-600"
-                />
-                โครงการล่าสุด
-              </label>
-            </div>
+            <label className="text-sm font-semibold text-slate-700 md:col-span-2">
+              Tag โครงการ
+              <input
+                value={form.tags}
+                onChange={(event) => setField("tags", event.target.value)}
+                placeholder="เช่น โครงการแนะนำ, โครงการล่าสุด, พร้อมเข้าอยู่ได้ทันที"
+                className={inputClass}
+              />
+              <span className="mt-1 block text-xs font-normal text-slate-400">
+                คั่นแต่ละ Tag ด้วยเครื่องหมาย comma (,)
+              </span>
+            </label>
             <label className="md:col-span-2 text-sm font-semibold text-slate-700">
               รายละเอียดโครงการ
               <textarea
