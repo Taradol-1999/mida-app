@@ -119,7 +119,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   return (
     <main className="bg-slate-50">
       <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
-        <div className="container-page flex min-h-18 items-center justify-between gap-4">
+        <div className="project-container flex min-h-18 items-center justify-between gap-4">
           <Link
             href="/"
             aria-label={`กลับหน้าหลัก MIDA จากโครงการ ${project.name}`}
@@ -156,7 +156,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           <p className="mt-5 text-lg font-extrabold text-[#f8c366]">ราคาเริ่มต้น {project.price}</p>
         </div>
       </section>
-      <section id="overview" className="container-page grid gap-6 py-8 lg:grid-cols-2">
+      <section id="overview" className="project-container grid gap-8 py-10 lg:grid-cols-2">
         <div className="min-h-64 overflow-hidden rounded-2xl border border-slate-200 bg-[linear-gradient(135deg,#aec4ce,#eff4f4_50%,#698796)] shadow-sm">
           {project.coverUrl && (
             <img src={project.coverUrl} alt={`ภาพโครงการ ${project.name}`} className="size-full object-cover" />
@@ -179,7 +179,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
       </section>
       {project.houseTypes.length > 0 && (
         <section className="bg-white py-16">
-          <div className="container-page">
+          <div className="project-container">
             <div className="gold-rule mb-3" />
             <h2 className="section-title">รูปแบบบ้านและราคาเริ่มต้น (House Types)</h2>
             <div className="mt-7 grid gap-4 md:grid-cols-3">
@@ -201,7 +201,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
       )}
       {projectUpdates.length > 0 && (
         <section id="project-promo-news" className="bg-red-50/60 py-16">
-          <div className="container-page">
+          <div className="project-container">
             <h2 className="text-2xl font-bold text-red-800 md:text-3xl">
               <i className="fa-solid fa-fire mr-2" />
               โปรโมชั่น ข่าวสาร & กิจกรรมพิเศษ
@@ -214,7 +214,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         </section>
       )}
       <section id="map" className="bg-white py-16">
-        <div className="container-page">
+        <div className="project-container">
           <h2 className="section-title">แผนที่และสถานที่ใกล้เคียง</h2>
           <p className="mt-2 text-slate-500">ข้อมูลติดต่อและสถานที่ใกล้เคียงที่ตั้งค่าจากหลังบ้าน</p>
           <div className="mt-7 grid gap-6 lg:grid-cols-[1.35fr_.65fr]">
@@ -248,7 +248,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           </div>
         </div>
       </section>
-      <section id="register" className="container-page py-16 text-center">
+      <section id="register" className="project-container py-16 text-center">
         <h2 className="section-title">รับข้อเสนอพิเศษ</h2>
         <p className="mt-3 text-slate-500">ลงทะเบียนเพื่อรับข้อมูลโครงการและนัดหมายเข้าชม</p>
         {project.settings.phone && <p className="mt-3 font-bold text-[#002D62]">โทร {project.settings.phone}</p>}

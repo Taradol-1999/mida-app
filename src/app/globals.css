@@ -28,6 +28,11 @@ body {
   margin-inline: auto;
 }
 
+@utility project-container {
+  width: min(100% - 2rem, 90rem);
+  margin-inline: auto;
+}
+
 @utility section-title {
   font-size: clamp(1.5rem, 3vw, 2.25rem);
   font-weight: 800;
