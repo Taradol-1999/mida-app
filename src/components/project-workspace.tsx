@@ -191,21 +191,36 @@ export function ProjectWorkspace({
   const save = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setBusy(true);
+    setMessage("");
+    if (settingMode) {
+      try {
+        const response = await fetch("/api/admin/project-settings", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...form, project_id: projectId }),
+        });
+        const result = await response.json();
+        if (!response.ok) {
+          setMessage(result.message ?? "บันทึกไม่สำเร็จ");
+          return;
+        }
+        setMessage("บันทึกข้อมูลติดต่อและแผนที่เรียบร้อย");
+        await load();
+      } catch {
+        setMessage("ไม่สามารถเชื่อมต่อระบบบันทึกข้อมูลได้ กรุณาลองอีกครั้ง");
+      } finally {
+        setBusy(false);
+      }
+      return;
+    }
     let response: Response;
-    if (settingMode)
-      response = await fetch("/api/admin/project-settings", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, project_id: projectId }),
-      });
-    else
-      response = await fetch(`/api/admin/${dataConfig?.resource}`, {
-        method: editingId ? "PATCH" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(
-          editingId ? { ...form, id: editingId, project_id: projectId } : { ...form, project_id: projectId },
-        ),
-      });
+    response = await fetch(`/api/admin/${dataConfig?.resource}`, {
+      method: editingId ? "PATCH" : "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(
+        editingId ? { ...form, id: editingId, project_id: projectId } : { ...form, project_id: projectId },
+      ),
+    });
     const result = await response.json();
     if (!response.ok) {
       setMessage(result.message ?? "บันทึกไม่สำเร็จ");

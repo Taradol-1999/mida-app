@@ -45,9 +45,11 @@ export async function PUT(request: Request) {
     return NextResponse.json({ message: "รหัสโครงการไม่ถูกต้อง" }, { status: 400 });
   const [projects] = await db().execute<RowDataPacket[]>("SELECT id FROM projects WHERE id=? LIMIT 1", [projectId]);
   if (!projects.length) return NextResponse.json({ message: "ไม่พบโครงการ" }, { status: 404 });
-  const values = fields.map((field) => nullable(body, field));
+  const submittedFields = fields.filter((field) => Object.prototype.hasOwnProperty.call(body, field));
+  if (!submittedFields.length) return NextResponse.json({ message: "ไม่พบข้อมูลสำหรับบันทึก" }, { status: 400 });
+  const values = submittedFields.map((field) => nullable(body, field));
   await db().execute(
-    `INSERT INTO project_settings (project_id, ${fields.join(", ")}) VALUES (?, ${fields.map(() => "?").join(", ")}) ON DUPLICATE KEY UPDATE ${fields.map((field) => `${field}=VALUES(${field})`).join(", ")}`,
+    `INSERT INTO project_settings (project_id, ${submittedFields.join(", ")}) VALUES (?, ${submittedFields.map(() => "?").join(", ")}) ON DUPLICATE KEY UPDATE ${submittedFields.map((field) => `${field}=VALUES(${field})`).join(", ")}`,
     [projectId, ...values],
   );
   return NextResponse.json({ ok: true });
