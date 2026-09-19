@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { RowDataPacket } from "mysql2";
 import { notFound } from "next/navigation";
 import { LeadModal } from "@/components/lead-modal";
+import { NewsPromotionSlider, type NewsPromotionItem } from "@/components/news-promotion-slider";
 import { findProject } from "@/data/projects";
 import { db } from "@/lib/db";
 
@@ -109,6 +110,12 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         .map((item) => item.trim())
         .filter(Boolean)
     : project.landmarks;
+  const projectUpdates: NewsPromotionItem[] = [
+    ...project.promotions.map(
+      (promotion) => ["PROMOTION", String(promotion.title), String(promotion.body ?? "")] as NewsPromotionItem,
+    ),
+    ...project.news.map((item) => ["NEWS / EVENT", String(item.title), String(item.body ?? "")] as NewsPromotionItem),
+  ];
   return (
     <main className="bg-slate-50">
       <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
@@ -192,29 +199,17 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           </div>
         </section>
       )}
-      {(project.promotions.length > 0 || project.news.length > 0) && (
-        <section id="project-promo-news" className="container-page py-12">
-          <div className="rounded-2xl border border-red-100 bg-red-50/60 p-6">
-            <h2 className="text-lg font-bold text-red-800">
+      {projectUpdates.length > 0 && (
+        <section id="project-promo-news" className="bg-red-50/60 py-16">
+          <div className="container-page">
+            <h2 className="text-2xl font-bold text-red-800 md:text-3xl">
               <i className="fa-solid fa-fire mr-2" />
               โปรโมชั่น ข่าวสาร & กิจกรรมพิเศษ
             </h2>
-            <div className="mt-5 grid gap-4 md:grid-cols-2">
-              {project.promotions.map((promotion) => (
-                <article key={promotion.title} className="rounded-xl border border-red-100 bg-white p-5">
-                  <p className="text-xs font-bold text-red-600">PROMOTION</p>
-                  <h3 className="mt-2 font-extrabold text-[#002D62]">{promotion.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">{promotion.body}</p>
-                </article>
-              ))}
-              {project.news.map((item) => (
-                <article key={item.title} className="rounded-xl border border-red-100 bg-white p-5">
-                  <p className="text-xs font-bold text-blue-600">NEWS / EVENT</p>
-                  <h3 className="mt-2 font-extrabold text-[#002D62]">{item.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">{item.body}</p>
-                </article>
-              ))}
-            </div>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+              อัปเดตข้อเสนอ ข่าวสาร และกิจกรรมล่าสุดสำหรับโครงการนี้
+            </p>
+            <NewsPromotionSlider items={projectUpdates} variant="project" />
           </div>
         </section>
       )}
