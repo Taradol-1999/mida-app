@@ -24,7 +24,7 @@ body {
 }
 
 @utility container-page {
-  width: min(100% - 2rem, 76rem);
+  width: min(100% - 2rem, 160rem);
   margin-inline: auto;
 }
 
