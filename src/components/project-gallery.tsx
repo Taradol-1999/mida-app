@@ -16,6 +16,7 @@ const tileClasses = [
 
 export function ProjectGallery({ items }: { items: ProjectGalleryItem[] }) {
   const [selected, setSelected] = useState<number | null>(null);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     if (selected === null) return;
@@ -40,6 +41,7 @@ export function ProjectGallery({ items }: { items: ProjectGalleryItem[] }) {
   }
 
   const current = selected === null ? null : items[selected];
+  const visibleItems = expanded ? items : items.slice(0, 6);
   const move = (direction: -1 | 1) => {
     setSelected((value) => ((value ?? 0) + direction + items.length) % items.length);
   };
@@ -59,7 +61,7 @@ export function ProjectGallery({ items }: { items: ProjectGalleryItem[] }) {
       </div>
 
       <div className="grid auto-rows-[15rem] grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-12">
-        {items.map((item, index) => (
+        {visibleItems.map((item, index) => (
           <button
             key={`${item.src}-${index}`}
             type="button"
@@ -98,6 +100,23 @@ export function ProjectGallery({ items }: { items: ProjectGalleryItem[] }) {
           </button>
         ))}
       </div>
+
+      {items.length > 6 && (
+        <div className="mt-8 flex justify-center">
+          <button
+            type="button"
+            onClick={() => setExpanded((value) => !value)}
+            aria-expanded={expanded}
+            className="group inline-flex min-w-44 items-center justify-center gap-2 rounded-full border border-[#002D62] bg-white px-7 py-3 text-sm font-bold text-[#002D62] transition hover:bg-[#002D62] hover:text-white"
+          >
+            {expanded ? "แสดงน้อยลง" : `ดูเพิ่มเติม (${items.length - 6})`}
+            <i
+              className={`fa-solid fa-chevron-down text-xs transition-transform ${expanded ? "rotate-180" : "group-hover:translate-y-0.5"}`}
+              aria-hidden="true"
+            />
+          </button>
+        </div>
+      )}
 
       {current && (
         <div
