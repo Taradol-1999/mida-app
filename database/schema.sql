@@ -120,8 +120,9 @@ CREATE TABLE IF NOT EXISTS media_assets (
   storage_key VARCHAR(255) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  UNIQUE KEY uq_media_entity_kind (entity_type, entity_id, media_kind),
-  INDEX idx_media_entity (entity_type, entity_id)
+  sort_order INT NOT NULL DEFAULT 0,
+  INDEX idx_media_entity (entity_type, entity_id),
+  INDEX idx_media_kind (entity_type, entity_id, media_kind, sort_order)
 );
 
 -- Per-project homepage and contact details used by the project CMS menus.
