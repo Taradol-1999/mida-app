@@ -7,12 +7,30 @@ import { projects, type Project } from "@/data/projects";
 
 const statusOptions = ["ทั้งหมด", "พร้อมอยู่", "กำลังก่อสร้าง"];
 const typeOptions = ["ทั้งหมด", "บ้านเดี่ยว", "บ้านแฝด", "ทาวน์โฮม", "อาคารพาณิชย์"];
+const priceOptions = [
+  ["all", "ทุกช่วงราคา"],
+  ["under-2m", "ไม่เกิน 2 ล้านบาท"],
+  ["2m-3m", "2–3 ล้านบาท"],
+  ["3m-4m", "3–4 ล้านบาท"],
+  ["4m-5m", "4–5 ล้านบาท"],
+  ["over-5m", "ตั้งแต่ 5 ล้านบาทขึ้นไป"],
+] as const;
 const selectStyle = "w-full bg-transparent text-xs text-slate-600 outline-none";
+
+function matchesPrice(startingPrice: number, range: string) {
+  if (range === "under-2m") return startingPrice < 2_000_000;
+  if (range === "2m-3m") return startingPrice >= 2_000_000 && startingPrice < 3_000_000;
+  if (range === "3m-4m") return startingPrice >= 3_000_000 && startingPrice < 4_000_000;
+  if (range === "4m-5m") return startingPrice >= 4_000_000 && startingPrice < 5_000_000;
+  if (range === "over-5m") return startingPrice >= 5_000_000;
+  return true;
+}
 
 export function ProjectFilter() {
   const [catalogue, setCatalogue] = useState<Project[]>(projects);
   const [location, setLocation] = useState("ทั้งหมด");
   const [type, setType] = useState("ทั้งหมด");
+  const [priceRange, setPriceRange] = useState("all");
   const [status, setStatus] = useState("ทั้งหมด");
   useEffect(() => {
     fetch("/api/projects")
@@ -32,9 +50,10 @@ export function ProjectFilter() {
         (project) =>
           (location === "ทั้งหมด" || project.location === location) &&
           (type === "ทั้งหมด" || project.type === type) &&
+          matchesPrice(Number(project.startingPrice), priceRange) &&
           (status === "ทั้งหมด" || project.status === status),
       ),
-    [catalogue, location, type, status],
+    [catalogue, location, priceRange, type, status],
   );
   const filterBox = (icon: string, label: string, child: ReactNode) => (
     <label className="flex min-h-18 flex-col justify-center rounded-lg border border-slate-200 bg-slate-50 p-3">
@@ -74,7 +93,13 @@ export function ProjectFilter() {
           {filterBox(
             "fa-baht-sign",
             "ช่วงราคา",
-            <p className="text-xs text-slate-500">เลือกดูโครงการตามราคาเริ่มต้น</p>,
+            <select value={priceRange} onChange={(event) => setPriceRange(event.target.value)} className={selectStyle}>
+              {priceOptions.map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>,
           )}
           {filterBox(
             "fa-helmet-safety",
@@ -136,7 +161,7 @@ export function ProjectFilter() {
               <span className="absolute left-4 top-4 rounded-md bg-red-500 px-3 py-1 text-[10px] font-black tracking-wider text-white shadow">
                 {index === 0 ? "RECOMMENDED" : project.status === "พร้อมอยู่" ? "READY" : "NEW"}
               </span>
-              <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#001B3D]/75 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-[#001B3D]/75 to-transparent" />
             </div>
             <div className="flex flex-col gap-4 p-6 sm:flex-row sm:items-end sm:justify-between">
               <div>
