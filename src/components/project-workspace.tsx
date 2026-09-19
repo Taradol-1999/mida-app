@@ -440,7 +440,7 @@ export function ProjectWorkspace({
           </a>
         )}
       </header>
-      <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
+      <div className={`mt-6 grid gap-6 ${settingMode ? "" : "xl:grid-cols-[minmax(0,1fr)_22rem]"}`}>
         <form onSubmit={save} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="border-b border-slate-100 pb-4 text-base font-bold text-slate-800">
             {editingId
@@ -551,25 +551,27 @@ export function ProjectWorkspace({
             )}
           </div>
         </form>
-        <aside className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="border-b border-slate-100 pb-3 text-base font-bold text-slate-800">รายการของโครงการ</h2>
-          <div className="mt-3 space-y-2">
-            {rows.map((row) => (
-              <button
-                type="button"
-                key={String(row.id)}
-                onClick={() => void edit(row)}
-                className="w-full rounded-xl border border-slate-100 p-3 text-left hover:border-indigo-200 hover:bg-indigo-50"
-              >
-                <p className="font-bold text-slate-700">
-                  {String(row.name ?? row.title ?? row.phone ?? "รายการข้อมูล")}
-                </p>
-                <p className="mt-1 text-xs text-slate-400">{String(row.status ?? row.category ?? "กดเพื่อแก้ไข")}</p>
-              </button>
-            ))}
-            {!rows.length && <p className="py-8 text-center text-sm text-slate-400">ยังไม่มีข้อมูล</p>}
-          </div>
-        </aside>
+        {!settingMode && (
+          <aside className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <h2 className="border-b border-slate-100 pb-3 text-base font-bold text-slate-800">รายการของโครงการ</h2>
+            <div className="mt-3 space-y-2">
+              {rows.map((row) => (
+                <button
+                  type="button"
+                  key={String(row.id)}
+                  onClick={() => void edit(row)}
+                  className="w-full rounded-xl border border-slate-100 p-3 text-left hover:border-indigo-200 hover:bg-indigo-50"
+                >
+                  <p className="font-bold text-slate-700">
+                    {String(row.name ?? row.title ?? row.phone ?? "รายการข้อมูล")}
+                  </p>
+                  <p className="mt-1 text-xs text-slate-400">{String(row.status ?? row.category ?? "กดเพื่อแก้ไข")}</p>
+                </button>
+              ))}
+              {!rows.length && <p className="py-8 text-center text-sm text-slate-400">ยังไม่มีข้อมูล</p>}
+            </div>
+          </aside>
+        )}
       </div>
     </>
   );
