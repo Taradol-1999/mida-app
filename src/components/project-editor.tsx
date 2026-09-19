@@ -16,6 +16,8 @@ type Project = {
   property_type: string;
   starting_price: number | string | null;
   status: string;
+  is_featured: boolean;
+  is_new: boolean;
   description: string | null;
 };
 type Form = Omit<Project, "id">;
@@ -27,6 +29,8 @@ const emptyForm: Form = {
   property_type: "DETACHED_HOUSE",
   starting_price: "",
   status: "READY",
+  is_featured: false,
+  is_new: true,
   description: "",
 };
 const inputClass =
@@ -57,7 +61,8 @@ export function ProjectEditor({ selectedProjectId }: { selectedProjectId?: strin
     const project = projects.find((item) => item.id === selectedProjectId);
     if (project) startEditing(project);
   }, [selectedProjectId, projects]);
-  const setField = (field: keyof Form, value: string) => setForm((current) => ({ ...current, [field]: value }));
+  const setField = (field: keyof Form, value: string | boolean) =>
+    setForm((current) => ({ ...current, [field]: value }));
   function startEditing(project: Project) {
     setEditingId(project.id);
     setForm({
@@ -68,6 +73,8 @@ export function ProjectEditor({ selectedProjectId }: { selectedProjectId?: strin
       property_type: project.property_type,
       starting_price: project.starting_price ?? "",
       status: project.status,
+      is_featured: Boolean(project.is_featured),
+      is_new: Boolean(project.is_new),
       description: project.description ?? "",
     });
     setImageMissing(false);
@@ -240,6 +247,26 @@ export function ProjectEditor({ selectedProjectId }: { selectedProjectId?: strin
                 <option value="ARCHIVED">เก็บถาวร / ซ่อน</option>
               </select>
             </label>
+            <div className="grid gap-2 sm:grid-cols-2 md:col-span-2">
+              <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm font-semibold text-slate-700">
+                <input
+                  type="checkbox"
+                  checked={form.is_featured}
+                  onChange={(event) => setField("is_featured", event.target.checked)}
+                  className="size-4 accent-indigo-600"
+                />
+                ✦ โครงการแนะนำ
+              </label>
+              <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm font-semibold text-slate-700">
+                <input
+                  type="checkbox"
+                  checked={form.is_new}
+                  onChange={(event) => setField("is_new", event.target.checked)}
+                  className="size-4 accent-indigo-600"
+                />
+                โครงการล่าสุด
+              </label>
+            </div>
             <label className="md:col-span-2 text-sm font-semibold text-slate-700">
               รายละเอียดโครงการ
               <textarea

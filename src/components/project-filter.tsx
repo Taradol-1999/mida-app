@@ -32,6 +32,7 @@ export function ProjectFilter() {
   const [type, setType] = useState("ทั้งหมด");
   const [priceRange, setPriceRange] = useState("all");
   const [status, setStatus] = useState("ทั้งหมด");
+  const [tag, setTag] = useState<"all" | "featured" | "new" | "ready">("all");
   useEffect(() => {
     fetch("/api/projects")
       .then((response) => (response.ok ? response.json() : []))
@@ -51,9 +52,13 @@ export function ProjectFilter() {
           (location === "ทั้งหมด" || project.location === location) &&
           (type === "ทั้งหมด" || project.type === type) &&
           matchesPrice(Number(project.startingPrice), priceRange) &&
-          (status === "ทั้งหมด" || project.status === status),
+          (status === "ทั้งหมด" || project.status === status) &&
+          (tag === "all" ||
+            (tag === "featured" && Boolean(project.is_featured)) ||
+            (tag === "new" && Boolean(project.is_new)) ||
+            (tag === "ready" && project.status === "พร้อมอยู่")),
       ),
-    [catalogue, location, priceRange, type, status],
+    [catalogue, location, priceRange, status, tag, type],
   );
   const filterBox = (icon: string, label: string, child: ReactNode) => (
     <label className="flex min-h-18 flex-col justify-center rounded-lg border border-slate-200 bg-slate-50 p-3">
@@ -127,15 +132,22 @@ export function ProjectFilter() {
           </span>
         </div>
         <div className="mt-6 flex gap-2 overflow-x-auto pb-3">
-          <span className="shrink-0 rounded-full bg-[#002D62] px-5 py-2.5 text-xs font-bold text-white">
-            ✦ โครงการแนะนำ
-          </span>
-          <span className="shrink-0 rounded-full border border-slate-200 bg-white px-5 py-2.5 text-xs font-semibold text-slate-600">
-            โครงการล่าสุด
-          </span>
-          <span className="shrink-0 rounded-full border border-slate-200 bg-white px-5 py-2.5 text-xs font-semibold text-slate-600">
-            พร้อมเข้าอยู่ได้ทันที
-          </span>
+          {(
+            [
+              ["featured", "✦ โครงการแนะนำ"],
+              ["new", "โครงการล่าสุด"],
+              ["ready", "พร้อมเข้าอยู่ได้ทันที"],
+            ] as const
+          ).map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setTag((current) => (current === value ? "all" : value))}
+              className={`shrink-0 rounded-full px-5 py-2.5 text-xs font-bold transition ${tag === value ? "bg-[#002D62] text-white shadow-sm" : "border border-slate-200 bg-white text-slate-600 hover:border-[#002D62]"}`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
       </div>
       <div className="mt-4 grid gap-6 md:grid-cols-2 xl:grid-cols-3">

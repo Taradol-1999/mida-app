@@ -12,6 +12,8 @@ export type Project = {
   facilities: string[];
   landmarks: string[];
   has_cover?: boolean | number;
+  is_featured?: boolean | number;
+  is_new?: boolean | number;
 };
 
 // Sample catalogue based on public information from midaproperty.com.

@@ -148,7 +148,7 @@ export async function POST(request: Request, context: RouteContext) {
     switch (access.resource) {
       case "projects":
         await pool.execute(
-          "INSERT INTO projects (id, slug, name_th, name_en, location, property_type, starting_price, status, description) VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?)",
+          "INSERT INTO projects (id, slug, name_th, name_en, location, property_type, starting_price, status, is_featured, is_new, description) VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
           [
             value(body, "slug"),
             value(body, "name_th"),
@@ -157,6 +157,8 @@ export async function POST(request: Request, context: RouteContext) {
             value(body, "property_type"),
             numberValue(body, "starting_price"),
             value(body, "status"),
+            boolValue(body, "is_featured"),
+            boolValue(body, "is_new"),
             nullable(body, "description"),
           ],
         );
@@ -254,7 +256,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     switch (access.resource) {
       case "projects":
         await pool.execute(
-          "UPDATE projects SET slug=?, name_th=?, name_en=?, location=?, property_type=?, starting_price=?, status=?, description=? WHERE id=?",
+          "UPDATE projects SET slug=?, name_th=?, name_en=?, location=?, property_type=?, starting_price=?, status=?, is_featured=?, is_new=?, description=? WHERE id=?",
           [
             value(body, "slug"),
             value(body, "name_th"),
@@ -263,6 +265,8 @@ export async function PATCH(request: Request, context: RouteContext) {
             value(body, "property_type"),
             numberValue(body, "starting_price"),
             value(body, "status"),
+            boolValue(body, "is_featured"),
+            boolValue(body, "is_new"),
             nullable(body, "description"),
             id,
           ],
