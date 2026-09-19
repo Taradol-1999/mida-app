@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
-import { AdminResourceManager, adminResources, type AdminResource } from "@/components/admin-resource";
+import { AdminResourceManager } from "@/components/admin-resource";
+import { adminResources, type AdminResource } from "@/lib/admin-resources";
 import { requireUser } from "@/lib/auth";
 
 export default async function AdminResourcePage({ params }: { params: Promise<{ resource: string }> }) {

@@ -1,9 +1,8 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
+import { type AdminResource } from "@/lib/admin-resources";
 
-export const adminResources = ["projects", "house-types", "facilities", "promotions", "news", "leads", "content", "users"] as const;
-export type AdminResource = typeof adminResources[number];
 type Field = { name: string; label: string; type?: "text" | "number" | "textarea" | "select" | "checkbox" | "datetime" | "project" | "password"; options?: [string, string][]; required?: boolean };
 type Config = { title: string; intro: string; fields: Field[]; columns: [string, string][]; canCreate?: boolean; exportUrl?: string };
 
