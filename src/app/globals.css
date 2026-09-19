@@ -24,12 +24,12 @@ body {
 }
 
 @utility container-page {
-  width: min(100% - 2rem, 160rem);
+  width: min(100% - 20rem, 160rem);
   margin-inline: auto;
 }
 
 @utility project-container {
-  width: min(100% - 2rem, 160rem);
+  width: min(100% - 20rem, 160rem);
   margin-inline: auto;
 }
 
