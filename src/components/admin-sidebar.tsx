@@ -6,7 +6,7 @@ import type { SessionUser } from "@/lib/auth";
 import { LogoutButton } from "@/components/logout-button";
 
 type ProjectNavigation = { id: string; name: string };
-const projectMenus = [["projects", "Dashboard HP", "fa-chart-line"], ["house-types", "จัดการแบบบ้าน", "fa-house"], ["facilities", "สิ่งอำนวยความสะดวก", "fa-star"], ["promotions", "จัดการข้อมูลโปรโมชั่น", "fa-tags"], ["news", "จัดการข้อมูลข่าวสาร", "fa-newspaper"], ["leads", "รายชื่อผู้ลงทะเบียน", "fa-user-check"]] as const;
+const projectMenus = [["projects", "Dashboard HP", "fa-chart-line"], ["media", "จัดการรูปภาพโครงการ", "fa-images"], ["house-types", "จัดการแบบบ้าน", "fa-house"], ["facilities", "สิ่งอำนวยความสะดวก", "fa-star"], ["promotions", "จัดการข้อมูลโปรโมชั่น", "fa-tags"], ["news", "จัดการข้อมูลข่าวสาร", "fa-newspaper"], ["leads", "รายชื่อผู้ลงทะเบียน", "fa-user-check"]] as const;
 
 function initials(name: string) { return name.split(" ").map((part) => part[0]).join("").slice(0, 2).toUpperCase() || "AD"; }
 

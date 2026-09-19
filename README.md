@@ -51,7 +51,9 @@ password: MidaAdmin@2026!
 
 ## Database
 
-ไฟล์ `database/schema.sql` สามารถรันซ้ำได้โดยไม่ลบข้อมูลเดิม และมี sample catalogue 4 โครงการที่อ้างอิงข้อมูลสาธารณะจาก [MIDA Property](https://www.midaproperty.com/) ได้แก่ Grand Village เพชรเกษม, Town Village Prapa, Roipruksa Lakeville และ THE CODE ลำพยา ราคาและสถานะเป็นข้อมูลตัวอย่าง จึงต้องยืนยันกับฝ่ายขายก่อนเผยแพร่จริง ตารางสำคัญคือ `users`, `projects`, `house_types`, `facilities`, `promotions`, `news_items`, `leads`, `site_content` และ `page_views`
+ไฟล์ `database/schema.sql` สามารถรันซ้ำได้โดยไม่ลบข้อมูลเดิม และมี sample catalogue 4 โครงการที่อ้างอิงข้อมูลสาธารณะจาก [MIDA Property](https://www.midaproperty.com/) ได้แก่ Grand Village เพชรเกษม, Town Village Prapa, Roipruksa Lakeville และ THE CODE ลำพยา ราคาและสถานะเป็นข้อมูลตัวอย่าง จึงต้องยืนยันกับฝ่ายขายก่อนเผยแพร่จริง ตารางสำคัญคือ `users`, `projects`, `house_types`, `facilities`, `promotions`, `news_items`, `leads`, `site_content`, `media_assets` และ `page_views`
+
+รูปภาพที่อัปโหลดจากหลังบ้านเก็บเป็นไฟล์จริงใน `public/uploads/` และ MySQL เก็บเฉพาะ metadata ใน `media_assets` เพื่อผูกรูปกับข้อมูลแต่ละรายการ จึงไม่มีการใช้ URL ของผู้ให้บริการภายนอก
 
 ## โครงสร้าง
 

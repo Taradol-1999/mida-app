@@ -107,6 +107,23 @@ CREATE TABLE IF NOT EXISTS site_content (
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+-- Image files uploaded by administrators. Files are stored locally in public/uploads;
+-- MySQL keeps only their metadata and ownership, never an external URL.
+CREATE TABLE IF NOT EXISTS media_assets (
+  id CHAR(36) PRIMARY KEY,
+  entity_type VARCHAR(40) NOT NULL,
+  entity_id CHAR(36) NOT NULL,
+  media_kind VARCHAR(40) NOT NULL DEFAULT 'cover',
+  original_name VARCHAR(255) NOT NULL,
+  mime_type VARCHAR(100) NOT NULL,
+  file_size INT UNSIGNED NOT NULL,
+  storage_key VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_media_entity_kind (entity_type, entity_id, media_kind),
+  INDEX idx_media_entity (entity_type, entity_id)
+);
+
 -- Public-project sample data based on midaproperty.com, captured 2026-09-19.
 -- Prices, availability, and marketing terms must be confirmed before public use.
 INSERT INTO projects (id, slug, name_th, location, property_type, starting_price, status, description) VALUES
