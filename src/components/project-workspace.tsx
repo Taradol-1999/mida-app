@@ -146,7 +146,7 @@ export function ProjectWorkspace({
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [heroFiles, setHeroFiles] = useState<File[]>([]);
-  const [heroImages, setHeroImages] = useState<{ id: string; name: string; url: string }[]>([]);
+  const [heroImages, setHeroImages] = useState<{ id: string; name: string; mimeType: string; url: string }[]>([]);
   const [stats, setStats] = useState({ leads: 0, homes: 0, promos: 0, news: 0 });
   const load = useCallback(async () => {
     if (section === "dashboard") {
@@ -240,7 +240,7 @@ export function ProjectWorkspace({
       const imageResponse = await fetch("/api/admin/media", { method: "POST", body: upload });
       if (!imageResponse.ok) {
         const result = await imageResponse.json();
-        setMessage(result.message ?? "บันทึกข้อความแล้ว แต่ยังอัปโหลดรูปไม่สำเร็จ");
+        setMessage(result.message ?? "บันทึกข้อความแล้ว แต่ยังอัปโหลดไฟล์ Hero ไม่สำเร็จ");
         setBusy(false);
         return;
       }
@@ -255,7 +255,7 @@ export function ProjectWorkspace({
     setHeroImages(images.rows ?? []);
   };
   const removeHero = async (id: string) => {
-    if (!confirm("ต้องการลบรูปภาพนี้ใช่หรือไม่")) return;
+    if (!confirm("ต้องการลบไฟล์ Hero นี้ใช่หรือไม่")) return;
     const response = await fetch(
       `/api/admin/media?entityType=projects&entityId=${projectId}&mediaKind=hero&mediaId=${id}`,
       { method: "DELETE" },
@@ -308,10 +308,7 @@ export function ProjectWorkspace({
         <header className="border-b border-slate-200 pb-5">
           <h1 className="text-xl font-bold text-slate-800">จัดการข้อมูลหน้าหลักโครงการ (Manage Homepage Details)</h1>
         </header>
-        <form
-          onSubmit={saveHomepage}
-          className="mt-6 max-w-5xl rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
-        >
+        <form onSubmit={saveHomepage} className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="grid gap-5 md:grid-cols-2">
             {fields.map((field) => (
               <label key={field.key} className="text-sm font-bold text-slate-700">
@@ -334,27 +331,33 @@ export function ProjectWorkspace({
             ))}
           </div>
           <div className="mt-6">
-            <p className="text-sm font-bold text-slate-700">รูปภาพสไลด์แบนเนอร์หลัก (Hero Banner Image)</p>
+            <p className="text-sm font-bold text-slate-700">รูปภาพหรือวิดีโอสไลด์แบนเนอร์หลัก (Hero Banner Media)</p>
             <label className="mt-2 flex min-h-22 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 px-5 text-center text-sm font-semibold text-slate-400 hover:border-indigo-400 hover:bg-indigo-50">
               <input
                 type="file"
                 multiple
-                accept="image/jpeg,image/png,image/webp"
+                accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
                 className="sr-only"
                 onChange={(event) => setHeroFiles(Array.from(event.target.files ?? []))}
               />
               <span>
-                <i className="fa-solid fa-images mr-2 text-2xl align-middle text-slate-400" />
+                <i className="fa-solid fa-photo-film mr-2 text-2xl align-middle text-slate-400" />
                 {heroFiles.length
-                  ? `เลือกแล้ว ${heroFiles.length} รูป`
-                  : "คลิกเพื่อเลือกหลายไฟล์ หรือ ลากรูปภาพวางที่นี่"}
+                  ? `เลือกแล้ว ${heroFiles.length} ไฟล์`
+                  : "คลิกเพื่อเลือกหลายไฟล์ หรือลากรูปภาพ/วิดีโอมาวางที่นี่"}
               </span>
             </label>
-            <p className="mt-2 text-xs text-slate-400">รองรับ JPG, PNG และ WEBP ขนาดไม่เกิน 5 MB ต่อรูป</p>
+            <p className="mt-2 text-xs text-slate-400">
+              รองรับ JPG, PNG, WEBP ไม่เกิน 5 MB และ MP4, WEBM ไม่เกิน 50 MB ต่อไฟล์
+            </p>
             <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
               {heroImages.map((image) => (
                 <div key={image.id} className="relative overflow-hidden rounded-lg border">
-                  <img src={image.url} alt={image.name} className="h-24 w-full object-cover" />
+                  {image.mimeType.startsWith("video/") ? (
+                    <video src={image.url} className="h-24 w-full object-cover" muted playsInline preload="metadata" />
+                  ) : (
+                    <img src={image.url} alt={image.name} className="h-24 w-full object-cover" />
+                  )}
                   <button
                     type="button"
                     onClick={() => void removeHero(image.id)}
