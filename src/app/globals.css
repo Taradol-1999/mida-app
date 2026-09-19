@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+:root {
+  --mida-blue: #002d62;
+  --mida-navy: #001b3d;
+  --mida-gold: #f5a623;
+  --mida-ink: #15253a;
+  --mida-mist: #f5f7fa;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--mida-mist);
+  color: var(--mida-ink);
+  font-family: Arial, "Noto Sans Thai", sans-serif;
+}
+
+@utility container-page {
+  width: min(100% - 2rem, 76rem);
+  margin-inline: auto;
+}
+
+@utility section-title {
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--mida-blue);
+}
+
+@utility button-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.75rem;
+  background: var(--mida-blue);
+  padding: 0.75rem 1.1rem;
+  font-weight: 700;
+  color: white;
+  transition: background 160ms ease, transform 160ms ease;
+}
+
+.button-primary:hover { background: var(--mida-navy); transform: translateY(-1px); }
+.gold-rule { height: 3px; width: 4rem; border-radius: 100px; background: var(--mida-gold); }
+.hero-shade { background: linear-gradient(105deg, rgba(0, 27, 61, .96), rgba(0, 45, 98, .72), rgba(0, 45, 98, .30)); }

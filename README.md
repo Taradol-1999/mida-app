@@ -1,0 +1,50 @@
+# MIDA App
+
+เว็บแอปสำหรับเว็บไซต์อสังหาริมทรัพย์ MIDA และระบบจัดการหลังบ้าน โดยใช้ Next.js, TypeScript, Tailwind CSS และ MySQL
+
+## สิ่งที่มีในเวอร์ชันนี้
+
+- หน้าเว็บไซต์ MIDA: Hero, ค้นหา/กรองโครงการ, รายการโครงการ, ข่าวสาร, ทำเล และปุ่มนัดชมแบบ popup
+- หน้ารายละเอียดโครงการ พร้อมส่วนแบบบ้าน ส่วนกลาง โปรโมชั่น และพื้นที่แผนที่สำหรับเชื่อม Google Maps 3D
+- หลังบ้าน `/admin` ที่ล็อกอินด้วย session แบบ HTTP-only cookie พร้อมสิทธิ์ `SUPER_ADMIN`, `ADMIN`, `USER`
+- MySQL schema สำหรับโครงการ บ้าน สิ่งอำนวยความสะดวก โปรโมชั่น ข่าว Leads และข้อมูลสถิติ
+- API รับ Lead และ API เข้าสู่ระบบ/ออกจากระบบ
+
+## เริ่มใช้งาน
+
+1. ติดตั้งแพ็กเกจด้วย `pnpm install`
+2. คัดลอก `.env.example` เป็น `.env.local` แล้วเติมค่า MySQL และ `AUTH_SECRET`
+3. สร้างตาราง: `mysql -u root -p < database/schema.sql`
+4. สร้างผู้ดูแลระบบ (ตัวอย่าง):
+
+   ```bash
+   DB_PASSWORD='your-password' node scripts/create-admin.mjs "MIDA Admin" admin@mida.local "choose-a-strong-password"
+   ```
+
+5. เปิดเว็บ: `pnpm dev`
+6. เข้าเว็บที่ `http://localhost:3000` และเข้าหลังบ้านที่ `http://localhost:3000/login`
+
+## ตัวแปรแวดล้อม
+
+ดูรายการครบถ้วนใน `.env.example` ข้อมูลลับต้องอยู่ใน `.env.local` เท่านั้น และห้าม commit ไฟล์นี้
+
+## Database
+
+ไฟล์ `database/schema.sql` สามารถรันซ้ำได้โดยไม่ลบข้อมูลเดิม และมีตัวอย่างโครงการเริ่มต้น 2 โครงการ ตารางสำคัญคือ `users`, `projects`, `house_types`, `facilities`, `promotions`, `news_items`, `leads`, และ `page_views`
+
+## โครงสร้าง
+
+```text
+src/app/              หน้าเว็บและ Route Handlers
+src/components/       ส่วน UI ที่มี interaction
+src/lib/              MySQL และ session authentication
+database/schema.sql   โครงสร้าง MySQL
+scripts/              utility สำหรับสร้างบัญชีผู้ดูแล
+```
+
+## ก่อนนำขึ้น production
+
+- เปลี่ยน `AUTH_SECRET` เป็น random secret ที่ยาวอย่างน้อย 32 ตัวอักษร
+- ใช้รหัสผ่านฐานข้อมูลที่ไม่ใช่ root และจำกัดสิทธิ์ตามหลัก least privilege
+- เชื่อม Google Maps API, ระบบส่งอีเมล/Google Sheets และ media storage ด้วยค่า production
+- เพิ่ม CSRF/rate limit สำหรับ endpoint สาธารณะ และตั้งค่า HTTPS
