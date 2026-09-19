@@ -24,6 +24,15 @@
 5. เปิดเว็บ: `pnpm dev`
 6. เข้าเว็บที่ `http://localhost:3000` และเข้าหลังบ้านที่ `http://localhost:3000/login`
 
+## ใช้งานด้วย VS Code
+
+1. เปิดโฟลเดอร์ `mida-app` ใน VS Code แล้วติดตั้ง extension ที่โปรเจกต์แนะนำ
+2. กด `Cmd+Shift+P` แล้วเลือก `Tasks: Run Task` > `MIDA: Install dependencies` เมื่อเปิดโปรเจกต์ครั้งแรก
+3. เปิดแถบ Run and Debug (`Cmd+Shift+D`) แล้วเลือก `MIDA: Run Next.js (Webpack)` จากนั้นกด Start
+4. เปิด `http://localhost:3000` ในเบราว์เซอร์
+
+สามารถใช้ Terminal ใน VS Code โดยตรงด้วย `npm run dev:webpack` ได้เช่นกัน
+
 ## ตัวแปรแวดล้อม
 
 ดูรายการครบถ้วนใน `.env.example` ข้อมูลลับต้องอยู่ใน `.env.local` เท่านั้น และห้าม commit ไฟล์นี้

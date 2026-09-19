@@ -1,0 +1,30 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "MIDA: Install dependencies",
+      "type": "shell",
+      "command": "npm install",
+      "problemMatcher": []
+    },
+    {
+      "label": "MIDA: Start development server",
+      "type": "shell",
+      "command": "npm run dev:webpack",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "MIDA: Lint",
+      "type": "shell",
+      "command": "npm run lint",
+      "problemMatcher": []
+    },
+    {
+      "label": "MIDA: Production build",
+      "type": "shell",
+      "command": "npm run build -- --webpack",
+      "problemMatcher": []
+    }
+  ]
+}
