@@ -4,7 +4,7 @@
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
 
-type Media = { id: string; name: string; url: string };
+type Media = { id: string; name: string; mimeType: string; url: string };
 
 export function MidaFrontendManager() {
   const [contentId, setContentId] = useState("");
@@ -53,7 +53,7 @@ export function MidaFrontendManager() {
     }
     if (!contentId) {
       await load();
-      setMessage("บันทึกข้อความแล้ว กรุณากดบันทึกอีกครั้งเพื่ออัปโหลดรูปภาพ");
+      setMessage("บันทึกข้อความแล้ว กรุณากดบันทึกอีกครั้งเพื่ออัปโหลดรูปภาพหรือวิดีโอ");
       setBusy(false);
       return;
     }
@@ -65,7 +65,7 @@ export function MidaFrontendManager() {
       upload.set("file", file);
       const uploadResponse = await fetch("/api/admin/media", { method: "POST", body: upload });
       if (!uploadResponse.ok) {
-        setMessage("บันทึกข้อความแล้ว แต่มีรูปภาพบางรายการอัปโหลดไม่สำเร็จ");
+        setMessage("บันทึกข้อความแล้ว แต่มีไฟล์สไลด์บางรายการอัปโหลดไม่สำเร็จ");
         setBusy(false);
         return;
       }
@@ -115,15 +115,19 @@ export function MidaFrontendManager() {
           />
         </label>
         <div>
-          <p className="font-semibold text-slate-700">รูปภาพแบนเนอร์สไลด์หลักหน้าแรกส่วนกลาง (Main Frontend Slider)</p>
+          <p className="font-semibold text-slate-700">
+            รูปภาพและวิดีโอแบนเนอร์สไลด์หลักหน้าแรกส่วนกลาง (Main Frontend Slider)
+          </p>
           <label className="mt-2 flex min-h-32 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-6 text-center text-slate-400 hover:bg-slate-100">
             <i className="fa-regular fa-image mb-2 text-3xl text-indigo-500" />
-            <span>{files.length ? `เลือกแล้ว ${files.length} รูป` : "อัปโหลดรูปภาพสไลด์หน้าเว็บกลาง"}</span>
-            <small className="mt-1">แนะนำขนาด 1920 × 800 px · เลือกได้หลายรูป</small>
+            <span>{files.length ? `เลือกแล้ว ${files.length} ไฟล์` : "อัปโหลดรูปภาพหรือวิดีโอสไลด์หน้าเว็บกลาง"}</span>
+            <small className="mt-1">
+              รูปแนะนำขนาด 1920 × 800 px · วิดีโอ MP4/WEBM ไม่เกิน 50 MB · เลือกได้หลายไฟล์
+            </small>
             <input
               type="file"
               multiple
-              accept="image/jpeg,image/png,image/webp"
+              accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
               className="sr-only"
               onChange={(event) => setFiles(Array.from(event.target.files ?? []))}
             />
@@ -131,7 +135,11 @@ export function MidaFrontendManager() {
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
             {images.map((image) => (
               <div key={image.id} className="relative overflow-hidden rounded-xl border border-slate-200">
-                <img src={image.url} alt={image.name} className="h-28 w-full object-cover" />
+                {image.mimeType.startsWith("video/") ? (
+                  <video src={image.url} className="h-28 w-full object-cover" muted playsInline preload="metadata" />
+                ) : (
+                  <img src={image.url} alt={image.name} className="h-28 w-full object-cover" />
+                )}
                 <button
                   type="button"
                   onClick={() => void removeImage(image.id)}

@@ -149,7 +149,9 @@ export function ProjectFilter() {
               โครงการทั้งหมด
             </p>
             <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-800">เลือกบ้านที่ใช่สำหรับคุณ</h2>
-            <p className="mt-2 text-sm text-slate-400">ข้อมูลโครงการดึงจากระบบจัดการหลังบ้าน MIDA</p>
+            <p className="mt-2 text-sm text-slate-400">
+              เลือกสไตล์ฟิลเตอร์เพื่อรับชมกลุ่มโครงการที่แมตช์กับไลฟ์สไตล์คุณ
+            </p>
           </div>
           <span className="rounded-full bg-[#002D62] px-4 py-2 text-xs font-bold text-white">
             พบ {visible.length} โครงการ

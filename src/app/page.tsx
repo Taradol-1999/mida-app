@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { RowDataPacket } from "mysql2";
+import { HeroImageSlider } from "@/components/hero-image-slider";
 import { LeadModal } from "@/components/lead-modal";
+import { NewsPromotionSlider, type NewsPromotionItem } from "@/components/news-promotion-slider";
 import { ProjectFilter } from "@/components/project-filter";
 import { db } from "@/lib/db";
 
@@ -12,7 +14,7 @@ const nav = [
   { href: "#location", label: "ทำเลที่ตั้ง" },
 ];
 
-const defaultUpdates = [
+const defaultUpdates: NewsPromotionItem[] = [
   ["PROMOTION", "สิทธิพิเศษสำหรับครอบครัว MIDA", "ข้อเสนอพิเศษสำหรับลูกค้าใหม่และลูกค้า MIDA Family"],
   ["NEWS", "MIDA ร่วมมือกับ ธอส.", "สนับสนุนการเข้าถึงที่อยู่อาศัยอย่างมั่นคง"],
   ["EVENT", "พบกันที่งาน MIDA Home Fair", "เยี่ยมชมโครงการและรับข้อเสนอภายในงาน"],
@@ -21,25 +23,37 @@ const defaultUpdates = [
 async function homeData() {
   try {
     const pool = db();
-    const [contentRows, updateRows] = await Promise.all([
+    const [contentRows, updateRows, heroImageRows] = await Promise.all([
       pool.query<RowDataPacket[]>("SELECT content_key, title, body FROM site_content"),
       pool.query<RowDataPacket[]>(
-        `SELECT tag, title, detail FROM (SELECT 'PROMOTION' AS tag, title, COALESCE(body, '') AS detail, created_at AS published_on FROM promotions WHERE is_published=TRUE UNION ALL SELECT category AS tag, title, COALESCE(body, '') AS detail, published_at AS published_on FROM news_items WHERE is_published=TRUE) updates ORDER BY published_on DESC LIMIT 3`,
+        `SELECT tag, title, detail FROM (SELECT 'PROMOTION' AS tag, title, COALESCE(body, '') AS detail, created_at AS published_on FROM promotions WHERE is_published=TRUE UNION ALL SELECT category AS tag, title, COALESCE(body, '') AS detail, published_at AS published_on FROM news_items WHERE is_published=TRUE) updates ORDER BY published_on DESC LIMIT 12`,
+      ),
+      pool.query<RowDataPacket[]>(
+        `SELECT m.original_name, m.mime_type, m.storage_key
+         FROM media_assets m
+         INNER JOIN site_content s ON s.id = m.entity_id
+         WHERE m.entity_type='site-content' AND m.media_kind='hero' AND s.content_key='home_hero'
+         ORDER BY m.sort_order, m.created_at`,
       ),
     ]);
     return {
       content: Object.fromEntries(contentRows[0].map((row) => [row.content_key, { title: row.title, body: row.body }])),
       updates: updateRows[0].length
-        ? updateRows[0].map((row) => [String(row.tag), String(row.title), String(row.detail)])
+        ? updateRows[0].map((row) => [String(row.tag), String(row.title), String(row.detail)] as NewsPromotionItem)
         : defaultUpdates,
+      heroImages: heroImageRows[0].map((row) => ({
+        src: `/${String(row.storage_key)}`,
+        alt: String(row.original_name || "แบนเนอร์ MIDA Property"),
+        type: String(row.mime_type).startsWith("video/") ? ("video" as const) : ("image" as const),
+      })),
     };
   } catch {
-    return { content: {}, updates: defaultUpdates };
+    return { content: {}, updates: defaultUpdates, heroImages: [] };
   }
 }
 
 export default async function HomePage() {
-  const { content, updates } = await homeData();
+  const { content, updates, heroImages } = await homeData();
   return (
     <main>
       <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur">
@@ -47,7 +61,7 @@ export default async function HomePage() {
           <Link href="/" className="flex items-center gap-2 font-extrabold tracking-tight text-[#002D62]">
             <span className="grid size-9 place-items-center rounded bg-[#002D62] text-sm text-white">M</span>
             <span>
-              MIDA <span className="hidden sm:inline">AGENCY & DEVELOPMENT</span>
+              MIDA <span className="hidden sm:inline">PROPERTY</span>
             </span>
           </Link>
           <nav className="hidden items-center gap-7 text-sm font-semibold text-slate-600 md:flex">
@@ -65,40 +79,17 @@ export default async function HomePage() {
           </nav>
         </div>
       </header>
-      <section className="relative overflow-hidden bg-[#002D62]">
-        <div className="hero-shade absolute inset-0" />
-        <div className="container-page relative min-h-120 py-24 text-white md:flex md:items-center">
-          <div className="max-w-3xl">
-            <p className="mb-5 inline-flex rounded-full border border-white/30 bg-white/10 px-4 py-2 text-sm font-bold tracking-wide text-[#f8c366]">
-              PREMIUM RESIDENCES
-            </p>
-            <h1 className="max-w-2xl text-4xl font-extrabold leading-tight md:text-6xl">
-              {content.home_hero?.title ?? "พื้นที่ที่ตอบทุกนิยามของคำว่า บ้าน"}
-            </h1>
-            <p className="mt-6 max-w-xl text-lg leading-8 text-slate-100">
-              {content.home_hero?.body ??
-                "ค้นพบโครงการคุณภาพจาก MIDA ที่ออกแบบเพื่อการอยู่อาศัยอย่างมีความสุข และเติบโตได้ในทุกวัน"}
-            </p>
-            <a className="button-primary mt-8 bg-[#F5A623] text-[#001B3D] hover:bg-[#ffc256]" href="#projects">
-              ค้นหาโครงการ
-            </a>
-          </div>
-        </div>
-      </section>
+      <HeroImageSlider
+        images={heroImages}
+        title={content.home_hero?.title ?? ""}
+        description={content.home_hero?.body ?? ""}
+      />
       <ProjectFilter />
       <section id="promotion" className="bg-white py-16">
         <div className="container-page">
           <div className="gold-rule mb-3" />
           <h2 className="section-title">ข่าวสารและโปรโมชั่น</h2>
-          <div className="mt-7 grid gap-5 md:grid-cols-3">
-            {updates.map(([tag, title, detail]) => (
-              <article key={`${tag}-${title}`} className="rounded-2xl border border-slate-200 p-6">
-                <p className="text-xs font-extrabold text-[#F5A623]">{tag}</p>
-                <h3 className="mt-3 text-xl font-extrabold text-[#002D62]">{title}</h3>
-                <p className="mt-3 text-sm leading-6 text-slate-500">{detail}</p>
-              </article>
-            ))}
-          </div>
+          <NewsPromotionSlider items={updates} />
         </div>
       </section>
       <section id="location" className="container-page py-16">

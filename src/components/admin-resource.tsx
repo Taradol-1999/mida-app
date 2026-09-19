@@ -289,6 +289,7 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
   useEffect(() => {
     void load();
   }, [load]);
+
   const reset = () => {
     setEditing(null);
     setForm(initialValues(config));
@@ -357,7 +358,7 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
           )}
         </div>
       </div>
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4">
         {config.fields.map((field) => (
           <label
             key={field.name}
@@ -489,7 +490,7 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
                             {display(field, row[field])}
                           </span>
                         ) : (
-                          <span className="break-words">{display(field, row[field])}</span>
+                          <span className="wrap-break-word">{display(field, row[field])}</span>
                         )}
                       </td>
                     ))}

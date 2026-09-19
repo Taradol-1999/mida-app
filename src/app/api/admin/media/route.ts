@@ -17,7 +17,13 @@ const entities = {
   "site-content": "site_content",
 } as const;
 type EntityType = keyof typeof entities;
-const mimeExtensions: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
+const mimeExtensions: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "video/mp4": "mp4",
+  "video/webm": "webm",
+};
 const uploadsDirectory = path.join(process.cwd(), "public", "uploads");
 function isEntityType(value: string): value is EntityType {
   return value in entities;
@@ -56,6 +62,7 @@ export async function GET(request: Request) {
       rows: rows.map((row) => ({
         id: row.id,
         name: row.original_name,
+        mimeType: row.mime_type,
         url: `/api/admin/media?entityType=${entityType}&entityId=${entityId}&mediaKind=${mediaKind}&mediaId=${row.id}`,
       })),
     });
@@ -87,8 +94,13 @@ export async function POST(request: Request) {
   )
     return NextResponse.json({ message: "ข้อมูลอัปโหลดไม่ถูกต้อง" }, { status: 400 });
   const extension = mimeExtensions[file.type];
-  if (!extension || !file.size || file.size > 5 * 1024 * 1024)
-    return NextResponse.json({ message: "รองรับ JPG, PNG, WEBP ขนาดไม่เกิน 5 MB" }, { status: 400 });
+  const isVideo = file.type.startsWith("video/");
+  const sizeLimit = isVideo ? 50 * 1024 * 1024 : 5 * 1024 * 1024;
+  if (!extension || !file.size || file.size > sizeLimit)
+    return NextResponse.json(
+      { message: "รองรับ JPG, PNG, WEBP ไม่เกิน 5 MB และ MP4, WEBM ไม่เกิน 50 MB" },
+      { status: 400 },
+    );
   const [entityRows] = await db().execute<RowDataPacket[]>(
     `SELECT id FROM ${entities[entityType]} WHERE id=? LIMIT 1`,
     [entityId],

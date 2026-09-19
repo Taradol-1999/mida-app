@@ -113,9 +113,16 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
     <main className="bg-slate-50">
       <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
         <div className="container-page flex min-h-18 items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-2 font-extrabold text-[#002D62]">
-            <span className="grid size-7 place-items-center rounded-full bg-red-500 text-xs text-white">M</span>MIDA
-            PROJECT SITE <span className="hidden text-xs font-normal text-slate-400 sm:inline">| เฉพาะโครงการ</span>
+          <Link
+            href="/"
+            aria-label={`กลับหน้าหลัก MIDA จากโครงการ ${project.name}`}
+            className="flex min-w-0 items-center gap-2 font-extrabold text-[#002D62]"
+          >
+            <span className="grid size-7 shrink-0 place-items-center rounded-full bg-red-500 text-xs text-white">
+              M
+            </span>
+            <span className="shrink-0">MIDA</span>
+            <span className="truncate border-l border-slate-300 pl-2 text-sm sm:text-base">{project.name}</span>
           </Link>
           <nav className="hidden items-center gap-5 text-xs font-semibold text-slate-600 lg:flex">
             <a href="#overview" className="border-b-2 border-[#002D62] pb-1 text-[#002D62]">
@@ -133,13 +140,10 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           </a>
         </div>
       </header>
-      <section className="relative flex h-[360px] items-center justify-center overflow-hidden bg-[#001B3D] p-8 text-center text-white">
+      <section className="relative flex h-90 items-center justify-center overflow-hidden bg-[#001B3D] p-8 text-center text-white">
         {project.coverUrl && <img src={project.coverUrl} alt="" className="absolute inset-0 size-full object-cover" />}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/70" />
+        <div className="absolute inset-0 bg-linear-to-b from-black/20 to-black/70" />
         <div className="relative z-10 max-w-2xl">
-          <p className="inline-block rounded-md bg-red-500 px-3 py-1 text-[10px] font-black tracking-widest">
-            PREMIUM RESIDENCES
-          </p>
           <h1 className="mt-4 text-3xl font-black tracking-tight md:text-5xl">{heroTitle}</h1>
           <p className="mt-4 text-sm leading-7 text-white/90">{heroDescription}</p>
           <p className="mt-5 text-lg font-extrabold text-[#f8c366]">ราคาเริ่มต้น {project.price}</p>
@@ -170,7 +174,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         <section className="bg-white py-16">
           <div className="container-page">
             <div className="gold-rule mb-3" />
-            <h2 className="section-title">แบบบ้าน</h2>
+            <h2 className="section-title">รูปแบบบ้านและราคาเริ่มต้น (House Types)</h2>
             <div className="mt-7 grid gap-4 md:grid-cols-3">
               {project.houseTypes.map((house) => (
                 <article key={house.name} className="rounded-2xl border border-slate-200 p-5">

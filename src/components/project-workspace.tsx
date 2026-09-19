@@ -4,7 +4,6 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 
 type Section = "dashboard" | "homepage" | "house-types" | "facilities" | "promotions" | "news" | "contact" | "leads";
 type Field = {
@@ -379,8 +378,6 @@ export function ProjectWorkspace({
     );
   const title = settingMode ? "จัดการข้อมูลติดต่อ & แผนที่" : (dataConfig?.title ?? "");
   const intro = settingMode ? "ตั้งค่าเบอร์โทร อีเมล แผนที่ และสถานที่ใกล้เคียง" : (dataConfig?.intro ?? "");
-  // The homepage branch returns above; this retained generic header also supports all other sections.
-  // @ts-ignore -- section is narrowed by the earlier return branch.
   return (
     <>
       <header className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-200 pb-5">
@@ -389,15 +386,6 @@ export function ProjectWorkspace({
           <h1 className="mt-1 text-xl font-bold text-slate-800">{title}</h1>
           <p className="mt-1 text-sm text-slate-500">{intro}</p>
         </div>
-        {section === "homepage" && (
-          <Link
-            href={`/admin/media?project=${projectId}`}
-            className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-bold text-white"
-          >
-            <i className="fa-solid fa-image mr-2" />
-            จัดการรูปภาพ
-          </Link>
-        )}
         {section === "leads" && (
           <a
             href="/api/admin/leads?format=csv"
