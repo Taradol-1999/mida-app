@@ -1,8 +1,9 @@
 export type Project = {
+  id?: string;
   slug: string;
   name: string;
   location: string;
-  type: "บ้านเดี่ยว" | "ทาวน์โฮม";
+  type: "บ้านเดี่ยว" | "บ้านแฝด" | "ทาวน์โฮม" | "อาคารพาณิชย์";
   price: string;
   startingPrice: number;
   status: "พร้อมอยู่" | "กำลังก่อสร้าง";
@@ -10,6 +11,7 @@ export type Project = {
   description: string;
   facilities: string[];
   landmarks: string[];
+  has_cover?: boolean | number;
 };
 
 // Sample catalogue based on public information from midaproperty.com.
