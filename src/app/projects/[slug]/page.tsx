@@ -178,7 +178,10 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         description={heroDescription}
         meta={`ราคาเริ่มต้น ${project.price}`}
       />
-      <section id="overview" className="project-container grid gap-8 py-10 lg:grid-cols-2">
+      <section
+        id="overview"
+        className="project-container grid items-start gap-8 py-10 lg:grid-cols-[minmax(0,1.35fr)_minmax(22rem,.65fr)]"
+      >
         <ProjectGallery items={project.galleryMedia} />
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <h2 className="border-b border-slate-100 pb-3 text-base font-bold text-[#002D62]">
