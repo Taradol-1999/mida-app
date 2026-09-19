@@ -124,6 +124,22 @@ CREATE TABLE IF NOT EXISTS media_assets (
   INDEX idx_media_entity (entity_type, entity_id)
 );
 
+-- Per-project homepage and contact details used by the project CMS menus.
+CREATE TABLE IF NOT EXISTS project_settings (
+  project_id CHAR(36) PRIMARY KEY,
+  hero_title_th VARCHAR(255) NULL,
+  hero_title_en VARCHAR(255) NULL,
+  hero_subtitle_th TEXT NULL,
+  hero_subtitle_en TEXT NULL,
+  phone VARCHAR(50) NULL,
+  email VARCHAR(190) NULL,
+  map_url TEXT NULL,
+  nearby_places_th TEXT NULL,
+  nearby_places_en TEXT NULL,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+);
+
 -- Public-project sample data based on midaproperty.com, captured 2026-09-19.
 -- Prices, availability, and marketing terms must be confirmed before public use.
 INSERT INTO projects (id, slug, name_th, location, property_type, starting_price, status, description) VALUES

@@ -19,9 +19,9 @@ function isEntityType(value: string): value is EntityType { return value in enti
 async function authorise() { const user = await getSession(); return user && user.role !== "USER" ? user : null; }
 
 export async function GET(request: Request) {
-  if (!await authorise()) return NextResponse.json({ message: "กรุณาเข้าสู่ระบบด้วยสิทธิ์ผู้ดูแล" }, { status: 401 });
   const url = new URL(request.url); const entityType = url.searchParams.get("entityType") ?? ""; const entityId = url.searchParams.get("entityId") ?? "";
   if (!isEntityType(entityType) || !idSchema.safeParse(entityId).success) return NextResponse.json({ message: "คำขอรูปภาพไม่ถูกต้อง" }, { status: 400 });
+  if (entityType !== "projects" && !await authorise()) return NextResponse.json({ message: "กรุณาเข้าสู่ระบบด้วยสิทธิ์ผู้ดูแล" }, { status: 401 });
   const [rows] = await db().execute<RowDataPacket[]>("SELECT storage_key, mime_type FROM media_assets WHERE entity_type=? AND entity_id=? AND media_kind='cover' LIMIT 1", [entityType, entityId]);
   const media = rows[0]; if (!media) return NextResponse.json({ message: "ยังไม่มีรูปภาพ" }, { status: 404 });
   try { const file = await readFile(path.join(process.cwd(), "public", String(media.storage_key))); return new Response(file, { headers: { "Content-Type": String(media.mime_type), "Cache-Control": "private, max-age=3600" } }); } catch { return NextResponse.json({ message: "ไม่พบไฟล์รูปภาพบนเครื่อง" }, { status: 404 }); }
