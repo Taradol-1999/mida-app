@@ -99,6 +99,26 @@ CREATE TABLE IF NOT EXISTS page_views (
   INDEX idx_page_views_created_at (created_at)
 );
 
-INSERT IGNORE INTO projects (id, slug, name_th, location, property_type, starting_price, status, description) VALUES
-  ('4afb9476-3ab8-4e93-9010-6c2673cce301', 'mida-grand-nakhon-pathom', 'มิดาเรนท์ แกรนด์ นครปฐม', 'นครปฐม', 'DETACHED_HOUSE', 4590000.00, 'READY', 'บ้านเดี่ยวสำหรับครอบครัว'),
-  ('197f0b10-90bf-4d9c-bdf9-6dc9c8444e06', 'mida-town-kamphaeng-saen', 'ไมด้า ทาวน์ กำแพงแสน', 'กำแพงแสน', 'TOWNHOME', 2390000.00, 'READY', 'ทาวน์โฮมทำเลกำแพงแสน');
+-- Public-project sample data based on midaproperty.com, captured 2026-09-19.
+-- Prices, availability, and marketing terms must be confirmed before public use.
+INSERT INTO projects (id, slug, name_th, location, property_type, starting_price, status, description) VALUES
+  ('dba6db65-f538-49d0-aac8-47cd977ed001', 'grand-village-petchkasem', 'Grand Village เพชรเกษม', 'นครปฐม', 'DETACHED_HOUSE', 2500000.00, 'READY', 'บ้านเดี่ยวและทาวน์โฮมสไตล์โมเดิร์นบนทำเลใกล้เมืองนครปฐม'),
+  ('dba6db65-f538-49d0-aac8-47cd977ed002', 'town-village-prapa', 'Town Village Prapa', 'นครปฐม', 'TOWNHOME', 2159000.00, 'READY', 'โครงการบ้านและทาวน์โฮมสไตล์โมเดิร์น บนทำเลฝั่งเมืองนครปฐม'),
+  ('dba6db65-f538-49d0-aac8-47cd977ed003', 'roipruksa-lakeville', 'Roipruksa Lakeville', 'นครปฐม', 'DETACHED_HOUSE', 5290000.00, 'READY', 'บ้านเดี่ยวบรรยากาศริมทะเลสาบส่วนตัว พร้อมพื้นที่พักผ่อนสำหรับครอบครัว'),
+  ('dba6db65-f538-49d0-aac8-47cd977ed004', 'the-code-lamphaya', 'THE CODE ลำพยา', 'นครปฐม', 'DETACHED_HOUSE', 3000000.00, 'CONSTRUCTION', 'บ้านสไตล์โมเดิร์นที่ออกแบบเพื่อทุกจังหวะการใช้ชีวิต บนทำเลลำพยา')
+ON DUPLICATE KEY UPDATE name_th = VALUES(name_th), location = VALUES(location), property_type = VALUES(property_type), starting_price = VALUES(starting_price), status = VALUES(status), description = VALUES(description);
+
+INSERT IGNORE INTO house_types (id, project_id, name, bedrooms, bathrooms, usable_area_sqm, starting_price) VALUES
+  ('dba6db65-f538-49d0-aac8-47cd977ed101', 'dba6db65-f538-49d0-aac8-47cd977ed002', 'TOWNHOME', 3, 2, 120.00, 2159000.00),
+  ('dba6db65-f538-49d0-aac8-47cd977ed102', 'dba6db65-f538-49d0-aac8-47cd977ed003', 'TYPE A', 3, 3, 171.00, 5290000.00),
+  ('dba6db65-f538-49d0-aac8-47cd977ed103', 'dba6db65-f538-49d0-aac8-47cd977ed003', 'TYPE B', 4, 4, 230.00, 5290000.00);
+
+INSERT IGNORE INTO facilities (id, project_id, name, description, sort_order) VALUES
+  ('dba6db65-f538-49d0-aac8-47cd977ed201', 'dba6db65-f538-49d0-aac8-47cd977ed001', 'Clubhouse และสระว่ายน้ำระบบเกลือ', 'ข้อมูลตัวอย่างจากหน้าโครงการ', 1),
+  ('dba6db65-f538-49d0-aac8-47cd977ed202', 'dba6db65-f538-49d0-aac8-47cd977ed001', 'Fitness Center', 'ข้อมูลตัวอย่างจากหน้าโครงการ', 2),
+  ('dba6db65-f538-49d0-aac8-47cd977ed203', 'dba6db65-f538-49d0-aac8-47cd977ed003', 'Club House รับวิว Panorama', 'ข้อมูลตัวอย่างจากหน้าโครงการ', 1),
+  ('dba6db65-f538-49d0-aac8-47cd977ed204', 'dba6db65-f538-49d0-aac8-47cd977ed004', 'Kids Club', 'ข้อมูลตัวอย่างจากหน้าโครงการ', 1);
+
+INSERT IGNORE INTO promotions (id, project_id, title, body, is_published) VALUES
+  ('dba6db65-f538-49d0-aac8-47cd977ed301', 'dba6db65-f538-49d0-aac8-47cd977ed002', 'บ้านใหม่ พร้อมตกแต่ง', 'ข้อมูลจำลองสำหรับแสดงผลในระบบหลังบ้าน', TRUE),
+  ('dba6db65-f538-49d0-aac8-47cd977ed302', 'dba6db65-f538-49d0-aac8-47cd977ed004', 'ข้อเสนอสำหรับบ้านใหม่', 'ข้อมูลจำลองสำหรับแสดงผลในระบบหลังบ้าน', TRUE);
