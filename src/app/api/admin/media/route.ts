@@ -14,6 +14,7 @@ const entities = {
   "house-types": "house_types",
   promotions: "promotions",
   news: "news_items",
+  "site-content": "site_content",
 } as const;
 type EntityType = keyof typeof entities;
 const mimeExtensions: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
