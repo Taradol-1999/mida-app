@@ -150,7 +150,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
     bedrooms: String(house.bedrooms ?? "-"),
     bathrooms: String(house.bathrooms ?? "-"),
     usableArea: String(house.usable_area_sqm ?? "-"),
-    startingPrice: Number(house.starting_price ?? 0),
+    startingPrice: house.starting_price === null ? null : Number(house.starting_price),
     imageUrl: house.image_id
       ? `/api/admin/media?entityType=house-types&entityId=${house.id}&mediaKind=cover&mediaId=${house.image_id}`
       : null,

@@ -12,6 +12,7 @@
     "format:check": "prettier --check .",
     "db:init": "mysql -u root -p < database/schema.sql",
     "db:seed": "node --env-file=.env.local scripts/seed-projects.mjs",
+    "db:import-official": "node --env-file=.env.local scripts/import-official-projects.mjs",
     "db:create-admin": "node scripts/create-admin.mjs"
   },
   "dependencies": {

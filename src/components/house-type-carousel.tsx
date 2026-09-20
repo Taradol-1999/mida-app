@@ -10,7 +10,7 @@ export type HouseTypeItem = {
   bedrooms: number | string;
   bathrooms: number | string;
   usableArea: number | string;
-  startingPrice: number;
+  startingPrice: number | null;
   imageUrl: string | null;
 };
 
@@ -65,7 +65,9 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
                   {house.bedrooms} ห้องนอน · {house.bathrooms} ห้องน้ำ · {house.usableArea} ตร.ม.
                 </p>
                 <p className="mt-4 text-lg font-extrabold text-white">
-                  เริ่ม {house.startingPrice.toLocaleString("th-TH")} บาท
+                  {house.startingPrice === null
+                    ? "สอบถามราคาโครงการ"
+                    : `เริ่ม ${house.startingPrice.toLocaleString("th-TH")} บาท`}
                 </p>
               </div>
             </article>
