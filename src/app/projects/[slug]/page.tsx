@@ -171,28 +171,28 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           <Link
             href="/"
             aria-label={`กลับหน้าหลัก MIDA จากโครงการ ${project.name}`}
-            className="flex min-w-0 items-center gap-2 font-extrabold text-[#002D62]"
+            className="flex min-w-0 items-center gap-2 font-extrabold text-brand-primary"
           >
-            <span className="grid size-8 shrink-0 place-items-center rounded-full bg-[#002D62] text-xs text-white">
+            <span className="grid size-8 shrink-0 place-items-center rounded-full bg-brand-accent text-xs text-brand-primary">
               {String(project.name).charAt(0).toUpperCase()}
             </span>
             <span className="truncate text-sm sm:text-base">{project.name}</span>
           </Link>
           <nav className="hidden items-center gap-5 text-xs font-semibold text-slate-600 lg:flex">
-            <a href="#house-types" className="border-b-2 border-[#002D62] pb-1 text-[#002D62]">
+            <a href="#house-types" className="border-b-2 border-brand-primary pb-1 text-brand-primary">
               แบบบ้าน
             </a>
-            <a href="#facilities" className="hover:text-[#002D62]">
+            <a href="#facilities" className="hover:text-brand-primary">
               ส่วนกลาง
             </a>
-            <a href="#project-promo-news" className="hover:text-[#002D62]">
+            <a href="#project-promo-news" className="hover:text-brand-primary">
               Promotion
             </a>
-            <a href="#mida-care" className="hover:text-[#002D62]">
+            <a href="#mida-care" className="hover:text-brand-primary">
               บริการหลังการขาย
             </a>
           </nav>
-          <LeadOpenButton className="rounded-lg bg-[#002D62] px-3 py-2 text-xs font-bold text-white">
+          <LeadOpenButton className="rounded-lg bg-brand-primary px-3 py-2 text-xs font-bold text-white">
             นัดชมโครงการ
           </LeadOpenButton>
         </div>
@@ -218,10 +218,10 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         </section>
       )}
       {project.facilities.length > 0 && (
-        <section id="facilities" className="bg-[#002D62] py-14 text-white md:py-16">
+        <section id="facilities" className="bg-brand-primary py-14 text-white md:py-16">
           <div className="project-container">
             <div>
-              <span className="mb-3 block h-1 w-14 rounded-full bg-white" />
+              <span className="mb-3 block h-1 w-14 rounded-full bg-brand-accent" />
               <h2 className="text-2xl font-extrabold md:text-3xl">สิ่งอำนวยความสะดวกในโครงการ</h2>
               <p className="max-w-lg text-sm leading-6 text-blue-100">
                 พื้นที่และบริการที่ออกแบบมาเพื่อเติมเต็มทุกช่วงเวลาของการอยู่อาศัย
@@ -233,7 +233,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                   key={item}
                   className="flex items-center gap-3 rounded-2xl border border-white/15 bg-white/10 p-4 text-sm font-semibold backdrop-blur-sm"
                 >
-                  <span className="grid size-9 shrink-0 place-items-center rounded-full bg-white text-[#002D62]">
+                  <span className="grid size-9 shrink-0 place-items-center rounded-full bg-white text-brand-primary">
                     <i className="fa-solid fa-check" />
                   </span>
                   {item}
@@ -244,9 +244,9 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         </section>
       )}
       {projectUpdates.length > 0 && (
-        <section id="project-promo-news" className="bg-[#F7F8FA] py-16">
+        <section id="project-promo-news" className="bg-brand-muted py-16">
           <div className="project-container">
-            <h2 className="text-2xl font-bold text-[#002D62] md:text-3xl">
+            <h2 className="text-2xl font-bold text-brand-primary md:text-3xl">
               <i className="fa-solid fa-fire mr-2" />
               โปรโมชั่น ข่าวสาร & กิจกรรมพิเศษ
             </h2>
@@ -262,13 +262,13 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           <h2 className="section-title">แผนที่และสถานที่ใกล้เคียง</h2>
           <div className="mt-7 grid gap-6 lg:grid-cols-[1.35fr_.65fr]">
             <ProjectLocationMap projects={[mapProject]} />
-            <aside className="rounded-2xl bg-[#f5f7fa] p-6">
-              <h3 className="font-extrabold text-[#002D62]">สถานที่ใกล้เคียง</h3>
+            <aside className="rounded-2xl bg-brand-muted p-6">
+              <h3 className="font-extrabold text-brand-primary">สถานที่ใกล้เคียง</h3>
               <a
                 href={project.settings.map_url || directionsUrl(mapProject)}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#002D62] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#4A4A4A]"
+                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-primary px-4 py-3 text-sm font-bold text-white transition hover:bg-brand-text"
               >
                 <i className="fa-solid fa-diamond-turn-right" />
                 นำทางไปโครงการ
@@ -283,14 +283,14 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
             </aside>
           </div>
           {project.settings.virtual_tour_url && (
-            <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-[#F7F8FA] p-4">
+            <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-brand-muted p-4">
               <div className="mb-3 flex items-center justify-between gap-3">
-                <h3 className="font-extrabold text-[#002D62]">Map 3D / Virtual Tour</h3>
+                <h3 className="font-extrabold text-brand-primary">Map 3D / Virtual Tour</h3>
                 <a
                   href={String(project.settings.virtual_tour_url)}
                   target="_blank"
                   rel="noreferrer"
-                  className="rounded-full bg-[#002D62] px-4 py-2 text-xs font-bold text-white"
+                  className="rounded-full bg-brand-primary px-4 py-2 text-xs font-bold text-white"
                 >
                   เปิดเต็มหน้าจอ
                 </a>
@@ -306,10 +306,10 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           )}
         </div>
       </section>
-      <section id="mida-care" className="bg-[#F7F8FA] py-16">
+      <section id="mida-care" className="bg-brand-muted py-16">
         <div className="project-container">
           <div className="text-center">
-            <p className="text-sm font-bold tracking-widest text-[#4A4A4A]">MIDA CARE</p>
+            <p className="text-sm font-bold tracking-widest text-brand-text">MIDA CARE</p>
             <h2 className="section-title mt-2">บริการหลังการขาย</h2>
           </div>
           <div className="mt-8 grid gap-4 md:grid-cols-3">
@@ -323,14 +323,14 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                 key={String(title)}
                 className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
               >
-                <summary className="flex cursor-pointer list-none items-center gap-3 font-bold text-[#002D62]">
+                <summary className="flex cursor-pointer list-none items-center gap-3 font-bold text-brand-primary">
                   <span className="grid size-10 place-items-center rounded-full bg-blue-50">
                     <i className={`fa-solid ${icon}`} />
                   </span>
                   <span className="flex-1">{title}</span>
                   <i className="fa-solid fa-chevron-down text-xs transition group-open:rotate-180" />
                 </summary>
-                <p className="mt-4 border-t border-slate-100 pt-4 text-sm leading-7 text-[#4A4A4A]">
+                <p className="mt-4 border-t border-slate-100 pt-4 text-sm leading-7 text-brand-text">
                   {detail || "สอบถามรายละเอียดบริการได้จากเจ้าหน้าที่โครงการ"}
                 </p>
               </details>
@@ -341,10 +341,10 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
       <section id="register" className="project-container py-16 text-center">
         <h2 className="section-title">รับข้อเสนอพิเศษ</h2>
         <p className="mt-3 text-slate-500">ลงทะเบียนเพื่อรับข้อมูลโครงการและนัดหมายเข้าชม</p>
-        <LeadOpenButton className="mt-6 rounded-full bg-[#002D62] px-8 py-3 text-sm font-bold text-white shadow-lg hover:bg-[#4A4A4A]">
+        <LeadOpenButton className="mt-6 rounded-full bg-brand-primary px-8 py-3 text-sm font-bold text-white shadow-lg hover:bg-brand-text">
           ลงทะเบียนรับข้อเสนอพิเศษ
         </LeadOpenButton>
-        {project.settings.phone && <p className="mt-3 font-bold text-[#002D62]">โทร {project.settings.phone}</p>}
+        {project.settings.phone && <p className="mt-3 font-bold text-brand-primary">โทร {project.settings.phone}</p>}
         {project.settings.email && <p className="mt-1 text-sm text-slate-500">{project.settings.email}</p>}
         <p className="mt-3 text-xs text-slate-400">
           * ราคาและรายละเอียดเป็นข้อมูลจำลอง โปรดตรวจสอบกับฝ่ายขายก่อนตัดสินใจ

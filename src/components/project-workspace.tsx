@@ -101,7 +101,7 @@ const configs: Partial<Record<Section, DataConfig>> = {
   },
 };
 const inputClass =
-  "mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100";
+  "mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-soft";
 const settingFields: Record<"homepage" | "contact" | "after-sales", Field[]> = {
   homepage: [
     { key: "hero_title_th", label: "คำพาดหัวหลัก - ภาษาไทย" },
@@ -159,10 +159,12 @@ export function ProjectWorkspace({
   projectId,
   projectName,
   section,
+  embedded = false,
 }: {
   projectId: string;
   projectName: string;
   section: Section;
+  embedded?: boolean;
 }) {
   const dataConfig = configs[section];
   const settingMode = section === "homepage" || section === "contact" || section === "after-sales";
@@ -417,15 +419,17 @@ export function ProjectWorkspace({
     return (
       <>
         <header className="border-b border-slate-200 pb-5">
-          <p className="text-xs font-bold tracking-[0.16em] text-indigo-500">DASHBOARD HP</p>
+          <p className="inline-flex rounded-full bg-brand-accent-soft px-3 py-1 text-xs font-bold tracking-[0.16em] text-brand-primary">
+            DASHBOARD HP
+          </p>
           <h1 className="mt-1 text-xl font-bold text-slate-800">{projectName}</h1>
           <p className="mt-1 text-sm text-slate-500">ภาพรวมข้อมูลเฉพาะโครงการ</p>
         </header>
         <div className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
           {[
             ["ผู้ลงทะเบียน", stats.leads, "fa-user-pen", "text-emerald-700"],
-            ["แบบบ้าน", stats.homes, "fa-house", "text-indigo-700"],
-            ["โปรโมชั่น", stats.promos, "fa-tags", "text-purple-700"],
+            ["แบบบ้าน", stats.homes, "fa-house", "text-brand-primary"],
+            ["โปรโมชั่น", stats.promos, "fa-tags", "text-brand-primary"],
             ["ข่าวสาร", stats.news, "fa-newspaper", "text-amber-700"],
           ].map(([label, count, icon, color]) => (
             <div key={String(label)} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -436,16 +440,24 @@ export function ProjectWorkspace({
           ))}
         </div>
         <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500">
-          <i className="fa-solid fa-chart-column mr-2 text-indigo-500" />
+          <i className="fa-solid fa-chart-column mr-2 text-brand-primary" />
           ข้อมูล Dashboard HP จะเปลี่ยนตามข้อมูลแบบบ้าน โปรโมชั่น ข่าวสาร และ Leads ของโครงการนี้
         </div>
       </>
     );
   if (section === "homepage")
     return (
-      <>
+      <section id="homepage-content" className={embedded ? "mt-8 border-t border-slate-200 pt-8" : ""}>
         <header className="border-b border-slate-200 pb-5">
-          <h1 className="text-xl font-bold text-slate-800">จัดการข้อมูลหน้าหลักโครงการ (Manage Homepage Details)</h1>
+          {embedded ? (
+            <>
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-primary">PROJECT HOMEPAGE</p>
+              <h2 className="mt-1 text-xl font-bold text-slate-800">จัดการข้อมูลหน้าหลักโครงการ</h2>
+              <p className="mt-1 text-sm text-slate-500">ข้อความ Hero สไลด์รูปภาพ/วิดีโอ และโบรชัวร์ของโครงการนี้</p>
+            </>
+          ) : (
+            <h1 className="text-xl font-bold text-slate-800">จัดการข้อมูลหน้าหลักโครงการ (Manage Homepage Details)</h1>
+          )}
         </header>
         <form onSubmit={saveHomepage} className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="grid gap-5 md:grid-cols-2">
@@ -471,7 +483,7 @@ export function ProjectWorkspace({
           </div>
           <div className="mt-6">
             <p className="text-sm font-bold text-slate-700">รูปภาพหรือวิดีโอสไลด์แบนเนอร์หลัก (Hero Banner Media)</p>
-            <label className="mt-2 flex min-h-22 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 px-5 text-center text-sm font-semibold text-slate-400 hover:border-indigo-400 hover:bg-indigo-50">
+            <label className="mt-2 flex min-h-22 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 px-5 text-center text-sm font-semibold text-slate-400 hover:border-brand-primary hover:bg-brand-soft">
               <input
                 type="file"
                 multiple
@@ -508,7 +520,7 @@ export function ProjectWorkspace({
               ))}
             </div>
           </div>
-          <div className="mt-6 rounded-xl border border-indigo-100 bg-indigo-50/50 p-4">
+          <div className="mt-6 rounded-xl border border-brand-primary/10 bg-brand-soft/50 p-4">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex min-w-0 items-center gap-3">
                 <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-rose-100 text-rose-600">
@@ -521,7 +533,7 @@ export function ProjectWorkspace({
                       href={brochure.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="mt-1 block truncate text-xs font-semibold text-indigo-600 hover:underline"
+                      className="mt-1 block truncate text-xs font-semibold text-brand-primary hover:underline"
                     >
                       <i className="fa-solid fa-arrow-up-right-from-square mr-1" />
                       {brochure.name}
@@ -531,7 +543,7 @@ export function ProjectWorkspace({
                   )}
                 </div>
               </div>
-              <label className="cursor-pointer rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-indigo-700">
+              <label className="cursor-pointer rounded-lg bg-brand-primary px-4 py-2.5 text-sm font-bold text-white transition hover:bg-brand-text">
                 <i className="fa-solid fa-cloud-arrow-up mr-2" />
                 {brochureBusy ? "กำลังอัปโหลด..." : brochure ? "เปลี่ยนโบรชัวร์" : "อัปโหลดโบรชัวร์"}
                 <input
@@ -545,15 +557,15 @@ export function ProjectWorkspace({
             </div>
             <p className="mt-3 text-xs text-slate-500">รองรับไฟล์ PDF ขนาดไม่เกิน 20 MB</p>
           </div>
-          {message && <p className="mt-4 rounded-lg bg-indigo-50 px-3 py-2 text-sm text-indigo-700">{message}</p>}
+          {message && <p className="mt-4 rounded-lg bg-brand-soft px-3 py-2 text-sm text-brand-primary">{message}</p>}
           <button
             disabled={busy}
-            className="mt-5 rounded-lg bg-[#5237ff] px-5 py-3 text-sm font-bold text-white disabled:opacity-50"
+            className="mt-5 rounded-lg bg-brand-primary px-5 py-3 text-sm font-bold text-white disabled:opacity-50"
           >
             {busy ? "กำลังบันทึก..." : "บันทึกข้อมูลหน้าหลักโครงการ"}
           </button>
         </form>
-      </>
+      </section>
     );
   const title =
     section === "after-sales"
@@ -572,7 +584,7 @@ export function ProjectWorkspace({
       <>
         <header className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-200 pb-5">
           <div>
-            <p className="text-xs font-bold tracking-[0.16em] text-indigo-500">{projectName}</p>
+            <p className="text-xs font-bold tracking-[0.16em] text-brand-primary">{projectName}</p>
             <h1 className="mt-1 text-xl font-bold text-slate-800">รายชื่อผู้ลงทะเบียนสนใจโครงการ (Customer Leads)</h1>
             <p className="mt-1 text-sm text-slate-500">ข้อมูลสำคัญจากแบบฟอร์มรับข้อเสนอพิเศษของโครงการนี้</p>
           </div>
@@ -584,7 +596,7 @@ export function ProjectWorkspace({
             ส่งออกข้อมูลลูกค้า (CSV)
           </a>
         </header>
-        {message && <p className="mt-5 rounded-lg bg-indigo-50 px-4 py-3 text-sm text-indigo-700">{message}</p>}
+        {message && <p className="mt-5 rounded-lg bg-brand-soft px-4 py-3 text-sm text-brand-primary">{message}</p>}
         <section className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="overflow-x-auto">
             <table className="min-w-[1180px] w-full text-left text-sm">
@@ -668,7 +680,7 @@ export function ProjectWorkspace({
     <>
       <header className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-200 pb-5">
         <div>
-          <p className="text-xs font-bold tracking-[0.16em] text-indigo-500">{projectName}</p>
+          <p className="text-xs font-bold tracking-[0.16em] text-brand-primary">{projectName}</p>
           <h1 className="mt-1 text-xl font-bold text-slate-800">{title}</h1>
           <p className="mt-1 text-sm text-slate-500">{intro}</p>
         </div>
@@ -696,7 +708,7 @@ export function ProjectWorkspace({
                       type="checkbox"
                       checked={Boolean(form[field.key])}
                       onChange={(event) => setField(field.key, event.target.checked)}
-                      className="size-4 accent-indigo-600"
+                      className="size-4 accent-brand-primary"
                     />
                     {field.label}
                   </span>
@@ -742,7 +754,7 @@ export function ProjectWorkspace({
             ))}
           </div>
           {section === "contact" && (
-            <p className="mt-3 rounded-lg bg-blue-50 px-3 py-2 text-xs leading-5 text-[#002D62]">
+            <p className="mt-3 rounded-lg bg-brand-soft px-3 py-2 text-xs leading-5 text-brand-primary">
               <i className="fa-solid fa-location-dot mr-2" />
               วาง Google Maps URL หรือโค้ด Embed แล้วระบบจะเติม Latitude และ Longitude อัตโนมัติ สำหรับลิงก์ย่อ
               maps.app.goo.gl ระบบจะดึงพิกัดเมื่อกดบันทึก
@@ -751,7 +763,7 @@ export function ProjectWorkspace({
           {section === "house-types" && (
             <div className="mt-5">
               <p className="text-sm font-semibold text-slate-700">รูปแบบบ้าน</p>
-              <label className="mt-2 flex min-h-28 cursor-pointer items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-4 text-center text-sm font-semibold text-slate-400 hover:border-indigo-400 hover:bg-indigo-50">
+              <label className="mt-2 flex min-h-28 cursor-pointer items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-4 text-center text-sm font-semibold text-slate-400 hover:border-brand-primary hover:bg-brand-soft">
                 <input
                   type="file"
                   accept="image/jpeg,image/png,image/webp"
@@ -762,7 +774,7 @@ export function ProjectWorkspace({
                   <img src={existingHouseTypeImage} alt="รูปแบบบ้านปัจจุบัน" className="h-32 w-full object-cover" />
                 ) : (
                   <span>
-                    <i className="fa-solid fa-image mr-2 text-xl text-indigo-500" />
+                    <i className="fa-solid fa-image mr-2 text-xl text-brand-primary" />
                     {houseTypeImage ? houseTypeImage.name : "คลิกเพื่อเพิ่มหรือเปลี่ยนรูปแบบบ้าน"}
                   </span>
                 )}
@@ -770,11 +782,11 @@ export function ProjectWorkspace({
               <p className="mt-2 text-xs text-slate-400">รองรับ JPG, PNG และ WEBP ขนาดไม่เกิน 5 MB</p>
             </div>
           )}
-          {message && <p className="mt-4 rounded-lg bg-indigo-50 px-3 py-2 text-sm text-indigo-700">{message}</p>}
+          {message && <p className="mt-4 rounded-lg bg-brand-soft px-3 py-2 text-sm text-brand-primary">{message}</p>}
           <div className="mt-5 flex gap-3">
             <button
               disabled={busy}
-              className="rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+              className="rounded-lg bg-brand-primary px-4 py-2.5 text-sm font-bold text-white disabled:opacity-50"
             >
               <i className="fa-solid fa-floppy-disk mr-2" />
               {busy ? "กำลังบันทึก..." : "บันทึกข้อมูล"}
@@ -804,7 +816,7 @@ export function ProjectWorkspace({
                   type="button"
                   key={String(row.id)}
                   onClick={() => void edit(row)}
-                  className="w-full rounded-xl border border-slate-100 p-3 text-left hover:border-indigo-200 hover:bg-indigo-50"
+                  className="w-full rounded-xl border border-slate-100 p-3 text-left hover:border-brand-primary/20 hover:bg-brand-soft"
                 >
                   <p className="font-bold text-slate-700">
                     {String(row.name ?? row.title ?? row.phone ?? "รายการข้อมูล")}

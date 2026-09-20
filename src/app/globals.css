@@ -1,11 +1,22 @@
 @import "tailwindcss";
 
+@theme {
+  --color-brand-primary: #002d62;
+  --color-brand-text: #4a4a4a;
+  --color-brand-surface: #ffffff;
+  --color-brand-muted: #f7f8fa;
+  --color-brand-overlay: #001b3d;
+  --color-brand-soft: #e8f0f8;
+  --color-brand-accent: #fcb040;
+  --color-brand-accent-soft: #fff5df;
+}
+
 :root {
-  --mida-blue: #002d62;
-  --mida-navy: #002d62;
-  --mida-gold: #002d62;
-  --mida-ink: #4a4a4a;
-  --mida-mist: #ffffff;
+  --mida-blue: var(--color-brand-primary);
+  --mida-navy: var(--color-brand-primary);
+  --mida-gold: var(--color-brand-primary);
+  --mida-ink: var(--color-brand-text);
+  --mida-mist: var(--color-brand-surface);
 }
 
 * {
@@ -63,7 +74,7 @@ body {
   height: 3px;
   width: 4rem;
   border-radius: 100px;
-  background: var(--mida-blue);
+  background: var(--color-brand-accent);
 }
 .hero-shade {
   background: linear-gradient(105deg, rgba(0, 27, 61, 0.96), rgba(0, 45, 98, 0.72), rgba(0, 45, 98, 0.3));
@@ -81,7 +92,7 @@ body {
   place-items: center;
   border: 3px solid white;
   border-radius: 50% 50% 50% 0;
-  background: #4a4a4a;
+  background: var(--mida-ink);
   color: white;
   font-size: 0.75rem;
   font-weight: 800;
@@ -96,7 +107,7 @@ body {
 .mida-map-pin--center {
   width: 46px;
   height: 46px;
-  background: #002d62;
+  background: var(--mida-blue);
   font-size: 0;
 }
 
@@ -114,7 +125,7 @@ body {
   gap: 7px;
   border: 2px solid white;
   border-radius: 999px;
-  background: #4a4a4a;
+  background: var(--mida-ink);
   padding: 8px 12px;
   color: white;
   font-size: 0.72rem;
@@ -138,13 +149,21 @@ body {
   display: grid;
   min-width: 180px;
   gap: 4px;
-  color: #4a4a4a;
+  color: var(--mida-ink);
   font-family: var(--font-ibm-plex-sans-thai), sans-serif;
 }
 
 .mida-map-popup strong,
 .mida-map-popup a {
-  color: #002d62;
+  color: var(--mida-blue);
+}
+
+@utility project-card-warm {
+  background: linear-gradient(145deg, #dae8dd, #708f7e);
+}
+
+@utility project-card-cool {
+  background: linear-gradient(145deg, #c9d9e8, #597793);
 }
 
 .mida-map-popup a {

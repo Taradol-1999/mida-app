@@ -238,7 +238,7 @@ const configs: Record<AdminResource, Config> = {
 };
 
 const inputClass =
-  "mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm font-normal text-slate-800 outline-none transition placeholder:text-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100";
+  "mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm font-normal text-slate-800 outline-none transition placeholder:text-slate-300 focus:border-brand-primary focus:ring-2 focus:ring-brand-soft";
 function initialValues(config: Config) {
   return Object.fromEntries(config.fields.map((field) => [field.name, field.type === "checkbox" ? false : ""]));
 }
@@ -257,11 +257,12 @@ function badge(field: string, value: unknown) {
     return value === "CONTACTED" || value === "CLOSED"
       ? "bg-emerald-100 text-emerald-700"
       : value === "QUALIFIED"
-        ? "bg-indigo-100 text-indigo-700"
+        ? "bg-brand-soft text-brand-primary"
         : "bg-amber-100 text-amber-800";
   if (field === "is_published" || field === "is_active")
     return value === true || value === 1 ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500";
-  if (field === "role") return value === "SUPER_ADMIN" ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700";
+  if (field === "role")
+    return value === "SUPER_ADMIN" ? "bg-brand-primary text-white" : "bg-brand-soft text-brand-primary";
   return "bg-slate-100 text-slate-600";
 }
 function toInputValue(field: Field, value: unknown) {
@@ -373,7 +374,7 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
                   type="checkbox"
                   checked={Boolean(form[field.name])}
                   onChange={(event) => setField(field.name, event.target.checked)}
-                  className="size-4 accent-indigo-600"
+                  className="size-4 accent-brand-primary"
                 />
                 {field.label}
               </span>
@@ -424,11 +425,11 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
         ))}
       </div>
       {message && (
-        <p className="mt-4 rounded-lg bg-indigo-50 px-3 py-2 text-sm font-medium text-indigo-700">{message}</p>
+        <p className="mt-4 rounded-lg bg-brand-soft px-3 py-2 text-sm font-medium text-brand-primary">{message}</p>
       )}
       <button
         disabled={busy}
-        className="mt-5 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-indigo-700 disabled:opacity-50"
+        className="mt-5 rounded-lg bg-brand-primary px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-brand-text disabled:opacity-50"
       >
         {busy
           ? "กำลังบันทึก..."
@@ -444,7 +445,7 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
     <>
       <header className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-200 pb-5">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-indigo-500">{config.eyebrow}</p>
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-primary">{config.eyebrow}</p>
           <h1 className="mt-1 text-xl font-bold text-slate-800">{config.title}</h1>
           <p className="mt-1 text-sm text-slate-500">{config.intro}</p>
         </div>
@@ -498,7 +499,7 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
                       </td>
                     ))}
                     <td className="whitespace-nowrap p-3 text-right">
-                      <button onClick={() => edit(row)} className="mr-3 font-bold text-indigo-600 hover:underline">
+                      <button onClick={() => edit(row)} className="mr-3 font-bold text-brand-primary hover:underline">
                         แก้ไข
                       </button>
                       <button

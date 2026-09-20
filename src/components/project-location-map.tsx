@@ -91,10 +91,10 @@ export function ProjectLocationMap({ projects, center }: { projects: MapProject[
   }, [center, projects]);
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-[#002D62]/15 bg-white shadow-sm">
+    <div className="overflow-hidden rounded-2xl border border-brand-primary/15 bg-white shadow-sm">
       {center && (
-        <div className="flex items-center gap-3 border-b border-[#002D62]/10 bg-[#002D62] px-5 py-4 text-white">
-          <span className="grid size-9 shrink-0 place-items-center rounded-full bg-white font-black text-[#002D62]">
+        <div className="flex items-center gap-3 border-b border-brand-primary/10 bg-brand-primary px-5 py-4 text-white">
+          <span className="grid size-9 shrink-0 place-items-center rounded-full bg-white font-black text-brand-primary">
             M
           </span>
           <span className="text-sm">
@@ -104,27 +104,6 @@ export function ProjectLocationMap({ projects, center }: { projects: MapProject[
         </div>
       )}
       <div ref={mapElement} className="h-112 w-full" aria-label="OpenStreetMap แสดงตำแหน่งโครงการ" />
-      {projects.length > 1 && (
-        <div className="grid gap-px border-t border-slate-200 bg-slate-200 sm:grid-cols-2 lg:grid-cols-3">
-          {projects.map((project, index) => (
-            <a
-              key={project.id ?? project.slug}
-              href={directionsUrl(project)}
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-3 bg-white px-5 py-4 text-sm text-[#4A4A4A] transition hover:bg-[#002D62] hover:text-white"
-            >
-              <span className="grid size-7 shrink-0 place-items-center rounded-full bg-[#002D62] text-xs font-black text-white">
-                {index + 1}
-              </span>
-              <span>
-                <strong className="block">{project.name}</strong>
-                <span className="text-xs opacity-75">{project.location} · นำทาง</span>
-              </span>
-            </a>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

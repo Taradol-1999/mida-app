@@ -1,8 +1,7 @@
 import { ProjectEditor } from "@/components/project-editor";
 import { requireUser } from "@/lib/auth";
 
-export default async function ProjectsPage({ searchParams }: { searchParams: Promise<{ project?: string }> }) {
+export default async function ProjectsPage() {
   await requireUser();
-  const { project } = await searchParams;
-  return <ProjectEditor selectedProjectId={project} />;
+  return <ProjectEditor mode="create" />;
 }

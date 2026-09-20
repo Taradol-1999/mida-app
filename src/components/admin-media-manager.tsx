@@ -56,16 +56,16 @@ export function AdminMediaManager() {
     <>
       <header className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-200 pb-5">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-indigo-500">PROJECT MEDIA</p>
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-primary">PROJECT MEDIA</p>
           <h1 className="mt-1 text-xl font-bold text-slate-800">จัดการรูปภาพโครงการ</h1>
           <p className="mt-1 text-sm text-slate-500">อัปโหลดไฟล์ภาพเข้าสู่เครื่องโดยตรง ไม่ใช้ URL ภายนอก</p>
         </div>
-        <span className="rounded-lg bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700">
+        <span className="rounded-lg bg-brand-soft px-3 py-2 text-xs font-semibold text-brand-primary">
           JPG · PNG · WEBP · ไม่เกิน 5 MB
         </span>
       </header>
       {message && (
-        <p className="mt-5 rounded-lg bg-indigo-50 px-4 py-3 text-sm font-medium text-indigo-700">{message}</p>
+        <p className="mt-5 rounded-lg bg-brand-soft px-4 py-3 text-sm font-medium text-brand-primary">{message}</p>
       )}
       <section className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
         {visibleProjects.map((project) => (
@@ -88,7 +88,7 @@ export function AdminMediaManager() {
             <div className="p-5">
               <h2 className="font-bold text-slate-800">{project.name_th}</h2>
               <p className="mt-1 text-sm text-slate-400">{project.location}</p>
-              <label className="mt-4 flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-indigo-700">
+              <label className="mt-4 flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-brand-primary px-4 py-2.5 text-sm font-bold text-white transition hover:bg-brand-text">
                 <i className="fa-solid fa-cloud-arrow-up" />
                 {busy === project.id ? "กำลังอัปโหลด..." : "อัปโหลดรูปภาพ"}
                 <input

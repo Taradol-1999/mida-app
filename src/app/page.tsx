@@ -74,24 +74,24 @@ export default async function HomePage() {
     <main>
       <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur">
         <div className="container-page flex h-18 items-center justify-between gap-6">
-          <Link href="/" className="flex items-center gap-2 font-extrabold tracking-tight text-[#002D62]">
-            <span className="grid size-9 place-items-center rounded bg-[#002D62] text-sm text-white">M</span>
+          <Link href="/" className="flex items-center gap-2 font-extrabold tracking-tight text-brand-primary">
+            <span className="grid size-9 place-items-center rounded bg-brand-accent text-sm text-brand-primary">M</span>
             <span>
               MIDA <span className="hidden sm:inline">PROPERTY</span>
             </span>
           </Link>
           <nav className="hidden items-center gap-7 text-sm font-semibold text-slate-600 md:flex">
             {nav.map((item) => (
-              <a key={item.href} href={item.href} className="hover:text-[#002D62]">
+              <a key={item.href} href={item.href} className="hover:text-brand-primary">
                 {item.label}
               </a>
             ))}
-            <a href="#projects" aria-label="ค้นหาโครงการ" className="hover:text-[#002D62]">
+            <a href="#projects" aria-label="ค้นหาโครงการ" className="hover:text-brand-primary">
               <i className="fa-solid fa-magnifying-glass" />
             </a>
             <Link
               href="/login"
-              className="rounded-full border border-slate-200 px-3 py-1.5 text-xs hover:border-[#002D62]"
+              className="rounded-full border border-slate-200 px-3 py-1.5 text-xs hover:border-brand-primary"
             >
               ผู้ดูแลระบบ
             </Link>
@@ -111,13 +111,13 @@ export default async function HomePage() {
           <NewsPromotionSlider items={updates} />
         </div>
       </section>
-      <section id="location" className="bg-[#F7F8FA] py-16">
+      <section id="location" className="bg-brand-muted py-16">
         <div className="container-page">
           <div className="mb-7 max-w-2xl">
             <div className="gold-rule" />
-            <p className="mt-4 text-sm font-bold tracking-widest text-[#4A4A4A]">MIDA LOCATION</p>
+            <p className="mt-4 text-sm font-bold tracking-widest text-brand-text">MIDA LOCATION</p>
             <h2 className="section-title mt-2">ทำเลโครงการ MIDA PROPERTY</h2>
-            <p className="mt-3 leading-7 text-[#4A4A4A]">
+            <p className="mt-3 leading-7 text-brand-text">
               ดูตำแหน่งโครงการทั้งหมด และกดเลือกโครงการเพื่อเปิดเส้นทางใน Google Maps
             </p>
           </div>
@@ -132,7 +132,7 @@ export default async function HomePage() {
           />
         </div>
       </section>
-      <footer className="bg-[#002D62] py-9 text-sm text-white/80">
+      <footer className="bg-brand-primary py-9 text-sm text-white/80">
         <div className="container-page flex flex-col justify-between gap-3 md:flex-row">
           <p>© {new Date().getFullYear()} MIDA Agency & Development</p>
           <p>{content.contact?.body ?? "โทร 02-000-0000 · Line @midaagency"}</p>

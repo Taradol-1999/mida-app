@@ -63,7 +63,7 @@ export function HeroImageSlider({
 
   return (
     <section
-      className="relative min-h-120 overflow-hidden bg-[#002D62]"
+      className="relative min-h-120 overflow-hidden bg-brand-primary"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}
@@ -98,7 +98,7 @@ export function HeroImageSlider({
         </div>
       ))}
       <div
-        className={`absolute inset-0 ${hasImages ? "bg-linear-to-r from-[#002D62]/90 via-[#002D62]/55 to-transparent" : "hero-shade"}`}
+        className={`absolute inset-0 ${hasImages ? "bg-linear-to-r from-brand-primary/90 via-brand-primary/55 to-transparent" : "hero-shade"}`}
       />
 
       <div className="container-page relative flex min-h-120 items-center py-24 text-white">
@@ -110,7 +110,7 @@ export function HeroImageSlider({
             <a
               href={actionHref}
               download
-              className="mt-6 inline-flex items-center gap-2 rounded-xl border border-white/35 bg-white px-5 py-3 text-sm font-bold text-[#002D62] shadow-lg transition hover:-translate-y-0.5 hover:bg-blue-50"
+              className="mt-6 inline-flex items-center gap-2 rounded-xl border border-brand-accent/50 bg-brand-accent px-5 py-3 text-sm font-bold text-brand-primary shadow-lg transition hover:-translate-y-0.5 hover:bg-brand-accent-soft"
             >
               <i className="fa-solid fa-file-arrow-down" />
               {actionLabel ?? "ดาวน์โหลด"}
@@ -125,7 +125,7 @@ export function HeroImageSlider({
             type="button"
             onClick={() => move(-1)}
             aria-label="แบนเนอร์ก่อนหน้า"
-            className="absolute left-4 top-1/2 hidden size-11 -translate-y-1/2 place-items-center rounded-full bg-white/85 text-[#002D62] shadow-lg transition hover:bg-white md:grid"
+            className="absolute left-4 top-1/2 hidden size-11 -translate-y-1/2 place-items-center rounded-full bg-white/85 text-brand-primary shadow-lg transition hover:bg-white md:grid"
           >
             <i className="fa-solid fa-chevron-left" aria-hidden="true" />
           </button>
@@ -133,7 +133,7 @@ export function HeroImageSlider({
             type="button"
             onClick={() => move(1)}
             aria-label="แบนเนอร์ถัดไป"
-            className="absolute right-4 top-1/2 hidden size-11 -translate-y-1/2 place-items-center rounded-full bg-white/85 text-[#002D62] shadow-lg transition hover:bg-white md:grid"
+            className="absolute right-4 top-1/2 hidden size-11 -translate-y-1/2 place-items-center rounded-full bg-white/85 text-brand-primary shadow-lg transition hover:bg-white md:grid"
           >
             <i className="fa-solid fa-chevron-right" aria-hidden="true" />
           </button>

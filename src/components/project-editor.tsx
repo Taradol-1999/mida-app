@@ -6,6 +6,7 @@
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 type Project = {
   id: string;
@@ -40,9 +41,17 @@ const emptyForm: Form = {
   description: "",
 };
 const inputClass =
-  "mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100";
+  "mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-soft";
 
-export function ProjectEditor({ selectedProjectId }: { selectedProjectId?: string }) {
+export function ProjectEditor({
+  selectedProjectId,
+  mode = "create",
+}: {
+  selectedProjectId?: string;
+  mode?: "create" | "edit";
+}) {
+  const router = useRouter();
+  const isEditMode = mode === "edit";
   const [projects, setProjects] = useState<Project[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<Form>(emptyForm);
@@ -58,17 +67,6 @@ export function ProjectEditor({ selectedProjectId }: { selectedProjectId?: strin
     const data = await response.json();
     setProjects(data.rows ?? []);
   }, []);
-  // The API load is asynchronous; selected project data is applied after rows are available.
-  useEffect(() => {
-    void load();
-  }, [load]);
-  useEffect(() => {
-    if (!selectedProjectId || !projects.length) return;
-    const project = projects.find((item) => item.id === selectedProjectId);
-    if (project) startEditing(project);
-  }, [selectedProjectId, projects]);
-  const setField = (field: keyof Form, value: string | boolean) =>
-    setForm((current) => ({ ...current, [field]: value }));
   function startEditing(project: Project) {
     setEditingId(project.id);
     setForm({
@@ -95,22 +93,30 @@ export function ProjectEditor({ selectedProjectId }: { selectedProjectId?: strin
       description: project.description ?? "",
     });
     setImageMissing(false);
-    setMessage(`กำลังแก้ไขข้อมูล ${project.name_th}`);
-    window.scrollTo({ top: 0, behavior: "smooth" });
   }
-  const reset = () => {
-    setEditingId(null);
-    setForm(emptyForm);
-    setImageMissing(false);
-    setMessage("");
-  };
+  // The API load is asynchronous; selected project data is applied after rows are available.
+  useEffect(() => {
+    if (isEditMode) void load();
+  }, [isEditMode, load]);
+  useEffect(() => {
+    if (!isEditMode || !selectedProjectId || !projects.length) return;
+    const project = projects.find((item) => item.id === selectedProjectId);
+    if (project) {
+      startEditing(project);
+    } else {
+      setMessage("ไม่พบข้อมูลโครงการที่เลือก");
+    }
+  }, [isEditMode, selectedProjectId, projects]);
+  const setField = (field: keyof Form, value: string | boolean) =>
+    setForm((current) => ({ ...current, [field]: value }));
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (isEditMode && !editingId) return;
     setBusy(true);
     const response = await fetch("/api/admin/projects", {
-      method: editingId ? "PATCH" : "POST",
+      method: isEditMode ? "PATCH" : "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editingId ? { ...form, id: editingId } : form),
+      body: JSON.stringify(isEditMode ? { ...form, id: editingId } : form),
     });
     const result = await response.json();
     setBusy(false);
@@ -118,9 +124,14 @@ export function ProjectEditor({ selectedProjectId }: { selectedProjectId?: strin
       setMessage(result.message ?? "บันทึกโครงการไม่สำเร็จ");
       return;
     }
-    setMessage("บันทึกข้อมูลโครงการเรียบร้อย");
-    if (!editingId) reset();
-    await load();
+    if (isEditMode) {
+      setMessage("บันทึกการแก้ไขข้อมูลโครงการเรียบร้อย");
+      await load();
+    } else {
+      setForm(emptyForm);
+      setMessage("สร้างโครงการเรียบร้อย สามารถเลือกโครงการจากเมนูด้านซ้ายเพื่อเพิ่มรูปและข้อมูลอื่นๆ");
+      router.refresh();
+    }
   };
   const remove = async (project: Project) => {
     if (!window.confirm(`ต้องการลบ ${project.name_th} หรือไม่?`)) return;
@@ -132,44 +143,37 @@ export function ProjectEditor({ selectedProjectId }: { selectedProjectId?: strin
     const result = await response.json();
     setMessage(response.ok ? "ลบโครงการแล้ว" : (result.message ?? "ลบโครงการไม่สำเร็จ"));
     if (response.ok) {
-      if (editingId === project.id) reset();
-      await load();
+      router.push("/admin");
+      router.refresh();
     }
   };
   return (
     <>
       <header className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-200 pb-5">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-indigo-500">MIDA PROPERTY</p>
-          <h1 className="mt-1 text-xl font-bold text-slate-800">จัดการโครงการ</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            เลือกโครงการจาก Sidebar หรือกดแก้ไขเพื่อดึงข้อมูลเดิมมาแสดงในฟอร์ม
-          </p>
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-primary">MIDA PROPERTY</p>
+          <h1 className="mt-1 text-xl font-bold text-slate-800">{isEditMode ? "ข้อมูลโครงการ" : "เพิ่มโครงการใหม่"}</h1>
         </div>
-        <span className="rounded-lg bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700">
-          {projects.length} โครงการในระบบ
+        <span className="rounded-lg bg-brand-soft px-3 py-2 text-xs font-semibold text-brand-primary">
+          <i className={`fa-solid ${isEditMode ? "fa-pen-to-square" : "fa-circle-plus"} mr-2`} />
+          {isEditMode ? "แก้ไขรายโครงการ" : "สร้างใหม่เท่านั้น"}
         </span>
       </header>
-      <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
+      <div className="mt-6">
         <form onSubmit={submit} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
-          <div className="mb-5 flex items-start justify-between border-b border-slate-100 pb-4">
+          <div className="mb-5 border-b border-slate-100 pb-4">
             <div>
               <h2 className="text-base font-bold text-slate-800">
-                {editingId ? "แก้ไขข้อมูลโครงการ" : "สร้างโครงการใหม่"}
+                {isEditMode ? `แก้ไข ${form.name_th || "ข้อมูลโครงการ"}` : "สร้างโครงการใหม่"}
               </h2>
-              <p className="mt-1 text-xs text-slate-400">ข้อมูลที่บันทึกจะแสดงทั้งหลังบ้านและหน้าเว็บไซต์</p>
+              <p className="mt-1 text-xs text-slate-400">
+                {isEditMode
+                  ? "ข้อมูลส่วนนี้ใช้กับ Card โครงการ การค้นหา และหน้ารายละเอียดโครงการ"
+                  : "หน้านี้ใช้สำหรับเพิ่มโครงการใหม่เท่านั้น การแก้ไขให้เลือกจากเมนูโครงการด้านซ้าย"}
+              </p>
             </div>
-            {editingId && (
-              <button
-                type="button"
-                onClick={reset}
-                className="text-sm font-semibold text-slate-500 hover:text-slate-800"
-              >
-                ยกเลิก
-              </button>
-            )}
           </div>
-          {editingId && (
+          {isEditMode && editingId && (
             <div className="mb-5 flex flex-wrap items-center gap-4 rounded-xl bg-slate-50 p-4">
               <div className="grid size-24 place-items-center overflow-hidden rounded-lg bg-slate-200">
                 {!imageMissing && (
@@ -186,7 +190,7 @@ export function ProjectEditor({ selectedProjectId }: { selectedProjectId?: strin
                 <p className="text-sm font-bold text-slate-700">ภาพปกโครงการ</p>
                 <Link
                   href={`/admin/media?project=${editingId}`}
-                  className="mt-1 inline-block text-sm font-semibold text-indigo-600 hover:underline"
+                  className="mt-1 inline-block text-sm font-semibold text-brand-primary hover:underline"
                 >
                   <i className="fa-solid fa-cloud-arrow-up mr-1" />
                   อัปโหลดหรือเปลี่ยนรูปภาพ
@@ -312,45 +316,29 @@ export function ProjectEditor({ selectedProjectId }: { selectedProjectId?: strin
             </label>
           </div>
           {message && (
-            <p className="mt-4 rounded-lg bg-indigo-50 px-3 py-2 text-sm font-medium text-indigo-700">{message}</p>
+            <p className="mt-4 rounded-lg bg-brand-soft px-3 py-2 text-sm font-medium text-brand-primary">{message}</p>
           )}
           <button
-            disabled={busy}
-            className="mt-5 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-indigo-700 disabled:opacity-50"
+            disabled={busy || (isEditMode && !editingId)}
+            className="mt-5 rounded-lg bg-brand-primary px-4 py-2.5 text-sm font-bold text-white transition hover:bg-brand-text disabled:opacity-50"
           >
             <i className="fa-solid fa-floppy-disk mr-2" />
-            {busy ? "กำลังบันทึก..." : editingId ? "บันทึกการแก้ไข" : "สร้างโครงการ"}
+            {busy ? "กำลังบันทึก..." : isEditMode ? "บันทึกการแก้ไข" : "สร้างโครงการ"}
           </button>
+          {isEditMode && editingId && (
+            <button
+              type="button"
+              onClick={() => {
+                const project = projects.find((item) => item.id === editingId);
+                if (project) void remove(project);
+              }}
+              className="ml-3 rounded-lg border border-rose-200 px-4 py-2.5 text-sm font-bold text-rose-600 transition hover:bg-rose-50"
+            >
+              <i className="fa-solid fa-trash-can mr-2" />
+              ลบโครงการ
+            </button>
+          )}
         </form>
-        <aside className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="border-b border-slate-100 pb-3 text-base font-bold text-slate-800">โครงการในระบบ</h2>
-          <div className="mt-3 space-y-2">
-            {projects.map((project) => (
-              <div
-                key={project.id}
-                className={`rounded-xl border p-3 ${editingId === project.id ? "border-indigo-300 bg-indigo-50" : "border-slate-100"}`}
-              >
-                <p className="font-bold text-slate-700">{project.name_th}</p>
-                <p className="mt-1 text-xs text-slate-400">
-                  {project.location} · {Number(project.starting_price ?? 0).toLocaleString("th-TH")} บาท
-                </p>
-                <div className="mt-2 flex gap-3 text-xs font-bold">
-                  <button
-                    type="button"
-                    onClick={() => startEditing(project)}
-                    className="text-indigo-600 hover:underline"
-                  >
-                    แก้ไขข้อมูล
-                  </button>
-                  <button type="button" onClick={() => void remove(project)} className="text-rose-600 hover:underline">
-                    ลบ
-                  </button>
-                </div>
-              </div>
-            ))}
-            {!projects.length && <p className="py-8 text-center text-sm text-slate-400">ยังไม่มีโครงการ</p>}
-          </div>
-        </aside>
       </div>
     </>
   );

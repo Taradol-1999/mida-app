@@ -37,6 +37,12 @@ The UI source of truth is the supplied Web Frame material in the parent workspac
 - Linting via ESLint
 - Preferred package manager: `pnpm` (the repository contains `pnpm-lock.yaml`)
 
+## Visual theme
+
+- Define shared colors once in `src/app/globals.css` under Tailwind's `@theme` block.
+- Use semantic utilities such as `bg-brand-primary`, `text-brand-primary`, `text-brand-text`, `bg-brand-muted`, `bg-brand-soft`, and `bg-brand-accent` in components. Orange is an accent for highlights and secondary actions, not the main page color.
+- Do not add hard-coded hex colors or reintroduce indigo/purple application chrome. Public and admin pages share the MIDA blue, white, and grey palette.
+
 Do not replace the stack or introduce an ORM, component library, icon package, remote media service, or state-management framework unless the user requests it.
 
 ## Required Next.js documentation check
@@ -192,7 +198,9 @@ Uploaded images and videos are files on the local machine, not remote URLs and n
 
 - `/admin` is the global dashboard.
 - `/admin/project/[id]/[section]` is the project-scoped workspace.
-- Project sidebar sections include dashboard, homepage, house types, facilities, promotions, news, contact/map, and leads.
+- `/admin/projects` creates new projects only. Existing project catalogue details are edited in the project-scoped `project-info` section.
+- Project information and homepage management share the `project-info` page; it contains catalogue fields, cover media, Hero copy/media, and the brochure.
+- Project sidebar sections include dashboard, combined project information/homepage, house types, facilities, promotions, news, contact/map, and leads.
 - Edit forms must preload current database values.
 - Image inputs upload files from the user's computer; do not replace them with URL-only fields.
 - Contact/map settings use `project_settings` and must display a clear success or failure message.

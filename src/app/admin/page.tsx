@@ -64,15 +64,15 @@ function statusClass(status: string) {
   return status === "CONTACTED" || status === "CLOSED"
     ? "bg-emerald-100 text-emerald-700"
     : status === "QUALIFIED"
-      ? "bg-indigo-100 text-indigo-700"
+      ? "bg-brand-soft text-brand-primary"
       : "bg-amber-100 text-amber-800";
 }
 
 export default async function AdminPage() {
   const data = await dashboardData();
   const metrics: Metric[] = [
-    { label: "จำนวนการเข้าชมเว็บรวม", value: formatNumber(data.views), note: "ครั้ง", tone: "text-purple-700" },
-    { label: "ข้อมูลเฉลี่ยเวลาเข้าชม", value: duration(data.seconds), note: "นาที", tone: "text-purple-700" },
+    { label: "จำนวนการเข้าชมเว็บรวม", value: formatNumber(data.views), note: "ครั้ง", tone: "text-brand-primary" },
+    { label: "ข้อมูลเฉลี่ยเวลาเข้าชม", value: duration(data.seconds), note: "นาที", tone: "text-brand-primary" },
     { label: "จำนวนผู้ลงทะเบียน", value: formatNumber(data.leads), note: "รายชื่อ", tone: "text-emerald-700" },
   ];
   const maxLeads = Math.max(...data.byProject.map((row) => Number(row.total)), 1);
@@ -80,10 +80,8 @@ export default async function AdminPage() {
     <>
       <header className="flex flex-col gap-4 border-b border-slate-200 pb-5 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-indigo-500">Dashboard MD</p>
-          <h1 className="mt-1 text-xl font-bold text-slate-800">
-            Dashboard MD <span className="font-normal text-slate-400">(ข้อมูลโดยรวมเว็บไซต์บริษัท)</span>
-          </h1>
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-primary">ภาพรวมโครงการ</p>
+          <h1 className="mt-1 text-xl font-bold text-slate-800">Dashboard MD</h1>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <select className="rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-700">
@@ -94,7 +92,7 @@ export default async function AdminPage() {
           </select>
           <Link
             href="/api/admin/leads?format=csv"
-            className="rounded-lg bg-purple-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-purple-700"
+            className="rounded-lg bg-brand-accent px-4 py-2 text-sm font-bold text-brand-primary shadow-sm transition hover:bg-brand-accent-soft"
           >
             ⇩ สร้างรายงาน Leads
           </Link>
@@ -103,15 +101,22 @@ export default async function AdminPage() {
       <div className="mt-6 grid gap-6 xl:grid-cols-[18rem_1fr]">
         <aside className="grid gap-4 sm:grid-cols-3 xl:grid-cols-1">
           {metrics.map((metric) => (
-            <section key={metric.label} className="rounded-2xl border border-purple-200 bg-purple-50 p-5 shadow-sm">
-              <p className="text-xs font-bold uppercase tracking-wide text-purple-600">{metric.label}</p>
+            <section
+              key={metric.label}
+              className="rounded-2xl border border-brand-primary/15 bg-brand-soft p-5 shadow-sm"
+            >
+              <p className="border-l-4 border-brand-accent pl-2 text-xs font-bold uppercase tracking-wide text-brand-primary">
+                {metric.label}
+              </p>
               <p className={`mt-2 text-2xl font-bold ${metric.tone}`}>
                 {metric.value} <span className="text-xs font-normal text-slate-500">{metric.note}</span>
               </p>
             </section>
           ))}
-          <section className="rounded-2xl border border-purple-200 bg-purple-50 p-5 shadow-sm">
-            <p className="text-xs font-bold uppercase tracking-wide text-purple-600">โซเชียลมีเดียยอดนิยม</p>
+          <section className="rounded-2xl border border-brand-primary/15 bg-brand-soft p-5 shadow-sm">
+            <p className="border-l-4 border-brand-accent pl-2 text-xs font-bold uppercase tracking-wide text-brand-primary">
+              โซเชียลมีเดียยอดนิยม
+            </p>
             <div className="mt-3 space-y-2 text-sm font-semibold text-slate-700">
               <p>
                 1. Facebook <span className="float-right text-slate-400">55%</span>
@@ -138,7 +143,7 @@ export default async function AdminPage() {
                     </div>
                     <div className="h-2 rounded-full bg-slate-100">
                       <div
-                        className="h-2 rounded-full bg-indigo-500"
+                        className="h-2 rounded-full bg-brand-primary"
                         style={{ width: `${(Number(row.total) / maxLeads) * 100}%` }}
                       />
                     </div>
@@ -154,12 +159,12 @@ export default async function AdminPage() {
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <h2 className="text-sm font-bold text-slate-700">▥ ภาพรวมเนื้อหาบนเว็บไซต์</h2>
             <div className="mt-5 grid grid-cols-3 gap-3">
-              <Link href="/admin/projects" className="rounded-xl bg-indigo-50 p-4 text-center">
-                <b className="block text-2xl text-indigo-700">{data.projects}</b>
+              <Link href="/admin/projects" className="rounded-xl bg-brand-soft p-4 text-center">
+                <b className="block text-2xl text-brand-primary">{data.projects}</b>
                 <span className="text-xs text-slate-500">โครงการ</span>
               </Link>
-              <Link href="/admin/promotions" className="rounded-xl bg-purple-50 p-4 text-center">
-                <b className="block text-2xl text-purple-700">{data.published}</b>
+              <Link href="/admin/promotions" className="rounded-xl bg-brand-soft p-4 text-center">
+                <b className="block text-2xl text-brand-primary">{data.published}</b>
                 <span className="text-xs text-slate-500">เผยแพร่</span>
               </Link>
               <Link href="/admin/leads" className="rounded-xl bg-emerald-50 p-4 text-center">
@@ -177,7 +182,7 @@ export default async function AdminPage() {
                 <h2 className="text-sm font-bold text-slate-700">▣ รายชื่อผู้ลงทะเบียนล่าสุด</h2>
                 <p className="mt-1 text-xs text-slate-400">ข้อมูลจริงจากแบบฟอร์มหน้าเว็บไซต์</p>
               </div>
-              <Link href="/admin/leads" className="text-xs font-bold text-indigo-600 hover:underline">
+              <Link href="/admin/leads" className="text-xs font-bold text-brand-primary hover:underline">
                 ดูทั้งหมด →
               </Link>
             </div>

@@ -32,7 +32,7 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
           return (
             <article
               key={house.id}
-              className="absolute left-1/2 top-0 h-105 w-[86%] overflow-hidden rounded-3xl bg-[#002D62] shadow-2xl transition-all duration-500 md:h-130 md:w-[48%]"
+              className="absolute left-1/2 top-0 h-105 w-[86%] overflow-hidden rounded-3xl bg-brand-primary shadow-2xl transition-all duration-500 md:h-130 md:w-[48%]"
               style={{
                 transform: `translateX(calc(-50% + ${offset * 72}%)) scale(${distance === 0 ? 1 : 0.86})`,
                 zIndex: 20 - distance,
@@ -50,7 +50,7 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
                   className="object-cover"
                 />
               ) : (
-                <div className="grid size-full place-items-center bg-linear-to-br from-[#4A4A4A] to-[#002D62] text-white/70">
+                <div className="grid size-full place-items-center bg-linear-to-br from-brand-text to-brand-primary text-white/70">
                   <i className="fa-solid fa-house-chimney text-6xl" />
                 </div>
               )}
@@ -78,7 +78,7 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
             type="button"
             onClick={() => move(-1)}
             aria-label="แบบบ้านก่อนหน้า"
-            className="absolute left-3 top-1/2 z-30 grid size-14 -translate-y-1/2 place-items-center rounded-full bg-white text-[#002D62] shadow-xl md:left-[8%]"
+            className="absolute left-3 top-1/2 z-30 grid size-14 -translate-y-1/2 place-items-center rounded-full bg-white text-brand-primary shadow-xl md:left-[8%]"
           >
             <i className="fa-solid fa-chevron-left" />
           </button>
@@ -86,7 +86,7 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
             type="button"
             onClick={() => move(1)}
             aria-label="แบบบ้านถัดไป"
-            className="absolute right-3 top-1/2 z-30 grid size-14 -translate-y-1/2 place-items-center rounded-full bg-white text-[#002D62] shadow-xl md:right-[8%]"
+            className="absolute right-3 top-1/2 z-30 grid size-14 -translate-y-1/2 place-items-center rounded-full bg-white text-brand-primary shadow-xl md:right-[8%]"
           >
             <i className="fa-solid fa-chevron-right" />
           </button>

@@ -29,7 +29,7 @@ export function LoginForm() {
           required
           name="email"
           type="email"
-          className="mt-1.5 w-full rounded-xl border border-slate-200 p-3 font-normal outline-none focus:border-[#002D62]"
+          className="mt-1.5 w-full rounded-xl border border-slate-200 p-3 font-normal outline-none focus:border-brand-primary"
           placeholder="admin@mida.local"
         />
       </label>
@@ -39,7 +39,7 @@ export function LoginForm() {
           required
           name="password"
           type="password"
-          className="mt-1.5 w-full rounded-xl border border-slate-200 p-3 font-normal outline-none focus:border-[#002D62]"
+          className="mt-1.5 w-full rounded-xl border border-slate-200 p-3 font-normal outline-none focus:border-brand-primary"
         />
       </label>
       {error && <p className="text-sm text-red-600">{error}</p>}

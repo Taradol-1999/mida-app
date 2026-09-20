@@ -89,7 +89,7 @@ export function ProjectGallery({ items }: { items: ProjectGalleryItem[] }) {
               />
             )}
             <span className="absolute inset-0 bg-black/0 transition group-hover:bg-black/15" />
-            <span className="absolute bottom-3 right-3 grid size-9 translate-y-2 place-items-center rounded-full bg-white/90 text-[#002D62] opacity-0 shadow transition group-hover:translate-y-0 group-hover:opacity-100">
+            <span className="absolute bottom-3 right-3 grid size-9 translate-y-2 place-items-center rounded-full bg-white/90 text-brand-primary opacity-0 shadow transition group-hover:translate-y-0 group-hover:opacity-100">
               <i className="fa-solid fa-up-right-and-down-left-from-center text-xs" />
             </span>
           </button>
@@ -102,7 +102,7 @@ export function ProjectGallery({ items }: { items: ProjectGalleryItem[] }) {
             type="button"
             onClick={() => setExpanded((value) => !value)}
             aria-expanded={expanded}
-            className="group inline-flex min-w-44 items-center justify-center gap-2 rounded-full border border-[#002D62] bg-white px-7 py-3 text-sm font-bold text-[#002D62] transition hover:bg-[#002D62] hover:text-white"
+            className="group inline-flex min-w-44 items-center justify-center gap-2 rounded-full border border-brand-primary bg-white px-7 py-3 text-sm font-bold text-brand-primary transition hover:bg-brand-primary hover:text-white"
           >
             {expanded ? "แสดงน้อยลง" : `ดูเพิ่มเติม (${items.length - 6})`}
             <i
@@ -148,7 +148,7 @@ export function ProjectGallery({ items }: { items: ProjectGalleryItem[] }) {
                   type="button"
                   onClick={() => move(-1)}
                   aria-label="ภาพก่อนหน้า"
-                  className="absolute left-2 top-1/2 grid size-12 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-[#002D62] shadow-lg sm:-left-16"
+                  className="absolute left-2 top-1/2 grid size-12 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-brand-primary shadow-lg sm:-left-16"
                 >
                   <i className="fa-solid fa-chevron-left" />
                 </button>
@@ -156,7 +156,7 @@ export function ProjectGallery({ items }: { items: ProjectGalleryItem[] }) {
                   type="button"
                   onClick={() => move(1)}
                   aria-label="ภาพถัดไป"
-                  className="absolute right-2 top-1/2 grid size-12 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-[#002D62] shadow-lg sm:-right-16"
+                  className="absolute right-2 top-1/2 grid size-12 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-brand-primary shadow-lg sm:-right-16"
                 >
                   <i className="fa-solid fa-chevron-right" />
                 </button>

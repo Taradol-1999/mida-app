@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="th">
+    <html lang="th" suppressHydrationWarning>
       <head>
         <link
           rel="stylesheet"
@@ -25,7 +25,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           referrerPolicy="no-referrer"
         />
       </head>
-      <body className={ibmPlexSansThai.variable}>{children}</body>
+      <body className={ibmPlexSansThai.variable} suppressHydrationWarning>
+        {children}
+      </body>
     </html>
   );
 }

@@ -35,7 +35,7 @@ export function LeadModal({ projectId, projectName }: { projectId?: string | nul
           setStatus("idle");
           setOpen(true);
         }}
-        className="fixed bottom-5 right-5 z-30 grid size-16 place-items-center rounded-full bg-[#002D62] text-center text-xs font-bold text-white shadow-xl ring-4 ring-white hover:bg-[#4A4A4A]"
+        className="fixed bottom-5 right-5 z-30 grid size-16 place-items-center rounded-full bg-brand-primary text-center text-xs font-bold text-white shadow-xl ring-4 ring-white hover:bg-brand-text"
         aria-label="นัดชมโครงการ"
       >
         นัดชม
@@ -44,7 +44,7 @@ export function LeadModal({ projectId, projectName }: { projectId?: string | nul
       </button>
       {open && (
         <div
-          className="fixed inset-0 z-40 grid place-items-center bg-[#001b3d]/65 p-4"
+          className="fixed inset-0 z-40 grid place-items-center bg-brand-overlay/65 p-4"
           role="dialog"
           aria-modal="true"
           aria-label="นัดชมโครงการ"
@@ -52,8 +52,8 @@ export function LeadModal({ projectId, projectName }: { projectId?: string | nul
           <div className="max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl md:p-8">
             <div className="mb-5 flex items-start justify-between">
               <div>
-                <p className="text-sm font-bold text-[#4A4A4A]">MIDA PROPERTY</p>
-                <h2 className="text-2xl font-extrabold text-[#002D62]">ลงทะเบียนรับข้อเสนอพิเศษ</h2>
+                <p className="text-sm font-bold text-brand-text">MIDA PROPERTY</p>
+                <h2 className="text-2xl font-extrabold text-brand-primary">ลงทะเบียนรับข้อเสนอพิเศษ</h2>
                 <p className="mt-1 text-sm text-slate-500">
                   {projectName ? `โครงการ ${projectName}` : "ทีมงานจะติดต่อกลับโดยเร็วที่สุด"}
                 </p>
@@ -71,7 +71,7 @@ export function LeadModal({ projectId, projectName }: { projectId?: string | nul
               <form onSubmit={submit} className="space-y-7">
                 {projectId && <input type="hidden" name="projectId" value={projectId} />}
                 <fieldset>
-                  <legend className="mb-4 w-full border-b border-slate-100 pb-3 text-center font-bold text-[#002D62]">
+                  <legend className="mb-4 w-full border-b border-slate-100 pb-3 text-center font-bold text-brand-primary">
                     ข้อมูลส่วนตัว
                   </legend>
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -84,7 +84,7 @@ export function LeadModal({ projectId, projectName }: { projectId?: string | nul
                 </fieldset>
 
                 <fieldset>
-                  <legend className="mb-4 w-full border-b border-slate-100 pb-3 text-center font-bold text-[#002D62]">
+                  <legend className="mb-4 w-full border-b border-slate-100 pb-3 text-center font-bold text-brand-primary">
                     ที่อยู่ปัจจุบัน
                   </legend>
                   <div className="grid gap-4 md:grid-cols-3">
@@ -95,7 +95,7 @@ export function LeadModal({ projectId, projectName }: { projectId?: string | nul
                         required
                         list="thai-provinces"
                         placeholder="เลือกหรือพิมพ์จังหวัด"
-                        className="mt-1.5 w-full rounded-xl border border-slate-200 p-3 outline-none focus:border-[#002D62]"
+                        className="mt-1.5 w-full rounded-xl border border-slate-200 p-3 outline-none focus:border-brand-primary"
                       />
                       <datalist id="thai-provinces">
                         {["กรุงเทพมหานคร", "นครปฐม", "นนทบุรี", "ปทุมธานี", "สมุทรสาคร", "สมุทรปราการ", "ขอนแก่น"].map(
@@ -127,7 +127,7 @@ export function LeadModal({ projectId, projectName }: { projectId?: string | nul
                             name="residenceType"
                             value={value}
                             required
-                            className="accent-[#002D62]"
+                            className="accent-brand-primary"
                           />
                           {label}
                         </label>
@@ -156,7 +156,7 @@ export function LeadModal({ projectId, projectName }: { projectId?: string | nul
                   <legend className="px-1 text-sm font-semibold text-slate-700">การรับข่าวสาร</legend>
                   <div className="space-y-3 text-sm text-slate-600">
                     <label className="flex items-start gap-2">
-                      <input type="checkbox" name="consentNews" value="true" className="mt-1 accent-[#002D62]" />
+                      <input type="checkbox" name="consentNews" value="true" className="mt-1 accent-brand-primary" />
                       ท่านต้องการรับข่าวสารจาก Mida Property
                     </label>
                     <label className="flex items-start gap-2">
@@ -165,7 +165,7 @@ export function LeadModal({ projectId, projectName }: { projectId?: string | nul
                         name="consentContact"
                         value="true"
                         required
-                        className="mt-1 accent-[#002D62]"
+                        className="mt-1 accent-brand-primary"
                       />
                       ท่านยินยอมให้เจ้าหน้าที่ติดต่อกลับในช่วงเวลาที่ท่านกำหนด
                       <span className="text-red-500">*</span>
@@ -206,7 +206,7 @@ function Field({
         min={type === "number" ? 1 : undefined}
         max={type === "number" ? 99 : undefined}
         placeholder={placeholder}
-        className="mt-1.5 w-full rounded-xl border border-slate-200 p-3 outline-none focus:border-[#002D62]"
+        className="mt-1.5 w-full rounded-xl border border-slate-200 p-3 outline-none focus:border-brand-primary"
       />
     </label>
   );
