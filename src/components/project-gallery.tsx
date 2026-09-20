@@ -50,24 +50,19 @@ export function ProjectGallery({ items }: { items: ProjectGalleryItem[] }) {
     <>
       <div className="mb-9 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <span className="mb-3 block h-1 w-14 rounded-full bg-[#F5A623]" />
-          <h2 className="text-3xl font-extrabold text-slate-950 md:text-4xl">อัลบั้มภาพ</h2>
-        </div>
-        <div className="flex justify-start sm:justify-end">
-          <span className="min-w-56 rounded-full bg-black px-8 py-3 text-center text-sm font-bold text-white md:min-w-72">
-            ภาพโครงการ
-          </span>
+          <div className="gold-rule mb-2" />
+          <h2 className="section-title">อัลบั้มภาพ</h2>
         </div>
       </div>
 
-      <div className="grid auto-rows-[15rem] grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-12">
+      <div className="grid auto-rows-60 grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-12">
         {visibleItems.map((item, index) => (
           <button
             key={`${item.src}-${index}`}
             type="button"
             onClick={() => setSelected(index)}
             aria-label={`ดูสื่อ Gallery ลำดับที่ ${index + 1}`}
-            className={`group relative overflow-hidden bg-slate-200 text-left ${tileClasses[index % tileClasses.length]} ${index === 0 ? "rounded-tl-2xl" : ""} ${index === 2 ? "rounded-tr-2xl" : ""}`}
+            className={`group relative overflow-hidden bg-slate-200 text-left ${tileClasses[index % tileClasses.length]}`}
           >
             {item.type === "video" ? (
               <>
@@ -102,7 +97,7 @@ export function ProjectGallery({ items }: { items: ProjectGalleryItem[] }) {
       </div>
 
       {items.length > 6 && (
-        <div className="mt-8 flex justify-center">
+        <div className="mt-9 flex justify-center">
           <button
             type="button"
             onClick={() => setExpanded((value) => !value)}

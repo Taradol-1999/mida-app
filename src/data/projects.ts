@@ -3,6 +3,8 @@ export type Project = {
   slug: string;
   name: string;
   location: string;
+  latitude?: number | null;
+  longitude?: number | null;
   type: "บ้านเดี่ยว" | "บ้านแฝด" | "ทาวน์โฮม" | "อาคารพาณิชย์";
   price: string;
   startingPrice: number;
@@ -12,6 +14,7 @@ export type Project = {
   facilities: string[];
   landmarks: string[];
   has_cover?: boolean | number;
+  has_brochure?: boolean | number;
   is_featured?: boolean | number;
   is_new?: boolean | number;
   tags?: string[] | string;
@@ -24,6 +27,8 @@ export const projects: Project[] = [
     slug: "grand-village-petchkasem",
     name: "Grand Village เพชรเกษม",
     location: "นครปฐม",
+    latitude: 13.8199,
+    longitude: 100.0373,
     type: "บ้านเดี่ยว",
     price: "2.5 ล้านบาท*",
     startingPrice: 2500000,
@@ -37,6 +42,8 @@ export const projects: Project[] = [
     slug: "town-village-prapa",
     name: "Town Village Prapa",
     location: "นครปฐม",
+    latitude: 13.8335,
+    longitude: 100.0575,
     type: "ทาวน์โฮม",
     price: "2.159 ล้านบาท*",
     startingPrice: 2159000,
@@ -55,6 +62,8 @@ export const projects: Project[] = [
     slug: "roipruksa-lakeville",
     name: "Roipruksa Lakeville",
     location: "นครปฐม",
+    latitude: 13.7985,
+    longitude: 100.034,
     type: "บ้านเดี่ยว",
     price: "5.29 ล้านบาท*",
     startingPrice: 5290000,
@@ -73,6 +82,8 @@ export const projects: Project[] = [
     slug: "the-code-lamphaya",
     name: "THE CODE ลำพยา",
     location: "นครปฐม",
+    latitude: 13.8234,
+    longitude: 100.0449,
     type: "บ้านเดี่ยว",
     price: "3 - 6 ล้านบาท*",
     startingPrice: 3000000,

@@ -1,11 +1,12 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
-/* eslint-disable @next/next/no-html-link-for-pages */
 /* eslint-disable react-hooks/set-state-in-effect */
 
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { coordinatesFromGoogleMaps } from "@/lib/map-coordinates";
 
-type Section = "dashboard" | "homepage" | "house-types" | "facilities" | "promotions" | "news" | "contact" | "leads";
+type Section =
+  "dashboard" | "homepage" | "house-types" | "facilities" | "promotions" | "news" | "contact" | "after-sales" | "leads";
 type Field = {
   key: string;
   label: string;
@@ -20,6 +21,7 @@ type DataConfig = {
   fields: Field[];
   readOnlyCreate?: boolean;
 };
+type Brochure = { id: string; name: string; url: string };
 const configs: Partial<Record<Section, DataConfig>> = {
   "house-types": {
     resource: "house-types",
@@ -100,7 +102,7 @@ const configs: Partial<Record<Section, DataConfig>> = {
 };
 const inputClass =
   "mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100";
-const settingFields: Record<"homepage" | "contact", Field[]> = {
+const settingFields: Record<"homepage" | "contact" | "after-sales", Field[]> = {
   homepage: [
     { key: "hero_title_th", label: "คำพาดหัวหลัก - ภาษาไทย" },
     { key: "hero_title_en", label: "คำพาดหัวหลัก - ภาษาอังกฤษ" },
@@ -111,8 +113,16 @@ const settingFields: Record<"homepage" | "contact", Field[]> = {
     { key: "phone", label: "เบอร์โทรศัพท์โครงการ" },
     { key: "email", label: "อีเมลโครงการ" },
     { key: "map_url", label: "Google Maps URL หรือ Embed", type: "text" },
+    { key: "virtual_tour_url", label: "ลิงก์ Map 3D / Virtual Tour", type: "text" },
+    { key: "latitude", label: "ละติจูด (Latitude)", type: "number" },
+    { key: "longitude", label: "ลองจิจูด (Longitude)", type: "number" },
     { key: "nearby_places_th", label: "สถานที่ใกล้เคียง - ภาษาไทย", type: "textarea" },
     { key: "nearby_places_en", label: "Nearby Places - English", type: "textarea" },
+  ],
+  "after-sales": [
+    { key: "care_warranty", label: "การรับประกันหลังขาย", type: "textarea" },
+    { key: "care_maintenance", label: "คู่มือการอยู่อาศัย", type: "textarea" },
+    { key: "care_common_area", label: "นิติบุคคล & พื้นที่ส่วนกลาง", type: "textarea" },
   ],
 };
 function empty(fields: Field[]) {
@@ -126,6 +136,25 @@ function valueForInput(field: Field, value: unknown) {
   return value ?? (field.type === "checkbox" ? false : "");
 }
 
+const leadStatus: Record<string, { label: string; className: string }> = {
+  NEW: { label: "รอดำเนินการ", className: "bg-amber-100 text-amber-800" },
+  CONTACTED: { label: "ติดต่อแล้ว", className: "bg-emerald-100 text-emerald-700" },
+  QUALIFIED: { label: "มีโอกาสปิดการขาย", className: "bg-blue-100 text-blue-700" },
+  CLOSED: { label: "ปิดการขาย", className: "bg-slate-200 text-slate-700" },
+};
+
+function leadDate(value: unknown, includeTime = false) {
+  if (!value) return "-";
+  const date = new Date(String(value));
+  if (Number.isNaN(date.valueOf())) return String(value);
+  return new Intl.DateTimeFormat("th-TH", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    ...(includeTime ? { hour: "2-digit", minute: "2-digit" } : {}),
+  }).format(date);
+}
+
 export function ProjectWorkspace({
   projectId,
   projectName,
@@ -136,7 +165,7 @@ export function ProjectWorkspace({
   section: Section;
 }) {
   const dataConfig = configs[section];
-  const settingMode = section === "homepage" || section === "contact";
+  const settingMode = section === "homepage" || section === "contact" || section === "after-sales";
   const fields = useMemo(
     () => (settingMode ? settingFields[section] : (dataConfig?.fields ?? [])),
     [dataConfig, section, settingMode],
@@ -148,6 +177,8 @@ export function ProjectWorkspace({
   const [busy, setBusy] = useState(false);
   const [heroFiles, setHeroFiles] = useState<File[]>([]);
   const [heroImages, setHeroImages] = useState<{ id: string; name: string; mimeType: string; url: string }[]>([]);
+  const [brochure, setBrochure] = useState<Brochure | null>(null);
+  const [brochureBusy, setBrochureBusy] = useState(false);
   const [houseTypeImage, setHouseTypeImage] = useState<File | null>(null);
   const [existingHouseTypeImage, setExistingHouseTypeImage] = useState<string | null>(null);
   const [stats, setStats] = useState({ leads: 0, homes: 0, promos: 0, news: 0 });
@@ -182,13 +213,26 @@ export function ProjectWorkspace({
   }, [load]);
   // Existing banner images are loaded so an admin can review and remove them during editing.
   useEffect(() => {
-    if (section === "homepage")
+    if (section === "homepage") {
       fetch(`/api/admin/media?entityType=projects&entityId=${projectId}&mediaKind=hero&list=1`)
         .then((response) => (response.ok ? response.json() : { rows: [] }))
         .then((data) => setHeroImages(data.rows ?? []))
         .catch(() => undefined);
+      fetch(`/api/admin/media?entityType=projects&entityId=${projectId}&mediaKind=brochure&list=1`)
+        .then((response) => (response.ok ? response.json() : { rows: [] }))
+        .then((data) => setBrochure(data.rows?.[0] ?? null))
+        .catch(() => undefined);
+    }
   }, [projectId, section]);
   const setField = (key: string, value: unknown) => setForm((current) => ({ ...current, [key]: value }));
+  const setMapUrl = (value: string) => {
+    const coordinates = coordinatesFromGoogleMaps(value);
+    setForm((current) => ({
+      ...current,
+      map_url: value,
+      ...(coordinates ? { latitude: String(coordinates.latitude), longitude: String(coordinates.longitude) } : {}),
+    }));
+  };
   const save = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setBusy(true);
@@ -205,7 +249,13 @@ export function ProjectWorkspace({
           setMessage(result.message ?? "บันทึกไม่สำเร็จ");
           return;
         }
-        setMessage("บันทึกข้อมูลติดต่อและแผนที่เรียบร้อย");
+        setMessage(
+          section === "after-sales"
+            ? "บันทึกข้อมูลบริการหลังการขายเรียบร้อย"
+            : section === "homepage"
+              ? "บันทึกข้อมูลหน้าหลักโครงการเรียบร้อย"
+              : "บันทึกข้อมูลติดต่อและแผนที่เรียบร้อย",
+        );
         await load();
       } catch {
         setMessage("ไม่สามารถเชื่อมต่อระบบบันทึกข้อมูลได้ กรุณาลองอีกครั้ง");
@@ -298,6 +348,31 @@ export function ProjectWorkspace({
     );
     if (response.ok) setHeroImages((items) => items.filter((item) => item.id !== id));
   };
+  const uploadBrochure = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setBrochureBusy(true);
+    setMessage("");
+    const upload = new FormData();
+    upload.set("entityType", "projects");
+    upload.set("entityId", projectId);
+    upload.set("mediaKind", "brochure");
+    upload.set("file", file);
+    const response = await fetch("/api/admin/media", { method: "POST", body: upload });
+    const result = await response.json();
+    setBrochureBusy(false);
+    event.target.value = "";
+    if (!response.ok) {
+      setMessage(result.message ?? "อัปโหลดโบรชัวร์ไม่สำเร็จ");
+      return;
+    }
+    const brochureResponse = await fetch(
+      `/api/admin/media?entityType=projects&entityId=${projectId}&mediaKind=brochure&list=1`,
+    );
+    const brochureData = brochureResponse.ok ? await brochureResponse.json() : { rows: [] };
+    setBrochure(brochureData.rows?.[0] ?? null);
+    setMessage("อัปโหลดโบรชัวร์เรียบร้อย");
+  };
   const edit = async (row: Record<string, unknown>) => {
     setEditingId(String(row.id));
     setForm(
@@ -315,6 +390,28 @@ export function ProjectWorkspace({
       setExistingHouseTypeImage(data.rows?.[0]?.url ?? null);
     }
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+  const updateLeadStatus = async (id: string, status: string) => {
+    setBusy(true);
+    setMessage("");
+    try {
+      const response = await fetch("/api/admin/leads", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status }),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        setMessage(result.message ?? "บันทึกสถานะไม่สำเร็จ");
+        return;
+      }
+      setRows((current) => current.map((row) => (String(row.id) === id ? { ...row, status } : row)));
+      setMessage("บันทึกสถานะติดตามเรียบร้อย");
+    } catch {
+      setMessage("ไม่สามารถเชื่อมต่อระบบบันทึกสถานะได้");
+    } finally {
+      setBusy(false);
+    }
   };
   if (section === "dashboard")
     return (
@@ -411,6 +508,43 @@ export function ProjectWorkspace({
               ))}
             </div>
           </div>
+          <div className="mt-6 rounded-xl border border-indigo-100 bg-indigo-50/50 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-rose-100 text-rose-600">
+                  <i className="fa-solid fa-file-pdf" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-sm font-bold text-slate-700">โบรชัวร์โครงการ</p>
+                  {brochure ? (
+                    <a
+                      href={brochure.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-1 block truncate text-xs font-semibold text-indigo-600 hover:underline"
+                    >
+                      <i className="fa-solid fa-arrow-up-right-from-square mr-1" />
+                      {brochure.name}
+                    </a>
+                  ) : (
+                    <p className="mt-1 text-xs text-slate-500">ยังไม่มีไฟล์โบรชัวร์</p>
+                  )}
+                </div>
+              </div>
+              <label className="cursor-pointer rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-indigo-700">
+                <i className="fa-solid fa-cloud-arrow-up mr-2" />
+                {brochureBusy ? "กำลังอัปโหลด..." : brochure ? "เปลี่ยนโบรชัวร์" : "อัปโหลดโบรชัวร์"}
+                <input
+                  type="file"
+                  accept="application/pdf,.pdf"
+                  className="hidden"
+                  disabled={brochureBusy}
+                  onChange={(event) => void uploadBrochure(event)}
+                />
+              </label>
+            </div>
+            <p className="mt-3 text-xs text-slate-500">รองรับไฟล์ PDF ขนาดไม่เกิน 20 MB</p>
+          </div>
           {message && <p className="mt-4 rounded-lg bg-indigo-50 px-3 py-2 text-sm text-indigo-700">{message}</p>}
           <button
             disabled={busy}
@@ -421,8 +555,115 @@ export function ProjectWorkspace({
         </form>
       </>
     );
-  const title = settingMode ? "จัดการข้อมูลติดต่อ & แผนที่" : (dataConfig?.title ?? "");
-  const intro = settingMode ? "ตั้งค่าเบอร์โทร อีเมล แผนที่ และสถานที่ใกล้เคียง" : (dataConfig?.intro ?? "");
+  const title =
+    section === "after-sales"
+      ? "บริการหลังการขาย (Mida Care)"
+      : settingMode
+        ? "จัดการข้อมูลติดต่อ & แผนที่"
+        : (dataConfig?.title ?? "");
+  const intro =
+    section === "after-sales"
+      ? "แก้ไขข้อมูลบริการที่จะแสดงเป็นปุ่มบนหน้าโครงการ"
+      : settingMode
+        ? "ตั้งค่าเบอร์โทร อีเมล แผนที่ และสถานที่ใกล้เคียง"
+        : (dataConfig?.intro ?? "");
+  if (section === "leads")
+    return (
+      <>
+        <header className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-200 pb-5">
+          <div>
+            <p className="text-xs font-bold tracking-[0.16em] text-indigo-500">{projectName}</p>
+            <h1 className="mt-1 text-xl font-bold text-slate-800">รายชื่อผู้ลงทะเบียนสนใจโครงการ (Customer Leads)</h1>
+            <p className="mt-1 text-sm text-slate-500">ข้อมูลสำคัญจากแบบฟอร์มรับข้อเสนอพิเศษของโครงการนี้</p>
+          </div>
+          <a
+            href={`/api/admin/leads?format=csv&projectId=${projectId}`}
+            className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-bold text-white"
+          >
+            <i className="fa-solid fa-file-csv mr-2" />
+            ส่งออกข้อมูลลูกค้า (CSV)
+          </a>
+        </header>
+        {message && <p className="mt-5 rounded-lg bg-indigo-50 px-4 py-3 text-sm text-indigo-700">{message}</p>}
+        <section className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="min-w-[1180px] w-full text-left text-sm">
+              <thead className="bg-slate-50 text-xs font-bold uppercase tracking-wide text-slate-600">
+                <tr>
+                  <th className="px-4 py-4">วันที่/เวลา</th>
+                  <th className="px-4 py-4">ชื่อและช่องทางติดต่อ</th>
+                  <th className="px-4 py-4">ที่อยู่ปัจจุบัน</th>
+                  <th className="px-4 py-4">ข้อมูลความสนใจ</th>
+                  <th className="px-4 py-4">เวลาที่สะดวก</th>
+                  <th className="px-4 py-4">สถานะ</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-slate-600">
+                {rows.map((row) => {
+                  const status = leadStatus[String(row.status)] ?? leadStatus.NEW;
+                  return (
+                    <tr key={String(row.id)} className="align-top hover:bg-slate-50/70">
+                      <td className="whitespace-nowrap px-4 py-4 text-xs">{leadDate(row.created_at, true)}</td>
+                      <td className="px-4 py-4">
+                        <p className="font-bold text-slate-800">{String(row.name ?? "-")}</p>
+                        <p className="mt-1 text-xs">
+                          <i className="fa-solid fa-phone mr-1" />
+                          {String(row.phone ?? "-")}
+                        </p>
+                        <p className="mt-1 text-xs">
+                          <i className="fa-solid fa-envelope mr-1" />
+                          {String(row.email ?? "-")}
+                        </p>
+                      </td>
+                      <td className="max-w-56 px-4 py-4 text-xs leading-5">
+                        {[row.subdistrict, row.district, row.province].filter(Boolean).join(" · ") || "-"}
+                      </td>
+                      <td className="px-4 py-4 text-xs leading-5">
+                        <p>
+                          <b>งบ:</b> {String(row.budget ?? "-")}
+                        </p>
+                        <p>
+                          <b>สมาชิก:</b> {String(row.family_members ?? "-")} คน
+                        </p>
+                        <p>
+                          <b>ที่พัก:</b> {String(row.residence_type ?? "-")}
+                        </p>
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-4 text-xs leading-5">
+                        <p>{leadDate(row.preferred_contact_date)}</p>
+                        <p>{String(row.preferred_contact_time ?? "-").slice(0, 5)} น.</p>
+                      </td>
+                      <td className="px-4 py-4">
+                        <select
+                          value={String(row.status ?? "NEW")}
+                          disabled={busy}
+                          onChange={(event) => void updateLeadStatus(String(row.id), event.target.value)}
+                          aria-label={`สถานะของ ${String(row.name ?? "Lead")}`}
+                          className={`rounded-lg border-0 px-3 py-2 text-xs font-bold outline-none ring-1 ring-inset ring-black/5 disabled:opacity-60 ${status.className}`}
+                        >
+                          {configs.leads?.fields[0].options?.map(([value, label]) => (
+                            <option key={value} value={value}>
+                              {label}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                    </tr>
+                  );
+                })}
+                {!rows.length && (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-12 text-center text-slate-400">
+                      ยังไม่มีผู้ลงทะเบียนในโครงการนี้
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </>
+    );
   return (
     <>
       <header className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-200 pb-5">
@@ -431,15 +672,6 @@ export function ProjectWorkspace({
           <h1 className="mt-1 text-xl font-bold text-slate-800">{title}</h1>
           <p className="mt-1 text-sm text-slate-500">{intro}</p>
         </div>
-        {section === "leads" && (
-          <a
-            href="/api/admin/leads?format=csv"
-            className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-bold text-white"
-          >
-            <i className="fa-solid fa-file-csv mr-2" />
-            Export CSV
-          </a>
-        )}
       </header>
       <div className={`mt-6 grid gap-6 ${settingMode ? "" : "xl:grid-cols-[minmax(0,1fr)_22rem]"}`}>
         <form onSubmit={save} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -496,7 +728,11 @@ export function ProjectWorkspace({
                         required={field.required}
                         type={field.type === "datetime" ? "datetime-local" : (field.type ?? "text")}
                         value={String(form[field.key] ?? "")}
-                        onChange={(event) => setField(field.key, event.target.value)}
+                        onChange={(event) =>
+                          field.key === "map_url"
+                            ? setMapUrl(event.target.value)
+                            : setField(field.key, event.target.value)
+                        }
                         className={inputClass}
                       />
                     )}
@@ -505,6 +741,13 @@ export function ProjectWorkspace({
               </label>
             ))}
           </div>
+          {section === "contact" && (
+            <p className="mt-3 rounded-lg bg-blue-50 px-3 py-2 text-xs leading-5 text-[#002D62]">
+              <i className="fa-solid fa-location-dot mr-2" />
+              วาง Google Maps URL หรือโค้ด Embed แล้วระบบจะเติม Latitude และ Longitude อัตโนมัติ สำหรับลิงก์ย่อ
+              maps.app.goo.gl ระบบจะดึงพิกัดเมื่อกดบันทึก
+            </p>
+          )}
           {section === "house-types" && (
             <div className="mt-5">
               <p className="text-sm font-semibold text-slate-700">รูปแบบบ้าน</p>

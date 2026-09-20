@@ -96,7 +96,7 @@ export function MidaFrontendManager() {
           ส่วนควบคุมและแก้ไขข้อมูลหน้าแรก สไลเดอร์หลัก และเนื้อหาของหน้าเว็บใหญ่ (Corporate Website)
         </p>
       </header>
-      <form onSubmit={save} className="mt-6 max-w-3xl space-y-5 text-sm">
+      <form onSubmit={save} className="mt-6 space-y-5 text-sm">
         <label className="block font-semibold text-slate-700">
           คำพาดหัวหลักของบริษัท (Corporate Headline)
           <input

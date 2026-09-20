@@ -5,7 +5,7 @@
 ## สิ่งที่มีในเวอร์ชันนี้
 
 - หน้าเว็บไซต์ MIDA: Hero, ค้นหา/กรองโครงการ, รายการโครงการ, ข่าวสาร, ทำเล และปุ่มนัดชมแบบ popup
-- หน้ารายละเอียดโครงการ พร้อมส่วนแบบบ้าน ส่วนกลาง โปรโมชั่น และพื้นที่แผนที่สำหรับเชื่อม Google Maps 3D
+- หน้ารายละเอียดโครงการ พร้อมส่วนแบบบ้าน ส่วนกลาง โปรโมชั่น OpenStreetMap และปุ่มนำทาง Google Maps
 - หลังบ้าน `/admin` พร้อม dashboard และ CRUD สำหรับโครงการ, แบบบ้าน, ส่วนกลาง, โปรโมชั่น, ข่าวสาร, Leads, เนื้อหาเว็บ และผู้ใช้
 - สิทธิ์แบบ role-based: `SUPER_ADMIN` จัดการผู้ใช้ได้, `ADMIN` จัดการเนื้อหาได้, `USER` ไม่มีสิทธิ์เข้าหลังบ้าน
 - MySQL schema สำหรับโครงการ บ้าน สิ่งอำนวยความสะดวก โปรโมชั่น ข่าว Leads และข้อมูลสถิติ
@@ -16,14 +16,15 @@
 1. ติดตั้งแพ็กเกจด้วย `pnpm install`
 2. คัดลอก `.env.example` เป็น `.env.local` แล้วเติมค่า MySQL และ `AUTH_SECRET`
 3. สร้างตาราง: `mysql -u root -p < database/schema.sql`
-4. สร้างผู้ดูแลระบบ (ตัวอย่าง):
+4. เติมข้อมูลจำลองทุกหมวดของโครงการ: `pnpm db:seed`
+5. สร้างผู้ดูแลระบบ (ตัวอย่าง):
 
    ```bash
    DB_PASSWORD='your-password' node scripts/create-admin.mjs "MIDA Admin" admin@mida.local "choose-a-strong-password"
    ```
 
-5. เปิดเว็บ: `npm run dev:webpack`
-6. เข้าเว็บที่ `http://localhost:3000` และเข้าหลังบ้านที่ `http://localhost:3000/login`
+6. เปิดเว็บ: `npm run dev:webpack`
+7. เข้าเว็บที่ `http://localhost:3000` และเข้าหลังบ้านที่ `http://localhost:3000/login`
 
 ## ใช้งานด้วย VS Code
 
@@ -51,7 +52,7 @@ password: MidaAdmin@2026!
 
 ## Database
 
-ไฟล์ `database/schema.sql` สามารถรันซ้ำได้โดยไม่ลบข้อมูลเดิม และมี sample catalogue 4 โครงการที่อ้างอิงข้อมูลสาธารณะจาก [MIDA Property](https://www.midaproperty.com/) ได้แก่ Grand Village เพชรเกษม, Town Village Prapa, Roipruksa Lakeville และ THE CODE ลำพยา ราคาและสถานะเป็นข้อมูลตัวอย่าง จึงต้องยืนยันกับฝ่ายขายก่อนเผยแพร่จริง ตารางสำคัญคือ `users`, `projects`, `house_types`, `facilities`, `promotions`, `news_items`, `leads`, `site_content`, `media_assets` และ `page_views`
+ไฟล์ `database/schema.sql` สามารถรันซ้ำได้โดยไม่ลบข้อมูลเดิม และ `pnpm db:seed` จะเติมข้อมูลจำลองให้โครงการทั้ง 5 แห่ง ครอบคลุมข้อมูลติดต่อ พิกัด สถานที่ใกล้เคียง แบบบ้าน สิ่งอำนวยความสะดวก โปรโมชั่น และข่าวสาร ราคาและสถานะเป็นข้อมูลตัวอย่างที่ต้องยืนยันกับฝ่ายขายก่อนเผยแพร่จริง
 
 รูปภาพและวิดีโอที่อัปโหลดจากหลังบ้านเก็บเป็นไฟล์จริงในโฟลเดอร์ภายนอกโปรเจกต์ที่กำหนดด้วย `UPLOADS_DIRECTORY` (เครื่องนี้ใช้ `/Users/taradol/งาน/uploads/mida`) และ MySQL เก็บเฉพาะ metadata ใน `media_assets` เพื่อผูกไฟล์กับข้อมูลแต่ละรายการ
 
@@ -69,5 +70,5 @@ scripts/              utility สำหรับสร้างบัญชี�
 
 - เปลี่ยน `AUTH_SECRET` เป็น random secret ที่ยาวอย่างน้อย 32 ตัวอักษร
 - ใช้รหัสผ่านฐานข้อมูลที่ไม่ใช่ root และจำกัดสิทธิ์ตามหลัก least privilege
-- เชื่อม Google Maps API, ระบบส่งอีเมล/Google Sheets และ media storage ด้วยค่า production
+- ตรวจสอบพิกัด OpenStreetMap, เชื่อมระบบส่งอีเมล/Google Sheets และ media storage ด้วยค่า production
 - เพิ่ม CSRF/rate limit สำหรับ endpoint สาธารณะ และตั้งค่า HTTPS

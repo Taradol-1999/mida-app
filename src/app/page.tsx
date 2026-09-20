@@ -1,10 +1,12 @@
 import Link from "next/link";
 import type { RowDataPacket } from "mysql2";
 import { HeroImageSlider } from "@/components/hero-image-slider";
+import { ProjectLocationMap } from "@/components/project-location-map";
 import { LeadModal } from "@/components/lead-modal";
 import { NewsPromotionSlider, type NewsPromotionItem } from "@/components/news-promotion-slider";
 import { ProjectFilter } from "@/components/project-filter";
 import { db } from "@/lib/db";
+import type { MapProject } from "@/lib/project-map";
 
 export const dynamic = "force-dynamic";
 
@@ -23,10 +25,15 @@ const defaultUpdates: NewsPromotionItem[] = [
 async function homeData() {
   try {
     const pool = db();
-    const [contentRows, updateRows, heroImageRows] = await Promise.all([
+    const [contentRows, updateRows, projectRows, heroImageRows] = await Promise.all([
       pool.query<RowDataPacket[]>("SELECT content_key, title, body FROM site_content"),
       pool.query<RowDataPacket[]>(
         `SELECT tag, title, detail FROM (SELECT 'PROMOTION' AS tag, title, COALESCE(body, '') AS detail, created_at AS published_on FROM promotions WHERE is_published=TRUE UNION ALL SELECT category AS tag, title, COALESCE(body, '') AS detail, published_at AS published_on FROM news_items WHERE is_published=TRUE) updates ORDER BY published_on DESC LIMIT 12`,
+      ),
+      pool.query<RowDataPacket[]>(
+        `SELECT p.id, p.slug, p.name_th, p.location, p.latitude, p.longitude, s.map_url
+         FROM projects p LEFT JOIN project_settings s ON s.project_id = p.id
+         WHERE p.status <> 'ARCHIVED' ORDER BY p.name_th`,
       ),
       pool.query<RowDataPacket[]>(
         `SELECT m.original_name, m.mime_type, m.storage_key
@@ -46,14 +53,23 @@ async function homeData() {
         alt: String(row.original_name || "แบนเนอร์ MIDA Property"),
         type: String(row.mime_type).startsWith("video/") ? ("video" as const) : ("image" as const),
       })),
+      mapProjects: projectRows[0].map((row): MapProject => ({
+        id: String(row.id),
+        slug: String(row.slug),
+        name: String(row.name_th),
+        location: String(row.location),
+        latitude: row.latitude === null ? null : Number(row.latitude),
+        longitude: row.longitude === null ? null : Number(row.longitude),
+        mapUrl: row.map_url ? String(row.map_url) : null,
+      })),
     };
   } catch {
-    return { content: {}, updates: defaultUpdates, heroImages: [] };
+    return { content: {}, updates: defaultUpdates, heroImages: [], mapProjects: [] as MapProject[] };
   }
 }
 
 export default async function HomePage() {
-  const { content, updates, heroImages } = await homeData();
+  const { content, updates, heroImages, mapProjects } = await homeData();
   return (
     <main>
       <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur">
@@ -70,6 +86,9 @@ export default async function HomePage() {
                 {item.label}
               </a>
             ))}
+            <a href="#projects" aria-label="ค้นหาโครงการ" className="hover:text-[#002D62]">
+              <i className="fa-solid fa-magnifying-glass" />
+            </a>
             <Link
               href="/login"
               className="rounded-full border border-slate-200 px-3 py-1.5 text-xs hover:border-[#002D62]"
@@ -87,41 +106,33 @@ export default async function HomePage() {
       <ProjectFilter />
       <section id="promotion" className="bg-white py-16">
         <div className="container-page">
-          <div className="gold-rule mb-3" />
+          <div className="gold-rule" />
           <h2 className="section-title">ข่าวสารและโปรโมชั่น</h2>
           <NewsPromotionSlider items={updates} />
         </div>
       </section>
-      <section id="location" className="container-page py-16">
-        <div className="grid overflow-hidden rounded-2xl bg-[#001B3D] md:grid-cols-2">
-          <div className="p-8 text-white md:p-12">
-            <p className="text-sm font-bold text-[#F5A623]">MIDA LOCATION</p>
-            <h2 className="mt-3 text-3xl font-extrabold">
-              ทุกทำเลสำคัญ
-              <br />
-              อยู่ใกล้ชีวิตคุณ
-            </h2>
-            <p className="mt-5 leading-7 text-slate-200">
-              แผนที่โครงการพร้อมจุดสำคัญรอบด้าน เพื่อช่วยให้เห็นภาพการเดินทางก่อนเข้าชมจริง
+      <section id="location" className="bg-[#F7F8FA] py-16">
+        <div className="container-page">
+          <div className="mb-7 max-w-2xl">
+            <div className="gold-rule" />
+            <p className="mt-4 text-sm font-bold tracking-widest text-[#4A4A4A]">MIDA LOCATION</p>
+            <h2 className="section-title mt-2">ทำเลโครงการ MIDA PROPERTY</h2>
+            <p className="mt-3 leading-7 text-[#4A4A4A]">
+              ดูตำแหน่งโครงการทั้งหมด และกดเลือกโครงการเพื่อเปิดเส้นทางใน Google Maps
             </p>
-            <Link href="/projects/grand-village-petchkasem#map" className="mt-7 inline-block font-bold text-[#f8c366]">
-              ดูแผนที่ 3D และสถานที่ใกล้เคียง →
-            </Link>
           </div>
-          <div className="relative min-h-80 bg-[radial-gradient(circle_at_60%_45%,#f5a623_0_5px,transparent_6px),linear-gradient(125deg,#7f9db2_2%,#d9e4e8_2%_5%,#afc1c9_5%_9%,#e8eef0_9%_13%,#8ba4b0_13%_17%,#dce5e8_17%)]">
-            <span className="absolute left-[58%] top-[42%] rounded-full bg-[#002D62] px-3 py-1.5 text-xs font-bold text-white shadow-lg">
-              MIDA
-            </span>
-            <span className="absolute left-[28%] top-[24%] rounded-full bg-white px-3 py-1 text-xs font-bold text-[#002D62] shadow">
-              โรงพยาบาล
-            </span>
-            <span className="absolute bottom-[18%] right-[16%] rounded-full bg-white px-3 py-1 text-xs font-bold text-[#002D62] shadow">
-              ห้างสรรพสินค้า
-            </span>
-          </div>
+          <ProjectLocationMap
+            projects={mapProjects}
+            center={{
+              name: "MIDA PROPERTY",
+              address: "267 ถนนจรัญสนิทวงศ์ แขวงบางอ้อ เขตบางพลัด กรุงเทพมหานคร 10700",
+              latitude: 13.8040816,
+              longitude: 100.5121667,
+            }}
+          />
         </div>
       </section>
-      <footer className="bg-[#001B3D] py-9 text-sm text-slate-300">
+      <footer className="bg-[#002D62] py-9 text-sm text-white/80">
         <div className="container-page flex flex-col justify-between gap-3 md:flex-row">
           <p>© {new Date().getFullYear()} MIDA Agency & Development</p>
           <p>{content.contact?.body ?? "โทร 02-000-0000 · Line @midaagency"}</p>

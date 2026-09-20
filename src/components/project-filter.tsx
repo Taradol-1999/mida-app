@@ -43,7 +43,7 @@ const preferredTagOrder = ["โครงการแนะนำ", "โครง
 
 export function ProjectFilter() {
   const [catalogue, setCatalogue] = useState<Project[]>(projects);
-  const [location, setLocation] = useState("ทั้งหมด");
+  const [keyword, setKeyword] = useState("");
   const [type, setType] = useState("ทั้งหมด");
   const [priceRange, setPriceRange] = useState("all");
   const [status, setStatus] = useState("ทั้งหมด");
@@ -56,33 +56,34 @@ export function ProjectFilter() {
       })
       .catch(() => undefined);
   }, []);
-  const locations = useMemo(
-    () => ["ทั้งหมด", ...Array.from(new Set(catalogue.map((project) => project.location)))],
-    [catalogue],
-  );
   const tagOptions = useMemo(
     () =>
-      Array.from(new Set(catalogue.flatMap(tagsOf))).sort((a, b) => {
-        const aIndex = preferredTagOrder.indexOf(a);
-        const bIndex = preferredTagOrder.indexOf(b);
-        if (aIndex === -1 && bIndex === -1) return a.localeCompare(b, "th");
-        if (aIndex === -1) return 1;
-        if (bIndex === -1) return -1;
-        return aIndex - bIndex;
-      }),
+      Array.from(new Set(catalogue.flatMap(tagsOf)))
+        .filter((item) => preferredTagOrder.includes(item))
+        .sort((a, b) => {
+          const aIndex = preferredTagOrder.indexOf(a);
+          const bIndex = preferredTagOrder.indexOf(b);
+          if (aIndex === -1 && bIndex === -1) return a.localeCompare(b, "th");
+          if (aIndex === -1) return 1;
+          if (bIndex === -1) return -1;
+          return aIndex - bIndex;
+        }),
     [catalogue],
   );
   const visible = useMemo(
     () =>
       catalogue.filter(
         (project) =>
-          (location === "ทั้งหมด" || project.location === location) &&
+          (!keyword.trim() ||
+            `${project.name} ${project.location} ${project.description}`
+              .toLocaleLowerCase("th")
+              .includes(keyword.trim().toLocaleLowerCase("th"))) &&
           (type === "ทั้งหมด" || project.type === type) &&
           matchesPrice(Number(project.startingPrice), priceRange) &&
           (status === "ทั้งหมด" || project.status === status) &&
           (tag === "all" || tagsOf(project).includes(tag)),
       ),
-    [catalogue, location, priceRange, status, tag, type],
+    [catalogue, keyword, priceRange, status, tag, type],
   );
   const filterBox = (icon: string, label: string, child: ReactNode) => (
     <label className="flex min-h-18 flex-col justify-center rounded-lg border border-slate-200 bg-slate-50 p-3">
@@ -98,18 +99,15 @@ export function ProjectFilter() {
       <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xl shadow-slate-900/10 md:p-6">
         <p className="mb-4 text-sm font-bold text-[#002D62]">
           <i className="fa-solid fa-magnifying-glass mr-2" />
-          ค้นหาโครงการและระบบกรอง
+          ค้นหาโครงการ
         </p>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {filterBox(
-            "fa-location-dot",
-            "ทำเลที่ตั้ง",
-            <select value={location} onChange={(event) => setLocation(event.target.value)} className={selectStyle}>
-              {locations.map((item) => (
-                <option key={item}>{item}</option>
-              ))}
-            </select>,
-          )}
+        <input
+          value={keyword}
+          onChange={(event) => setKeyword(event.target.value)}
+          placeholder="ค้นหาชื่อโครงการหรือทำเล"
+          className="mb-3 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-[#002D62]"
+        />
+        <div className="grid gap-3 sm:grid-cols-3">
           {filterBox(
             "fa-house",
             "ประเภทบ้าน",
@@ -153,9 +151,6 @@ export function ProjectFilter() {
               เลือกสไตล์ฟิลเตอร์เพื่อรับชมกลุ่มโครงการที่แมตช์กับไลฟ์สไตล์คุณ
             </p>
           </div>
-          <span className="rounded-full bg-[#002D62] px-4 py-2 text-xs font-bold text-white">
-            พบ {visible.length} โครงการ
-          </span>
         </div>
         <div className="mt-6 flex gap-2 overflow-x-auto pb-3">
           {tagOptions.map((label) => (
@@ -195,13 +190,13 @@ export function ProjectFilter() {
                 {tagsOf(project).map((projectTag, tagIndex) => (
                   <span
                     key={projectTag}
-                    className={`rounded-md px-3 py-1 text-[10px] font-black text-white shadow ${tagIndex % 3 === 0 ? "bg-red-500" : tagIndex % 3 === 1 ? "bg-emerald-500" : "bg-[#002D62]"}`}
+                    className={`rounded-md px-3 py-1 text-[10px] font-black shadow ${tagIndex % 2 === 0 ? "bg-[#002D62] text-white" : "bg-white text-[#002D62]"}`}
                   >
                     {projectTag}
                   </span>
                 ))}
               </div>
-              <div className="absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-[#001B3D]/75 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-[#002D62]/75 to-transparent" />
             </div>
             <div className="flex flex-col gap-4 p-6 sm:flex-row sm:items-end sm:justify-between">
               <div>
@@ -211,15 +206,25 @@ export function ProjectFilter() {
                 <h3 className="mt-3 text-xl font-black tracking-tight text-slate-800">{project.name}</h3>
                 <p className="mt-2 line-clamp-2 max-w-xl text-sm text-slate-400">{project.description}</p>
               </div>
-              <div className="shrink-0 sm:text-right">
+              <div className="shrink-0 sm:text-right space-x-2">
                 <p className="text-[11px] text-slate-400">ราคาเริ่มต้น</p>
-                <p className="text-lg font-black text-red-600">{project.price}</p>
+                <p className="text-lg font-black text-[#002D62]">{project.price}</p>
                 <Link
                   href={`/projects/${project.slug}`}
-                  className="mt-3 inline-flex rounded-xl bg-[#002D62] px-4 py-2.5 text-xs font-bold text-white hover:bg-[#001B3D]"
+                  className="mt-3 inline-flex rounded-xl bg-[#002D62] px-4 py-2.5 text-xs font-bold text-white hover:bg-[#4A4A4A]"
                 >
                   ดูข้อมูลโครงการ <i className="fa-solid fa-arrow-right ml-2" />
                 </Link>
+                {project.has_brochure && project.id ? (
+                  <a
+                    href={`/api/admin/media?entityType=projects&entityId=${project.id}&mediaKind=brochure`}
+                    download
+                    className="mt-2 inline-flex rounded-xl border border-[#002D62] px-4 py-2.5 text-xs font-bold text-[#002D62] hover:bg-blue-50"
+                  >
+                    <i className="fa-solid fa-file-arrow-down mr-1" />
+                    โบรชัวร์
+                  </a>
+                ) : null}
               </div>
             </div>
           </article>

@@ -21,6 +21,8 @@ CREATE TABLE IF NOT EXISTS projects (
   name_th VARCHAR(255) NOT NULL,
   name_en VARCHAR(255) NULL,
   location VARCHAR(120) NOT NULL,
+  latitude DECIMAL(10,7) NULL,
+  longitude DECIMAL(10,7) NULL,
   property_type ENUM('DETACHED_HOUSE', 'SEMI_DETACHED', 'TOWNHOME', 'COMMERCIAL') NOT NULL,
   starting_price DECIMAL(12,2) NULL,
   status ENUM('READY', 'CONSTRUCTION', 'ARCHIVED') NOT NULL DEFAULT 'CONSTRUCTION',
@@ -80,11 +82,22 @@ CREATE TABLE IF NOT EXISTS leads (
   id CHAR(36) PRIMARY KEY,
   project_id CHAR(36) NULL,
   name VARCHAR(120) NOT NULL,
+  first_name VARCHAR(80) NULL,
+  last_name VARCHAR(80) NULL,
   phone VARCHAR(30) NOT NULL,
   email VARCHAR(190) NULL,
+  family_members SMALLINT UNSIGNED NULL,
+  province VARCHAR(120) NULL,
+  district VARCHAR(120) NULL,
+  subdistrict VARCHAR(120) NULL,
+  residence_type VARCHAR(80) NULL,
   age_range VARCHAR(50) NULL,
   occupation VARCHAR(120) NULL,
   budget VARCHAR(80) NULL,
+  preferred_contact_date DATE NULL,
+  preferred_contact_time TIME NULL,
+  consent_news BOOLEAN NOT NULL DEFAULT FALSE,
+  consent_contact BOOLEAN NOT NULL DEFAULT FALSE,
   status ENUM('NEW', 'CONTACTED', 'QUALIFIED', 'CLOSED') NOT NULL DEFAULT 'NEW',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL,
@@ -139,20 +152,24 @@ CREATE TABLE IF NOT EXISTS project_settings (
   phone VARCHAR(50) NULL,
   email VARCHAR(190) NULL,
   map_url TEXT NULL,
+  virtual_tour_url TEXT NULL,
   nearby_places_th TEXT NULL,
   nearby_places_en TEXT NULL,
+  care_warranty TEXT NULL,
+  care_maintenance TEXT NULL,
+  care_common_area TEXT NULL,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
 );
 
 -- Public-project sample data based on midaproperty.com, captured 2026-09-19.
 -- Prices, availability, and marketing terms must be confirmed before public use.
-INSERT INTO projects (id, slug, name_th, location, property_type, starting_price, status, description) VALUES
-  ('dba6db65-f538-49d0-aac8-47cd977ed001', 'grand-village-petchkasem', 'Grand Village เพชรเกษม', 'นครปฐม', 'DETACHED_HOUSE', 2500000.00, 'READY', 'บ้านเดี่ยวและทาวน์โฮมสไตล์โมเดิร์นบนทำเลใกล้เมืองนครปฐม'),
-  ('dba6db65-f538-49d0-aac8-47cd977ed002', 'town-village-prapa', 'Town Village Prapa', 'นครปฐม', 'TOWNHOME', 2159000.00, 'READY', 'โครงการบ้านและทาวน์โฮมสไตล์โมเดิร์น บนทำเลฝั่งเมืองนครปฐม'),
-  ('dba6db65-f538-49d0-aac8-47cd977ed003', 'roipruksa-lakeville', 'Roipruksa Lakeville', 'นครปฐม', 'DETACHED_HOUSE', 5290000.00, 'READY', 'บ้านเดี่ยวบรรยากาศริมทะเลสาบส่วนตัว พร้อมพื้นที่พักผ่อนสำหรับครอบครัว'),
-  ('dba6db65-f538-49d0-aac8-47cd977ed004', 'the-code-lamphaya', 'THE CODE ลำพยา', 'นครปฐม', 'DETACHED_HOUSE', 3000000.00, 'CONSTRUCTION', 'บ้านสไตล์โมเดิร์นที่ออกแบบเพื่อทุกจังหวะการใช้ชีวิต บนทำเลลำพยา')
-ON DUPLICATE KEY UPDATE name_th = VALUES(name_th), location = VALUES(location), property_type = VALUES(property_type), starting_price = VALUES(starting_price), status = VALUES(status), description = VALUES(description);
+INSERT INTO projects (id, slug, name_th, location, latitude, longitude, property_type, starting_price, status, description) VALUES
+  ('dba6db65-f538-49d0-aac8-47cd977ed001', 'grand-village-petchkasem', 'Grand Village เพชรเกษม', 'นครปฐม', 13.8199000, 100.0373000, 'DETACHED_HOUSE', 2500000.00, 'READY', 'บ้านเดี่ยวและทาวน์โฮมสไตล์โมเดิร์นบนทำเลใกล้เมืองนครปฐม'),
+  ('dba6db65-f538-49d0-aac8-47cd977ed002', 'town-village-prapa', 'Town Village Prapa', 'นครปฐม', 13.8335000, 100.0575000, 'TOWNHOME', 2159000.00, 'READY', 'โครงการบ้านและทาวน์โฮมสไตล์โมเดิร์น บนทำเลฝั่งเมืองนครปฐม'),
+  ('dba6db65-f538-49d0-aac8-47cd977ed003', 'roipruksa-lakeville', 'Roipruksa Lakeville', 'นครปฐม', 13.7985000, 100.0340000, 'DETACHED_HOUSE', 5290000.00, 'READY', 'บ้านเดี่ยวบรรยากาศริมทะเลสาบส่วนตัว พร้อมพื้นที่พักผ่อนสำหรับครอบครัว'),
+  ('dba6db65-f538-49d0-aac8-47cd977ed004', 'the-code-lamphaya', 'THE CODE ลำพยา', 'นครปฐม', 13.8234000, 100.0449000, 'DETACHED_HOUSE', 3000000.00, 'CONSTRUCTION', 'บ้านสไตล์โมเดิร์นที่ออกแบบเพื่อทุกจังหวะการใช้ชีวิต บนทำเลลำพยา')
+ON DUPLICATE KEY UPDATE name_th = VALUES(name_th), location = VALUES(location), latitude = COALESCE(latitude, VALUES(latitude)), longitude = COALESCE(longitude, VALUES(longitude)), property_type = VALUES(property_type), starting_price = VALUES(starting_price), status = VALUES(status), description = VALUES(description);
 
 UPDATE projects
 SET tags = CASE

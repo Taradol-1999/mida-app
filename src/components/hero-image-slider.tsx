@@ -34,11 +34,15 @@ export function HeroImageSlider({
   title,
   description,
   meta,
+  actionHref,
+  actionLabel,
 }: {
   images: HeroMedia[];
   title: string;
   description: string;
   meta?: string;
+  actionHref?: string | null;
+  actionLabel?: string;
 }) {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -94,14 +98,24 @@ export function HeroImageSlider({
         </div>
       ))}
       <div
-        className={`absolute inset-0 ${hasImages ? "bg-linear-to-r from-[#001B3D]/90 via-[#002D62]/55 to-transparent" : "hero-shade"}`}
+        className={`absolute inset-0 ${hasImages ? "bg-linear-to-r from-[#002D62]/90 via-[#002D62]/55 to-transparent" : "hero-shade"}`}
       />
 
       <div className="container-page relative flex min-h-120 items-center py-24 text-white">
-        <div className="max-w-3xl">
-          <h1 className="max-w-2xl text-4xl font-extrabold leading-tight drop-shadow-md md:text-6xl">{title}</h1>
-          <p className="mt-6 max-w-xl text-lg leading-8 text-slate-100 drop-shadow">{description}</p>
-          {meta && <p className="mt-5 text-xl font-extrabold text-[#f8c366] drop-shadow">{meta}</p>}
+        <div className="w-full max-w-7xl">
+          <h1 className="text-4xl font-extrabold leading-tight drop-shadow-md md:text-6xl">{title}</h1>
+          <p className="mt-6 text-lg leading-8 text-slate-100 drop-shadow">{description}</p>
+          {meta && <p className="mt-5 text-xl font-extrabold text-white drop-shadow">{meta}</p>}
+          {actionHref && (
+            <a
+              href={actionHref}
+              download
+              className="mt-6 inline-flex items-center gap-2 rounded-xl border border-white/35 bg-white px-5 py-3 text-sm font-bold text-[#002D62] shadow-lg transition hover:-translate-y-0.5 hover:bg-blue-50"
+            >
+              <i className="fa-solid fa-file-arrow-down" />
+              {actionLabel ?? "ดาวน์โหลด"}
+            </a>
+          )}
         </div>
       </div>
 
@@ -131,7 +145,7 @@ export function HeroImageSlider({
                 onClick={() => setActive(index)}
                 aria-label={`เลือกแบนเนอร์รูปที่ ${index + 1}`}
                 aria-current={index === active ? "true" : undefined}
-                className={`h-2.5 rounded-full transition-all ${index === active ? "w-8 bg-[#F5A623]" : "w-2.5 bg-white/70 hover:bg-white"}`}
+                className={`h-2.5 rounded-full transition-all ${index === active ? "w-8 bg-white" : "w-2.5 bg-white/55 hover:bg-white"}`}
               />
             ))}
           </div>

@@ -129,10 +129,47 @@ export async function GET(request: Request, context: RouteContext) {
   const access = await authorise(resourceParam);
   if ("error" in access) return access.error;
   if (access.resource === "leads" && new URL(request.url).searchParams.get("format") === "csv") {
-    const { rows } = await list("leads");
-    const header = ["ชื่อ", "โทรศัพท์", "อีเมล", "โครงการ", "งบประมาณ", "สถานะ", "วันที่"];
+    const url = new URL(request.url);
+    const projectId = url.searchParams.get("projectId");
+    const listed = await list("leads");
+    const rows = projectId ? listed.rows.filter((row) => String(row.project_id) === projectId) : listed.rows;
+    const header = [
+      "ชื่อ",
+      "โทรศัพท์",
+      "อีเมล",
+      "สมาชิกครอบครัว",
+      "จังหวัด",
+      "อำเภอ",
+      "ตำบล",
+      "ประเภทที่พัก",
+      "โครงการ",
+      "งบประมาณ",
+      "วันที่สะดวก",
+      "เวลาที่สะดวก",
+      "รับข่าวสาร",
+      "ยินยอมให้ติดต่อ",
+      "สถานะ",
+      "วันที่ลงทะเบียน",
+    ];
     const lines = rows.map((row) =>
-      [row.name, row.phone, row.email, row.project_name, row.budget, row.status, row.created_at]
+      [
+        row.name,
+        row.phone,
+        row.email,
+        row.family_members,
+        row.province,
+        row.district,
+        row.subdistrict,
+        row.residence_type,
+        row.project_name,
+        row.budget,
+        row.preferred_contact_date,
+        row.preferred_contact_time,
+        row.consent_news,
+        row.consent_contact,
+        row.status,
+        row.created_at,
+      ]
         .map(csvEscape)
         .join(","),
     );
@@ -157,12 +194,14 @@ export async function POST(request: Request, context: RouteContext) {
     switch (access.resource) {
       case "projects":
         await pool.execute(
-          "INSERT INTO projects (id, slug, name_th, name_en, location, property_type, starting_price, status, is_featured, is_new, tags, description) VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+          "INSERT INTO projects (id, slug, name_th, name_en, location, latitude, longitude, property_type, starting_price, status, is_featured, is_new, tags, description) VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
           [
             value(body, "slug"),
             value(body, "name_th"),
             nullable(body, "name_en"),
             value(body, "location"),
+            numberValue(body, "latitude"),
+            numberValue(body, "longitude"),
             value(body, "property_type"),
             numberValue(body, "starting_price"),
             value(body, "status"),
@@ -269,12 +308,14 @@ export async function PATCH(request: Request, context: RouteContext) {
     switch (access.resource) {
       case "projects":
         await pool.execute(
-          "UPDATE projects SET slug=?, name_th=?, name_en=?, location=?, property_type=?, starting_price=?, status=?, is_featured=?, is_new=?, tags=?, description=? WHERE id=?",
+          "UPDATE projects SET slug=?, name_th=?, name_en=?, location=?, latitude=?, longitude=?, property_type=?, starting_price=?, status=?, is_featured=?, is_new=?, tags=?, description=? WHERE id=?",
           [
             value(body, "slug"),
             value(body, "name_th"),
             nullable(body, "name_en"),
             value(body, "location"),
+            numberValue(body, "latitude"),
+            numberValue(body, "longitude"),
             value(body, "property_type"),
             numberValue(body, "starting_price"),
             value(body, "status"),

@@ -14,6 +14,7 @@ const projectMenus = [
   ["promotions", "จัดการข้อมูลโปรโมชั่น", "fa-tags"],
   ["news", "จัดการข้อมูลข่าวสาร", "fa-newspaper"],
   ["contact", "จัดการข้อมูลติดต่อ & แผนที่", "fa-map-location-dot"],
+  ["after-sales", "บริการหลังการขาย (Mida Care)", "fa-screwdriver-wrench"],
   ["leads", "รายชื่อผู้ลงทะเบียนรับสิทธิ์", "fa-id-card"],
 ] as const;
 

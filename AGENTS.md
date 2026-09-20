@@ -17,7 +17,7 @@ This file is the operational guide for coding agents working in `mida-app`. Keep
 `mida-app` is a Thai-first property website and project-scoped CMS for MIDA Property. It contains:
 
 - A public MIDA landing page with project search and filters, project tags, promotions/news sliders, and lead registration.
-- A public project detail page with image/video hero media, mosaic gallery, house-type carousel, facilities, promotions/news, contact details, and nearby places.
+- A public project detail page with image/video hero media, mosaic gallery, house-type carousel, facilities, promotions/news, maps/virtual tours, Mida Care, contact details, and nearby places.
 - An authenticated admin area for global content and per-project content.
 - Local file uploads backed by metadata in MySQL.
 
@@ -61,6 +61,7 @@ pnpm format:check
 pnpm build -- --webpack
 pnpm start
 pnpm db:init
+pnpm db:seed
 pnpm db:create-admin
 ```
 
@@ -135,7 +136,8 @@ The MySQL database name defaults to `mida_app`. Important tables:
 
 - `users`: admin identity, password hash, role, and active status.
 - `projects`: project catalogue, status, tags, price, and project description.
-- `project_settings`: per-project homepage copy, phone, email, map URL, and nearby places.
+- `projects.latitude` and `projects.longitude`: optional coordinates used for Google Maps markers and directions.
+- `project_settings`: per-project homepage copy, phone, email, map/virtual-tour URLs, nearby places, and the three Mida Care service descriptions.
 - `house_types`: house model name, description, bedrooms, bathrooms, usable area, and starting price.
 - `facilities`: project facilities and display order.
 - `promotions`: project/global promotions and publication state.
@@ -179,8 +181,8 @@ Uploaded images and videos are files on the local machine, not remote URLs and n
 - `public/uploads/` is ignored and must not become the active upload store again.
 - Serve media through `/api/admin/media`; do not expose absolute filesystem paths to the browser.
 - Resolve stored names with `path.basename` before joining to the upload directory to prevent path traversal.
-- Current accepted types: JPEG, PNG, WEBP, MP4, and WEBM.
-- Current limits: 5 MB per image and 50 MB per video.
+- Current accepted types: JPEG, PNG, WEBP, PDF, MP4, and WEBM.
+- Current limits: 5 MB per image, 20 MB per PDF brochure, and 50 MB per video.
 - Project and house-type public media reads are intentionally available without an admin session; mutations require admin authorization.
 - Hero media supports multiple items. Image slides advance automatically; video slides advance only after the video ends.
 - Cover media is single-value and replacing it must remove the old metadata and file.
@@ -215,6 +217,7 @@ Uploaded images and videos are files on the local machine, not remote URLs and n
 
 - All new layouts must remain usable on mobile even though the desktop reference is very wide.
 - Homepage/project hero media, project gallery, house types, promotions/news, and floating lead CTA are data-driven.
+- The homepage uses OpenStreetMap with Leaflet to show MIDA Property as the central marker and every active project marker without an API key. Project pages show one project marker, and direction links open Google Maps.
 - Project gallery initially shows two rows (six items on desktop), exposes “ดูเพิ่มเติม”, supports image/video lightbox viewing, and keeps existing hover behavior unless the user asks to change it.
 - House types use an overlapping carousel with cover image, description, specifications, and starting price.
 - Preserve readable contrast, visible focus states, semantic headings, alt text, and Thai ARIA labels.

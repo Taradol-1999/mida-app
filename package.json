@@ -11,11 +11,13 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "db:init": "mysql -u root -p < database/schema.sql",
+    "db:seed": "node --env-file=.env.local scripts/seed-projects.mjs",
     "db:create-admin": "node scripts/create-admin.mjs"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "jose": "^6.0.8",
+    "leaflet": "^1.9.4",
     "mysql2": "^3.14.4",
     "next": "^16.0.1",
     "react": "^19.2.0",
@@ -26,6 +28,7 @@
     "@eslint/eslintrc": "^3.3.1",
     "@tailwindcss/postcss": "^4.1.16",
     "@types/bcryptjs": "^2.4.6",
+    "@types/leaflet": "^1.9.22",
     "@types/node": "^22.18.12",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",

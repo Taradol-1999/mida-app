@@ -23,6 +23,7 @@ const mimeExtensions: Record<string, string> = {
   "image/webp": "webp",
   "video/mp4": "mp4",
   "video/webm": "webm",
+  "application/pdf": "pdf",
 };
 const uploadsDirectory = path.resolve(process.env.UPLOADS_DIRECTORY || path.join(process.cwd(), "public", "uploads"));
 const storedFilePath = (storageKey: unknown) => path.join(uploadsDirectory, path.basename(String(storageKey)));
@@ -30,7 +31,7 @@ function isEntityType(value: string): value is EntityType {
   return value in entities;
 }
 function isKind(value: string) {
-  return value === "cover" || value === "hero";
+  return value === "cover" || value === "hero" || value === "brochure";
 }
 async function authorise() {
   const user = await getSession();
@@ -73,7 +74,13 @@ export async function GET(request: Request) {
   try {
     const file = await readFile(storedFilePath(media.storage_key));
     return new Response(file, {
-      headers: { "Content-Type": String(media.mime_type), "Cache-Control": "public, max-age=3600" },
+      headers: {
+        "Content-Type": String(media.mime_type),
+        "Cache-Control": "public, max-age=3600",
+        ...(mediaKind === "brochure"
+          ? { "Content-Disposition": `attachment; filename*=UTF-8''${encodeURIComponent(String(media.original_name))}` }
+          : {}),
+      },
     });
   } catch {
     return NextResponse.json({ message: "ไม่พบไฟล์รูปภาพบนเครื่อง" }, { status: 404 });
@@ -96,10 +103,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "ข้อมูลอัปโหลดไม่ถูกต้อง" }, { status: 400 });
   const extension = mimeExtensions[file.type];
   const isVideo = file.type.startsWith("video/");
-  const sizeLimit = isVideo ? 50 * 1024 * 1024 : 5 * 1024 * 1024;
+  const isBrochure = file.type === "application/pdf";
+  const sizeLimit = isVideo ? 50 * 1024 * 1024 : isBrochure ? 20 * 1024 * 1024 : 5 * 1024 * 1024;
   if (!extension || !file.size || file.size > sizeLimit)
     return NextResponse.json(
-      { message: "รองรับ JPG, PNG, WEBP ไม่เกิน 5 MB และ MP4, WEBM ไม่เกิน 50 MB" },
+      { message: "รองรับ JPG, PNG, WEBP ไม่เกิน 5 MB, PDF ไม่เกิน 20 MB และ MP4, WEBM ไม่เกิน 50 MB" },
       { status: 400 },
     );
   const [entityRows] = await db().execute<RowDataPacket[]>(
@@ -111,14 +119,15 @@ export async function POST(request: Request) {
   try {
     await mkdir(uploadsDirectory, { recursive: true });
     await writeFile(storedFilePath(storageKey), Buffer.from(await file.arrayBuffer()));
-    if (mediaKind === "cover") {
+    if (mediaKind === "cover" || mediaKind === "brochure") {
       const [oldRows] = await db().execute<RowDataPacket[]>(
-        "SELECT storage_key FROM media_assets WHERE entity_type=? AND entity_id=? AND media_kind='cover' LIMIT 1",
-        [entityType, entityId],
+        "SELECT storage_key FROM media_assets WHERE entity_type=? AND entity_id=? AND media_kind=? LIMIT 1",
+        [entityType, entityId, mediaKind],
       );
-      await db().execute("DELETE FROM media_assets WHERE entity_type=? AND entity_id=? AND media_kind='cover'", [
+      await db().execute("DELETE FROM media_assets WHERE entity_type=? AND entity_id=? AND media_kind=?", [
         entityType,
         entityId,
+        mediaKind,
       ]);
       if (oldRows[0]?.storage_key) await unlink(storedFilePath(oldRows[0].storage_key)).catch(() => undefined);
     }

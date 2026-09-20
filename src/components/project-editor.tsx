@@ -13,6 +13,8 @@ type Project = {
   name_th: string;
   name_en: string | null;
   location: string;
+  latitude: number | string | null;
+  longitude: number | string | null;
   property_type: string;
   starting_price: number | string | null;
   status: string;
@@ -27,6 +29,8 @@ const emptyForm: Form = {
   name_th: "",
   name_en: "",
   location: "",
+  latitude: "",
+  longitude: "",
   property_type: "DETACHED_HOUSE",
   starting_price: "",
   status: "READY",
@@ -72,6 +76,8 @@ export function ProjectEditor({ selectedProjectId }: { selectedProjectId?: strin
       name_th: project.name_th,
       name_en: project.name_en ?? "",
       location: project.location,
+      latitude: project.latitude ?? "",
+      longitude: project.longitude ?? "",
       property_type: project.property_type,
       starting_price: project.starting_price ?? "",
       status: project.status,
@@ -221,6 +227,32 @@ export function ProjectEditor({ selectedProjectId }: { selectedProjectId?: strin
                 required
                 value={form.location}
                 onChange={(event) => setField("location", event.target.value)}
+                className={inputClass}
+              />
+            </label>
+            <label className="text-sm font-semibold text-slate-700">
+              ละติจูด (Latitude)
+              <input
+                type="number"
+                step="any"
+                min="-90"
+                max="90"
+                value={form.latitude ?? ""}
+                onChange={(event) => setField("latitude", event.target.value)}
+                placeholder="เช่น 13.8199"
+                className={inputClass}
+              />
+            </label>
+            <label className="text-sm font-semibold text-slate-700">
+              ลองจิจูด (Longitude)
+              <input
+                type="number"
+                step="any"
+                min="-180"
+                max="180"
+                value={form.longitude ?? ""}
+                onChange={(event) => setField("longitude", event.target.value)}
+                placeholder="เช่น 100.0373"
                 className={inputClass}
               />
             </label>

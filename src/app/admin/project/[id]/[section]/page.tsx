@@ -12,6 +12,7 @@ const sections = [
   "promotions",
   "news",
   "contact",
+  "after-sales",
   "leads",
 ] as const;
 type Section = (typeof sections)[number];

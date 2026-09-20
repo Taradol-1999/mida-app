@@ -32,7 +32,7 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
           return (
             <article
               key={house.id}
-              className="absolute left-1/2 top-0 h-105 w-[86%] overflow-hidden rounded-3xl bg-[#001B3D] shadow-2xl transition-all duration-500 md:h-130 md:w-[48%]"
+              className="absolute left-1/2 top-0 h-105 w-[86%] overflow-hidden rounded-3xl bg-[#002D62] shadow-2xl transition-all duration-500 md:h-130 md:w-[48%]"
               style={{
                 transform: `translateX(calc(-50% + ${offset * 72}%)) scale(${distance === 0 ? 1 : 0.86})`,
                 zIndex: 20 - distance,
@@ -50,13 +50,13 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
                   className="object-cover"
                 />
               ) : (
-                <div className="grid size-full place-items-center bg-linear-to-br from-slate-400 to-[#001B3D] text-white/70">
+                <div className="grid size-full place-items-center bg-linear-to-br from-[#4A4A4A] to-[#002D62] text-white/70">
                   <i className="fa-solid fa-house-chimney text-6xl" />
                 </div>
               )}
               <div className="absolute inset-0 bg-linear-to-t from-black via-black/25 to-black/10" />
               <div className="absolute inset-x-0 bottom-0 p-6 text-white md:p-8">
-                <p className="text-xs font-bold tracking-widest text-[#f8c366]">HOUSE TYPE</p>
+                <p className="text-xs font-bold tracking-widest text-white/70">HOUSE TYPE</p>
                 <h3 className="mt-2 text-2xl font-black md:text-3xl">{house.name}</h3>
                 {house.description && (
                   <p className="mt-2 line-clamp-2 max-w-xl text-sm leading-6 text-white/80">{house.description}</p>
@@ -64,7 +64,7 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
                 <p className="mt-3 text-sm text-white/80">
                   {house.bedrooms} ห้องนอน · {house.bathrooms} ห้องน้ำ · {house.usableArea} ตร.ม.
                 </p>
-                <p className="mt-4 text-lg font-extrabold text-[#f8c366]">
+                <p className="mt-4 text-lg font-extrabold text-white">
                   เริ่ม {house.startingPrice.toLocaleString("th-TH")} บาท
                 </p>
               </div>
