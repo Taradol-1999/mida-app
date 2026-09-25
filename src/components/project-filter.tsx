@@ -152,7 +152,7 @@ export function ProjectFilter() {
             </p>
           </div>
         </div>
-        <div className="mt-6 flex gap-2 overflow-x-auto pb-3">
+        <div className="mt-4 flex gap-2 overflow-x-auto pb-3 pt-2">
           {tagOptions.map((label) => (
             <button
               key={label}

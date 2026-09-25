@@ -92,7 +92,7 @@ async function getProject(slug: string) {
       latitude: row.latitude === null ? null : Number(row.latitude),
       longitude: row.longitude === null ? null : Number(row.longitude),
       type: projectType(row.property_type),
-      price: `${(Number(row.starting_price) / 1000000).toLocaleString("th-TH", { maximumFractionDigits: 3 })} ล้านบาท*`,
+      price: `${(Number(row.starting_price) / 1000000).toLocaleString("th-TH", { maximumFractionDigits: 3 })} ล้านบาท`,
       status: row.status === "READY" ? "พร้อมอยู่" : "กำลังก่อสร้าง",
       label: "MIDA PROPERTY",
       description: row.description ?? "",
@@ -175,9 +175,6 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
               ]}
             />
           </nav>
-          <LeadOpenButton className="rounded-lg bg-brand-primary px-3 py-2 text-xs font-bold text-white">
-            นัดชมโครงการ
-          </LeadOpenButton>
         </div>
       </header>
       <HeroImageSlider

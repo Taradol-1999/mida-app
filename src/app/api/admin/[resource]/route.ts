@@ -9,6 +9,7 @@ const resources = ["projects", "house-types", "facilities", "promotions", "news"
 type Resource = (typeof resources)[number];
 type RouteContext = { params: Promise<{ resource: string }> };
 const idSchema = z.string().uuid();
+const projectTagOptions = ["โครงการแนะนำ", "โครงการล่าสุด", "พร้อมเข้าอยู่ได้ทันที"] as const;
 
 function apiError(message: string, status: number) {
   return NextResponse.json({ message }, { status });
@@ -32,14 +33,13 @@ function boolValue(body: Record<string, unknown>, key: string) {
   return body[key] === true || body[key] === "true" || body[key] === 1;
 }
 function tagValue(body: Record<string, unknown>) {
-  return [
-    ...new Set(
-      value(body, "tags")
+  const submittedTags = Array.isArray(body.tags)
+    ? body.tags.map(String)
+    : value(body, "tags")
         .split(",")
-        .map((tag) => tag.trim())
-        .filter(Boolean),
-    ),
-  ];
+        .map((tag) => tag.trim());
+  const uniqueTags = new Set(submittedTags);
+  return projectTagOptions.filter((tag) => uniqueTags.has(tag));
 }
 function dateValue(body: Record<string, unknown>, key: string) {
   const raw = value(body, key);

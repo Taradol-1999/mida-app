@@ -31,7 +31,7 @@ export async function GET() {
       latitude: project.latitude === null ? null : Number(project.latitude),
       longitude: project.longitude === null ? null : Number(project.longitude),
       type: typeLabels[project.property_type],
-      price: `${((Number(project.starting_price) || 0) / 1_000_000).toLocaleString("th-TH", { maximumFractionDigits: 3 })} ล้านบาท*`,
+      price: `${((Number(project.starting_price) || 0) / 1_000_000).toLocaleString("th-TH", { maximumFractionDigits: 3 })} ล้านบาท`,
       startingPrice: project.starting_price === null ? null : Number(project.starting_price),
       status: project.status === "READY" ? "พร้อมอยู่" : "กำลังก่อสร้าง",
       label: "MIDA PROPERTY",

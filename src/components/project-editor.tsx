@@ -24,7 +24,7 @@ type Project = {
   tags: string[] | string | null;
   description: string | null;
 };
-type Form = Omit<Project, "id" | "tags"> & { tags: string };
+type Form = Omit<Project, "id" | "tags"> & { tags: string[] };
 type HomepageForm = {
   hero_title_th: string;
   hero_title_en: string;
@@ -33,6 +33,23 @@ type HomepageForm = {
 };
 type MediaItem = { id: string; name: string; mimeType: string; url: string };
 type Brochure = { id: string; name: string; url: string };
+const projectTagOptions = ["โครงการแนะนำ", "โครงการล่าสุด", "พร้อมเข้าอยู่ได้ทันที"] as const;
+
+function parseProjectTags(tags: Project["tags"]) {
+  let values: string[] = [];
+  if (Array.isArray(tags)) {
+    values = tags;
+  } else if (tags) {
+    try {
+      const parsed = JSON.parse(tags);
+      values = Array.isArray(parsed) ? parsed.map(String) : [];
+    } catch {
+      values = tags.split(",").map((tag) => tag.trim());
+    }
+  }
+  return projectTagOptions.filter((tag) => values.includes(tag));
+}
+
 const emptyForm: Form = {
   slug: "",
   name_th: "",
@@ -45,7 +62,7 @@ const emptyForm: Form = {
   status: "READY",
   is_featured: false,
   is_new: true,
-  tags: "",
+  tags: [],
   description: "",
 };
 const emptyHomepage: HomepageForm = {
@@ -100,15 +117,7 @@ export function ProjectEditor({
       status: project.status,
       is_featured: Boolean(project.is_featured),
       is_new: Boolean(project.is_new),
-      tags: Array.isArray(project.tags)
-        ? project.tags.join(", ")
-        : (() => {
-            try {
-              return JSON.parse(String(project.tags ?? "[]")).join(", ");
-            } catch {
-              return String(project.tags ?? "");
-            }
-          })(),
+      tags: parseProjectTags(project.tags),
       description: project.description ?? "",
     });
     setImageMissing(false);
@@ -147,8 +156,13 @@ export function ProjectEditor({
   useEffect(() => {
     if (isEditMode && selectedProjectId) void loadProjectHomepage(selectedProjectId);
   }, [isEditMode, loadProjectHomepage, selectedProjectId]);
-  const setField = (field: keyof Form, value: string | boolean) =>
+  const setField = (field: keyof Form, value: string | boolean | string[]) =>
     setForm((current) => ({ ...current, [field]: value }));
+  const toggleProjectTag = (tag: (typeof projectTagOptions)[number]) =>
+    setForm((current) => ({
+      ...current,
+      tags: current.tags.includes(tag) ? current.tags.filter((item) => item !== tag) : [...current.tags, tag],
+    }));
   const setHomepageField = (field: keyof HomepageForm, value: string) =>
     setHomepage((current) => ({ ...current, [field]: value }));
   const submit = async (event: FormEvent<HTMLFormElement>) => {
@@ -370,18 +384,34 @@ export function ProjectEditor({
                 <option value="ARCHIVED">เก็บถาวร / ซ่อน</option>
               </select>
             </label>
-            <label className="text-sm font-semibold text-slate-700 md:col-span-2">
-              Tag โครงการ
-              <input
-                value={form.tags}
-                onChange={(event) => setField("tags", event.target.value)}
-                placeholder="เช่น โครงการแนะนำ, โครงการล่าสุด, พร้อมเข้าอยู่ได้ทันที"
-                className={inputClass}
-              />
-              <span className="mt-1 block text-xs font-normal text-slate-400">
-                คั่นแต่ละ Tag ด้วยเครื่องหมาย comma (,)
-              </span>
-            </label>
+            <fieldset className="md:col-span-2">
+              <legend className="text-sm font-semibold text-slate-700">Tag โครงการ</legend>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {projectTagOptions.map((tag) => {
+                  const selected = form.tags.includes(tag);
+                  return (
+                    <label
+                      key={tag}
+                      className={`cursor-pointer rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                        selected
+                          ? "border-brand-primary bg-brand-primary text-white shadow-sm"
+                          : "border-slate-300 bg-white text-slate-600 hover:border-brand-accent hover:bg-brand-accent-soft"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selected}
+                        onChange={() => toggleProjectTag(tag)}
+                        className="sr-only"
+                      />
+                      <i className={`fa-solid ${selected ? "fa-circle-check" : "fa-tag"} mr-2`} />
+                      {tag}
+                    </label>
+                  );
+                })}
+              </div>
+              <p className="mt-2 text-xs font-normal text-slate-400">เลือกได้เฉพาะ 3 Tag ที่กำหนด และเลือกได้มากกว่า 1 รายการ</p>
+            </fieldset>
             <label className="md:col-span-2 text-sm font-semibold text-slate-700">
               รายละเอียดโครงการ
               <textarea
