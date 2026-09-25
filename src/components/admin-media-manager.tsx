@@ -1,5 +1,7 @@
 "use client";
 
+import { Input } from "@/components/ui/form-controls";
+
 /* The image endpoint is session-protected, so this admin preview is intentionally not proxied through next/image. */
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable react-hooks/set-state-in-effect */
@@ -91,7 +93,7 @@ export function AdminMediaManager() {
               <label className="mt-4 flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-brand-primary px-4 py-2.5 text-sm font-bold text-white transition hover:bg-brand-text">
                 <i className="fa-solid fa-cloud-arrow-up" />
                 {busy === project.id ? "กำลังอัปโหลด..." : "อัปโหลดรูปภาพ"}
-                <input
+                <Input
                   type="file"
                   accept="image/jpeg,image/png,image/webp"
                   className="hidden"

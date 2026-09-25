@@ -9,8 +9,7 @@ datasource db {
 
 enum UserRole {
   SUPER_ADMIN
-  ADMIN
-  USER
+  MARKETING
 }
 
 enum PropertyType {
@@ -39,19 +38,21 @@ enum LeadStatus {
 }
 
 model User {
-  id            String   @id @default(uuid()) @db.Char(36)
-  name          String   @db.VarChar(120)
-  email         String   @unique @db.VarChar(190)
-  password_hash String   @db.VarChar(255)
-  role          UserRole @default(USER)
-  is_active     Boolean  @default(true)
-  created_at    DateTime @default(now()) @db.Timestamp(0)
-  updated_at    DateTime @default(now()) @updatedAt @db.Timestamp(0)
+  projects      UserProject[]
+  id            String        @id @default(uuid()) @db.Char(36)
+  name          String        @db.VarChar(120)
+  email         String        @unique @db.VarChar(190)
+  password_hash String        @db.VarChar(255)
+  role          UserRole      @default(MARKETING)
+  is_active     Boolean       @default(true)
+  created_at    DateTime      @default(now()) @db.Timestamp(0)
+  updated_at    DateTime      @default(now()) @updatedAt @db.Timestamp(0)
 
   @@map("users")
 }
 
 model Project {
+  users          UserProject[]
   id             String          @id @default(uuid()) @db.Char(36)
   slug           String          @unique @db.VarChar(150)
   name_th        String          @db.VarChar(255)
@@ -77,6 +78,17 @@ model Project {
   page_views     PageView[]
 
   @@map("projects")
+}
+
+model UserProject {
+  user_id    String  @db.Char(36)
+  project_id String  @db.Char(36)
+  user       User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  project    Project @relation(fields: [project_id], references: [id], onDelete: Cascade)
+
+  @@id([user_id, project_id])
+  @@index([project_id])
+  @@map("user_projects")
 }
 
 model HouseType {

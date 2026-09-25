@@ -1,5 +1,9 @@
 "use client";
 
+import { BannerMediaUpload } from "@/components/banner-media-upload";
+
+import { Input, Textarea, Select } from "@/components/ui/form-controls";
+
 /* The project cover endpoint is session-protected, so the preview is not proxied through next/image. */
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable react-hooks/set-state-in-effect */
@@ -71,8 +75,6 @@ const emptyHomepage: HomepageForm = {
   hero_subtitle_th: "",
   hero_subtitle_en: "",
 };
-const inputClass =
-  "mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-soft";
 
 export function ProjectEditor({
   selectedProjectId,
@@ -315,74 +317,46 @@ export function ProjectEditor({
             <label className="text-sm font-semibold text-slate-700">
               ชื่อโครงการ (ภาษาไทย)
               <span className="ml-1 text-rose-600">*</span>
-              <input
-                required
-                value={form.name_th}
-                onChange={(event) => setField("name_th", event.target.value)}
-                className={inputClass}
-              />
+              <Input required value={form.name_th} onChange={(event) => setField("name_th", event.target.value)} />
             </label>
             <label className="text-sm font-semibold text-slate-700">
               ชื่อโครงการ (ภาษาอังกฤษ)
-              <input
-                value={form.name_en ?? ""}
-                onChange={(event) => setField("name_en", event.target.value)}
-                className={inputClass}
-              />
+              <Input value={form.name_en ?? ""} onChange={(event) => setField("name_en", event.target.value)} />
             </label>
             <label className="text-sm font-semibold text-slate-700">
               Slug สำหรับ URL
               <span className="ml-1 text-rose-600">*</span>
-              <input
-                required
-                value={form.slug}
-                onChange={(event) => setField("slug", event.target.value)}
-                className={inputClass}
-              />
+              <Input required value={form.slug} onChange={(event) => setField("slug", event.target.value)} />
             </label>
             <label className="text-sm font-semibold text-slate-700">
               ทำเล / จังหวัด
               <span className="ml-1 text-rose-600">*</span>
-              <input
-                required
-                value={form.location}
-                onChange={(event) => setField("location", event.target.value)}
-                className={inputClass}
-              />
+              <Input required value={form.location} onChange={(event) => setField("location", event.target.value)} />
             </label>
             <label className="text-sm font-semibold text-slate-700">
               ประเภทโครงการ
-              <select
-                value={form.property_type}
-                onChange={(event) => setField("property_type", event.target.value)}
-                className={inputClass}
-              >
+              <Select value={form.property_type} onChange={(event) => setField("property_type", event.target.value)}>
                 <option value="DETACHED_HOUSE">บ้านเดี่ยว</option>
                 <option value="SEMI_DETACHED">บ้านแฝด</option>
                 <option value="TOWNHOME">ทาวน์โฮม</option>
                 <option value="COMMERCIAL">อาคารพาณิชย์</option>
-              </select>
+              </Select>
             </label>
             <label className="text-sm font-semibold text-slate-700">
               ราคาเริ่มต้น (บาท)
-              <input
+              <Input
                 type="number"
                 value={form.starting_price ?? ""}
                 onChange={(event) => setField("starting_price", event.target.value)}
-                className={inputClass}
               />
             </label>
             <label className="text-sm font-semibold text-slate-700">
               สถานะการแสดงผล
-              <select
-                value={form.status}
-                onChange={(event) => setField("status", event.target.value)}
-                className={inputClass}
-              >
+              <Select value={form.status} onChange={(event) => setField("status", event.target.value)}>
                 <option value="READY">พร้อมอยู่ / เปิดขาย</option>
                 <option value="CONSTRUCTION">กำลังก่อสร้าง</option>
                 <option value="ARCHIVED">เก็บถาวร / ซ่อน</option>
-              </select>
+              </Select>
             </label>
             <fieldset className="md:col-span-2">
               <legend className="text-sm font-semibold text-slate-700">Tag โครงการ</legend>
@@ -398,7 +372,7 @@ export function ProjectEditor({
                           : "border-slate-300 bg-white text-slate-600 hover:border-brand-accent hover:bg-brand-accent-soft"
                       }`}
                     >
-                      <input
+                      <Input
                         type="checkbox"
                         checked={selected}
                         onChange={() => toggleProjectTag(tag)}
@@ -410,14 +384,16 @@ export function ProjectEditor({
                   );
                 })}
               </div>
-              <p className="mt-2 text-xs font-normal text-slate-400">เลือกได้เฉพาะ 3 Tag ที่กำหนด และเลือกได้มากกว่า 1 รายการ</p>
+              <p className="mt-2 text-xs font-normal text-slate-400">
+                เลือกได้เฉพาะ 3 Tag ที่กำหนด และเลือกได้มากกว่า 1 รายการ
+              </p>
             </fieldset>
             <label className="md:col-span-2 text-sm font-semibold text-slate-700">
               รายละเอียดโครงการ
-              <textarea
+              <Textarea
                 value={form.description ?? ""}
                 onChange={(event) => setField("description", event.target.value)}
-                className={`${inputClass} min-h-28`}
+                className="min-h-28"
               />
             </label>
           </div>
@@ -431,84 +407,45 @@ export function ProjectEditor({
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="text-sm font-semibold text-slate-700">
                   คำพาดหัวหลัก - ภาษาไทย
-                  <input
+                  <Input
                     value={homepage.hero_title_th}
                     onChange={(event) => setHomepageField("hero_title_th", event.target.value)}
-                    className={inputClass}
                   />
                 </label>
                 <label className="text-sm font-semibold text-slate-700">
                   Main Headline - English
-                  <input
+                  <Input
                     value={homepage.hero_title_en}
                     onChange={(event) => setHomepageField("hero_title_en", event.target.value)}
-                    className={inputClass}
                   />
                 </label>
                 <label className="text-sm font-semibold text-slate-700">
                   คำอธิบายเพิ่มเติม - ภาษาไทย
-                  <textarea
+                  <Textarea
                     value={homepage.hero_subtitle_th}
                     onChange={(event) => setHomepageField("hero_subtitle_th", event.target.value)}
-                    className={`${inputClass} min-h-24`}
+                    className="min-h-24"
                   />
                 </label>
                 <label className="text-sm font-semibold text-slate-700">
                   Sub-headline - English
-                  <textarea
+                  <Textarea
                     value={homepage.hero_subtitle_en}
                     onChange={(event) => setHomepageField("hero_subtitle_en", event.target.value)}
-                    className={`${inputClass} min-h-24`}
+                    className="min-h-24"
                   />
                 </label>
               </div>
 
               <div className="mt-6">
-                <p className="text-sm font-bold text-slate-700">รูปภาพหรือวิดีโอสไลด์แบนเนอร์หลัก</p>
-                <label className="mt-2 flex min-h-24 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 px-5 text-center text-sm font-semibold text-slate-400 hover:border-brand-primary hover:bg-brand-soft">
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
-                    className="sr-only"
-                    onChange={(event) => setHeroFiles(Array.from(event.target.files ?? []))}
-                  />
-                  <span>
-                    <i className="fa-solid fa-photo-film mr-2 text-2xl align-middle text-brand-primary" />
-                    {heroFiles.length ? `เลือกแล้ว ${heroFiles.length} ไฟล์` : "คลิกเพื่อเลือกรูปภาพหรือวิดีโอหลายไฟล์"}
-                  </span>
-                </label>
-                <p className="mt-2 text-xs text-slate-400">
-                  รองรับ JPG, PNG, WEBP ไม่เกิน 5 MB และ MP4, WEBM ไม่เกิน 50 MB ต่อไฟล์
-                </p>
-                <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
-                  {heroImages.map((image) => (
-                    <div
-                      key={image.id}
-                      className="relative overflow-hidden rounded-lg border border-slate-200 bg-slate-100"
-                    >
-                      {image.mimeType.startsWith("video/") ? (
-                        <video
-                          src={image.url}
-                          className="h-24 w-full object-cover"
-                          muted
-                          playsInline
-                          preload="metadata"
-                        />
-                      ) : (
-                        <img src={image.url} alt={image.name} className="h-24 w-full object-cover" />
-                      )}
-                      <button
-                        type="button"
-                        onClick={() => void removeHero(image.id)}
-                        aria-label={`ลบ ${image.name}`}
-                        className="absolute right-1 top-1 grid size-6 place-items-center rounded-full bg-rose-600 text-xs text-white"
-                      >
-                        <i className="fa-solid fa-xmark" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
+                <BannerMediaUpload
+                  title="รูปภาพหรือวิดีโอสไลด์แบนเนอร์หลัก"
+                  media={heroImages}
+                  files={heroFiles}
+                  onFilesChange={setHeroFiles}
+                  onRemove={removeHero}
+                  disabled={busy}
+                />
               </div>
 
               <div className="mt-6 rounded-xl border border-brand-primary/10 bg-brand-soft/50 p-4">
@@ -536,7 +473,7 @@ export function ProjectEditor({
                   <label className="cursor-pointer rounded-lg bg-brand-primary px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-text">
                     <i className="fa-solid fa-cloud-arrow-up mr-2" />
                     {brochureBusy ? "กำลังอัปโหลด..." : brochure ? "เปลี่ยนโบรชัวร์" : "อัปโหลดโบรชัวร์"}
-                    <input
+                    <Input
                       type="file"
                       accept="application/pdf,.pdf"
                       className="hidden"

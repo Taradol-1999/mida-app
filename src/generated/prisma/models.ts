@@ -10,6 +10,7 @@
  */
 export type * from './models/User'
 export type * from './models/Project'
+export type * from './models/UserProject'
 export type * from './models/HouseType'
 export type * from './models/Facility'
 export type * from './models/Promotion'

@@ -1,5 +1,7 @@
 "use client";
 
+import { Select } from "@/components/ui/form-controls";
+
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type { SessionUser } from "@/lib/auth";
@@ -63,47 +65,58 @@ export function AdminSidebar({ user, projects }: { user: SessionUser; projects: 
           เลือกโครงการ
         </label>
         <div className="relative">
-          <select
+          <Select
+            variant="plain"
             value={isCentral ? "central" : selectedProject}
             onChange={(event) => handleSelection(event.target.value)}
             className="w-full cursor-pointer appearance-none rounded-xl border border-white/25 bg-brand-primary px-4 py-3 text-sm font-medium text-white shadow-inner outline-none focus:ring-2 focus:ring-white/60"
           >
-            <option value="central">🏢 Mida Property (ส่วนกลาง)</option>
+            {user.role === "SUPER_ADMIN" ? (
+              <option value="central">🏢 Mida Property (ส่วนกลาง)</option>
+            ) : (
+              <option value="central" disabled>
+                เลือกโครงการที่ได้รับมอบหมาย
+              </option>
+            )}
             {projects.map((project) => (
               <option key={project.id} value={project.id}>
                 📍 {project.name}
               </option>
             ))}
-          </select>
+          </Select>
           <i className="fa-solid fa-chevron-down pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-white/65" />
         </div>
 
         <hr className="my-5 border-white/15" />
         <nav className="space-y-1">
           {isCentral ? (
-            <>
-              <Link href="/admin" className={menuClass("/admin")}>
-                <i className="fa-solid fa-chart-pie w-4" />
-                Dashboard MD (ภาพรวม)
-              </Link>
-              <Link href="/admin/content" className={menuClass("/admin/content")}>
-                <i className="fa-solid fa-display w-4" />
-                Mida Property (ส่วนกลาง)
-              </Link>
-              {user.role === "SUPER_ADMIN" && (
-                <Link href="/admin/users" className={menuClass("/admin/users")}>
-                  <i className="fa-solid fa-users-gear w-4" />
-                  จัดการผู้ใช้งาน (Users)
+            user.role === "SUPER_ADMIN" ? (
+              <>
+                <Link href="/admin" className={menuClass("/admin")}>
+                  <i className="fa-solid fa-chart-pie w-4" />
+                  Dashboard MD (ภาพรวม)
                 </Link>
-              )}
-              <Link
-                href="/admin/projects"
-                className={`mt-3 flex items-center gap-2 rounded-lg border px-3 py-2.5 text-xs font-medium transition ${pathname === "/admin/projects" ? "border-brand-accent bg-white text-brand-primary shadow-sm" : "border-dashed border-white/30 text-white/70 hover:border-white/60 hover:bg-white/10 hover:text-white"}`}
-              >
-                <i className="fa-solid fa-circle-plus" />
-                โครงการใหม่
-              </Link>
-            </>
+                <Link href="/admin/content" className={menuClass("/admin/content")}>
+                  <i className="fa-solid fa-display w-4" />
+                  Mida Property (ส่วนกลาง)
+                </Link>
+                {user.role === "SUPER_ADMIN" && (
+                  <Link href="/admin/users" className={menuClass("/admin/users")}>
+                    <i className="fa-solid fa-users-gear w-4" />
+                    จัดการผู้ใช้งาน (Users)
+                  </Link>
+                )}
+                <Link
+                  href="/admin/projects"
+                  className={`mt-3 flex items-center gap-2 rounded-lg border px-3 py-2.5 text-xs font-medium transition ${pathname === "/admin/projects" ? "border-brand-accent bg-white text-brand-primary shadow-sm" : "border-dashed border-white/30 text-white/70 hover:border-white/60 hover:bg-white/10 hover:text-white"}`}
+                >
+                  <i className="fa-solid fa-circle-plus" />
+                  โครงการใหม่
+                </Link>
+              </>
+            ) : (
+              <p className="px-3 text-sm text-white/75">เลือกโครงการที่ได้รับมอบหมายเพื่อจัดการข้อมูล</p>
+            )
           ) : (
             projectMenus.map(([section, label, icon]) => (
               <Link

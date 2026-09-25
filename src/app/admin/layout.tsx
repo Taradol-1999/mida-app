@@ -1,11 +1,12 @@
 import { AdminSidebar } from "@/components/admin-sidebar";
-import { requireUser } from "@/lib/auth";
+import { requireUser, type SessionUser } from "@/lib/auth";
+import { projectScope } from "@/lib/project-access";
 import { prisma } from "@/lib/prisma";
 
-async function navigationProjects() {
+async function navigationProjects(user: SessionUser) {
   try {
     const rows = await prisma.project.findMany({
-      where: { status: { not: "ARCHIVED" } },
+      where: { ...projectScope(user), status: { not: "ARCHIVED" } },
       select: { id: true, name_th: true },
       orderBy: { name_th: "asc" },
     });
@@ -17,7 +18,7 @@ async function navigationProjects() {
 
 export default async function AdminLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const user = await requireUser();
-  const projects = await navigationProjects();
+  const projects = await navigationProjects(user);
   return (
     <main className="min-h-screen bg-slate-50 md:flex">
       <AdminSidebar user={user} projects={projects} />

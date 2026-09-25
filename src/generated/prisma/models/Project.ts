@@ -308,6 +308,7 @@ export type ProjectWhereInput = {
   description?: Prisma.StringNullableFilter<"Project"> | string | null
   created_at?: Prisma.DateTimeFilter<"Project"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"Project"> | Date | string
+  users?: Prisma.UserProjectListRelationFilter
   settings?: Prisma.XOR<Prisma.ProjectSettingNullableScalarRelationFilter, Prisma.ProjectSettingWhereInput> | null
   house_types?: Prisma.HouseTypeListRelationFilter
   facilities?: Prisma.FacilityListRelationFilter
@@ -334,6 +335,7 @@ export type ProjectOrderByWithRelationInput = {
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
+  users?: Prisma.UserProjectOrderByRelationAggregateInput
   settings?: Prisma.ProjectSettingOrderByWithRelationInput
   house_types?: Prisma.HouseTypeOrderByRelationAggregateInput
   facilities?: Prisma.FacilityOrderByRelationAggregateInput
@@ -364,6 +366,7 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   description?: Prisma.StringNullableFilter<"Project"> | string | null
   created_at?: Prisma.DateTimeFilter<"Project"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"Project"> | Date | string
+  users?: Prisma.UserProjectListRelationFilter
   settings?: Prisma.XOR<Prisma.ProjectSettingNullableScalarRelationFilter, Prisma.ProjectSettingWhereInput> | null
   house_types?: Prisma.HouseTypeListRelationFilter
   facilities?: Prisma.FacilityListRelationFilter
@@ -436,6 +439,7 @@ export type ProjectCreateInput = {
   description?: string | null
   created_at?: Date | string
   updated_at?: Date | string
+  users?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
   settings?: Prisma.ProjectSettingCreateNestedOneWithoutProjectInput
   house_types?: Prisma.HouseTypeCreateNestedManyWithoutProjectInput
   facilities?: Prisma.FacilityCreateNestedManyWithoutProjectInput
@@ -462,6 +466,7 @@ export type ProjectUncheckedCreateInput = {
   description?: string | null
   created_at?: Date | string
   updated_at?: Date | string
+  users?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
   settings?: Prisma.ProjectSettingUncheckedCreateNestedOneWithoutProjectInput
   house_types?: Prisma.HouseTypeUncheckedCreateNestedManyWithoutProjectInput
   facilities?: Prisma.FacilityUncheckedCreateNestedManyWithoutProjectInput
@@ -488,6 +493,7 @@ export type ProjectUpdateInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
   settings?: Prisma.ProjectSettingUpdateOneWithoutProjectNestedInput
   house_types?: Prisma.HouseTypeUpdateManyWithoutProjectNestedInput
   facilities?: Prisma.FacilityUpdateManyWithoutProjectNestedInput
@@ -514,6 +520,7 @@ export type ProjectUncheckedUpdateInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
   settings?: Prisma.ProjectSettingUncheckedUpdateOneWithoutProjectNestedInput
   house_types?: Prisma.HouseTypeUncheckedUpdateManyWithoutProjectNestedInput
   facilities?: Prisma.FacilityUncheckedUpdateManyWithoutProjectNestedInput
@@ -683,6 +690,20 @@ export type EnumProjectStatusFieldUpdateOperationsInput = {
   set?: $Enums.ProjectStatus
 }
 
+export type ProjectCreateNestedOneWithoutUsersInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutUsersInput, Prisma.ProjectUncheckedCreateWithoutUsersInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutUsersInput
+  connect?: Prisma.ProjectWhereUniqueInput
+}
+
+export type ProjectUpdateOneRequiredWithoutUsersNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutUsersInput, Prisma.ProjectUncheckedCreateWithoutUsersInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutUsersInput
+  upsert?: Prisma.ProjectUpsertWithoutUsersInput
+  connect?: Prisma.ProjectWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutUsersInput, Prisma.ProjectUpdateWithoutUsersInput>, Prisma.ProjectUncheckedUpdateWithoutUsersInput>
+}
+
 export type ProjectCreateNestedOneWithoutHouse_typesInput = {
   create?: Prisma.XOR<Prisma.ProjectCreateWithoutHouse_typesInput, Prisma.ProjectUncheckedCreateWithoutHouse_typesInput>
   connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutHouse_typesInput
@@ -789,6 +810,126 @@ export type ProjectUpdateOneRequiredWithoutSettingsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutSettingsInput, Prisma.ProjectUpdateWithoutSettingsInput>, Prisma.ProjectUncheckedUpdateWithoutSettingsInput>
 }
 
+export type ProjectCreateWithoutUsersInput = {
+  id?: string
+  slug: string
+  name_th: string
+  name_en?: string | null
+  location: string
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  property_type: $Enums.PropertyType
+  starting_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  status?: $Enums.ProjectStatus
+  is_featured?: boolean
+  is_new?: boolean
+  tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  description?: string | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  settings?: Prisma.ProjectSettingCreateNestedOneWithoutProjectInput
+  house_types?: Prisma.HouseTypeCreateNestedManyWithoutProjectInput
+  facilities?: Prisma.FacilityCreateNestedManyWithoutProjectInput
+  promotions?: Prisma.PromotionCreateNestedManyWithoutProjectInput
+  news_items?: Prisma.NewsItemCreateNestedManyWithoutProjectInput
+  leads?: Prisma.LeadCreateNestedManyWithoutProjectInput
+  page_views?: Prisma.PageViewCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectUncheckedCreateWithoutUsersInput = {
+  id?: string
+  slug: string
+  name_th: string
+  name_en?: string | null
+  location: string
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  property_type: $Enums.PropertyType
+  starting_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  status?: $Enums.ProjectStatus
+  is_featured?: boolean
+  is_new?: boolean
+  tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  description?: string | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  settings?: Prisma.ProjectSettingUncheckedCreateNestedOneWithoutProjectInput
+  house_types?: Prisma.HouseTypeUncheckedCreateNestedManyWithoutProjectInput
+  facilities?: Prisma.FacilityUncheckedCreateNestedManyWithoutProjectInput
+  promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutProjectInput
+  news_items?: Prisma.NewsItemUncheckedCreateNestedManyWithoutProjectInput
+  leads?: Prisma.LeadUncheckedCreateNestedManyWithoutProjectInput
+  page_views?: Prisma.PageViewUncheckedCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectCreateOrConnectWithoutUsersInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutUsersInput, Prisma.ProjectUncheckedCreateWithoutUsersInput>
+}
+
+export type ProjectUpsertWithoutUsersInput = {
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutUsersInput, Prisma.ProjectUncheckedUpdateWithoutUsersInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutUsersInput, Prisma.ProjectUncheckedCreateWithoutUsersInput>
+  where?: Prisma.ProjectWhereInput
+}
+
+export type ProjectUpdateToOneWithWhereWithoutUsersInput = {
+  where?: Prisma.ProjectWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutUsersInput, Prisma.ProjectUncheckedUpdateWithoutUsersInput>
+}
+
+export type ProjectUpdateWithoutUsersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  name_th?: Prisma.StringFieldUpdateOperationsInput | string
+  name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  property_type?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
+  starting_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  is_featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  is_new?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  settings?: Prisma.ProjectSettingUpdateOneWithoutProjectNestedInput
+  house_types?: Prisma.HouseTypeUpdateManyWithoutProjectNestedInput
+  facilities?: Prisma.FacilityUpdateManyWithoutProjectNestedInput
+  promotions?: Prisma.PromotionUpdateManyWithoutProjectNestedInput
+  news_items?: Prisma.NewsItemUpdateManyWithoutProjectNestedInput
+  leads?: Prisma.LeadUpdateManyWithoutProjectNestedInput
+  page_views?: Prisma.PageViewUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutUsersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  name_th?: Prisma.StringFieldUpdateOperationsInput | string
+  name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  property_type?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
+  starting_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  is_featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  is_new?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  settings?: Prisma.ProjectSettingUncheckedUpdateOneWithoutProjectNestedInput
+  house_types?: Prisma.HouseTypeUncheckedUpdateManyWithoutProjectNestedInput
+  facilities?: Prisma.FacilityUncheckedUpdateManyWithoutProjectNestedInput
+  promotions?: Prisma.PromotionUncheckedUpdateManyWithoutProjectNestedInput
+  news_items?: Prisma.NewsItemUncheckedUpdateManyWithoutProjectNestedInput
+  leads?: Prisma.LeadUncheckedUpdateManyWithoutProjectNestedInput
+  page_views?: Prisma.PageViewUncheckedUpdateManyWithoutProjectNestedInput
+}
+
 export type ProjectCreateWithoutHouse_typesInput = {
   id?: string
   slug: string
@@ -806,6 +947,7 @@ export type ProjectCreateWithoutHouse_typesInput = {
   description?: string | null
   created_at?: Date | string
   updated_at?: Date | string
+  users?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
   settings?: Prisma.ProjectSettingCreateNestedOneWithoutProjectInput
   facilities?: Prisma.FacilityCreateNestedManyWithoutProjectInput
   promotions?: Prisma.PromotionCreateNestedManyWithoutProjectInput
@@ -831,6 +973,7 @@ export type ProjectUncheckedCreateWithoutHouse_typesInput = {
   description?: string | null
   created_at?: Date | string
   updated_at?: Date | string
+  users?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
   settings?: Prisma.ProjectSettingUncheckedCreateNestedOneWithoutProjectInput
   facilities?: Prisma.FacilityUncheckedCreateNestedManyWithoutProjectInput
   promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutProjectInput
@@ -872,6 +1015,7 @@ export type ProjectUpdateWithoutHouse_typesInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
   settings?: Prisma.ProjectSettingUpdateOneWithoutProjectNestedInput
   facilities?: Prisma.FacilityUpdateManyWithoutProjectNestedInput
   promotions?: Prisma.PromotionUpdateManyWithoutProjectNestedInput
@@ -897,6 +1041,7 @@ export type ProjectUncheckedUpdateWithoutHouse_typesInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
   settings?: Prisma.ProjectSettingUncheckedUpdateOneWithoutProjectNestedInput
   facilities?: Prisma.FacilityUncheckedUpdateManyWithoutProjectNestedInput
   promotions?: Prisma.PromotionUncheckedUpdateManyWithoutProjectNestedInput
@@ -922,6 +1067,7 @@ export type ProjectCreateWithoutFacilitiesInput = {
   description?: string | null
   created_at?: Date | string
   updated_at?: Date | string
+  users?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
   settings?: Prisma.ProjectSettingCreateNestedOneWithoutProjectInput
   house_types?: Prisma.HouseTypeCreateNestedManyWithoutProjectInput
   promotions?: Prisma.PromotionCreateNestedManyWithoutProjectInput
@@ -947,6 +1093,7 @@ export type ProjectUncheckedCreateWithoutFacilitiesInput = {
   description?: string | null
   created_at?: Date | string
   updated_at?: Date | string
+  users?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
   settings?: Prisma.ProjectSettingUncheckedCreateNestedOneWithoutProjectInput
   house_types?: Prisma.HouseTypeUncheckedCreateNestedManyWithoutProjectInput
   promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutProjectInput
@@ -988,6 +1135,7 @@ export type ProjectUpdateWithoutFacilitiesInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
   settings?: Prisma.ProjectSettingUpdateOneWithoutProjectNestedInput
   house_types?: Prisma.HouseTypeUpdateManyWithoutProjectNestedInput
   promotions?: Prisma.PromotionUpdateManyWithoutProjectNestedInput
@@ -1013,6 +1161,7 @@ export type ProjectUncheckedUpdateWithoutFacilitiesInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
   settings?: Prisma.ProjectSettingUncheckedUpdateOneWithoutProjectNestedInput
   house_types?: Prisma.HouseTypeUncheckedUpdateManyWithoutProjectNestedInput
   promotions?: Prisma.PromotionUncheckedUpdateManyWithoutProjectNestedInput
@@ -1038,6 +1187,7 @@ export type ProjectCreateWithoutPromotionsInput = {
   description?: string | null
   created_at?: Date | string
   updated_at?: Date | string
+  users?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
   settings?: Prisma.ProjectSettingCreateNestedOneWithoutProjectInput
   house_types?: Prisma.HouseTypeCreateNestedManyWithoutProjectInput
   facilities?: Prisma.FacilityCreateNestedManyWithoutProjectInput
@@ -1063,6 +1213,7 @@ export type ProjectUncheckedCreateWithoutPromotionsInput = {
   description?: string | null
   created_at?: Date | string
   updated_at?: Date | string
+  users?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
   settings?: Prisma.ProjectSettingUncheckedCreateNestedOneWithoutProjectInput
   house_types?: Prisma.HouseTypeUncheckedCreateNestedManyWithoutProjectInput
   facilities?: Prisma.FacilityUncheckedCreateNestedManyWithoutProjectInput
@@ -1104,6 +1255,7 @@ export type ProjectUpdateWithoutPromotionsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
   settings?: Prisma.ProjectSettingUpdateOneWithoutProjectNestedInput
   house_types?: Prisma.HouseTypeUpdateManyWithoutProjectNestedInput
   facilities?: Prisma.FacilityUpdateManyWithoutProjectNestedInput
@@ -1129,6 +1281,7 @@ export type ProjectUncheckedUpdateWithoutPromotionsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
   settings?: Prisma.ProjectSettingUncheckedUpdateOneWithoutProjectNestedInput
   house_types?: Prisma.HouseTypeUncheckedUpdateManyWithoutProjectNestedInput
   facilities?: Prisma.FacilityUncheckedUpdateManyWithoutProjectNestedInput
@@ -1154,6 +1307,7 @@ export type ProjectCreateWithoutNews_itemsInput = {
   description?: string | null
   created_at?: Date | string
   updated_at?: Date | string
+  users?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
   settings?: Prisma.ProjectSettingCreateNestedOneWithoutProjectInput
   house_types?: Prisma.HouseTypeCreateNestedManyWithoutProjectInput
   facilities?: Prisma.FacilityCreateNestedManyWithoutProjectInput
@@ -1179,6 +1333,7 @@ export type ProjectUncheckedCreateWithoutNews_itemsInput = {
   description?: string | null
   created_at?: Date | string
   updated_at?: Date | string
+  users?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
   settings?: Prisma.ProjectSettingUncheckedCreateNestedOneWithoutProjectInput
   house_types?: Prisma.HouseTypeUncheckedCreateNestedManyWithoutProjectInput
   facilities?: Prisma.FacilityUncheckedCreateNestedManyWithoutProjectInput
@@ -1220,6 +1375,7 @@ export type ProjectUpdateWithoutNews_itemsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
   settings?: Prisma.ProjectSettingUpdateOneWithoutProjectNestedInput
   house_types?: Prisma.HouseTypeUpdateManyWithoutProjectNestedInput
   facilities?: Prisma.FacilityUpdateManyWithoutProjectNestedInput
@@ -1245,6 +1401,7 @@ export type ProjectUncheckedUpdateWithoutNews_itemsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
   settings?: Prisma.ProjectSettingUncheckedUpdateOneWithoutProjectNestedInput
   house_types?: Prisma.HouseTypeUncheckedUpdateManyWithoutProjectNestedInput
   facilities?: Prisma.FacilityUncheckedUpdateManyWithoutProjectNestedInput
@@ -1270,6 +1427,7 @@ export type ProjectCreateWithoutLeadsInput = {
   description?: string | null
   created_at?: Date | string
   updated_at?: Date | string
+  users?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
   settings?: Prisma.ProjectSettingCreateNestedOneWithoutProjectInput
   house_types?: Prisma.HouseTypeCreateNestedManyWithoutProjectInput
   facilities?: Prisma.FacilityCreateNestedManyWithoutProjectInput
@@ -1295,6 +1453,7 @@ export type ProjectUncheckedCreateWithoutLeadsInput = {
   description?: string | null
   created_at?: Date | string
   updated_at?: Date | string
+  users?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
   settings?: Prisma.ProjectSettingUncheckedCreateNestedOneWithoutProjectInput
   house_types?: Prisma.HouseTypeUncheckedCreateNestedManyWithoutProjectInput
   facilities?: Prisma.FacilityUncheckedCreateNestedManyWithoutProjectInput
@@ -1336,6 +1495,7 @@ export type ProjectUpdateWithoutLeadsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
   settings?: Prisma.ProjectSettingUpdateOneWithoutProjectNestedInput
   house_types?: Prisma.HouseTypeUpdateManyWithoutProjectNestedInput
   facilities?: Prisma.FacilityUpdateManyWithoutProjectNestedInput
@@ -1361,6 +1521,7 @@ export type ProjectUncheckedUpdateWithoutLeadsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
   settings?: Prisma.ProjectSettingUncheckedUpdateOneWithoutProjectNestedInput
   house_types?: Prisma.HouseTypeUncheckedUpdateManyWithoutProjectNestedInput
   facilities?: Prisma.FacilityUncheckedUpdateManyWithoutProjectNestedInput
@@ -1386,6 +1547,7 @@ export type ProjectCreateWithoutPage_viewsInput = {
   description?: string | null
   created_at?: Date | string
   updated_at?: Date | string
+  users?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
   settings?: Prisma.ProjectSettingCreateNestedOneWithoutProjectInput
   house_types?: Prisma.HouseTypeCreateNestedManyWithoutProjectInput
   facilities?: Prisma.FacilityCreateNestedManyWithoutProjectInput
@@ -1411,6 +1573,7 @@ export type ProjectUncheckedCreateWithoutPage_viewsInput = {
   description?: string | null
   created_at?: Date | string
   updated_at?: Date | string
+  users?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
   settings?: Prisma.ProjectSettingUncheckedCreateNestedOneWithoutProjectInput
   house_types?: Prisma.HouseTypeUncheckedCreateNestedManyWithoutProjectInput
   facilities?: Prisma.FacilityUncheckedCreateNestedManyWithoutProjectInput
@@ -1452,6 +1615,7 @@ export type ProjectUpdateWithoutPage_viewsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
   settings?: Prisma.ProjectSettingUpdateOneWithoutProjectNestedInput
   house_types?: Prisma.HouseTypeUpdateManyWithoutProjectNestedInput
   facilities?: Prisma.FacilityUpdateManyWithoutProjectNestedInput
@@ -1477,6 +1641,7 @@ export type ProjectUncheckedUpdateWithoutPage_viewsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
   settings?: Prisma.ProjectSettingUncheckedUpdateOneWithoutProjectNestedInput
   house_types?: Prisma.HouseTypeUncheckedUpdateManyWithoutProjectNestedInput
   facilities?: Prisma.FacilityUncheckedUpdateManyWithoutProjectNestedInput
@@ -1502,6 +1667,7 @@ export type ProjectCreateWithoutSettingsInput = {
   description?: string | null
   created_at?: Date | string
   updated_at?: Date | string
+  users?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
   house_types?: Prisma.HouseTypeCreateNestedManyWithoutProjectInput
   facilities?: Prisma.FacilityCreateNestedManyWithoutProjectInput
   promotions?: Prisma.PromotionCreateNestedManyWithoutProjectInput
@@ -1527,6 +1693,7 @@ export type ProjectUncheckedCreateWithoutSettingsInput = {
   description?: string | null
   created_at?: Date | string
   updated_at?: Date | string
+  users?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
   house_types?: Prisma.HouseTypeUncheckedCreateNestedManyWithoutProjectInput
   facilities?: Prisma.FacilityUncheckedCreateNestedManyWithoutProjectInput
   promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutProjectInput
@@ -1568,6 +1735,7 @@ export type ProjectUpdateWithoutSettingsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
   house_types?: Prisma.HouseTypeUpdateManyWithoutProjectNestedInput
   facilities?: Prisma.FacilityUpdateManyWithoutProjectNestedInput
   promotions?: Prisma.PromotionUpdateManyWithoutProjectNestedInput
@@ -1593,6 +1761,7 @@ export type ProjectUncheckedUpdateWithoutSettingsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
   house_types?: Prisma.HouseTypeUncheckedUpdateManyWithoutProjectNestedInput
   facilities?: Prisma.FacilityUncheckedUpdateManyWithoutProjectNestedInput
   promotions?: Prisma.PromotionUncheckedUpdateManyWithoutProjectNestedInput
@@ -1607,6 +1776,7 @@ export type ProjectUncheckedUpdateWithoutSettingsInput = {
  */
 
 export type ProjectCountOutputType = {
+  users: number
   house_types: number
   facilities: number
   promotions: number
@@ -1616,6 +1786,7 @@ export type ProjectCountOutputType = {
 }
 
 export type ProjectCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  users?: boolean | ProjectCountOutputTypeCountUsersArgs
   house_types?: boolean | ProjectCountOutputTypeCountHouse_typesArgs
   facilities?: boolean | ProjectCountOutputTypeCountFacilitiesArgs
   promotions?: boolean | ProjectCountOutputTypeCountPromotionsArgs
@@ -1632,6 +1803,13 @@ export type ProjectCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Exte
    * Select specific fields to fetch from the ProjectCountOutputType
    */
   select?: Prisma.ProjectCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * ProjectCountOutputType without action
+ */
+export type ProjectCountOutputTypeCountUsersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserProjectWhereInput
 }
 
 /**
@@ -1694,6 +1872,7 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   description?: boolean
   created_at?: boolean
   updated_at?: boolean
+  users?: boolean | Prisma.Project$usersArgs<ExtArgs>
   settings?: boolean | Prisma.Project$settingsArgs<ExtArgs>
   house_types?: boolean | Prisma.Project$house_typesArgs<ExtArgs>
   facilities?: boolean | Prisma.Project$facilitiesArgs<ExtArgs>
@@ -1727,6 +1906,7 @@ export type ProjectSelectScalar = {
 
 export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "slug" | "name_th" | "name_en" | "location" | "latitude" | "longitude" | "property_type" | "starting_price" | "status" | "is_featured" | "is_new" | "tags" | "description" | "created_at" | "updated_at", ExtArgs["result"]["project"]>
 export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  users?: boolean | Prisma.Project$usersArgs<ExtArgs>
   settings?: boolean | Prisma.Project$settingsArgs<ExtArgs>
   house_types?: boolean | Prisma.Project$house_typesArgs<ExtArgs>
   facilities?: boolean | Prisma.Project$facilitiesArgs<ExtArgs>
@@ -1740,6 +1920,7 @@ export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
 export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Project"
   objects: {
+    users: Prisma.$UserProjectPayload<ExtArgs>[]
     settings: Prisma.$ProjectSettingPayload<ExtArgs> | null
     house_types: Prisma.$HouseTypePayload<ExtArgs>[]
     facilities: Prisma.$FacilityPayload<ExtArgs>[]
@@ -2105,6 +2286,7 @@ readonly fields: ProjectFieldRefs;
  */
 export interface Prisma__ProjectClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  users<T extends Prisma.Project$usersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$usersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   settings<T extends Prisma.Project$settingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$settingsArgs<ExtArgs>>): Prisma.Prisma__ProjectSettingClient<runtime.Types.Result.GetResult<Prisma.$ProjectSettingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   house_types<T extends Prisma.Project$house_typesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$house_typesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$HouseTypePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   facilities<T extends Prisma.Project$facilitiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$facilitiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FacilityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2502,6 +2684,30 @@ export type ProjectDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Limit how many Projects to delete.
    */
   limit?: number
+}
+
+/**
+ * Project.users
+ */
+export type Project$usersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserProject
+   */
+  select?: Prisma.UserProjectSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UserProject
+   */
+  omit?: Prisma.UserProjectOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserProjectInclude<ExtArgs> | null
+  where?: Prisma.UserProjectWhereInput
+  orderBy?: Prisma.UserProjectOrderByWithRelationInput | Prisma.UserProjectOrderByWithRelationInput[]
+  cursor?: Prisma.UserProjectWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UserProjectScalarFieldEnum | Prisma.UserProjectScalarFieldEnum[]
 }
 
 /**

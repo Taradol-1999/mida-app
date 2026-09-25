@@ -1,5 +1,7 @@
 "use client";
 
+import { Input, Select } from "@/components/ui/form-controls";
+
 import { FormEvent, useEffect, useState } from "react";
 
 export function LeadModal({ projectId, projectName }: { projectId?: string | null; projectName?: string }) {
@@ -69,7 +71,7 @@ export function LeadModal({ projectId, projectName }: { projectId?: string | nul
               </div>
             ) : (
               <form onSubmit={submit} className="space-y-7">
-                {projectId && <input type="hidden" name="projectId" value={projectId} />}
+                {projectId && <Input type="hidden" name="projectId" value={projectId} />}
                 <fieldset>
                   <legend className="mb-4 w-full border-b border-slate-100 pb-3 text-center font-bold text-brand-primary">
                     ข้อมูลส่วนตัว
@@ -90,7 +92,7 @@ export function LeadModal({ projectId, projectName }: { projectId?: string | nul
                   <div className="grid gap-4 md:grid-cols-3">
                     <label className="text-sm font-semibold text-slate-700">
                       จังหวัด <span className="text-red-500">*</span>
-                      <input
+                      <Input
                         name="province"
                         required
                         list="thai-provinces"
@@ -122,7 +124,7 @@ export function LeadModal({ projectId, projectName }: { projectId?: string | nul
                         ["DORMITORY", "อพาร์ทเม้น"],
                       ].map(([value, label]) => (
                         <label key={value} className="flex items-center gap-2">
-                          <input
+                          <Input
                             type="radio"
                             name="residenceType"
                             value={value}
@@ -136,7 +138,7 @@ export function LeadModal({ projectId, projectName }: { projectId?: string | nul
                   </fieldset>
                   <label className="text-sm font-semibold text-slate-700">
                     งบประมาณ <span className="text-red-500">*</span>
-                    <select
+                    <Select
                       name="budget"
                       required
                       className="mt-1.5 w-full rounded-xl border border-slate-200 p-3 text-slate-600"
@@ -146,7 +148,7 @@ export function LeadModal({ projectId, projectName }: { projectId?: string | nul
                       <option>2-3 ล้านบาท</option>
                       <option>3-5 ล้านบาท</option>
                       <option>มากกว่า 5 ล้านบาท</option>
-                    </select>
+                    </Select>
                   </label>
                   <Field label="วันที่สะดวกให้ติดต่อกลับ" name="preferredContactDate" type="date" />
                   <Field label="ช่วงเวลาที่สะดวก" name="preferredContactTime" type="time" />
@@ -156,11 +158,11 @@ export function LeadModal({ projectId, projectName }: { projectId?: string | nul
                   <legend className="px-1 text-sm font-semibold text-slate-700">การรับข่าวสาร</legend>
                   <div className="space-y-3 text-sm text-slate-600">
                     <label className="flex items-start gap-2">
-                      <input type="checkbox" name="consentNews" value="true" className="mt-1 accent-brand-primary" />
+                      <Input type="checkbox" name="consentNews" value="true" className="mt-1 accent-brand-primary" />
                       ท่านต้องการรับข่าวสารจาก Mida Property
                     </label>
                     <label className="flex items-start gap-2">
-                      <input
+                      <Input
                         type="checkbox"
                         name="consentContact"
                         value="true"
@@ -199,7 +201,7 @@ function Field({
   return (
     <label className="text-sm font-semibold text-slate-700">
       {label} <span className="text-red-500">*</span>
-      <input
+      <Input
         name={name}
         type={type}
         required

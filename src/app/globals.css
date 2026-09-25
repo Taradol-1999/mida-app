@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+@layer components {
+  .form-control {
+    @apply mt-1.5 w-full rounded-lg border border-slate-300 bg-brand-surface px-3 py-2.5 text-sm font-normal text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-brand-primary focus:ring-2 focus:ring-brand-soft disabled:cursor-not-allowed disabled:opacity-60;
+  }
+}
+
 @theme {
   --color-brand-primary: #002d62;
   --color-brand-text: #4a4a4a;

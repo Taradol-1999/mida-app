@@ -1,4 +1,8 @@
 "use client";
+
+import { BannerMediaUpload } from "@/components/banner-media-upload";
+
+import { Input, Textarea, Select } from "@/components/ui/form-controls";
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable react-hooks/set-state-in-effect */
 
@@ -125,8 +129,6 @@ const configs: Partial<Record<Section, DataConfig>> = {
     readOnlyCreate: true,
   },
 };
-const inputClass =
-  "mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-soft";
 const settingFields: Record<"homepage" | "contact" | "after-sales", Field[]> = {
   homepage: [
     { key: "hero_title_th", label: "คำพาดหัวหลัก - ภาษาไทย" },
@@ -519,60 +521,31 @@ export function ProjectWorkspace({
                 {field.label} ({field.key.includes("title") ? "Main Headline" : "Sub-headline"} -{" "}
                 {field.key.endsWith("th") ? "TH" : "EN"})
                 {field.type === "textarea" ? (
-                  <textarea
+                  <Textarea
                     value={String(form[field.key] ?? "")}
                     onChange={(event) => setField(field.key, event.target.value)}
-                    className={`${inputClass} min-h-20`}
+                    className="min-h-20"
                   />
                 ) : (
-                  <input
+                  <Input
                     value={String(form[field.key] ?? "")}
                     onChange={(event) => setField(field.key, event.target.value)}
-                    className={inputClass}
                   />
                 )}
               </label>
             ))}
           </div>
           <div className="mt-6">
-            <p className="text-sm font-bold text-slate-700">รูปภาพหรือวิดีโอสไลด์แบนเนอร์หลัก (Hero Banner Media)</p>
-            <label className="mt-2 flex min-h-22 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 px-5 text-center text-sm font-semibold text-slate-400 hover:border-brand-primary hover:bg-brand-soft">
-              <input
-                type="file"
-                multiple
-                accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
-                className="sr-only"
-                onChange={(event) => setHeroFiles(Array.from(event.target.files ?? []))}
-              />
-              <span>
-                <i className="fa-solid fa-photo-film mr-2 text-2xl align-middle text-slate-400" />
-                {heroFiles.length
-                  ? `เลือกแล้ว ${heroFiles.length} ไฟล์`
-                  : "คลิกเพื่อเลือกหลายไฟล์ หรือลากรูปภาพ/วิดีโอมาวางที่นี่"}
-              </span>
-            </label>
-            <p className="mt-2 text-xs text-slate-400">
-              รองรับ JPG, PNG, WEBP ไม่เกิน 5 MB และ MP4, WEBM ไม่เกิน 50 MB ต่อไฟล์
-            </p>
-            <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-              {heroImages.map((image) => (
-                <div key={image.id} className="relative overflow-hidden rounded-lg border">
-                  {image.mimeType.startsWith("video/") ? (
-                    <video src={image.url} className="h-24 w-full object-cover" muted playsInline preload="metadata" />
-                  ) : (
-                    <img src={image.url} alt={image.name} className="h-24 w-full object-cover" />
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => void removeHero(image.id)}
-                    className="absolute right-1 top-1 grid size-6 place-items-center rounded-full bg-rose-600 text-xs text-white"
-                  >
-                    <i className="fa-solid fa-xmark" />
-                  </button>
-                </div>
-              ))}
-            </div>
+            <BannerMediaUpload
+              title="รูปภาพหรือวิดีโอสไลด์แบนเนอร์หลัก"
+              media={heroImages}
+              files={heroFiles}
+              onFilesChange={setHeroFiles}
+              onRemove={removeHero}
+              disabled={busy}
+            />
           </div>
+
           <div className="mt-6 rounded-xl border border-brand-primary/10 bg-brand-soft/50 p-4">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex min-w-0 items-center gap-3">
@@ -599,7 +572,7 @@ export function ProjectWorkspace({
               <label className="cursor-pointer rounded-lg bg-brand-primary px-4 py-2.5 text-sm font-bold text-white transition hover:bg-brand-text">
                 <i className="fa-solid fa-cloud-arrow-up mr-2" />
                 {brochureBusy ? "กำลังอัปโหลด..." : brochure ? "เปลี่ยนโบรชัวร์" : "อัปโหลดโบรชัวร์"}
-                <input
+                <Input
                   type="file"
                   accept="application/pdf,.pdf"
                   className="hidden"
@@ -699,7 +672,8 @@ export function ProjectWorkspace({
                         <p>{String(row.preferred_contact_time ?? "-").slice(0, 5)} น.</p>
                       </td>
                       <td className="px-4 py-4">
-                        <select
+                        <Select
+                          variant="plain"
                           value={String(row.status ?? "NEW")}
                           disabled={busy}
                           onChange={(event) => void updateLeadStatus(String(row.id), event.target.value)}
@@ -711,7 +685,7 @@ export function ProjectWorkspace({
                               {label}
                             </option>
                           ))}
-                        </select>
+                        </Select>
                       </td>
                     </tr>
                   );
@@ -862,7 +836,7 @@ export function ProjectWorkspace({
                     >
                       {field.type === "checkbox" ? (
                         <span className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-3">
-                          <input
+                          <Input
                             type="checkbox"
                             checked={Boolean(form[field.key])}
                             onChange={(event) => setField(field.key, event.target.checked)}
@@ -875,32 +849,30 @@ export function ProjectWorkspace({
                           {field.label}
                           {field.required && <span className="ml-1 text-rose-500">*</span>}
                           {field.type === "textarea" ? (
-                            <textarea
+                            <Textarea
                               required={field.required}
                               value={String(form[field.key] ?? "")}
                               onChange={(event) => setField(field.key, event.target.value)}
-                              className={`${inputClass} min-h-28`}
+                              className="min-h-28"
                             />
                           ) : field.type === "select" ? (
-                            <select
+                            <Select
                               required={field.required}
                               value={String(form[field.key] ?? "")}
                               onChange={(event) => setField(field.key, event.target.value)}
-                              className={inputClass}
                             >
                               {field.options?.map(([value, label]) => (
                                 <option key={value} value={value}>
                                   {label}
                                 </option>
                               ))}
-                            </select>
+                            </Select>
                           ) : (
-                            <input
+                            <Input
                               required={field.required}
                               type={field.type === "datetime" ? "datetime-local" : (field.type ?? "text")}
                               value={String(form[field.key] ?? "")}
                               onChange={(event) => setField(field.key, event.target.value)}
-                              className={inputClass}
                             />
                           )}
                         </>
@@ -913,7 +885,7 @@ export function ProjectWorkspace({
                   <div className="mt-5">
                     <p className="text-sm font-semibold text-slate-700">รูปแบบบ้าน</p>
                     <label className="mt-2 flex min-h-32 cursor-pointer items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-4 text-center text-sm font-semibold text-slate-400 hover:border-brand-primary hover:bg-brand-soft">
-                      <input
+                      <Input
                         type="file"
                         accept="image/jpeg,image/png,image/webp"
                         className="sr-only"
@@ -986,7 +958,7 @@ export function ProjectWorkspace({
               >
                 {field.type === "checkbox" ? (
                   <span className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-3">
-                    <input
+                    <Input
                       type="checkbox"
                       checked={Boolean(form[field.key])}
                       onChange={(event) => setField(field.key, event.target.checked)}
@@ -999,26 +971,25 @@ export function ProjectWorkspace({
                     {field.label}
                     {field.required && <span className="ml-1 text-rose-500">*</span>}
                     {field.type === "textarea" ? (
-                      <textarea
+                      <Textarea
                         value={String(form[field.key] ?? "")}
                         onChange={(event) => setField(field.key, event.target.value)}
-                        className={`${inputClass} min-h-28`}
+                        className="min-h-28"
                       />
                     ) : field.type === "select" ? (
-                      <select
+                      <Select
                         required={field.required}
                         value={String(form[field.key] ?? "")}
                         onChange={(event) => setField(field.key, event.target.value)}
-                        className={inputClass}
                       >
                         {field.options?.map(([value, label]) => (
                           <option key={value} value={value}>
                             {label}
                           </option>
                         ))}
-                      </select>
+                      </Select>
                     ) : (
-                      <input
+                      <Input
                         required={field.required}
                         type={field.type === "datetime" ? "datetime-local" : (field.type ?? "text")}
                         value={String(form[field.key] ?? "")}
@@ -1027,7 +998,6 @@ export function ProjectWorkspace({
                             ? setMapUrl(event.target.value)
                             : setField(field.key, event.target.value)
                         }
-                        className={inputClass}
                       />
                     )}
                   </>
@@ -1046,7 +1016,7 @@ export function ProjectWorkspace({
             <div className="mt-5">
               <p className="text-sm font-semibold text-slate-700">รูปแบบบ้าน</p>
               <label className="mt-2 flex min-h-28 cursor-pointer items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-4 text-center text-sm font-semibold text-slate-400 hover:border-brand-primary hover:bg-brand-soft">
-                <input
+                <Input
                   type="file"
                   accept="image/jpeg,image/png,image/webp"
                   className="sr-only"

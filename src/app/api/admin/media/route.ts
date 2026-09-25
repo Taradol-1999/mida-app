@@ -4,6 +4,7 @@ import path from "path";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getSession } from "@/lib/auth";
+import { canAccessRecord } from "@/lib/project-access";
 import { prisma } from "@/lib/prisma";
 
 export const runtime = "nodejs";
@@ -28,7 +29,7 @@ function isKind(value: string) {
 }
 async function authorise() {
   const user = await getSession();
-  return user && user.role !== "USER" ? user : null;
+  return user;
 }
 function valid(request: Request) {
   const url = new URL(request.url);
@@ -46,8 +47,13 @@ export async function GET(request: Request) {
   const { entityType, entityId, mediaKind, list } = valid(request);
   if (!isEntityType(entityType) || !idSchema.safeParse(entityId).success || !isKind(mediaKind))
     return NextResponse.json({ message: "คำขอรูปภาพไม่ถูกต้อง" }, { status: 400 });
-  if (entityType !== "projects" && entityType !== "house-types" && !(await authorise()))
-    return NextResponse.json({ message: "กรุณาเข้าสู่ระบบด้วยสิทธิ์ผู้ดูแล" }, { status: 401 });
+  // Published image URLs remain public; CMS listings and private media enforce project access.
+  if (list || (entityType !== "projects" && entityType !== "house-types")) {
+    const user = await authorise();
+    if (!user) return NextResponse.json({ message: "กรุณาเข้าสู่ระบบด้วยสิทธิ์ผู้ดูแล" }, { status: 401 });
+    if (!(await canAccessRecord(user, entityType, entityId)))
+      return NextResponse.json({ message: "ไม่มีสิทธิ์จัดการโครงการนี้" }, { status: 403 });
+  }
   const rows = await prisma.mediaAsset.findMany({
     where: { entity_type: entityType, entity_id: entityId, media_kind: mediaKind },
     select: { id: true, original_name: true, mime_type: true, storage_key: true },
@@ -82,7 +88,8 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  if (!(await authorise())) return NextResponse.json({ message: "กรุณาเข้าสู่ระบบด้วยสิทธิ์ผู้ดูแล" }, { status: 401 });
+  const user = await authorise();
+  if (!user) return NextResponse.json({ message: "กรุณาเข้าสู่ระบบด้วยสิทธิ์ผู้ดูแล" }, { status: 401 });
   const form = await request.formData();
   const entityType = String(form.get("entityType") ?? "");
   const entityId = String(form.get("entityId") ?? "");
@@ -96,6 +103,8 @@ export async function POST(request: Request) {
   )
     return NextResponse.json({ message: "ข้อมูลอัปโหลดไม่ถูกต้อง" }, { status: 400 });
   const extension = mimeExtensions[file.type];
+  if (!(await canAccessRecord(user, entityType, entityId)))
+    return NextResponse.json({ message: "ไม่มีสิทธิ์จัดการโครงการนี้" }, { status: 403 });
   const isVideo = file.type.startsWith("video/");
   const isBrochure = file.type === "application/pdf";
   const sizeLimit = isVideo ? 50 * 1024 * 1024 : isBrochure ? 20 * 1024 * 1024 : 5 * 1024 * 1024;
@@ -152,7 +161,8 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  if (!(await authorise())) return NextResponse.json({ message: "กรุณาเข้าสู่ระบบด้วยสิทธิ์ผู้ดูแล" }, { status: 401 });
+  const user = await authorise();
+  if (!user) return NextResponse.json({ message: "กรุณาเข้าสู่ระบบด้วยสิทธิ์ผู้ดูแล" }, { status: 401 });
   const { entityType, entityId, mediaKind } = valid(request);
   const mediaId = new URL(request.url).searchParams.get("mediaId") ?? "";
   if (
@@ -162,6 +172,8 @@ export async function DELETE(request: Request) {
     mediaKind !== "hero"
   )
     return NextResponse.json({ message: "คำขอลบรูปภาพไม่ถูกต้อง" }, { status: 400 });
+  if (!(await canAccessRecord(user, entityType, entityId)))
+    return NextResponse.json({ message: "ไม่มีสิทธิ์จัดการโครงการนี้" }, { status: 403 });
   const media = await prisma.mediaAsset.findFirst({
     where: { id: mediaId, entity_type: entityType, entity_id: entityId, media_kind: "hero" },
     select: { storage_key: true },

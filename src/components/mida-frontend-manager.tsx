@@ -1,5 +1,8 @@
 "use client";
-/* eslint-disable @next/next/no-img-element */
+
+import { BannerMediaUpload } from "@/components/banner-media-upload";
+
+import { Input, Textarea } from "@/components/ui/form-controls";
 /* eslint-disable react-hooks/set-state-in-effect */
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
@@ -99,7 +102,7 @@ export function MidaFrontendManager() {
       <form onSubmit={save} className="mt-6 space-y-5 text-sm">
         <label className="block font-semibold text-slate-700">
           คำพาดหัวหลักของบริษัท (Corporate Headline)
-          <input
+          <Input
             required
             value={headline}
             onChange={(event) => setHeadline(event.target.value)}
@@ -108,50 +111,23 @@ export function MidaFrontendManager() {
         </label>
         <label className="block font-semibold text-slate-700">
           คำอธิบายหน้าแรกส่วนกลาง
-          <textarea
+          <Textarea
             value={description}
             onChange={(event) => setDescription(event.target.value)}
             className="mt-1.5 min-h-24 w-full rounded-lg border border-slate-300 p-2.5 outline-none focus:border-brand-primary"
           />
         </label>
-        <div>
-          <p className="font-semibold text-slate-700">
-            รูปภาพและวิดีโอแบนเนอร์สไลด์หลักหน้าแรกส่วนกลาง (Main Frontend Slider)
-          </p>
-          <label className="mt-2 flex min-h-32 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-6 text-center text-slate-400 hover:bg-slate-100">
-            <i className="fa-regular fa-image mb-2 text-3xl text-brand-primary" />
-            <span>{files.length ? `เลือกแล้ว ${files.length} ไฟล์` : "อัปโหลดรูปภาพหรือวิดีโอสไลด์หน้าเว็บกลาง"}</span>
-            <small className="mt-1">
-              รูปแนะนำขนาด 1920 × 800 px · วิดีโอ MP4/WEBM ไม่เกิน 50 MB · เลือกได้หลายไฟล์
-            </small>
-            <input
-              type="file"
-              multiple
-              accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
-              className="sr-only"
-              onChange={(event) => setFiles(Array.from(event.target.files ?? []))}
-            />
-          </label>
-          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {images.map((image) => (
-              <div key={image.id} className="relative overflow-hidden rounded-xl border border-slate-200">
-                {image.mimeType.startsWith("video/") ? (
-                  <video src={image.url} className="h-28 w-full object-cover" muted playsInline preload="metadata" />
-                ) : (
-                  <img src={image.url} alt={image.name} className="h-28 w-full object-cover" />
-                )}
-                <button
-                  type="button"
-                  onClick={() => void removeImage(image.id)}
-                  className="absolute right-2 top-2 grid size-7 place-items-center rounded-full bg-rose-600 text-white"
-                  aria-label="ลบรูป"
-                >
-                  <i className="fa-solid fa-xmark" />
-                </button>
-              </div>
-            ))}
-          </div>
+        <div className="mt-6">
+          <BannerMediaUpload
+            title="รูปภาพและวิดีโอแบนเนอร์สไลด์หลักหน้าแรกส่วนกลาง"
+            media={images}
+            files={files}
+            onFilesChange={setFiles}
+            onRemove={removeImage}
+            disabled={busy}
+          />
         </div>
+
         {message && <p className="rounded-lg bg-brand-soft px-4 py-3 text-brand-primary">{message}</p>}
         <button
           disabled={busy}

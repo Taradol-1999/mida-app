@@ -7,6 +7,6 @@ export default async function AdminResourcePage({ params }: { params: Promise<{ 
   const { resource } = await params;
   if (!adminResources.includes(resource as AdminResource)) notFound();
   const user = await requireUser();
-  if (resource === "users" && user.role !== "SUPER_ADMIN") redirect("/admin");
+  if ((resource === "users" || resource === "content") && user.role !== "SUPER_ADMIN") redirect("/admin");
   return <AdminResourceManager resource={resource as AdminResource} />;
 }

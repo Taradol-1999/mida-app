@@ -45,13 +45,17 @@ When adding a persisted field:
 - Session cookie: `mida_session`.
 - Session implementation: signed HS256 JWT in an HTTP-only, SameSite=Lax cookie.
 - Session lifetime: 8 hours.
-- Roles: `SUPER_ADMIN`, `ADMIN`, `USER`.
+- Roles: `SUPER_ADMIN` (Super Admin), `MARKETING` (Marketing).
 - `SUPER_ADMIN` can manage users.
-- `ADMIN` can manage website/project content.
-- `USER` cannot access admin content.
+- `MARKETING` can only view/manage assigned projects and their content. Central content, user management and project creation require `SUPER_ADMIN`.
+- `UserProject` (`user_projects`) stores many-to-many assignments. User create/update writes assignments atomically; Marketing requires at least one valid project. Existing Marketing accounts with no assignments have no project access until assigned.
+- `src/lib/project-access.ts` centralizes project scopes and stored-record ownership checks. CRUD checks both existing ownership and any submitted destination; lead CSV, settings and CMS media listings/uploads/deletes are scoped too. Public project/house image downloads remain public for frontend rendering.
+- Sessions reload the account's current role and active status from the database, so changes take effect on the next request. Invalid roles are rejected on user creation and update.
 - Protected route handlers must enforce permissions server-side; hiding a menu is not authorization.
 - A logged-in admin should not be sent back to the login form.
 - Never log passwords, password hashes, session tokens, `AUTH_SECRET`, or database credentials.
+
+Run `pnpm exec tsx --env-file=.env.local scripts/check-project-access.ts` against a local running server to check project authorization. It creates temporary accounts/projects/content and removes those fixtures in `finally`; existing accounts and projects are not modified. `TEST_ORIGIN` can override the localhost URL.
 
 ## Uploads and media
 
@@ -107,7 +111,15 @@ Uploaded images and videos are files on the local machine, not remote URLs and n
 - House types use an overlapping carousel with cover image, description, specifications, and starting price.
 - Preserve readable contrast, visible focus states, semantic headings, alt text, and Thai ARIA labels.
 
-## API conventions
+## Shared form controls
+
+Import `Input`, `Textarea`, and `Select` from `@/components/ui/form-controls` for all form controls, including file uploads, checkboxes, radio buttons and hidden fields. These components forward native HTML props and React refs, so existing validation, event handlers and FormData work normally. Keep labels associated with their controls.
+
+The default appearance is defined once in `.form-control` in `src/app/globals.css`; use `className` for layout or small overrides. Use `variant="plain"` for custom compact filters or sidebar selectors. Native file, checkbox, radio, hidden, range and color inputs automatically skip the text-field styling.
+
+Banner upload panels use `BannerMediaUpload` from `src/components/banner-media-upload.tsx`. Pass saved media, pending files, file-change and remove callbacks, and the saving state. Saved media and pending previews appear inside one frame; the parent form owns persistence and deletion confirmation. Pending previews release their object URLs when removed or unmounted.
+
+## API routes
 
 - Admin CRUD: `/api/admin/[resource]`.
 - Project settings: `/api/admin/project-settings`.

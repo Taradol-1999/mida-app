@@ -1,4 +1,6 @@
 "use client";
+
+import { Input, Select } from "@/components/ui/form-controls";
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
@@ -101,7 +103,7 @@ export function ProjectFilter() {
           <i className="fa-solid fa-magnifying-glass mr-2" />
           ค้นหาโครงการ
         </p>
-        <input
+        <Input
           value={keyword}
           onChange={(event) => setKeyword(event.target.value)}
           placeholder="ค้นหาชื่อโครงการหรือทำเล"
@@ -111,31 +113,46 @@ export function ProjectFilter() {
           {filterBox(
             "fa-house",
             "ประเภทบ้าน",
-            <select value={type} onChange={(event) => setType(event.target.value)} className={selectStyle}>
+            <Select
+              variant="plain"
+              value={type}
+              onChange={(event) => setType(event.target.value)}
+              className={selectStyle}
+            >
               {typeOptions.map((item) => (
                 <option key={item}>{item}</option>
               ))}
-            </select>,
+            </Select>,
           )}
           {filterBox(
             "fa-baht-sign",
             "ช่วงราคา",
-            <select value={priceRange} onChange={(event) => setPriceRange(event.target.value)} className={selectStyle}>
+            <Select
+              variant="plain"
+              value={priceRange}
+              onChange={(event) => setPriceRange(event.target.value)}
+              className={selectStyle}
+            >
               {priceOptions.map(([value, label]) => (
                 <option key={value} value={value}>
                   {label}
                 </option>
               ))}
-            </select>,
+            </Select>,
           )}
           {filterBox(
             "fa-helmet-safety",
             "สถานะโครงการ",
-            <select value={status} onChange={(event) => setStatus(event.target.value)} className={selectStyle}>
+            <Select
+              variant="plain"
+              value={status}
+              onChange={(event) => setStatus(event.target.value)}
+              className={selectStyle}
+            >
               {statusOptions.map((item) => (
                 <option key={item}>{item}</option>
               ))}
-            </select>,
+            </Select>,
           )}
         </div>
       </div>

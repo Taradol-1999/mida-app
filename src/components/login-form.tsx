@@ -1,5 +1,7 @@
 "use client";
 
+import { Input } from "@/components/ui/form-controls";
+
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -25,7 +27,7 @@ export function LoginForm() {
     <form onSubmit={submit} className="mt-7 space-y-4">
       <label className="block text-sm font-bold text-slate-700">
         อีเมล
-        <input
+        <Input
           required
           name="email"
           type="email"
@@ -35,7 +37,7 @@ export function LoginForm() {
       </label>
       <label className="block text-sm font-bold text-slate-700">
         รหัสผ่าน
-        <input
+        <Input
           required
           name="password"
           type="password"

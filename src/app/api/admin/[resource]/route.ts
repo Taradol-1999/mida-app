@@ -1,8 +1,10 @@
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import type { LeadStatus, NewsCategory, ProjectStatus, PropertyType, UserRole } from "@/generated/prisma/client";
-import { getSession } from "@/lib/auth";
+import type { LeadStatus, NewsCategory, ProjectStatus, PropertyType } from "@/generated/prisma/client";
+import { isUserRole } from "@/lib/user-roles";
+import { getSession, type SessionUser } from "@/lib/auth";
+import { canAccessProject, canAccessRecord, projectScope, projectContentScope } from "@/lib/project-access";
 import { prisma } from "@/lib/prisma";
 
 const resources = ["projects", "house-types", "facilities", "promotions", "news", "leads", "content", "users"] as const;
@@ -13,6 +15,14 @@ const projectTagOptions = ["โครงการแนะนำ", "โครง
 
 function apiError(message: string, status: number) {
   return NextResponse.json({ message }, { status });
+}
+async function assignedProjectIds(body: Record<string, unknown>): Promise<string[] | null> {
+  if (body.role === "SUPER_ADMIN") return [];
+  const parsed = z.array(idSchema).min(1).safeParse(body.project_ids);
+  if (!parsed.success) return null;
+  const ids = [...new Set(parsed.data)];
+  const count = await prisma.project.count({ where: { id: { in: ids } } });
+  return count === ids.length ? ids : null;
 }
 function isResource(value: string): value is Resource {
   return resources.includes(value as Resource);
@@ -49,79 +59,85 @@ function dateValue(body: Record<string, unknown>, key: string) {
 async function authorise(resource: string) {
   if (!isResource(resource)) return { error: apiError("ไม่พบทรัพยากรที่ร้องขอ", 404) };
   const user = await getSession();
-  if (!user || user.role === "USER") return { error: apiError("กรุณาเข้าสู่ระบบด้วยสิทธิ์ผู้ดูแล", 401) };
-  if (resource === "users" && user.role !== "SUPER_ADMIN")
+  if (!user) return { error: apiError("กรุณาเข้าสู่ระบบด้วยสิทธิ์ผู้ดูแล", 401) };
+  if ((resource === "users" || resource === "content") && user.role !== "SUPER_ADMIN")
     return { error: apiError("เฉพาะ Super Admin เท่านั้น", 403) };
   return { user, resource };
 }
 
-async function projectOptions() {
+async function projectOptions(user: SessionUser) {
   const projects = await prisma.project.findMany({
-    where: { status: { not: "ARCHIVED" } },
+    where: { ...projectScope(user) },
     select: { id: true, name_th: true },
     orderBy: { name_th: "asc" },
   });
   return projects;
 }
 
-async function listLeads() {
+async function listLeads(user: SessionUser) {
   const rows = await prisma.lead.findMany({
+    where: projectContentScope(user),
     include: { project: { select: { name_th: true } } },
     orderBy: { created_at: "desc" },
   });
   return { rows: rows.map(({ project, ...row }) => ({ ...row, project_name: project?.name_th ?? null })) };
 }
 
-async function list(resource: Resource) {
+async function list(resource: Resource, user: SessionUser) {
   switch (resource) {
     case "projects":
-      return { rows: await prisma.project.findMany({ orderBy: { updated_at: "desc" } }) };
+      return { rows: await prisma.project.findMany({ where: projectScope(user), orderBy: { updated_at: "desc" } }) };
     case "house-types": {
       const rows = await prisma.houseType.findMany({
+        where: projectContentScope(user),
         include: { project: { select: { name_th: true } } },
         orderBy: [{ project: { name_th: "asc" } }, { name: "asc" }],
       });
       return {
         rows: rows.map(({ project, ...row }) => ({ ...row, project_name: project.name_th })),
-        projectOptions: await projectOptions(),
+        projectOptions: await projectOptions(user),
       };
     }
     case "facilities": {
       const rows = await prisma.facility.findMany({
+        where: projectContentScope(user),
         include: { project: { select: { name_th: true } } },
         orderBy: [{ project: { name_th: "asc" } }, { sort_order: "asc" }],
       });
       return {
         rows: rows.map(({ project, ...row }) => ({ ...row, project_name: project.name_th })),
-        projectOptions: await projectOptions(),
+        projectOptions: await projectOptions(user),
       };
     }
     case "promotions": {
       const rows = await prisma.promotion.findMany({
+        where: projectContentScope(user),
         include: { project: { select: { name_th: true } } },
         orderBy: { created_at: "desc" },
       });
       return {
         rows: rows.map(({ project, ...row }) => ({ ...row, project_name: project?.name_th ?? null })),
-        projectOptions: await projectOptions(),
+        projectOptions: await projectOptions(user),
       };
     }
     case "news": {
       const rows = await prisma.newsItem.findMany({
+        where: projectContentScope(user),
         include: { project: { select: { name_th: true } } },
         orderBy: { published_at: "desc" },
       });
       return {
         rows: rows.map(({ project, ...row }) => ({ ...row, project_name: project?.name_th ?? null })),
-        projectOptions: await projectOptions(),
+        projectOptions: await projectOptions(user),
       };
     }
     case "leads":
-      return listLeads();
+      return listLeads(user);
     case "content":
       return { rows: await prisma.siteContent.findMany({ orderBy: { content_key: "asc" } }) };
     case "users":
       return {
+        projectOptions: await projectOptions(user),
         rows: await prisma.user.findMany({
           select: {
             id: true,
@@ -131,6 +147,7 @@ async function list(resource: Resource) {
             is_active: true,
             created_at: true,
             updated_at: true,
+            projects: { select: { project_id: true, project: { select: { name_th: true } } } },
           },
           orderBy: { created_at: "desc" },
         }),
@@ -148,7 +165,7 @@ export async function GET(request: Request, context: RouteContext) {
   if ("error" in access) return access.error;
   if (access.resource === "leads" && new URL(request.url).searchParams.get("format") === "csv") {
     const projectId = new URL(request.url).searchParams.get("projectId");
-    const listed = await listLeads();
+    const listed = await listLeads(access.user);
     const rows = projectId ? listed.rows.filter((row) => String(row.project_id) === projectId) : listed.rows;
     const header = [
       "ชื่อ",
@@ -197,7 +214,7 @@ export async function GET(request: Request, context: RouteContext) {
       },
     });
   }
-  return NextResponse.json(await list(access.resource));
+  return NextResponse.json(await list(access.resource, access.user));
 }
 
 export async function POST(request: Request, context: RouteContext) {
@@ -205,6 +222,11 @@ export async function POST(request: Request, context: RouteContext) {
   const access = await authorise(resourceParam);
   if ("error" in access) return access.error;
   const body = (await request.json()) as Record<string, unknown>;
+  if (
+    access.user.role !== "SUPER_ADMIN" &&
+    (access.resource === "projects" || !canAccessProject(access.user, value(body, "project_id")))
+  )
+    return apiError("ไม่มีสิทธิ์จัดการโครงการนี้", 403);
   try {
     let createdId: string | undefined;
     switch (access.resource) {
@@ -296,6 +318,9 @@ export async function POST(request: Request, context: RouteContext) {
         ).id;
         break;
       case "users": {
+        if (!isUserRole(body.role)) return apiError("กรุณาเลือก Marketing หรือ Super Admin", 400);
+        const projectIds = await assignedProjectIds(body);
+        if (!projectIds) return apiError("กรุณาเลือกโครงการที่ถูกต้องอย่างน้อย 1 โครงการสำหรับ Marketing", 400);
         const password = value(body, "password");
         if (password.length < 8) return apiError("รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร", 400);
         createdId = (
@@ -304,8 +329,9 @@ export async function POST(request: Request, context: RouteContext) {
               name: value(body, "name"),
               email: value(body, "email"),
               password_hash: await bcrypt.hash(password, 12),
-              role: (value(body, "role") || "ADMIN") as UserRole,
+              role: body.role,
               is_active: boolValue(body, "is_active"),
+              projects: { create: projectIds.map((project_id) => ({ project_id })) },
             },
           })
         ).id;
@@ -327,6 +353,11 @@ export async function PATCH(request: Request, context: RouteContext) {
   const body = (await request.json()) as Record<string, unknown>;
   const id = value(body, "id");
   if (!idSchema.safeParse(id).success) return apiError("รหัสข้อมูลไม่ถูกต้อง", 400);
+  if (
+    !(await canAccessRecord(access.user, access.resource, id)) ||
+    ("project_id" in body && !canAccessProject(access.user, nullable(body, "project_id")))
+  )
+    return apiError("ไม่มีสิทธิ์จัดการโครงการนี้", 403);
   try {
     switch (access.resource) {
       case "projects":
@@ -410,6 +441,9 @@ export async function PATCH(request: Request, context: RouteContext) {
         });
         break;
       case "users": {
+        if (!isUserRole(body.role)) return apiError("กรุณาเลือก Marketing หรือ Super Admin", 400);
+        const projectIds = await assignedProjectIds(body);
+        if (!projectIds) return apiError("กรุณาเลือกโครงการที่ถูกต้องอย่างน้อย 1 โครงการสำหรับ Marketing", 400);
         if (id === access.user.id) return apiError("ไม่สามารถแก้ไขสิทธิ์ของบัญชีที่กำลังใช้งานจากหน้านี้", 400);
         const password = value(body, "password");
         if (password && password.length < 8) return apiError("รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร", 400);
@@ -418,8 +452,9 @@ export async function PATCH(request: Request, context: RouteContext) {
           data: {
             name: value(body, "name"),
             email: value(body, "email"),
-            role: (value(body, "role") || "ADMIN") as UserRole,
+            role: body.role,
             is_active: boolValue(body, "is_active"),
+            projects: { deleteMany: {}, create: projectIds.map((project_id) => ({ project_id })) },
             ...(password ? { password_hash: await bcrypt.hash(password, 12) } : {}),
           },
         });
@@ -439,6 +474,7 @@ export async function DELETE(request: Request, context: RouteContext) {
   const parsedId = idSchema.safeParse(((await request.json()) as { id?: string }).id);
   if (!parsedId.success) return apiError("รหัสข้อมูลไม่ถูกต้อง", 400);
   const id = parsedId.data;
+  if (!(await canAccessRecord(access.user, access.resource, id))) return apiError("ไม่มีสิทธิ์จัดการโครงการนี้", 403);
   if (access.resource === "users" && id === access.user.id) return apiError("ไม่สามารถลบบัญชีที่กำลังใช้งาน", 400);
   try {
     switch (access.resource) {

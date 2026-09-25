@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import type { Prisma } from "@/generated/prisma/client";
 import { getSession } from "@/lib/auth";
+import { canAccessProject } from "@/lib/project-access";
 import { resolveGoogleMapsCoordinates } from "@/lib/map-coordinates";
 import { prisma } from "@/lib/prisma";
 
@@ -24,7 +25,7 @@ const fields = [
 
 async function authorise() {
   const user = await getSession();
-  return user && user.role !== "USER" ? user : null;
+  return user;
 }
 function nullable(body: Record<string, unknown>, field: string) {
   const value = String(body[field] ?? "").trim();
@@ -39,10 +40,13 @@ function coordinate(body: Record<string, unknown>, field: "latitude" | "longitud
 }
 
 export async function GET(request: Request) {
-  if (!(await authorise())) return NextResponse.json({ message: "กรุณาเข้าสู่ระบบด้วยสิทธิ์ผู้ดูแล" }, { status: 401 });
+  const user = await authorise();
+  if (!user) return NextResponse.json({ message: "กรุณาเข้าสู่ระบบด้วยสิทธิ์ผู้ดูแล" }, { status: 401 });
   const projectId = new URL(request.url).searchParams.get("projectId") ?? "";
   if (!idSchema.safeParse(projectId).success)
     return NextResponse.json({ message: "รหัสโครงการไม่ถูกต้อง" }, { status: 400 });
+  if (!canAccessProject(user, projectId))
+    return NextResponse.json({ message: "ไม่มีสิทธิ์จัดการโครงการนี้" }, { status: 403 });
   const project = await prisma.project.findUnique({
     where: { id: projectId },
     select: { latitude: true, longitude: true, settings: true },
@@ -58,11 +62,14 @@ export async function GET(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  if (!(await authorise())) return NextResponse.json({ message: "กรุณาเข้าสู่ระบบด้วยสิทธิ์ผู้ดูแล" }, { status: 401 });
+  const user = await authorise();
+  if (!user) return NextResponse.json({ message: "กรุณาเข้าสู่ระบบด้วยสิทธิ์ผู้ดูแล" }, { status: 401 });
   const body = (await request.json()) as Record<string, unknown>;
   const projectId = String(body.project_id ?? "");
   if (!idSchema.safeParse(projectId).success)
     return NextResponse.json({ message: "รหัสโครงการไม่ถูกต้อง" }, { status: 400 });
+  if (!canAccessProject(user, projectId))
+    return NextResponse.json({ message: "ไม่มีสิทธิ์จัดการโครงการนี้" }, { status: 403 });
   const project = await prisma.project.findUnique({ where: { id: projectId }, select: { id: true } });
   if (!project) return NextResponse.json({ message: "ไม่พบโครงการ" }, { status: 404 });
   const submittedFields = fields.filter((field) => Object.prototype.hasOwnProperty.call(body, field));

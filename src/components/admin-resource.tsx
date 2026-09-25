@@ -1,4 +1,7 @@
 "use client";
+import { userRoleOptions } from "@/lib/user-roles";
+
+import { Input, Textarea, Select } from "@/components/ui/form-controls";
 /* eslint-disable react-hooks/set-state-in-effect */
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
@@ -213,17 +216,13 @@ const configs: Record<AdminResource, Config> = {
     fields: [
       { name: "name", label: "ชื่อ-นามสกุล", required: true },
       { name: "email", label: "อีเมลใช้งาน (Username)", required: true },
-      { name: "password", label: "รหัสผ่านเริ่มต้น", hint: "อย่างน้อย 8 ตัวอักษร", type: "password" },
+      { name: "password", label: "รหัสผ่าน", hint: "อย่างน้อย 8 ตัวอักษร", type: "password" },
       {
         name: "role",
         label: "ระดับสิทธิ์การใช้งาน",
         type: "select",
         required: true,
-        options: [
-          ["SUPER_ADMIN", "Super Admin (ทุกส่วน)"],
-          ["ADMIN", "Admin / Marketing"],
-          ["USER", "User (ไม่มีสิทธิ์หลังบ้าน)"],
-        ],
+        options: userRoleOptions,
       },
       { name: "is_active", label: "เปิดใช้งานบัญชี", type: "checkbox" },
     ],
@@ -231,18 +230,28 @@ const configs: Record<AdminResource, Config> = {
       ["name", "ผู้ใช้งาน"],
       ["email", "อีเมล"],
       ["role", "ระดับสิทธิ์"],
+      ["projects", "โครงการที่ดูแล"],
       ["is_active", "สถานะบัญชี"],
       ["created_at", "สร้างเมื่อ"],
     ],
   },
 };
 
-const inputClass =
-  "mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm font-normal text-slate-800 outline-none transition placeholder:text-slate-300 focus:border-brand-primary focus:ring-2 focus:ring-brand-soft";
 function initialValues(config: Config) {
-  return Object.fromEntries(config.fields.map((field) => [field.name, field.type === "checkbox" ? false : ""]));
+  return {
+    ...Object.fromEntries(config.fields.map((field) => [field.name, field.type === "checkbox" ? false : ""])),
+    project_ids: [],
+  };
 }
 function display(field: string, value: unknown) {
+  if (field === "projects" && Array.isArray(value))
+    return (
+      value
+        .map((item) => item.project?.name_th)
+        .filter(Boolean)
+        .join(", ") || "-"
+    );
+  if (field === "role") return userRoleOptions.find(([role]) => role === value)?.[1] ?? "-";
   if (field === "is_published" || field === "is_active")
     return value === true || value === 1 ? "เปิดใช้งาน" : "แบบร่าง / ปิด";
   if (!value) return "-";
@@ -321,14 +330,15 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
   };
   const edit = (row: Record<string, unknown>) => {
     setEditing(String(row.id));
-    setForm(
-      Object.fromEntries(
+    setForm({
+      ...Object.fromEntries(
         config.fields.map((field) => [
           field.name,
           field.type === "checkbox" ? Boolean(row[field.name]) : toInputValue(field, row[field.name]),
         ]),
       ),
-    );
+      project_ids: Array.isArray(row.projects) ? row.projects.map((item) => item.project_id) : [],
+    });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
   const remove = async (id: string) => {
@@ -370,7 +380,7 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
           >
             {field.type === "checkbox" ? (
               <span className="mt-2 flex cursor-pointer items-center gap-2 rounded-lg bg-slate-50 px-3 py-3">
-                <input
+                <Input
                   type="checkbox"
                   checked={Boolean(form[field.name])}
                   onChange={(event) => setField(field.name, event.target.checked)}
@@ -383,18 +393,17 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
                 {field.label}
                 {field.required && <span className="ml-1 text-rose-500">*</span>}
                 {field.type === "textarea" ? (
-                  <textarea
+                  <Textarea
                     required={field.required}
                     value={String(form[field.name] ?? "")}
                     onChange={(event) => setField(field.name, event.target.value)}
-                    className={`${inputClass} min-h-28`}
+                    className="min-h-28"
                   />
                 ) : field.type === "select" || field.type === "project" ? (
-                  <select
+                  <Select
                     required={field.required}
                     value={String(form[field.name] ?? "")}
                     onChange={(event) => setField(field.name, event.target.value)}
-                    className={inputClass}
                   >
                     <option value="">{field.type === "project" ? "-- ไม่ระบุโครงการ --" : "-- เลือกข้อมูล --"}</option>
                     {field.type === "project"
@@ -408,14 +417,13 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
                             {label}
                           </option>
                         ))}
-                  </select>
+                  </Select>
                 ) : (
-                  <input
+                  <Input
                     required={field.required}
                     type={field.type === "datetime" ? "datetime-local" : (field.type ?? "text")}
                     value={String(form[field.name] ?? "")}
                     onChange={(event) => setField(field.name, event.target.value)}
-                    className={inputClass}
                   />
                 )}
                 {field.hint && <span className="mt-1 block text-xs font-normal text-slate-400">{field.hint}</span>}
@@ -424,6 +432,47 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
           </label>
         ))}
       </div>
+      {resource === "users" && form.role === "MARKETING" && (
+        <fieldset className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <legend className="px-1 text-sm font-semibold text-brand-primary">
+            โครงการที่ดูแล <span className="text-rose-600">*</span>
+          </legend>
+          <p className="mb-3 text-xs text-slate-500">
+            เลือกได้หลายโครงการ ผู้ใช้จะเห็นและจัดการได้เฉพาะโครงการที่เลือก
+          </p>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {projects.map((project) => {
+              const selected = Array.isArray(form.project_ids) ? (form.project_ids as string[]) : [];
+              return (
+                <label
+                  key={project.id}
+                  className="flex cursor-pointer items-center gap-3 rounded-lg border border-slate-200 bg-white p-3 text-sm text-brand-text"
+                >
+                  <Input
+                    type="checkbox"
+                    checked={selected.includes(project.id)}
+                    disabled={busy}
+                    onChange={(event) =>
+                      setField(
+                        "project_ids",
+                        event.target.checked ? [...selected, project.id] : selected.filter((id) => id !== project.id),
+                      )
+                    }
+                    className="size-4 accent-brand-primary"
+                  />
+                  {project.name_th}
+                </label>
+              );
+            })}
+          </div>
+          {!projects.length && (
+            <p className="text-sm text-slate-500">ยังไม่มีโครงการ กรุณาเพิ่มโครงการก่อนสร้างบัญชี Marketing</p>
+          )}
+        </fieldset>
+      )}
+      {resource === "users" && form.role === "SUPER_ADMIN" && (
+        <p className="mt-4 text-sm text-brand-primary">Super Admin เข้าถึงทุกโครงการได้โดยอัตโนมัติ</p>
+      )}
       {message && (
         <p className="mt-4 rounded-lg bg-brand-soft px-3 py-2 text-sm font-medium text-brand-primary">{message}</p>
       )}
@@ -494,7 +543,11 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
                             {display(field, row[field])}
                           </span>
                         ) : (
-                          <span className="wrap-break-word">{display(field, row[field])}</span>
+                          <span className="wrap-break-word">
+                            {field === "projects" && row.role === "SUPER_ADMIN"
+                              ? "ทุกโครงการ"
+                              : display(field, row[field])}
+                          </span>
                         )}
                       </td>
                     ))}

@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { ProjectEditor } from "@/components/project-editor";
 import { ProjectWorkspace } from "@/components/project-workspace";
 import { requireUser } from "@/lib/auth";
+import { canAccessProject } from "@/lib/project-access";
 import { prisma } from "@/lib/prisma";
 
 const sections = [
@@ -19,8 +20,9 @@ const sections = [
 type Section = (typeof sections)[number];
 
 export default async function ProjectSectionPage({ params }: { params: Promise<{ id: string; section: string }> }) {
-  await requireUser();
+  const user = await requireUser();
   const { id, section } = await params;
+  if (!canAccessProject(user, id)) notFound();
   if (!sections.includes(section as Section)) notFound();
   const project = await prisma.project.findUnique({ where: { id }, select: { name_th: true } });
   if (!project) notFound();

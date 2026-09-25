@@ -1,6 +1,9 @@
+import { Select } from "@/components/ui/form-controls";
 import Link from "next/link";
 import { formatNumber } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
+import { requireUser } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 type Metric = { label: string; value: string; note: string; tone: string };
 
@@ -68,6 +71,15 @@ function statusClass(status: string) {
 }
 
 export default async function AdminPage() {
+  const user = await requireUser();
+  if (user.role === "MARKETING") {
+    if (user.projectIds[0]) redirect(`/admin/project/${user.projectIds[0]}/dashboard`);
+    return (
+      <p className="rounded-xl bg-white p-6 text-brand-text">
+        ยังไม่มีโครงการที่ได้รับมอบหมาย กรุณาติดต่อ Super Admin เพื่อกำหนดสิทธิ์โครงการ
+      </p>
+    );
+  }
   const data = await dashboardData();
   const metrics: Metric[] = [
     { label: "จำนวนการเข้าชมเว็บรวม", value: formatNumber(data.views), note: "ครั้ง", tone: "text-brand-primary" },
@@ -83,12 +95,12 @@ export default async function AdminPage() {
           <h1 className="mt-1 text-xl font-bold text-slate-800">Dashboard MD</h1>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <select className="rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-700">
+          <Select className="rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-700">
             <option>เดือนปัจจุบัน</option>
-          </select>
-          <select className="rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-700">
+          </Select>
+          <Select className="rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-700">
             <option>2569</option>
-          </select>
+          </Select>
           <Link
             href="/api/admin/leads?format=csv"
             className="rounded-lg bg-brand-accent px-4 py-2 text-sm font-bold text-brand-primary shadow-sm transition hover:bg-brand-accent-soft"
