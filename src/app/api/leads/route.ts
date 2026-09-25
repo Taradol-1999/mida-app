@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { db } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
 
 const leadSchema = z.object({
   firstName: z.string().min(1).max(80),
@@ -24,29 +24,25 @@ export async function POST(request: Request) {
   const parsed = leadSchema.safeParse(await request.json());
   if (!parsed.success) return NextResponse.json({ message: "กรุณาตรวจสอบข้อมูลที่กรอก" }, { status: 400 });
   const value = parsed.data;
-  await db().execute(
-    `INSERT INTO leads
-     (id, project_id, name, first_name, last_name, phone, email, family_members, province, district, subdistrict,
-      residence_type, budget, preferred_contact_date, preferred_contact_time, consent_news, consent_contact)
-     VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [
-      value.projectId ?? null,
-      `${value.firstName} ${value.lastName}`.trim(),
-      value.firstName,
-      value.lastName,
-      value.phone,
-      value.email,
-      value.familyMembers,
-      value.province,
-      value.district,
-      value.subdistrict,
-      value.residenceType,
-      value.budget,
-      value.preferredContactDate,
-      value.preferredContactTime,
-      value.consentNews ?? false,
-      value.consentContact ?? false,
-    ],
-  );
+  await prisma.lead.create({
+    data: {
+      project_id: value.projectId ?? null,
+      name: `${value.firstName} ${value.lastName}`.trim(),
+      first_name: value.firstName,
+      last_name: value.lastName,
+      phone: value.phone,
+      email: value.email,
+      family_members: value.familyMembers,
+      province: value.province,
+      district: value.district,
+      subdistrict: value.subdistrict,
+      residence_type: value.residenceType,
+      budget: value.budget,
+      preferred_contact_date: new Date(`${value.preferredContactDate}T00:00:00.000Z`),
+      preferred_contact_time: new Date(`1970-01-01T${value.preferredContactTime}:00.000Z`),
+      consent_news: value.consentNews ?? false,
+      consent_contact: value.consentContact ?? false,
+    },
+  });
   return NextResponse.json({ ok: true }, { status: 201 });
 }

@@ -1,17 +1,46 @@
-import type { RowDataPacket } from "mysql2";
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
+
+const typeLabels = {
+  DETACHED_HOUSE: "บ้านเดี่ยว",
+  TOWNHOME: "ทาวน์โฮม",
+  SEMI_DETACHED: "บ้านแฝด",
+  COMMERCIAL: "อาคารพาณิชย์",
+} as const;
 
 export async function GET() {
-  const [rows] = await db().query<
-    RowDataPacket[]
-  >(`SELECT p.id, p.slug, p.name_th AS name, p.location, p.latitude, p.longitude,
-    CASE property_type WHEN 'DETACHED_HOUSE' THEN 'บ้านเดี่ยว' WHEN 'TOWNHOME' THEN 'ทาวน์โฮม' WHEN 'SEMI_DETACHED' THEN 'บ้านแฝด' ELSE 'อาคารพาณิชย์' END AS type,
-    CONCAT(FORMAT(starting_price / 1000000, 3), ' ล้านบาท*') AS price, starting_price AS startingPrice,
-    CASE status WHEN 'READY' THEN 'พร้อมอยู่' ELSE 'กำลังก่อสร้าง' END AS status,
-    'MIDA PROPERTY' AS label, p.is_featured, p.is_new, COALESCE(p.tags, JSON_ARRAY()) AS tags, COALESCE(p.description, '') AS description,
-    EXISTS(SELECT 1 FROM media_assets m WHERE m.entity_type='projects' AND m.entity_id=p.id AND m.media_kind='cover') AS has_cover,
-    EXISTS(SELECT 1 FROM media_assets m WHERE m.entity_type='projects' AND m.entity_id=p.id AND m.media_kind='brochure') AS has_brochure
-    FROM projects p WHERE p.status <> 'ARCHIVED' ORDER BY p.starting_price`);
-  return NextResponse.json(rows);
+  const projects = await prisma.project.findMany({
+    where: { status: { not: "ARCHIVED" } },
+    orderBy: { starting_price: "asc" },
+  });
+  const media = await prisma.mediaAsset.findMany({
+    where: {
+      entity_type: "projects",
+      entity_id: { in: projects.map((project) => project.id) },
+      media_kind: { in: ["cover", "brochure"] },
+    },
+    select: { entity_id: true, media_kind: true },
+  });
+  const mediaKeys = new Set(media.map((item) => `${item.entity_id}:${item.media_kind}`));
+  return NextResponse.json(
+    projects.map((project) => ({
+      id: project.id,
+      slug: project.slug,
+      name: project.name_th,
+      location: project.location,
+      latitude: project.latitude === null ? null : Number(project.latitude),
+      longitude: project.longitude === null ? null : Number(project.longitude),
+      type: typeLabels[project.property_type],
+      price: `${((Number(project.starting_price) || 0) / 1_000_000).toLocaleString("th-TH", { maximumFractionDigits: 3 })} ล้านบาท*`,
+      startingPrice: project.starting_price === null ? null : Number(project.starting_price),
+      status: project.status === "READY" ? "พร้อมอยู่" : "กำลังก่อสร้าง",
+      label: "MIDA PROPERTY",
+      is_featured: project.is_featured,
+      is_new: project.is_new,
+      tags: Array.isArray(project.tags) ? project.tags : [],
+      description: project.description ?? "",
+      has_cover: mediaKeys.has(`${project.id}:cover`),
+      has_brochure: mediaKeys.has(`${project.id}:brochure`),
+    })),
+  );
 }

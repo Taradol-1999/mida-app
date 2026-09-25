@@ -1,9 +1,9 @@
-import type { RowDataPacket } from "mysql2";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import type { Prisma } from "@/generated/prisma/client";
 import { getSession } from "@/lib/auth";
-import { db } from "@/lib/db";
 import { resolveGoogleMapsCoordinates } from "@/lib/map-coordinates";
+import { prisma } from "@/lib/prisma";
 
 const idSchema = z.string().uuid();
 const fields = [
@@ -43,13 +43,18 @@ export async function GET(request: Request) {
   const projectId = new URL(request.url).searchParams.get("projectId") ?? "";
   if (!idSchema.safeParse(projectId).success)
     return NextResponse.json({ message: "รหัสโครงการไม่ถูกต้อง" }, { status: 400 });
-  const [rows] = await db().execute<RowDataPacket[]>(
-    `SELECT s.*, p.latitude, p.longitude
-     FROM projects p LEFT JOIN project_settings s ON s.project_id=p.id
-     WHERE p.id=? LIMIT 1`,
-    [projectId],
-  );
-  return NextResponse.json({ settings: rows[0] ?? null });
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    select: { latitude: true, longitude: true, settings: true },
+  });
+  if (!project) return NextResponse.json({ settings: null });
+  return NextResponse.json({
+    settings: {
+      ...(project.settings ?? { project_id: projectId }),
+      latitude: project.latitude === null ? null : Number(project.latitude),
+      longitude: project.longitude === null ? null : Number(project.longitude),
+    },
+  });
 }
 
 export async function PUT(request: Request) {
@@ -58,8 +63,8 @@ export async function PUT(request: Request) {
   const projectId = String(body.project_id ?? "");
   if (!idSchema.safeParse(projectId).success)
     return NextResponse.json({ message: "รหัสโครงการไม่ถูกต้อง" }, { status: 400 });
-  const [projects] = await db().execute<RowDataPacket[]>("SELECT id FROM projects WHERE id=? LIMIT 1", [projectId]);
-  if (!projects.length) return NextResponse.json({ message: "ไม่พบโครงการ" }, { status: 404 });
+  const project = await prisma.project.findUnique({ where: { id: projectId }, select: { id: true } });
+  if (!project) return NextResponse.json({ message: "ไม่พบโครงการ" }, { status: 404 });
   const submittedFields = fields.filter((field) => Object.prototype.hasOwnProperty.call(body, field));
   const hasCoordinates =
     Object.prototype.hasOwnProperty.call(body, "latitude") || Object.prototype.hasOwnProperty.call(body, "longitude");
@@ -74,29 +79,31 @@ export async function PUT(request: Request) {
   if (latitude === undefined || longitude === undefined)
     return NextResponse.json({ message: "พิกัดแผนที่ไม่ถูกต้อง" }, { status: 400 });
 
-  const connection = await db().getConnection();
   try {
-    await connection.beginTransaction();
+    const operations: Prisma.PrismaPromise<unknown>[] = [];
     if (submittedFields.length) {
-      const values = submittedFields.map((field) => nullable(body, field));
-      await connection.execute(
-        `INSERT INTO project_settings (project_id, ${submittedFields.join(", ")}) VALUES (?, ${submittedFields.map(() => "?").join(", ")}) ON DUPLICATE KEY UPDATE ${submittedFields.map((field) => `${field}=VALUES(${field})`).join(", ")}`,
-        [projectId, ...values],
+      const settingsData = Object.fromEntries(
+        submittedFields.map((field) => [field, nullable(body, field)]),
+      ) as Prisma.ProjectSettingUncheckedUpdateInput;
+      operations.push(
+        prisma.projectSetting.upsert({
+          where: { project_id: projectId },
+          create: { project_id: projectId, ...settingsData } as Prisma.ProjectSettingUncheckedCreateInput,
+          update: settingsData,
+        }),
       );
     }
     if (hasCoordinates || mapCoordinates) {
-      await connection.execute("UPDATE projects SET latitude=?, longitude=? WHERE id=?", [
-        latitude,
-        longitude,
-        projectId,
-      ]);
+      operations.push(
+        prisma.project.update({
+          where: { id: projectId },
+          data: { latitude: latitude ?? null, longitude: longitude ?? null },
+        }),
+      );
     }
-    await connection.commit();
+    await prisma.$transaction(operations);
   } catch {
-    await connection.rollback();
     return NextResponse.json({ message: "บันทึกข้อมูลไม่สำเร็จ" }, { status: 500 });
-  } finally {
-    connection.release();
   }
   return NextResponse.json({ ok: true, coordinates: mapCoordinates });
 }

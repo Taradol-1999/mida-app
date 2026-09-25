@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { mkdir, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
-import mysql from "mysql2/promise";
+import { prisma } from "./prisma.ts";
 
 const uploadsDirectory = path.resolve(process.env.UPLOADS_DIRECTORY || path.join(process.cwd(), "public", "uploads"));
 
@@ -306,128 +306,108 @@ async function downloadImage(url) {
   return { buffer, mimeType, extension };
 }
 
-const connection = await mysql.createConnection({
-  host: process.env.DB_HOST ?? "127.0.0.1",
-  port: Number(process.env.DB_PORT ?? 3306),
-  user: process.env.DB_USER ?? "root",
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME ?? "mida_app",
-});
-
 const createdFiles = [];
 const report = [];
 
 try {
   await mkdir(uploadsDirectory, { recursive: true });
-  await connection.beginTransaction();
 
   for (const project of projects) {
-    const [projectRows] = await connection.execute("SELECT id FROM projects WHERE slug=? LIMIT 1", [project.slug]);
-    if (!projectRows.length) {
+    const storedProject = await prisma.project.findUnique({ where: { slug: project.slug }, select: { id: true } });
+    if (!storedProject) {
       report.push(`${project.slug}: ไม่พบโครงการในฐานข้อมูล`);
       continue;
     }
 
-    const projectId = projectRows[0].id;
-    await connection.execute(
-      `UPDATE projects
-       SET name_en=?, description=?, starting_price=CASE WHEN ? IS NULL THEN starting_price ELSE ? END
-       WHERE id=?`,
-      [project.nameEn, project.description, project.price, project.price, projectId],
-    );
-    await connection.execute(
-      `INSERT INTO project_settings
-         (project_id, hero_title_th, hero_title_en, hero_subtitle_th, hero_subtitle_en, phone, nearby_places_th, nearby_places_en)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-       ON DUPLICATE KEY UPDATE
-         hero_title_th=VALUES(hero_title_th), hero_title_en=VALUES(hero_title_en),
-         hero_subtitle_th=VALUES(hero_subtitle_th), hero_subtitle_en=VALUES(hero_subtitle_en),
-         phone=VALUES(phone), nearby_places_th=VALUES(nearby_places_th), nearby_places_en=VALUES(nearby_places_en)`,
-      [
-        projectId,
-        project.heroTitle,
-        project.heroTitleEn,
-        project.heroSubtitle,
-        project.heroSubtitleEn,
-        project.phone,
-        project.nearby.join("\n"),
-        project.nearbyEn.join("\n"),
-      ],
-    );
+    const projectId = storedProject.id;
+    await prisma.project.update({
+      where: { id: projectId },
+      data: {
+        name_en: project.nameEn,
+        description: project.description,
+        ...(project.price === null ? {} : { starting_price: project.price }),
+      },
+    });
+    const settings = {
+      hero_title_th: project.heroTitle,
+      hero_title_en: project.heroTitleEn,
+      hero_subtitle_th: project.heroSubtitle,
+      hero_subtitle_en: project.heroSubtitleEn,
+      phone: project.phone,
+      nearby_places_th: project.nearby.join("\n"),
+      nearby_places_en: project.nearbyEn.join("\n"),
+    };
+    await prisma.projectSetting.upsert({
+      where: { project_id: projectId },
+      create: { project_id: projectId, ...settings },
+      update: settings,
+    });
 
     if (project.removeDemoFacilities.length) {
-      await connection.query("DELETE FROM facilities WHERE project_id=? AND name IN (?)", [
-        projectId,
-        project.removeDemoFacilities,
-      ]);
+      await prisma.facility.deleteMany({
+        where: { project_id: projectId, name: { in: project.removeDemoFacilities } },
+      });
     }
     if (project.removeDemoHouses.length) {
-      await connection.query("DELETE FROM house_types WHERE project_id=? AND name IN (?)", [
-        projectId,
-        project.removeDemoHouses,
-      ]);
+      await prisma.houseType.deleteMany({ where: { project_id: projectId, name: { in: project.removeDemoHouses } } });
     }
 
     for (const [index, name] of project.facilities.entries()) {
-      await connection.execute(
-        `INSERT INTO facilities (id, project_id, name, description, sort_order)
-         SELECT ?, ?, ?, 'ข้อมูลจากเว็บไซต์ทางการ MIDA Property', ?
-         WHERE NOT EXISTS (SELECT 1 FROM facilities WHERE project_id=? AND LOWER(name)=LOWER(?))`,
-        [randomUUID(), projectId, name, index + 1, projectId, name],
-      );
+      const exists = await prisma.facility.findFirst({ where: { project_id: projectId, name } });
+      if (!exists)
+        await prisma.facility.create({
+          data: {
+            project_id: projectId,
+            name,
+            description: "ข้อมูลจากเว็บไซต์ทางการ MIDA Property",
+            sort_order: index + 1,
+          },
+        });
     }
 
     for (const [name, description, bedrooms, bathrooms, area] of project.houses) {
-      const [houseRows] = await connection.execute(
-        "SELECT id FROM house_types WHERE project_id=? AND LOWER(name)=LOWER(?) LIMIT 1",
-        [projectId, name],
-      );
-      if (houseRows.length) {
-        await connection.execute(
-          "UPDATE house_types SET description=?, bedrooms=?, bathrooms=?, usable_area_sqm=? WHERE id=?",
-          [description, bedrooms, bathrooms, area, houseRows[0].id],
-        );
+      const house = await prisma.houseType.findFirst({ where: { project_id: projectId, name } });
+      if (house) {
+        await prisma.houseType.update({
+          where: { id: house.id },
+          data: { description, bedrooms, bathrooms, usable_area_sqm: area },
+        });
       } else {
-        await connection.execute(
-          "INSERT INTO house_types (id, project_id, name, description, bedrooms, bathrooms, usable_area_sqm) VALUES (?, ?, ?, ?, ?, ?, ?)",
-          [randomUUID(), projectId, name, description, bedrooms, bathrooms, area],
-        );
+        await prisma.houseType.create({
+          data: { project_id: projectId, name, description, bedrooms, bathrooms, usable_area_sqm: area },
+        });
       }
     }
 
     let addedHouseImages = 0;
     for (const [index, [houseName, url]] of project.houseImages.entries()) {
-      const [houseRows] = await connection.execute(
-        "SELECT id FROM house_types WHERE project_id=? AND LOWER(name)=LOWER(?) LIMIT 1",
-        [projectId, houseName],
-      );
-      if (!houseRows.length) continue;
+      const house = await prisma.houseType.findFirst({ where: { project_id: projectId, name: houseName } });
+      if (!house) continue;
 
-      const houseId = houseRows[0].id;
-      const [coverRows] = await connection.execute(
-        "SELECT id FROM media_assets WHERE entity_type='house-types' AND entity_id=? AND media_kind='cover' LIMIT 1",
-        [houseId],
-      );
-      if (coverRows.length) continue;
+      const houseId = house.id;
+      const cover = await prisma.mediaAsset.findFirst({
+        where: { entity_type: "house-types", entity_id: houseId, media_kind: "cover" },
+        select: { id: true },
+      });
+      if (cover) continue;
 
       const { buffer, mimeType, extension } = await downloadImage(url);
       const storageKey = `uploads/${randomUUID()}.${extension}`;
       const filePath = path.join(uploadsDirectory, path.basename(storageKey));
       await writeFile(filePath, buffer);
       createdFiles.push(filePath);
-      await connection.execute(
-        `INSERT INTO media_assets
-           (id, entity_type, entity_id, media_kind, original_name, mime_type, file_size, storage_key, sort_order)
-         VALUES (?, 'house-types', ?, 'cover', ?, ?, ?, ?, 0)`,
-        [
-          randomUUID(),
-          houseId,
-          `official-house-${project.slug}-${String(index + 1).padStart(2, "0")}.${extension}`,
-          mimeType,
-          buffer.length,
-          storageKey,
-        ],
-      );
+      await prisma.mediaAsset.create({
+        data: {
+          entity_type: "house-types",
+          entity_id: houseId,
+          media_kind: "cover",
+          original_name: `official-house-${project.slug}-${String(index + 1).padStart(2, "0")}.${extension}`,
+          mime_type: mimeType,
+          file_size: buffer.length,
+          storage_key: storageKey,
+          sort_order: 0,
+        },
+      });
       addedHouseImages += 1;
     }
 
@@ -435,56 +415,52 @@ try {
     for (const [index, [requestedKind, url]] of project.images.entries()) {
       let mediaKind = requestedKind;
       if (mediaKind === "cover") {
-        const [coverRows] = await connection.execute(
-          "SELECT id FROM media_assets WHERE entity_type='projects' AND entity_id=? AND media_kind='cover' LIMIT 1",
-          [projectId],
-        );
-        if (coverRows.length) mediaKind = "hero";
+        const cover = await prisma.mediaAsset.findFirst({
+          where: { entity_type: "projects", entity_id: projectId, media_kind: "cover" },
+          select: { id: true },
+        });
+        if (cover) mediaKind = "hero";
       }
 
       const namePrefix = `official-${project.slug}-${String(index + 1).padStart(2, "0")}.`;
-      const [existingRows] = await connection.execute(
-        "SELECT id FROM media_assets WHERE entity_type='projects' AND entity_id=? AND original_name LIKE ? LIMIT 1",
-        [projectId, `${namePrefix}%`],
-      );
-      if (existingRows.length) continue;
+      const existing = await prisma.mediaAsset.findFirst({
+        where: { entity_type: "projects", entity_id: projectId, original_name: { startsWith: namePrefix } },
+        select: { id: true },
+      });
+      if (existing) continue;
 
       const { buffer, mimeType, extension } = await downloadImage(url);
       const storageKey = `uploads/${randomUUID()}.${extension}`;
       const filePath = path.join(uploadsDirectory, path.basename(storageKey));
       await writeFile(filePath, buffer);
       createdFiles.push(filePath);
-      await connection.execute(
-        `INSERT INTO media_assets
-           (id, entity_type, entity_id, media_kind, original_name, mime_type, file_size, storage_key, sort_order)
-         VALUES (?, 'projects', ?, ?, ?, ?, ?, ?,
-           (SELECT COALESCE(MAX(sort_order), -1) + 1 FROM
-             (SELECT sort_order FROM media_assets WHERE entity_type='projects' AND entity_id=? AND media_kind=?) ordered_media))`,
-        [
-          randomUUID(),
-          projectId,
-          mediaKind,
-          officialName(project.slug, index, extension),
-          mimeType,
-          buffer.length,
-          storageKey,
-          projectId,
-          mediaKind,
-        ],
-      );
+      const maximum = await prisma.mediaAsset.aggregate({
+        where: { entity_type: "projects", entity_id: projectId, media_kind: mediaKind },
+        _max: { sort_order: true },
+      });
+      await prisma.mediaAsset.create({
+        data: {
+          entity_type: "projects",
+          entity_id: projectId,
+          media_kind: mediaKind,
+          original_name: officialName(project.slug, index, extension),
+          mime_type: mimeType,
+          file_size: buffer.length,
+          storage_key: storageKey,
+          sort_order: (maximum._max.sort_order ?? -1) + 1,
+        },
+      });
       addedImages += 1;
     }
 
     report.push(`${project.heroTitle}: เพิ่มรูปโครงการ ${addedImages} รูป · รูปแบบบ้าน ${addedHouseImages} รูป`);
   }
 
-  await connection.commit();
   console.log(report.join("\n"));
   console.log(`จัดเก็บรูปใน ${uploadsDirectory}`);
 } catch (error) {
-  await connection.rollback();
   await Promise.all(createdFiles.map((file) => unlink(file).catch(() => undefined)));
   throw error;
 } finally {
-  await connection.end();
+  await prisma.$disconnect();
 }

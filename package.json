@@ -10,16 +10,21 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "db:init": "mysql -u root -p < database/schema.sql",
-    "db:seed": "node --env-file=.env.local scripts/seed-projects.mjs",
-    "db:import-official": "node --env-file=.env.local scripts/import-official-projects.mjs",
-    "db:create-admin": "node scripts/create-admin.mjs"
+    "db:init": "prisma db push",
+    "db:seed": "tsx --env-file=.env.local scripts/seed-projects.mjs",
+    "db:import-official": "tsx --env-file=.env.local scripts/import-official-projects.mjs",
+    "db:create-admin": "tsx --env-file=.env.local scripts/create-admin.mjs",
+    "db:generate": "prisma generate",
+    "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@prisma/adapter-mariadb": "^7.10.0",
+    "@prisma/client": "^7.10.0",
     "bcryptjs": "^3.0.2",
+    "dotenv": "^18.0.3",
     "jose": "^6.0.8",
     "leaflet": "^1.9.4",
-    "mysql2": "^3.14.4",
+    "mariadb": "^3.5.4",
     "next": "^16.0.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
@@ -36,7 +41,9 @@
     "eslint": "^9.38.0",
     "eslint-config-next": "^16.0.1",
     "prettier": "^3.9.8",
+    "prisma": "^7.10.0",
     "tailwindcss": "^4.1.16",
+    "tsx": "^4.23.15",
     "typescript": "^5.9.3"
   }
 }

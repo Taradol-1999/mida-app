@@ -1,10 +1,9 @@
-import { randomUUID } from "crypto";
 import bcrypt from "bcryptjs";
-import type { ResultSetHeader, RowDataPacket } from "mysql2";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import type { LeadStatus, NewsCategory, ProjectStatus, PropertyType, UserRole } from "@/generated/prisma/client";
 import { getSession } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
 
 const resources = ["projects", "house-types", "facilities", "promotions", "news", "leads", "content", "users"] as const;
 type Resource = (typeof resources)[number];
@@ -21,8 +20,7 @@ function value(body: Record<string, unknown>, key: string) {
   return String(body[key] ?? "").trim();
 }
 function nullable(body: Record<string, unknown>, key: string) {
-  const result = value(body, key);
-  return result || null;
+  return value(body, key) || null;
 }
 function numberValue(body: Record<string, unknown>, key: string) {
   const raw = value(body, key);
@@ -34,15 +32,18 @@ function boolValue(body: Record<string, unknown>, key: string) {
   return body[key] === true || body[key] === "true" || body[key] === 1;
 }
 function tagValue(body: Record<string, unknown>) {
-  const tags = value(body, "tags")
-    .split(",")
-    .map((tag) => tag.trim())
-    .filter(Boolean);
-  return JSON.stringify([...new Set(tags)]);
+  return [
+    ...new Set(
+      value(body, "tags")
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter(Boolean),
+    ),
+  ];
 }
-function mysqlDate(body: Record<string, unknown>, key: string) {
-  const result = value(body, key);
-  return result ? result.replace("T", " ") : null;
+function dateValue(body: Record<string, unknown>, key: string) {
+  const raw = value(body, key);
+  return raw ? new Date(raw) : null;
 }
 
 async function authorise(resource: string) {
@@ -54,74 +55,91 @@ async function authorise(resource: string) {
   return { user, resource };
 }
 
+async function projectOptions() {
+  const projects = await prisma.project.findMany({
+    where: { status: { not: "ARCHIVED" } },
+    select: { id: true, name_th: true },
+    orderBy: { name_th: "asc" },
+  });
+  return projects;
+}
+
+async function listLeads() {
+  const rows = await prisma.lead.findMany({
+    include: { project: { select: { name_th: true } } },
+    orderBy: { created_at: "desc" },
+  });
+  return { rows: rows.map(({ project, ...row }) => ({ ...row, project_name: project?.name_th ?? null })) };
+}
+
 async function list(resource: Resource) {
-  const pool = db();
-  const projectOptions = async () =>
-    (
-      await pool.query<RowDataPacket[]>("SELECT id, name_th FROM projects WHERE status <> 'ARCHIVED' ORDER BY name_th")
-    )[0];
   switch (resource) {
     case "projects":
-      return { rows: (await pool.query<RowDataPacket[]>("SELECT * FROM projects ORDER BY updated_at DESC"))[0] };
-    case "house-types":
+      return { rows: await prisma.project.findMany({ orderBy: { updated_at: "desc" } }) };
+    case "house-types": {
+      const rows = await prisma.houseType.findMany({
+        include: { project: { select: { name_th: true } } },
+        orderBy: [{ project: { name_th: "asc" } }, { name: "asc" }],
+      });
       return {
-        rows: (
-          await pool.query<RowDataPacket[]>(
-            "SELECT h.*, p.name_th AS project_name FROM house_types h JOIN projects p ON p.id=h.project_id ORDER BY p.name_th, h.name",
-          )
-        )[0],
+        rows: rows.map(({ project, ...row }) => ({ ...row, project_name: project.name_th })),
         projectOptions: await projectOptions(),
       };
-    case "facilities":
+    }
+    case "facilities": {
+      const rows = await prisma.facility.findMany({
+        include: { project: { select: { name_th: true } } },
+        orderBy: [{ project: { name_th: "asc" } }, { sort_order: "asc" }],
+      });
       return {
-        rows: (
-          await pool.query<RowDataPacket[]>(
-            "SELECT f.*, p.name_th AS project_name FROM facilities f JOIN projects p ON p.id=f.project_id ORDER BY p.name_th, f.sort_order",
-          )
-        )[0],
+        rows: rows.map(({ project, ...row }) => ({ ...row, project_name: project.name_th })),
         projectOptions: await projectOptions(),
       };
-    case "promotions":
+    }
+    case "promotions": {
+      const rows = await prisma.promotion.findMany({
+        include: { project: { select: { name_th: true } } },
+        orderBy: { created_at: "desc" },
+      });
       return {
-        rows: (
-          await pool.query<RowDataPacket[]>(
-            "SELECT x.*, p.name_th AS project_name FROM promotions x LEFT JOIN projects p ON p.id=x.project_id ORDER BY x.created_at DESC",
-          )
-        )[0],
+        rows: rows.map(({ project, ...row }) => ({ ...row, project_name: project?.name_th ?? null })),
         projectOptions: await projectOptions(),
       };
-    case "news":
+    }
+    case "news": {
+      const rows = await prisma.newsItem.findMany({
+        include: { project: { select: { name_th: true } } },
+        orderBy: { published_at: "desc" },
+      });
       return {
-        rows: (
-          await pool.query<RowDataPacket[]>(
-            "SELECT n.*, p.name_th AS project_name FROM news_items n LEFT JOIN projects p ON p.id=n.project_id ORDER BY n.published_at DESC",
-          )
-        )[0],
+        rows: rows.map(({ project, ...row }) => ({ ...row, project_name: project?.name_th ?? null })),
         projectOptions: await projectOptions(),
       };
+    }
     case "leads":
-      return {
-        rows: (
-          await pool.query<RowDataPacket[]>(
-            "SELECT l.*, p.name_th AS project_name FROM leads l LEFT JOIN projects p ON p.id=l.project_id ORDER BY l.created_at DESC",
-          )
-        )[0],
-      };
+      return listLeads();
     case "content":
-      return { rows: (await pool.query<RowDataPacket[]>("SELECT * FROM site_content ORDER BY content_key"))[0] };
+      return { rows: await prisma.siteContent.findMany({ orderBy: { content_key: "asc" } }) };
     case "users":
       return {
-        rows: (
-          await pool.query<RowDataPacket[]>(
-            "SELECT id, name, email, role, is_active, created_at, updated_at FROM users ORDER BY created_at DESC",
-          )
-        )[0],
+        rows: await prisma.user.findMany({
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            is_active: true,
+            created_at: true,
+            updated_at: true,
+          },
+          orderBy: { created_at: "desc" },
+        }),
       };
   }
 }
 
-function csvEscape(value: unknown) {
-  return `"${String(value ?? "").replaceAll('"', '""')}"`;
+function csvEscape(input: unknown) {
+  return `"${String(input ?? "").replaceAll('"', '""')}"`;
 }
 
 export async function GET(request: Request, context: RouteContext) {
@@ -129,9 +147,8 @@ export async function GET(request: Request, context: RouteContext) {
   const access = await authorise(resourceParam);
   if ("error" in access) return access.error;
   if (access.resource === "leads" && new URL(request.url).searchParams.get("format") === "csv") {
-    const url = new URL(request.url);
-    const projectId = url.searchParams.get("projectId");
-    const listed = await list("leads");
+    const projectId = new URL(request.url).searchParams.get("projectId");
+    const listed = await listLeads();
     const rows = projectId ? listed.rows.filter((row) => String(row.project_id) === projectId) : listed.rows;
     const header = [
       "ชื่อ",
@@ -188,103 +205,110 @@ export async function POST(request: Request, context: RouteContext) {
   const access = await authorise(resourceParam);
   if ("error" in access) return access.error;
   const body = (await request.json()) as Record<string, unknown>;
-  const pool = db();
-  let createdId: string | undefined;
   try {
+    let createdId: string | undefined;
     switch (access.resource) {
-      case "projects":
-        await pool.execute(
-          "INSERT INTO projects (id, slug, name_th, name_en, location, latitude, longitude, property_type, starting_price, status, is_featured, is_new, tags, description) VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-          [
-            value(body, "slug"),
-            value(body, "name_th"),
-            nullable(body, "name_en"),
-            value(body, "location"),
-            numberValue(body, "latitude"),
-            numberValue(body, "longitude"),
-            value(body, "property_type"),
-            numberValue(body, "starting_price"),
-            value(body, "status"),
-            boolValue(body, "is_featured"),
-            boolValue(body, "is_new"),
-            tagValue(body),
-            nullable(body, "description"),
-          ],
-        );
+      case "projects": {
+        const row = await prisma.project.create({
+          data: {
+            slug: value(body, "slug"),
+            name_th: value(body, "name_th"),
+            name_en: nullable(body, "name_en"),
+            location: value(body, "location"),
+            latitude: numberValue(body, "latitude"),
+            longitude: numberValue(body, "longitude"),
+            property_type: value(body, "property_type") as PropertyType,
+            starting_price: numberValue(body, "starting_price"),
+            status: value(body, "status") as ProjectStatus,
+            is_featured: boolValue(body, "is_featured"),
+            is_new: boolValue(body, "is_new"),
+            tags: tagValue(body),
+            description: nullable(body, "description"),
+          },
+        });
+        createdId = row.id;
         break;
-      case "house-types":
-        createdId = randomUUID();
-        await pool.execute(
-          "INSERT INTO house_types (id, project_id, name, description, bedrooms, bathrooms, usable_area_sqm, starting_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-          [
-            createdId,
-            value(body, "project_id"),
-            value(body, "name"),
-            nullable(body, "description"),
-            numberValue(body, "bedrooms"),
-            numberValue(body, "bathrooms"),
-            numberValue(body, "usable_area_sqm"),
-            numberValue(body, "starting_price"),
-          ],
-        );
+      }
+      case "house-types": {
+        const row = await prisma.houseType.create({
+          data: {
+            project_id: value(body, "project_id"),
+            name: value(body, "name"),
+            description: nullable(body, "description"),
+            bedrooms: numberValue(body, "bedrooms"),
+            bathrooms: numberValue(body, "bathrooms"),
+            usable_area_sqm: numberValue(body, "usable_area_sqm"),
+            starting_price: numberValue(body, "starting_price"),
+          },
+        });
+        createdId = row.id;
         break;
+      }
       case "facilities":
-        await pool.execute(
-          "INSERT INTO facilities (id, project_id, name, description, sort_order) VALUES (UUID(), ?, ?, ?, ?)",
-          [
-            value(body, "project_id"),
-            value(body, "name"),
-            nullable(body, "description"),
-            numberValue(body, "sort_order") ?? 0,
-          ],
-        );
+        createdId = (
+          await prisma.facility.create({
+            data: {
+              project_id: value(body, "project_id"),
+              name: value(body, "name"),
+              description: nullable(body, "description"),
+              sort_order: numberValue(body, "sort_order") ?? 0,
+            },
+          })
+        ).id;
         break;
       case "promotions":
-        await pool.execute(
-          "INSERT INTO promotions (id, project_id, title, body, starts_at, ends_at, is_published) VALUES (UUID(), ?, ?, ?, ?, ?, ?)",
-          [
-            nullable(body, "project_id"),
-            value(body, "title"),
-            nullable(body, "body"),
-            mysqlDate(body, "starts_at"),
-            mysqlDate(body, "ends_at"),
-            boolValue(body, "is_published"),
-          ],
-        );
+        createdId = (
+          await prisma.promotion.create({
+            data: {
+              project_id: nullable(body, "project_id"),
+              title: value(body, "title"),
+              body: nullable(body, "body"),
+              starts_at: dateValue(body, "starts_at"),
+              ends_at: dateValue(body, "ends_at"),
+              is_published: boolValue(body, "is_published"),
+            },
+          })
+        ).id;
         break;
       case "news":
-        await pool.execute(
-          "INSERT INTO news_items (id, project_id, category, title, body, published_at, is_published) VALUES (UUID(), ?, ?, ?, ?, ?, ?)",
-          [
-            nullable(body, "project_id"),
-            value(body, "category") || "NEWS",
-            value(body, "title"),
-            nullable(body, "body"),
-            mysqlDate(body, "published_at"),
-            boolValue(body, "is_published"),
-          ],
-        );
+        createdId = (
+          await prisma.newsItem.create({
+            data: {
+              project_id: nullable(body, "project_id"),
+              category: (value(body, "category") || "NEWS") as NewsCategory,
+              title: value(body, "title"),
+              body: nullable(body, "body"),
+              published_at: dateValue(body, "published_at"),
+              is_published: boolValue(body, "is_published"),
+            },
+          })
+        ).id;
         break;
       case "content":
-        await pool.execute("INSERT INTO site_content (id, content_key, title, body) VALUES (UUID(), ?, ?, ?)", [
-          value(body, "content_key"),
-          value(body, "title"),
-          nullable(body, "body"),
-        ]);
+        createdId = (
+          await prisma.siteContent.create({
+            data: {
+              content_key: value(body, "content_key"),
+              title: value(body, "title"),
+              body: nullable(body, "body"),
+            },
+          })
+        ).id;
         break;
       case "users": {
         const password = value(body, "password");
         if (password.length < 8) return apiError("รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร", 400);
-        await pool.execute(
-          "INSERT INTO users (id, name, email, password_hash, role, is_active) VALUES (UUID(), ?, ?, ?, ?, ?)",
-          [
-            value(body, "name"),
-            value(body, "email"),
-            await bcrypt.hash(password, 12),
-            value(body, "role") || "ADMIN",
-            boolValue(body, "is_active"),
-          ],
-        );
+        createdId = (
+          await prisma.user.create({
+            data: {
+              name: value(body, "name"),
+              email: value(body, "email"),
+              password_hash: await bcrypt.hash(password, 12),
+              role: (value(body, "role") || "ADMIN") as UserRole,
+              is_active: boolValue(body, "is_active"),
+            },
+          })
+        ).id;
         break;
       }
       case "leads":
@@ -303,114 +327,102 @@ export async function PATCH(request: Request, context: RouteContext) {
   const body = (await request.json()) as Record<string, unknown>;
   const id = value(body, "id");
   if (!idSchema.safeParse(id).success) return apiError("รหัสข้อมูลไม่ถูกต้อง", 400);
-  const pool = db();
   try {
     switch (access.resource) {
       case "projects":
-        await pool.execute(
-          "UPDATE projects SET slug=?, name_th=?, name_en=?, location=?, latitude=?, longitude=?, property_type=?, starting_price=?, status=?, is_featured=?, is_new=?, tags=?, description=? WHERE id=?",
-          [
-            value(body, "slug"),
-            value(body, "name_th"),
-            nullable(body, "name_en"),
-            value(body, "location"),
-            numberValue(body, "latitude"),
-            numberValue(body, "longitude"),
-            value(body, "property_type"),
-            numberValue(body, "starting_price"),
-            value(body, "status"),
-            boolValue(body, "is_featured"),
-            boolValue(body, "is_new"),
-            tagValue(body),
-            nullable(body, "description"),
-            id,
-          ],
-        );
+        await prisma.project.update({
+          where: { id },
+          data: {
+            slug: value(body, "slug"),
+            name_th: value(body, "name_th"),
+            name_en: nullable(body, "name_en"),
+            location: value(body, "location"),
+            latitude: numberValue(body, "latitude"),
+            longitude: numberValue(body, "longitude"),
+            property_type: value(body, "property_type") as PropertyType,
+            starting_price: numberValue(body, "starting_price"),
+            status: value(body, "status") as ProjectStatus,
+            is_featured: boolValue(body, "is_featured"),
+            is_new: boolValue(body, "is_new"),
+            tags: tagValue(body),
+            description: nullable(body, "description"),
+          },
+        });
         break;
       case "house-types":
-        await pool.execute(
-          "UPDATE house_types SET project_id=?, name=?, description=?, bedrooms=?, bathrooms=?, usable_area_sqm=?, starting_price=? WHERE id=?",
-          [
-            value(body, "project_id"),
-            value(body, "name"),
-            nullable(body, "description"),
-            numberValue(body, "bedrooms"),
-            numberValue(body, "bathrooms"),
-            numberValue(body, "usable_area_sqm"),
-            numberValue(body, "starting_price"),
-            id,
-          ],
-        );
+        await prisma.houseType.update({
+          where: { id },
+          data: {
+            project_id: value(body, "project_id"),
+            name: value(body, "name"),
+            description: nullable(body, "description"),
+            bedrooms: numberValue(body, "bedrooms"),
+            bathrooms: numberValue(body, "bathrooms"),
+            usable_area_sqm: numberValue(body, "usable_area_sqm"),
+            starting_price: numberValue(body, "starting_price"),
+          },
+        });
         break;
       case "facilities":
-        await pool.execute("UPDATE facilities SET project_id=?, name=?, description=?, sort_order=? WHERE id=?", [
-          value(body, "project_id"),
-          value(body, "name"),
-          nullable(body, "description"),
-          numberValue(body, "sort_order") ?? 0,
-          id,
-        ]);
+        await prisma.facility.update({
+          where: { id },
+          data: {
+            project_id: value(body, "project_id"),
+            name: value(body, "name"),
+            description: nullable(body, "description"),
+            sort_order: numberValue(body, "sort_order") ?? 0,
+          },
+        });
         break;
       case "promotions":
-        await pool.execute(
-          "UPDATE promotions SET project_id=?, title=?, body=?, starts_at=?, ends_at=?, is_published=? WHERE id=?",
-          [
-            nullable(body, "project_id"),
-            value(body, "title"),
-            nullable(body, "body"),
-            mysqlDate(body, "starts_at"),
-            mysqlDate(body, "ends_at"),
-            boolValue(body, "is_published"),
-            id,
-          ],
-        );
+        await prisma.promotion.update({
+          where: { id },
+          data: {
+            project_id: nullable(body, "project_id"),
+            title: value(body, "title"),
+            body: nullable(body, "body"),
+            starts_at: dateValue(body, "starts_at"),
+            ends_at: dateValue(body, "ends_at"),
+            is_published: boolValue(body, "is_published"),
+          },
+        });
         break;
       case "news":
-        await pool.execute(
-          "UPDATE news_items SET project_id=?, category=?, title=?, body=?, published_at=?, is_published=? WHERE id=?",
-          [
-            nullable(body, "project_id"),
-            value(body, "category") || "NEWS",
-            value(body, "title"),
-            nullable(body, "body"),
-            mysqlDate(body, "published_at"),
-            boolValue(body, "is_published"),
-            id,
-          ],
-        );
+        await prisma.newsItem.update({
+          where: { id },
+          data: {
+            project_id: nullable(body, "project_id"),
+            category: (value(body, "category") || "NEWS") as NewsCategory,
+            title: value(body, "title"),
+            body: nullable(body, "body"),
+            published_at: dateValue(body, "published_at"),
+            is_published: boolValue(body, "is_published"),
+          },
+        });
         break;
       case "leads":
-        await pool.execute("UPDATE leads SET status=? WHERE id=?", [value(body, "status") || "NEW", id]);
+        await prisma.lead.update({ where: { id }, data: { status: (value(body, "status") || "NEW") as LeadStatus } });
         break;
       case "content":
-        await pool.execute("UPDATE site_content SET content_key=?, title=?, body=? WHERE id=?", [
-          value(body, "content_key"),
-          value(body, "title"),
-          nullable(body, "body"),
-          id,
-        ]);
+        await prisma.siteContent.update({
+          where: { id },
+          data: { content_key: value(body, "content_key"), title: value(body, "title"), body: nullable(body, "body") },
+        });
         break;
       case "users": {
         if (id === access.user.id) return apiError("ไม่สามารถแก้ไขสิทธิ์ของบัญชีที่กำลังใช้งานจากหน้านี้", 400);
         const password = value(body, "password");
-        if (password) {
-          if (password.length < 8) return apiError("รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร", 400);
-          await pool.execute("UPDATE users SET name=?, email=?, password_hash=?, role=?, is_active=? WHERE id=?", [
-            value(body, "name"),
-            value(body, "email"),
-            await bcrypt.hash(password, 12),
-            value(body, "role") || "ADMIN",
-            boolValue(body, "is_active"),
-            id,
-          ]);
-        } else
-          await pool.execute("UPDATE users SET name=?, email=?, role=?, is_active=? WHERE id=?", [
-            value(body, "name"),
-            value(body, "email"),
-            value(body, "role") || "ADMIN",
-            boolValue(body, "is_active"),
-            id,
-          ]);
+        if (password && password.length < 8) return apiError("รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร", 400);
+        await prisma.user.update({
+          where: { id },
+          data: {
+            name: value(body, "name"),
+            email: value(body, "email"),
+            role: (value(body, "role") || "ADMIN") as UserRole,
+            is_active: boolValue(body, "is_active"),
+            ...(password ? { password_hash: await bcrypt.hash(password, 12) } : {}),
+          },
+        });
         break;
       }
     }
@@ -424,21 +436,39 @@ export async function DELETE(request: Request, context: RouteContext) {
   const { resource: resourceParam } = await context.params;
   const access = await authorise(resourceParam);
   if ("error" in access) return access.error;
-  const body = (await request.json()) as { id?: string };
-  const parsedId = idSchema.safeParse(body.id);
+  const parsedId = idSchema.safeParse(((await request.json()) as { id?: string }).id);
   if (!parsedId.success) return apiError("รหัสข้อมูลไม่ถูกต้อง", 400);
   const id = parsedId.data;
   if (access.resource === "users" && id === access.user.id) return apiError("ไม่สามารถลบบัญชีที่กำลังใช้งาน", 400);
-  const table: Record<Resource, string> = {
-    projects: "projects",
-    "house-types": "house_types",
-    facilities: "facilities",
-    promotions: "promotions",
-    news: "news_items",
-    leads: "leads",
-    content: "site_content",
-    users: "users",
-  };
-  const [result] = await db().execute<ResultSetHeader>(`DELETE FROM ${table[access.resource]} WHERE id=?`, [id]);
-  return result.affectedRows ? NextResponse.json({ ok: true }) : apiError("ไม่พบข้อมูล", 404);
+  try {
+    switch (access.resource) {
+      case "projects":
+        await prisma.project.delete({ where: { id } });
+        break;
+      case "house-types":
+        await prisma.houseType.delete({ where: { id } });
+        break;
+      case "facilities":
+        await prisma.facility.delete({ where: { id } });
+        break;
+      case "promotions":
+        await prisma.promotion.delete({ where: { id } });
+        break;
+      case "news":
+        await prisma.newsItem.delete({ where: { id } });
+        break;
+      case "leads":
+        await prisma.lead.delete({ where: { id } });
+        break;
+      case "content":
+        await prisma.siteContent.delete({ where: { id } });
+        break;
+      case "users":
+        await prisma.user.delete({ where: { id } });
+        break;
+    }
+    return NextResponse.json({ ok: true });
+  } catch {
+    return apiError("ไม่พบข้อมูล", 404);
+  }
 }

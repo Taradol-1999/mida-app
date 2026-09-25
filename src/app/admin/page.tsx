@@ -1,48 +1,41 @@
 import Link from "next/link";
-import type { RowDataPacket } from "mysql2";
-import { db } from "@/lib/db";
 import { formatNumber } from "@/lib/format";
+import { prisma } from "@/lib/prisma";
 
 type Metric = { label: string; value: string; note: string; tone: string };
 
 async function dashboardData() {
   try {
-    const pool = db();
-    const [leadRows, projectRows, publishedRows, viewRows, averageRows, recentRows, byProjectRows] = await Promise.all([
-      pool.query<RowDataPacket[]>("SELECT COUNT(*) AS total FROM leads").then(([rows]) => rows),
-      pool
-        .query<RowDataPacket[]>("SELECT COUNT(*) AS total FROM projects WHERE status <> 'ARCHIVED'")
-        .then(([rows]) => rows),
-      pool
-        .query<RowDataPacket[]>(
-          "SELECT (SELECT COUNT(*) FROM promotions WHERE is_published=TRUE) + (SELECT COUNT(*) FROM news_items WHERE is_published=TRUE) AS total",
-        )
-        .then(([rows]) => rows),
-      pool.query<RowDataPacket[]>("SELECT COUNT(*) AS total FROM page_views").then(([rows]) => rows),
-      pool
-        .query<RowDataPacket[]>(
-          "SELECT COALESCE(ROUND(AVG(duration_seconds)), 0) AS seconds FROM page_views WHERE duration_seconds IS NOT NULL",
-        )
-        .then(([rows]) => rows),
-      pool
-        .query<RowDataPacket[]>(
-          "SELECT l.name, l.phone, l.status, l.created_at, p.name_th AS project_name FROM leads l LEFT JOIN projects p ON p.id=l.project_id ORDER BY l.created_at DESC LIMIT 5",
-        )
-        .then(([rows]) => rows),
-      pool
-        .query<RowDataPacket[]>(
-          "SELECT COALESCE(p.name_th, 'เว็บไซต์กลาง') AS name, COUNT(l.id) AS total FROM leads l LEFT JOIN projects p ON p.id=l.project_id GROUP BY p.id, p.name_th ORDER BY total DESC LIMIT 5",
-        )
-        .then(([rows]) => rows),
+    const [leads, projects, promotions, news, views, average, recent, leadGroups] = await Promise.all([
+      prisma.lead.count(),
+      prisma.project.count({ where: { status: { not: "ARCHIVED" } } }),
+      prisma.promotion.count({ where: { is_published: true } }),
+      prisma.newsItem.count({ where: { is_published: true } }),
+      prisma.pageView.count(),
+      prisma.pageView.aggregate({ _avg: { duration_seconds: true }, where: { duration_seconds: { not: null } } }),
+      prisma.lead.findMany({
+        take: 5,
+        orderBy: { created_at: "desc" },
+        select: { name: true, phone: true, status: true, created_at: true, project: { select: { name_th: true } } },
+      }),
+      prisma.lead.groupBy({ by: ["project_id"], _count: { id: true }, orderBy: { _count: { id: "desc" } }, take: 5 }),
     ]);
+    const projectNames = await prisma.project.findMany({
+      where: { id: { in: leadGroups.flatMap((group) => (group.project_id ? [group.project_id] : [])) } },
+      select: { id: true, name_th: true },
+    });
+    const names = new Map(projectNames.map((project) => [project.id, project.name_th]));
     return {
-      leads: Number(leadRows[0].total),
-      projects: Number(projectRows[0].total),
-      published: Number(publishedRows[0].total),
-      views: Number(viewRows[0].total),
-      seconds: Number(averageRows[0].seconds),
-      recent: recentRows,
-      byProject: byProjectRows,
+      leads,
+      projects,
+      published: promotions + news,
+      views,
+      seconds: Math.round(average._avg.duration_seconds ?? 0),
+      recent: recent.map(({ project, ...lead }) => ({ ...lead, project_name: project?.name_th ?? null })),
+      byProject: leadGroups.map((group) => ({
+        name: group.project_id ? (names.get(group.project_id) ?? "เว็บไซต์กลาง") : "เว็บไซต์กลาง",
+        total: group._count.id,
+      })),
     };
   } catch {
     return {
@@ -51,8 +44,14 @@ async function dashboardData() {
       published: 0,
       views: 0,
       seconds: 0,
-      recent: [] as RowDataPacket[],
-      byProject: [] as RowDataPacket[],
+      recent: [] as Array<{
+        name: string;
+        phone: string;
+        status: string;
+        created_at: Date;
+        project_name: string | null;
+      }>,
+      byProject: [] as Array<{ name: string; total: number }>,
     };
   }
 }

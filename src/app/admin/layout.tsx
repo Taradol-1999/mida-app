@@ -1,14 +1,15 @@
 import { AdminSidebar } from "@/components/admin-sidebar";
 import { requireUser } from "@/lib/auth";
-import type { RowDataPacket } from "mysql2";
-import { db } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
 
 async function navigationProjects() {
   try {
-    const [rows] = await db().query<RowDataPacket[]>(
-      "SELECT id, name_th FROM projects WHERE status <> 'ARCHIVED' ORDER BY name_th",
-    );
-    return rows.map((row) => ({ id: String(row.id), name: String(row.name_th) }));
+    const rows = await prisma.project.findMany({
+      where: { status: { not: "ARCHIVED" } },
+      select: { id: true, name_th: true },
+      orderBy: { name_th: "asc" },
+    });
+    return rows.map((row) => ({ id: row.id, name: row.name_th }));
   } catch {
     return [];
   }

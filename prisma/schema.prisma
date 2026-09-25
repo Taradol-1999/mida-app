@@ -1,0 +1,223 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  USER
+}
+
+enum PropertyType {
+  DETACHED_HOUSE
+  SEMI_DETACHED
+  TOWNHOME
+  COMMERCIAL
+}
+
+enum ProjectStatus {
+  READY
+  CONSTRUCTION
+  ARCHIVED
+}
+
+enum NewsCategory {
+  NEWS
+  EVENT
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  CLOSED
+}
+
+model User {
+  id            String   @id @default(uuid()) @db.Char(36)
+  name          String   @db.VarChar(120)
+  email         String   @unique @db.VarChar(190)
+  password_hash String   @db.VarChar(255)
+  role          UserRole @default(USER)
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now()) @db.Timestamp(0)
+  updated_at    DateTime @default(now()) @updatedAt @db.Timestamp(0)
+
+  @@map("users")
+}
+
+model Project {
+  id             String          @id @default(uuid()) @db.Char(36)
+  slug           String          @unique @db.VarChar(150)
+  name_th        String          @db.VarChar(255)
+  name_en        String?         @db.VarChar(255)
+  location       String          @db.VarChar(120)
+  latitude       Decimal?        @db.Decimal(10, 7)
+  longitude      Decimal?        @db.Decimal(10, 7)
+  property_type  PropertyType
+  starting_price Decimal?        @db.Decimal(12, 2)
+  status         ProjectStatus   @default(CONSTRUCTION)
+  is_featured    Boolean         @default(false)
+  is_new         Boolean         @default(true)
+  tags           Json?
+  description    String?         @db.Text
+  created_at     DateTime        @default(now()) @db.Timestamp(0)
+  updated_at     DateTime        @default(now()) @updatedAt @db.Timestamp(0)
+  settings       ProjectSetting?
+  house_types    HouseType[]
+  facilities     Facility[]
+  promotions     Promotion[]
+  news_items     NewsItem[]
+  leads          Lead[]
+  page_views     PageView[]
+
+  @@map("projects")
+}
+
+model HouseType {
+  id              String   @id @default(uuid()) @db.Char(36)
+  project_id      String   @db.Char(36)
+  name            String   @db.VarChar(255)
+  description     String?  @db.Text
+  bedrooms        Int?     @db.UnsignedTinyInt
+  bathrooms       Int?     @db.UnsignedTinyInt
+  usable_area_sqm Decimal? @db.Decimal(8, 2)
+  starting_price  Decimal? @db.Decimal(12, 2)
+  project         Project  @relation(fields: [project_id], references: [id], onDelete: Cascade)
+
+  @@map("house_types")
+}
+
+model Facility {
+  id          String  @id @default(uuid()) @db.Char(36)
+  project_id  String  @db.Char(36)
+  name        String  @db.VarChar(255)
+  description String? @db.Text
+  sort_order  Int     @default(0)
+  project     Project @relation(fields: [project_id], references: [id], onDelete: Cascade)
+
+  @@map("facilities")
+}
+
+model Promotion {
+  id           String    @id @default(uuid()) @db.Char(36)
+  project_id   String?   @db.Char(36)
+  title        String    @db.VarChar(255)
+  body         String?   @db.Text
+  starts_at    DateTime?
+  ends_at      DateTime?
+  is_published Boolean   @default(false)
+  created_at   DateTime  @default(now()) @db.Timestamp(0)
+  project      Project?  @relation(fields: [project_id], references: [id], onDelete: SetNull)
+
+  @@map("promotions")
+}
+
+model NewsItem {
+  id           String       @id @default(uuid()) @db.Char(36)
+  project_id   String?      @db.Char(36)
+  category     NewsCategory @default(NEWS)
+  title        String       @db.VarChar(255)
+  body         String?      @db.Text
+  published_at DateTime?
+  is_published Boolean      @default(false)
+  project      Project?     @relation(fields: [project_id], references: [id], onDelete: SetNull)
+
+  @@map("news_items")
+}
+
+model Lead {
+  id                     String     @id @default(uuid()) @db.Char(36)
+  project_id             String?    @db.Char(36)
+  name                   String     @db.VarChar(120)
+  first_name             String?    @db.VarChar(80)
+  last_name              String?    @db.VarChar(80)
+  phone                  String     @db.VarChar(30)
+  email                  String?    @db.VarChar(190)
+  family_members         Int?       @db.UnsignedSmallInt
+  province               String?    @db.VarChar(120)
+  district               String?    @db.VarChar(120)
+  subdistrict            String?    @db.VarChar(120)
+  residence_type         String?    @db.VarChar(80)
+  age_range              String?    @db.VarChar(50)
+  occupation             String?    @db.VarChar(120)
+  budget                 String?    @db.VarChar(80)
+  preferred_contact_date DateTime?  @db.Date
+  preferred_contact_time DateTime?  @db.Time(0)
+  consent_news           Boolean    @default(false)
+  consent_contact        Boolean    @default(false)
+  status                 LeadStatus @default(NEW)
+  created_at             DateTime   @default(now()) @db.Timestamp(0)
+  project                Project?   @relation(fields: [project_id], references: [id], onDelete: SetNull)
+
+  @@index([created_at], map: "idx_leads_created_at")
+  @@index([project_id], map: "idx_leads_project_id")
+  @@map("leads")
+}
+
+model PageView {
+  id               BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  project_id       String?  @db.Char(36)
+  path             String   @db.VarChar(255)
+  session_key      String?  @db.VarChar(100)
+  duration_seconds Int?     @db.UnsignedInt
+  created_at       DateTime @default(now()) @db.Timestamp(0)
+  project          Project? @relation(fields: [project_id], references: [id], onDelete: SetNull)
+
+  @@index([created_at], map: "idx_page_views_created_at")
+  @@map("page_views")
+}
+
+model SiteContent {
+  id          String   @id @default(uuid()) @db.Char(36)
+  content_key String   @unique @db.VarChar(100)
+  title       String   @db.VarChar(255)
+  body        String?  @db.Text
+  updated_at  DateTime @default(now()) @updatedAt @db.Timestamp(0)
+
+  @@map("site_content")
+}
+
+model MediaAsset {
+  id            String   @id @default(uuid()) @db.Char(36)
+  entity_type   String   @db.VarChar(40)
+  entity_id     String   @db.Char(36)
+  media_kind    String   @default("cover") @db.VarChar(40)
+  original_name String   @db.VarChar(255)
+  mime_type     String   @db.VarChar(100)
+  file_size     Int      @db.UnsignedInt
+  storage_key   String   @db.VarChar(255)
+  created_at    DateTime @default(now()) @db.Timestamp(0)
+  updated_at    DateTime @default(now()) @updatedAt @db.Timestamp(0)
+  sort_order    Int      @default(0)
+
+  @@index([entity_type, entity_id], map: "idx_media_entity")
+  @@index([entity_type, entity_id, media_kind, sort_order], map: "idx_media_kind")
+  @@map("media_assets")
+}
+
+model ProjectSetting {
+  project_id       String   @id @db.Char(36)
+  hero_title_th    String?  @db.VarChar(255)
+  hero_title_en    String?  @db.VarChar(255)
+  hero_subtitle_th String?  @db.Text
+  hero_subtitle_en String?  @db.Text
+  phone            String?  @db.VarChar(50)
+  email            String?  @db.VarChar(190)
+  map_url          String?  @db.Text
+  virtual_tour_url String?  @db.Text
+  nearby_places_th String?  @db.Text
+  nearby_places_en String?  @db.Text
+  care_warranty    String?  @db.Text
+  care_maintenance String?  @db.Text
+  care_common_area String?  @db.Text
+  updated_at       DateTime @default(now()) @updatedAt @db.Timestamp(0)
+  project          Project  @relation(fields: [project_id], references: [id], onDelete: Cascade)
+
+  @@map("project_settings")
+}

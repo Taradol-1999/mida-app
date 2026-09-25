@@ -1,11 +1,10 @@
 import Link from "next/link";
-import type { RowDataPacket } from "mysql2";
 import { HeroImageSlider } from "@/components/hero-image-slider";
 import { ProjectLocationMap } from "@/components/project-location-map";
 import { LeadModal } from "@/components/lead-modal";
 import { NewsPromotionSlider, type NewsPromotionItem } from "@/components/news-promotion-slider";
 import { ProjectFilter } from "@/components/project-filter";
-import { db } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
 import type { MapProject } from "@/lib/project-map";
 
 export const dynamic = "force-dynamic";
@@ -24,43 +23,65 @@ const defaultUpdates: NewsPromotionItem[] = [
 
 async function homeData() {
   try {
-    const pool = db();
-    const [contentRows, updateRows, projectRows, heroImageRows] = await Promise.all([
-      pool.query<RowDataPacket[]>("SELECT content_key, title, body FROM site_content"),
-      pool.query<RowDataPacket[]>(
-        `SELECT tag, title, detail FROM (SELECT 'PROMOTION' AS tag, title, COALESCE(body, '') AS detail, created_at AS published_on FROM promotions WHERE is_published=TRUE UNION ALL SELECT category AS tag, title, COALESCE(body, '') AS detail, published_at AS published_on FROM news_items WHERE is_published=TRUE) updates ORDER BY published_on DESC LIMIT 12`,
-      ),
-      pool.query<RowDataPacket[]>(
-        `SELECT p.id, p.slug, p.name_th, p.location, p.latitude, p.longitude, s.map_url
-         FROM projects p LEFT JOIN project_settings s ON s.project_id = p.id
-         WHERE p.status <> 'ARCHIVED' ORDER BY p.name_th`,
-      ),
-      pool.query<RowDataPacket[]>(
-        `SELECT m.original_name, m.mime_type, m.storage_key
-         FROM media_assets m
-         INNER JOIN site_content s ON s.id = m.entity_id
-         WHERE m.entity_type='site-content' AND m.media_kind='hero' AND s.content_key='home_hero'
-         ORDER BY m.sort_order, m.created_at`,
-      ),
+    const [contentRows, promotions, news, projectRows] = await Promise.all([
+      prisma.siteContent.findMany({ select: { id: true, content_key: true, title: true, body: true } }),
+      prisma.promotion.findMany({ where: { is_published: true }, orderBy: { created_at: "desc" }, take: 12 }),
+      prisma.newsItem.findMany({ where: { is_published: true }, orderBy: { published_at: "desc" }, take: 12 }),
+      prisma.project.findMany({
+        where: { status: { not: "ARCHIVED" } },
+        select: {
+          id: true,
+          slug: true,
+          name_th: true,
+          location: true,
+          latitude: true,
+          longitude: true,
+          settings: true,
+        },
+        orderBy: { name_th: "asc" },
+      }),
     ]);
+    const homeHero = contentRows.find((row) => row.content_key === "home_hero");
+    const heroImageRows = homeHero
+      ? await prisma.mediaAsset.findMany({
+          where: { entity_type: "site-content", entity_id: homeHero.id, media_kind: "hero" },
+          orderBy: [{ sort_order: "asc" }, { created_at: "asc" }],
+        })
+      : [];
+    const updateRows = [
+      ...promotions.map((item) => ({
+        tag: "PROMOTION",
+        title: item.title,
+        detail: item.body ?? "",
+        date: item.created_at,
+      })),
+      ...news.map((item) => ({
+        tag: item.category,
+        title: item.title,
+        detail: item.body ?? "",
+        date: item.published_at,
+      })),
+    ]
+      .sort((a, b) => (b.date?.getTime() ?? 0) - (a.date?.getTime() ?? 0))
+      .slice(0, 12);
     return {
-      content: Object.fromEntries(contentRows[0].map((row) => [row.content_key, { title: row.title, body: row.body }])),
-      updates: updateRows[0].length
-        ? updateRows[0].map((row) => [String(row.tag), String(row.title), String(row.detail)] as NewsPromotionItem)
+      content: Object.fromEntries(contentRows.map((row) => [row.content_key, { title: row.title, body: row.body }])),
+      updates: updateRows.length
+        ? updateRows.map((row) => [String(row.tag), String(row.title), String(row.detail)] as NewsPromotionItem)
         : defaultUpdates,
-      heroImages: heroImageRows[0].map((row) => ({
+      heroImages: heroImageRows.map((row) => ({
         src: `/${String(row.storage_key)}`,
         alt: String(row.original_name || "แบนเนอร์ MIDA Property"),
         type: String(row.mime_type).startsWith("video/") ? ("video" as const) : ("image" as const),
       })),
-      mapProjects: projectRows[0].map((row): MapProject => ({
-        id: String(row.id),
-        slug: String(row.slug),
-        name: String(row.name_th),
-        location: String(row.location),
+      mapProjects: projectRows.map((row): MapProject => ({
+        id: row.id,
+        slug: row.slug,
+        name: row.name_th,
+        location: row.location,
         latitude: row.latitude === null ? null : Number(row.latitude),
         longitude: row.longitude === null ? null : Number(row.longitude),
-        mapUrl: row.map_url ? String(row.map_url) : null,
+        mapUrl: row.settings?.map_url ?? null,
       })),
     };
   } catch {

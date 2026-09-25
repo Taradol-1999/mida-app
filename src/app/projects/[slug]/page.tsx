@@ -1,5 +1,4 @@
 import Link from "next/link";
-import type { RowDataPacket } from "mysql2";
 import { notFound } from "next/navigation";
 import { HeroImageSlider } from "@/components/hero-image-slider";
 import { ProjectLocationMap } from "@/components/project-location-map";
@@ -9,7 +8,7 @@ import { LeadOpenButton } from "@/components/lead-open-button";
 import { NewsPromotionSlider, type NewsPromotionItem } from "@/components/news-promotion-slider";
 import { ProjectGallery, type ProjectGalleryItem } from "@/components/project-gallery";
 import { findProject } from "@/data/projects";
-import { db } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
 import { directionsUrl, type MapProject } from "@/lib/project-map";
 
 export const dynamic = "force-dynamic";
@@ -40,55 +39,42 @@ async function getProject(slug: string) {
     ...fallback,
     id: null,
     coverUrl: null,
-    houseTypes: [] as RowDataPacket[],
-    promotions: [] as RowDataPacket[],
-    news: [] as RowDataPacket[],
+    houseTypes: [] as Array<Record<string, unknown>>,
+    promotions: [] as Array<Record<string, unknown>>,
+    news: [] as Array<Record<string, unknown>>,
     heroMedia: [] as ProjectGalleryItem[],
     galleryMedia: [] as ProjectGalleryItem[],
     brochureUrl: null as string | null,
     settings: emptySettings,
   };
   try {
-    const [rows] = await db().execute<RowDataPacket[]>(
-      "SELECT * FROM projects WHERE slug = ? AND status <> 'ARCHIVED' LIMIT 1",
-      [slug],
-    );
-    const row = rows[0];
+    const row = await prisma.project.findFirst({
+      where: { slug, status: { not: "ARCHIVED" } },
+      include: {
+        facilities: { orderBy: { sort_order: "asc" } },
+        house_types: { orderBy: { starting_price: "asc" } },
+        promotions: { where: { is_published: true }, orderBy: { created_at: "desc" } },
+        news_items: { where: { is_published: true }, orderBy: { published_at: "desc" } },
+        settings: true,
+      },
+    });
     if (!row) return fallbackData;
-    const [facilityRows, houseTypeRows, promotionRows, newsRows, settingRows, mediaRows] = await Promise.all([
-      db()
-        .execute<RowDataPacket[]>("SELECT name FROM facilities WHERE project_id = ? ORDER BY sort_order", [row.id])
-        .then(([items]) => items),
-      db()
-        .execute<RowDataPacket[]>(
-          `SELECT h.id, h.name, h.description, h.bedrooms, h.bathrooms, h.usable_area_sqm, h.starting_price,
-           (SELECT m.id FROM media_assets m WHERE m.entity_type='house-types' AND m.entity_id=h.id AND m.media_kind='cover' LIMIT 1) AS image_id
-           FROM house_types h WHERE h.project_id = ? ORDER BY h.starting_price`,
-          [row.id],
-        )
-        .then(([items]) => items),
-      db()
-        .execute<RowDataPacket[]>(
-          "SELECT title, body FROM promotions WHERE project_id = ? AND is_published=TRUE ORDER BY created_at DESC",
-          [row.id],
-        )
-        .then(([items]) => items),
-      db()
-        .execute<RowDataPacket[]>(
-          "SELECT title, body, published_at FROM news_items WHERE project_id = ? AND is_published=TRUE ORDER BY published_at DESC",
-          [row.id],
-        )
-        .then(([items]) => items),
-      db()
-        .execute<RowDataPacket[]>("SELECT * FROM project_settings WHERE project_id = ? LIMIT 1", [row.id])
-        .then(([items]) => items),
-      db()
-        .execute<RowDataPacket[]>(
-          "SELECT id, media_kind, original_name, mime_type FROM media_assets WHERE entity_type='projects' AND entity_id=? AND media_kind IN ('cover', 'hero', 'brochure') ORDER BY FIELD(media_kind, 'cover', 'hero', 'brochure'), sort_order, created_at",
-          [row.id],
-        )
-        .then(([items]) => items),
+    const [mediaRows, houseMedia] = await Promise.all([
+      prisma.mediaAsset.findMany({
+        where: { entity_type: "projects", entity_id: row.id, media_kind: { in: ["cover", "hero", "brochure"] } },
+        orderBy: [{ sort_order: "asc" }, { created_at: "asc" }],
+      }),
+      prisma.mediaAsset.findMany({
+        where: {
+          entity_type: "house-types",
+          entity_id: { in: row.house_types.map((house) => house.id) },
+          media_kind: "cover",
+        },
+        orderBy: { created_at: "asc" },
+      }),
     ]);
+    const houseImages = new Map(houseMedia.map((item) => [item.entity_id, item.id]));
+    const houseTypeRows = row.house_types.map((house) => ({ ...house, image_id: houseImages.get(house.id) ?? null }));
     const media = mediaRows.map((item) => ({
       src: `/api/admin/media?entityType=projects&entityId=${row.id}&mediaKind=${item.media_kind}&mediaId=${item.id}`,
       alt: String(item.original_name || `ภาพโครงการ ${row.name_th}`),
@@ -109,12 +95,12 @@ async function getProject(slug: string) {
       status: row.status === "READY" ? "พร้อมอยู่" : "กำลังก่อสร้าง",
       label: "MIDA PROPERTY",
       description: row.description ?? "",
-      facilities: facilityRows.map((facility) => facility.name),
+      facilities: row.facilities.map((facility) => facility.name),
       landmarks: fallback?.landmarks ?? ["โปรดเพิ่มสถานที่ใกล้เคียงจากหลังบ้าน"],
       houseTypes: houseTypeRows,
-      promotions: promotionRows,
-      news: newsRows,
-      settings: { ...emptySettings, ...(settingRows[0] ?? {}) },
+      promotions: row.promotions,
+      news: row.news_items,
+      settings: { ...emptySettings, ...(row.settings ?? {}) },
       coverUrl: cover?.src ?? null,
       heroMedia: heroMedia.length ? heroMedia : cover ? [cover] : [],
       galleryMedia: media.filter((_, index) => mediaRows[index].media_kind !== "brochure"),

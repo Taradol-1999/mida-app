@@ -1,22 +1,15 @@
 import { randomUUID } from "crypto";
 import { mkdir, readFile, unlink, writeFile } from "fs/promises";
 import path from "path";
-import type { RowDataPacket } from "mysql2";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getSession } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
 
 export const runtime = "nodejs";
 const idSchema = z.string().uuid();
-const entities = {
-  projects: "projects",
-  "house-types": "house_types",
-  promotions: "promotions",
-  news: "news_items",
-  "site-content": "site_content",
-} as const;
-type EntityType = keyof typeof entities;
+const entityTypes = ["projects", "house-types", "promotions", "news", "site-content"] as const;
+type EntityType = (typeof entityTypes)[number];
 const mimeExtensions: Record<string, string> = {
   "image/jpeg": "jpg",
   "image/png": "png",
@@ -28,7 +21,7 @@ const mimeExtensions: Record<string, string> = {
 const uploadsDirectory = path.resolve(process.env.UPLOADS_DIRECTORY || path.join(process.cwd(), "public", "uploads"));
 const storedFilePath = (storageKey: unknown) => path.join(uploadsDirectory, path.basename(String(storageKey)));
 function isEntityType(value: string): value is EntityType {
-  return value in entities;
+  return entityTypes.includes(value as EntityType);
 }
 function isKind(value: string) {
   return value === "cover" || value === "hero" || value === "brochure";
@@ -55,10 +48,11 @@ export async function GET(request: Request) {
     return NextResponse.json({ message: "คำขอรูปภาพไม่ถูกต้อง" }, { status: 400 });
   if (entityType !== "projects" && entityType !== "house-types" && !(await authorise()))
     return NextResponse.json({ message: "กรุณาเข้าสู่ระบบด้วยสิทธิ์ผู้ดูแล" }, { status: 401 });
-  const [rows] = await db().execute<RowDataPacket[]>(
-    "SELECT id, original_name, mime_type, storage_key FROM media_assets WHERE entity_type=? AND entity_id=? AND media_kind=? ORDER BY sort_order, created_at",
-    [entityType, entityId, mediaKind],
-  );
+  const rows = await prisma.mediaAsset.findMany({
+    where: { entity_type: entityType, entity_id: entityId, media_kind: mediaKind },
+    select: { id: true, original_name: true, mime_type: true, storage_key: true },
+    orderBy: [{ sort_order: "asc" }, { created_at: "asc" }],
+  });
   if (list)
     return NextResponse.json({
       rows: rows.map((row) => ({
@@ -110,42 +104,47 @@ export async function POST(request: Request) {
       { message: "รองรับ JPG, PNG, WEBP ไม่เกิน 5 MB, PDF ไม่เกิน 20 MB และ MP4, WEBM ไม่เกิน 50 MB" },
       { status: 400 },
     );
-  const [entityRows] = await db().execute<RowDataPacket[]>(
-    `SELECT id FROM ${entities[entityType]} WHERE id=? LIMIT 1`,
-    [entityId],
-  );
-  if (!entityRows.length) return NextResponse.json({ message: "ไม่พบข้อมูลที่ต้องการผูกรูปภาพ" }, { status: 404 });
+  const entityExists =
+    entityType === "projects"
+      ? await prisma.project.findUnique({ where: { id: entityId }, select: { id: true } })
+      : entityType === "house-types"
+        ? await prisma.houseType.findUnique({ where: { id: entityId }, select: { id: true } })
+        : entityType === "promotions"
+          ? await prisma.promotion.findUnique({ where: { id: entityId }, select: { id: true } })
+          : entityType === "news"
+            ? await prisma.newsItem.findUnique({ where: { id: entityId }, select: { id: true } })
+            : await prisma.siteContent.findUnique({ where: { id: entityId }, select: { id: true } });
+  if (!entityExists) return NextResponse.json({ message: "ไม่พบข้อมูลที่ต้องการผูกรูปภาพ" }, { status: 404 });
   const storageKey = `uploads/${randomUUID()}.${extension}`;
   try {
     await mkdir(uploadsDirectory, { recursive: true });
     await writeFile(storedFilePath(storageKey), Buffer.from(await file.arrayBuffer()));
     if (mediaKind === "cover" || mediaKind === "brochure") {
-      const [oldRows] = await db().execute<RowDataPacket[]>(
-        "SELECT storage_key FROM media_assets WHERE entity_type=? AND entity_id=? AND media_kind=? LIMIT 1",
-        [entityType, entityId, mediaKind],
-      );
-      await db().execute("DELETE FROM media_assets WHERE entity_type=? AND entity_id=? AND media_kind=?", [
-        entityType,
-        entityId,
-        mediaKind,
-      ]);
-      if (oldRows[0]?.storage_key) await unlink(storedFilePath(oldRows[0].storage_key)).catch(() => undefined);
+      const oldRows = await prisma.mediaAsset.findMany({
+        where: { entity_type: entityType, entity_id: entityId, media_kind: mediaKind },
+        select: { storage_key: true },
+      });
+      await prisma.mediaAsset.deleteMany({
+        where: { entity_type: entityType, entity_id: entityId, media_kind: mediaKind },
+      });
+      await Promise.all(oldRows.map((row) => unlink(storedFilePath(row.storage_key)).catch(() => undefined)));
     }
-    await db().execute(
-      "INSERT INTO media_assets (id, entity_type, entity_id, media_kind, original_name, mime_type, file_size, storage_key, sort_order) VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, (SELECT COALESCE(MAX(sort_order), -1) + 1 FROM (SELECT sort_order FROM media_assets WHERE entity_type=? AND entity_id=? AND media_kind=?) AS ordered_media))",
-      [
-        entityType,
-        entityId,
-        mediaKind,
-        file.name || `upload.${extension}`,
-        file.type,
-        file.size,
-        storageKey,
-        entityType,
-        entityId,
-        mediaKind,
-      ],
-    );
+    const maximum = await prisma.mediaAsset.aggregate({
+      where: { entity_type: entityType, entity_id: entityId, media_kind: mediaKind },
+      _max: { sort_order: true },
+    });
+    await prisma.mediaAsset.create({
+      data: {
+        entity_type: entityType,
+        entity_id: entityId,
+        media_kind: mediaKind,
+        original_name: file.name || `upload.${extension}`,
+        mime_type: file.type,
+        file_size: file.size,
+        storage_key: storageKey,
+        sort_order: (maximum._max.sort_order ?? -1) + 1,
+      },
+    });
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ message: "อัปโหลดรูปภาพไม่สำเร็จ" }, { status: 500 });
@@ -163,12 +162,12 @@ export async function DELETE(request: Request) {
     mediaKind !== "hero"
   )
     return NextResponse.json({ message: "คำขอลบรูปภาพไม่ถูกต้อง" }, { status: 400 });
-  const [rows] = await db().execute<RowDataPacket[]>(
-    "SELECT storage_key FROM media_assets WHERE id=? AND entity_type=? AND entity_id=? AND media_kind='hero'",
-    [mediaId, entityType, entityId],
-  );
-  if (!rows[0]) return NextResponse.json({ message: "ไม่พบรูปภาพ" }, { status: 404 });
-  await db().execute("DELETE FROM media_assets WHERE id=?", [mediaId]);
-  await unlink(storedFilePath(rows[0].storage_key)).catch(() => undefined);
+  const media = await prisma.mediaAsset.findFirst({
+    where: { id: mediaId, entity_type: entityType, entity_id: entityId, media_kind: "hero" },
+    select: { storage_key: true },
+  });
+  if (!media) return NextResponse.json({ message: "ไม่พบรูปภาพ" }, { status: 404 });
+  await prisma.mediaAsset.delete({ where: { id: mediaId } });
+  await unlink(storedFilePath(media.storage_key)).catch(() => undefined);
   return NextResponse.json({ ok: true });
 }
