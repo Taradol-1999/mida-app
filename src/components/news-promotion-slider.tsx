@@ -48,7 +48,7 @@ export function NewsPromotionSlider({
         {items.map(([tag, title, detail], index) => (
           <article
             key={`${tag}-${title}-${index}`}
-            className={`min-w-[88%] snap-start rounded-2xl bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg sm:min-w-[calc(50%-0.625rem)] ${projectStyle ? "border border-brand-primary/15 lg:min-w-[calc(50%-0.625rem)] lg:p-8" : "border border-slate-200 lg:min-w-[calc(33.333%-0.875rem)]"}`}
+            className={`min-w-[92%] snap-start rounded-2xl bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-lg sm:min-w-[calc(50%-0.625rem)] sm:p-6 ${projectStyle ? "border border-brand-primary/15 lg:min-w-[calc(50%-0.625rem)] lg:p-8" : "border border-slate-200 lg:min-w-[calc(33.333%-0.875rem)]"}`}
           >
             <p className="inline-flex rounded-full bg-brand-accent-soft px-3 py-1 text-xs font-extrabold text-brand-primary">
               {tag}

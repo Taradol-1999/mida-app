@@ -22,8 +22,8 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
   }
 
   return (
-    <div className="relative mt-10 overflow-hidden pb-4">
-      <div className="relative mx-auto h-110 max-w-7xl md:h-135">
+    <div className="relative mt-7 overflow-hidden pb-4 sm:mt-10">
+      <div className="relative mx-auto h-100 max-w-7xl sm:h-110 md:h-135">
         {items.map((house, index) => {
           let offset = index - active;
           if (offset > items.length / 2) offset -= items.length;
@@ -32,7 +32,7 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
           return (
             <article
               key={house.id}
-              className="absolute left-1/2 top-0 h-105 w-[86%] overflow-hidden rounded-3xl bg-brand-primary shadow-2xl transition-all duration-500 md:h-130 md:w-[48%]"
+              className="absolute top-0 left-1/2 h-96 w-[88%] overflow-hidden rounded-2xl bg-brand-primary shadow-2xl transition-all duration-500 sm:h-105 sm:rounded-3xl md:h-130 md:w-[48%]"
               style={{
                 transform: `translateX(calc(-50% + ${offset * 52}%)) scale(${distance === 0 ? 1 : 0.86})`,
                 zIndex: 20 - distance,
@@ -55,9 +55,9 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
                 </div>
               )}
               <div className="absolute inset-0 bg-linear-to-t from-black via-black/25 to-black/10" />
-              <div className="absolute inset-x-0 bottom-0 p-6 text-white md:p-8">
+              <div className="absolute inset-x-0 bottom-0 p-5 text-white sm:p-6 md:p-8">
                 <p className="text-xs font-bold tracking-widest text-white/70">HOUSE TYPE</p>
-                <h3 className="mt-2 text-2xl font-black md:text-3xl">{house.name}</h3>
+                <h3 className="mt-2 text-xl font-black sm:text-2xl md:text-3xl">{house.name}</h3>
                 {house.description && (
                   <p className="mt-2 line-clamp-2 max-w-xl text-sm leading-6 text-white/80">{house.description}</p>
                 )}
@@ -80,7 +80,7 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
             type="button"
             onClick={() => move(-1)}
             aria-label="แบบบ้านก่อนหน้า"
-            className="absolute left-3 top-1/2 z-30 grid size-14 -translate-y-1/2 place-items-center rounded-full bg-white text-brand-primary shadow-xl md:left-[8%]"
+            className="absolute top-1/2 left-2 z-30 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-white text-brand-primary shadow-xl sm:left-3 sm:size-14 md:left-[8%]"
           >
             <i className="fa-solid fa-chevron-left" />
           </button>
@@ -88,7 +88,7 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
             type="button"
             onClick={() => move(1)}
             aria-label="แบบบ้านถัดไป"
-            className="absolute right-3 top-1/2 z-30 grid size-14 -translate-y-1/2 place-items-center rounded-full bg-white text-brand-primary shadow-xl md:right-[8%]"
+            className="absolute top-1/2 right-2 z-30 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-white text-brand-primary shadow-xl sm:right-3 sm:size-14 md:right-[8%]"
           >
             <i className="fa-solid fa-chevron-right" />
           </button>

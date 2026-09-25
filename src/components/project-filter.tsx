@@ -97,8 +97,8 @@ export function ProjectFilter() {
     </label>
   );
   return (
-    <section id="projects" className="container-page relative z-10 -mt-14 pb-18">
-      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xl shadow-slate-900/10 md:p-6">
+    <section id="projects" className="container-page relative z-10 -mt-10 pb-12 sm:-mt-14 sm:pb-18">
+      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xl shadow-slate-900/10 sm:p-5 md:p-6">
         <p className="mb-4 text-sm font-bold text-brand-primary">
           <i className="fa-solid fa-magnifying-glass mr-2" />
           ค้นหาโครงการ
@@ -156,18 +156,24 @@ export function ProjectFilter() {
           )}
         </div>
       </div>
-      <div className="mt-14">
+      <div className="mt-10 sm:mt-14">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="text-xs font-bold text-brand-primary">
               <i className="fa-solid fa-city mr-2" />
               โครงการทั้งหมด
             </p>
-            <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-800">เลือกบ้านที่ใช่สำหรับคุณ</h2>
+            <h2 className="mt-2 text-2xl font-black tracking-tight text-slate-800 sm:text-3xl">
+              เลือกบ้านที่ใช่สำหรับคุณ
+            </h2>
             <p className="mt-2 text-sm text-slate-400">
               เลือกสไตล์ฟิลเตอร์เพื่อรับชมกลุ่มโครงการที่แมตช์กับไลฟ์สไตล์คุณ
             </p>
           </div>
+          <span className="inline-flex items-center rounded-full bg-brand-primary px-4 py-2 text-xs font-bold text-white shadow-sm">
+            <i className="fa-solid fa-house mr-2 text-brand-accent" />
+            พบ {visible.length} โครงการ
+          </span>
         </div>
         <div className="mt-4 flex gap-2 overflow-x-auto pb-3 pt-2">
           {tagOptions.map((label) => (
@@ -189,7 +195,7 @@ export function ProjectFilter() {
             key={project.slug}
             className={`group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_12px_35px_rgba(0,45,98,0.08)] transition duration-300 hover:-translate-y-1.5 hover:border-brand-accent hover:shadow-[0_20px_45px_rgba(0,45,98,0.14)] ${index === 0 ? "xl:col-span-2" : ""}`}
           >
-            <div className="project-card-cool relative h-64 overflow-hidden">
+            <div className="project-card-cool relative h-52 overflow-hidden sm:h-60">
               {project.has_cover && project.id ? (
                 <img
                   src={`/api/admin/media?entityType=projects&entityId=${project.id}`}
@@ -222,44 +228,56 @@ export function ProjectFilter() {
                 {project.location}
               </span>
             </div>
-            <div className="flex flex-1 flex-col p-6">
-              <div className="flex-1">
+            <div className="flex flex-1 flex-col p-5 sm:p-6">
+              <div className="flex items-center justify-between gap-3">
                 <span className="inline-flex rounded-full bg-brand-soft px-3 py-1.5 text-[10px] font-bold text-brand-primary">
+                  <i className="fa-solid fa-house-chimney mr-1.5" />
                   {project.type}
                 </span>
+                <span
+                  className={`inline-flex items-center text-[11px] font-semibold ${project.status === "พร้อมอยู่" ? "text-emerald-700" : "text-amber-700"}`}
+                >
+                  <i
+                    className={`fa-solid ${project.status === "พร้อมอยู่" ? "fa-circle-check" : "fa-helmet-safety"} mr-1.5`}
+                  />
+                  {project.status}
+                </span>
+              </div>
+              <div className="mt-4 h-0.5 w-12 rounded-full bg-brand-accent" />
+              <div className="flex-1">
                 <h3 className="mt-4 line-clamp-2 text-[1.35rem] leading-tight font-black tracking-tight text-slate-800">
                   {project.name}
                 </h3>
                 <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-500">{project.description}</p>
               </div>
-
-              <div className="mt-5 flex items-end justify-between gap-4 border-y border-slate-100 py-4">
-                <div>
-                  <p className="text-[11px] font-semibold tracking-wide text-slate-400">ราคาเริ่มต้น</p>
-                  <p className="mt-1 text-xl font-black text-brand-primary">{project.price}</p>
+              <div className="mt-5 rounded-xl bg-brand-muted p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">ราคาเริ่มต้น</p>
+                    <p className="mt-1 text-xl font-black text-brand-primary">{project.price}</p>
+                  </div>
+                  {project.has_brochure && project.id ? (
+                    <a
+                      href={`/api/admin/media?entityType=projects&entityId=${project.id}&mediaKind=brochure`}
+                      download
+                      className="inline-flex items-center rounded-lg border border-brand-primary/20 bg-white px-3 py-2 text-xs font-bold text-brand-primary transition hover:border-brand-accent hover:bg-brand-accent-soft"
+                    >
+                      <i className="fa-solid fa-file-arrow-down mr-2" />
+                      โบรชัวร์
+                    </a>
+                  ) : null}
                 </div>
-                <span className="grid size-10 shrink-0 place-items-center rounded-full bg-brand-accent-soft text-brand-primary transition group-hover:bg-brand-accent">
-                  <i className="fa-solid fa-arrow-trend-up" />
-                </span>
               </div>
-
-              <div className={`mt-5 grid gap-3 ${project.has_brochure && project.id ? "grid-cols-2" : "grid-cols-1"}`}>
+              <div className="mt-4">
                 <Link
                   href={`/projects/${project.slug}`}
-                  className="inline-flex min-h-12 items-center justify-center rounded-xl bg-brand-primary px-4 py-3 text-center text-xs font-bold text-white transition hover:bg-brand-overlay"
+                  className="inline-flex min-h-12 w-full items-center justify-between rounded-xl bg-brand-primary px-5 py-3 text-center text-xs font-bold text-white transition hover:bg-brand-overlay"
                 >
-                  ดูข้อมูลโครงการ <i className="fa-solid fa-arrow-right ml-2 transition group-hover:translate-x-1" />
+                  <span>ดูข้อมูลโครงการ</span>
+                  <span className="grid size-7 place-items-center rounded-full bg-white/10">
+                    <i className="fa-solid fa-arrow-right transition group-hover:translate-x-0.5" />
+                  </span>
                 </Link>
-                {project.has_brochure && project.id ? (
-                  <a
-                    href={`/api/admin/media?entityType=projects&entityId=${project.id}&mediaKind=brochure`}
-                    download
-                    className="inline-flex min-h-12 items-center justify-center rounded-xl border border-brand-primary px-4 py-3 text-center text-xs font-bold text-brand-primary transition hover:border-brand-accent hover:bg-brand-accent-soft"
-                  >
-                    <i className="fa-solid fa-file-arrow-down mr-2" />
-                    โบรชัวร์
-                  </a>
-                ) : null}
               </div>
             </div>
           </article>

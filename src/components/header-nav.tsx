@@ -46,7 +46,10 @@ export function HeaderNav({ items }: { items: { href: string; label: string }[] 
     <a
       key={item.href}
       href={item.href}
-      onClick={() => setActiveHref(item.href)}
+      onClick={(event) => {
+        setActiveHref(item.href);
+        event.currentTarget.closest("details")?.removeAttribute("open");
+      }}
       aria-current={activeHref === item.href ? "location" : undefined}
       className={`border-b-2 pb-1 transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-primary ${
         activeHref === item.href

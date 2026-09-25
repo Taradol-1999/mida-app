@@ -63,7 +63,7 @@ export function HeroImageSlider({
 
   return (
     <section
-      className="relative min-h-120 overflow-hidden bg-brand-primary"
+      className="relative min-h-112 overflow-hidden bg-brand-primary sm:min-h-120"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}
@@ -101,16 +101,18 @@ export function HeroImageSlider({
         className={`absolute inset-0 ${hasImages ? "bg-linear-to-r from-brand-primary/90 via-brand-primary/55 to-transparent" : "hero-shade"}`}
       />
 
-      <div className="container-page relative flex min-h-120 items-center py-24 text-white">
-        <div className="w-full max-w-7xl">
-          <h1 className="text-4xl font-extrabold leading-tight drop-shadow-md md:text-6xl">{title}</h1>
-          <p className="mt-6 text-lg leading-8 text-slate-100 drop-shadow">{description}</p>
-          {meta && <p className="mt-5 text-xl font-extrabold text-white drop-shadow">{meta}</p>}
+      <div className="container-page relative flex min-h-112 items-center py-16 text-white sm:min-h-120 sm:py-24">
+        <div className="w-full max-w-5xl">
+          <h1 className="text-3xl leading-tight font-extrabold drop-shadow-md sm:text-4xl md:text-6xl">{title}</h1>
+          <p className="mt-4 max-w-3xl text-base leading-7 text-slate-100 drop-shadow sm:mt-6 sm:text-lg sm:leading-8">
+            {description}
+          </p>
+          {meta && <p className="mt-4 text-lg font-extrabold text-white drop-shadow sm:mt-5 sm:text-xl">{meta}</p>}
           {actionHref && (
             <a
               href={actionHref}
               download
-              className="mt-6 inline-flex items-center gap-2 rounded-xl border border-brand-accent/50 bg-brand-accent px-5 py-3 text-sm font-bold text-brand-primary shadow-lg transition hover:-translate-y-0.5 hover:bg-brand-accent-soft"
+              className="mt-5 inline-flex max-w-full items-center gap-2 rounded-xl border border-brand-accent/50 bg-brand-accent px-4 py-2.5 text-sm font-bold text-brand-primary shadow-lg transition hover:-translate-y-0.5 hover:bg-brand-accent-soft sm:mt-6 sm:px-5 sm:py-3"
             >
               <i className="fa-solid fa-file-arrow-down" />
               {actionLabel ?? "ดาวน์โหลด"}

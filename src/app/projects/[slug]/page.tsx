@@ -154,7 +154,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   return (
     <main className="bg-slate-50">
       <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
-        <div className="project-container flex min-h-18 items-center justify-between gap-4">
+        <div className="project-container flex min-h-16 items-center justify-between gap-3 sm:min-h-18">
           <Link
             href="/"
             aria-label={`กลับหน้าหลัก MIDA จากโครงการ ${project.name}`}
@@ -175,6 +175,22 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
               ]}
             />
           </nav>
+          <details className="group relative lg:hidden">
+            <summary className="grid size-10 cursor-pointer list-none place-items-center rounded-lg border border-slate-200 text-brand-primary [&::-webkit-details-marker]:hidden">
+              <i className="fa-solid fa-bars" aria-hidden="true" />
+              <span className="sr-only">เปิดเมนูโครงการ</span>
+            </summary>
+            <nav className="absolute right-0 top-12 flex w-64 flex-col gap-1 rounded-xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-600 shadow-xl">
+              <HeaderNav
+                items={[
+                  { href: "#house-types", label: "แบบบ้าน" },
+                  { href: "#facilities", label: "ส่วนกลาง" },
+                  { href: "#project-promo-news", label: "Promotion" },
+                  { href: "#mida-care", label: "บริการหลังการขาย" },
+                ]}
+              />
+            </nav>
+          </details>
         </div>
       </header>
       <HeroImageSlider
@@ -185,11 +201,11 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         actionHref={project.brochureUrl}
         actionLabel="โหลดโบรชัวร์โครงการ"
       />
-      <section id="overview" className="project-container py-14 md:py-16">
+      <section id="overview" className="project-container py-10 sm:py-14 md:py-16">
         <ProjectGallery items={project.galleryMedia} />
       </section>
       {project.houseTypes.length > 0 && (
-        <section id="house-types" className="bg-white py-16">
+        <section id="house-types" className="bg-white py-12 sm:py-16">
           <div className="project-container">
             <div className="gold-rule mb-3" />
             <h2 className="section-title">รูปแบบบ้านและราคาเริ่มต้น (House Types)</h2>
@@ -198,7 +214,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         </section>
       )}
       {project.facilities.length > 0 && (
-        <section id="facilities" className="bg-brand-primary py-14 text-white md:py-16">
+        <section id="facilities" className="bg-brand-primary py-12 text-white md:py-16">
           <div className="project-container">
             <div>
               <span className="mb-3 block h-1 w-14 rounded-full bg-brand-accent" />
@@ -224,7 +240,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         </section>
       )}
       {projectUpdates.length > 0 && (
-        <section id="project-promo-news" className="bg-brand-muted py-16">
+        <section id="project-promo-news" className="bg-brand-muted py-12 sm:py-16">
           <div className="project-container">
             <h2 className="text-2xl font-bold text-brand-primary md:text-3xl">
               <i className="fa-solid fa-fire mr-2" />
@@ -237,12 +253,12 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           </div>
         </section>
       )}
-      <section id="map" className="bg-white py-16">
+      <section id="map" className="bg-white py-12 sm:py-16">
         <div className="project-container">
           <h2 className="section-title">แผนที่และสถานที่ใกล้เคียง</h2>
           <div className="mt-7 grid gap-6 lg:grid-cols-[1.35fr_.65fr]">
             <ProjectLocationMap projects={[mapProject]} />
-            <aside className="rounded-2xl bg-brand-muted p-6">
+            <aside className="rounded-2xl bg-brand-muted p-4 sm:p-6">
               <h3 className="font-extrabold text-brand-primary">สถานที่ใกล้เคียง</h3>
               <a
                 href={project.settings.map_url || directionsUrl(mapProject)}
@@ -264,7 +280,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           </div>
           {project.settings.virtual_tour_url && (
             <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-brand-muted p-4">
-              <div className="mb-3 flex items-center justify-between gap-3">
+              <div className="mb-3 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <h3 className="font-extrabold text-brand-primary">Map 3D / Virtual Tour</h3>
                 <a
                   href={String(project.settings.virtual_tour_url)}
@@ -278,7 +294,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
               <iframe
                 src={String(project.settings.virtual_tour_url)}
                 title={`Virtual Tour ${project.name}`}
-                className="h-[28rem] w-full rounded-xl bg-white"
+                className="h-72 w-full rounded-xl bg-white sm:h-[28rem]"
                 loading="lazy"
                 allowFullScreen
               />
@@ -286,7 +302,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           )}
         </div>
       </section>
-      <section id="mida-care" className="bg-brand-muted py-16">
+      <section id="mida-care" className="bg-brand-muted py-12 sm:py-16">
         <div className="project-container">
           <div className="text-center">
             <p className="text-sm font-bold tracking-widest text-brand-text">MIDA CARE</p>
@@ -318,7 +334,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           </div>
         </div>
       </section>
-      <section id="register" className="project-container py-16 text-center">
+      <section id="register" className="project-container py-12 text-center sm:py-16">
         <h2 className="section-title">รับข้อเสนอพิเศษ</h2>
         <p className="mt-3 text-slate-500">ลงทะเบียนเพื่อรับข้อมูลโครงการและนัดหมายเข้าชม</p>
         <LeadOpenButton className="mt-6 rounded-full bg-brand-primary px-8 py-3 text-sm font-bold text-white shadow-lg hover:bg-brand-text">

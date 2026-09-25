@@ -31,7 +31,7 @@ export function ProjectGallery({ items }: { items: ProjectGalleryItem[] }) {
 
   if (!items.length) {
     return (
-      <div className="grid min-h-96 place-items-center rounded-3xl border border-dashed border-slate-300 bg-white text-sm font-semibold text-slate-500">
+      <div className="grid min-h-64 place-items-center rounded-3xl border border-dashed border-slate-300 bg-white text-sm font-semibold text-slate-500 sm:min-h-96">
         <div className="text-center">
           <i className="fa-regular fa-images mb-3 block text-4xl text-slate-300" />
           ยังไม่มีรูป Gallery
@@ -48,14 +48,14 @@ export function ProjectGallery({ items }: { items: ProjectGalleryItem[] }) {
 
   return (
     <>
-      <div className="mb-9 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-6 flex flex-col gap-5 sm:mb-9 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="gold-rule mb-2" />
           <h2 className="section-title">อัลบั้มภาพ</h2>
         </div>
       </div>
 
-      <div className="grid auto-rows-60 grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-12">
+      <div className="grid auto-rows-52 grid-cols-1 gap-3 sm:auto-rows-60 sm:grid-cols-2 lg:grid-cols-12">
         {visibleItems.map((item, index) => (
           <button
             key={`${item.src}-${index}`}
@@ -118,18 +118,18 @@ export function ProjectGallery({ items }: { items: ProjectGalleryItem[] }) {
           role="dialog"
           aria-modal="true"
           aria-label={`ภาพโครงการ ${selected! + 1} จาก ${items.length}`}
-          className="fixed inset-0 z-50 grid place-items-center bg-black/90 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-50 grid place-items-center bg-black/90 p-2 backdrop-blur-sm sm:p-4"
           onClick={() => setSelected(null)}
         >
           <button
             type="button"
             onClick={() => setSelected(null)}
             aria-label="ปิดแกลเลอรี"
-            className="absolute right-5 top-5 z-10 grid size-11 place-items-center rounded-full bg-white text-slate-950 shadow-lg"
+            className="absolute top-3 right-3 z-10 grid size-10 place-items-center rounded-full bg-white text-slate-950 shadow-lg sm:top-5 sm:right-5 sm:size-11"
           >
             <i className="fa-solid fa-xmark" />
           </button>
-          <div className="relative h-[82vh] w-full max-w-6xl" onClick={(event) => event.stopPropagation()}>
+          <div className="relative h-[78vh] w-full max-w-6xl sm:h-[82vh]" onClick={(event) => event.stopPropagation()}>
             {current.type === "video" ? (
               <video src={current.src} controls autoPlay playsInline className="size-full object-contain" />
             ) : (
@@ -148,7 +148,7 @@ export function ProjectGallery({ items }: { items: ProjectGalleryItem[] }) {
                   type="button"
                   onClick={() => move(-1)}
                   aria-label="ภาพก่อนหน้า"
-                  className="absolute left-2 top-1/2 grid size-12 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-brand-primary shadow-lg sm:-left-16"
+                  className="absolute top-1/2 left-2 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-brand-primary shadow-lg sm:-left-16 sm:size-12"
                 >
                   <i className="fa-solid fa-chevron-left" />
                 </button>
@@ -156,7 +156,7 @@ export function ProjectGallery({ items }: { items: ProjectGalleryItem[] }) {
                   type="button"
                   onClick={() => move(1)}
                   aria-label="ภาพถัดไป"
-                  className="absolute right-2 top-1/2 grid size-12 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-brand-primary shadow-lg sm:-right-16"
+                  className="absolute top-1/2 right-2 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-brand-primary shadow-lg sm:-right-16 sm:size-12"
                 >
                   <i className="fa-solid fa-chevron-right" />
                 </button>

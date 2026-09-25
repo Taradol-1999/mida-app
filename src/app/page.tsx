@@ -95,7 +95,7 @@ export default async function HomePage() {
   return (
     <main>
       <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur">
-        <div className="container-page flex h-18 items-center justify-between gap-6">
+        <div className="container-page flex h-16 items-center justify-between gap-4 sm:h-18">
           <Link href="/" className="flex items-center gap-2 font-extrabold tracking-tight text-brand-primary">
             <span className="grid size-9 place-items-center rounded bg-brand-accent text-sm text-brand-primary">M</span>
             <span>
@@ -114,6 +114,19 @@ export default async function HomePage() {
               ผู้ดูแลระบบ
             </Link>
           </nav>
+          <details className="group relative md:hidden">
+            <summary className="grid size-10 cursor-pointer list-none place-items-center rounded-lg border border-slate-200 text-brand-primary [&::-webkit-details-marker]:hidden">
+              <i className="fa-solid fa-bars" aria-hidden="true" />
+              <span className="sr-only">เปิดเมนู</span>
+            </summary>
+            <nav className="absolute right-0 top-12 flex w-64 flex-col gap-1 rounded-xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-600 shadow-xl">
+              <HeaderNav items={nav} />
+              <Link href="/login" className="mt-1 rounded-lg bg-brand-soft px-3 py-2.5 text-brand-primary">
+                <i className="fa-solid fa-user-shield mr-2" />
+                ผู้ดูแลระบบ
+              </Link>
+            </nav>
+          </details>
         </div>
       </header>
       <HeroImageSlider
@@ -122,14 +135,14 @@ export default async function HomePage() {
         description={content.home_hero?.body ?? ""}
       />
       <ProjectFilter />
-      <section id="promotion" className="bg-white py-16">
+      <section id="promotion" className="bg-white py-12 sm:py-16">
         <div className="container-page">
           <div className="gold-rule" />
           <h2 className="section-title">ข่าวสารและโปรโมชั่น</h2>
           <NewsPromotionSlider items={updates} />
         </div>
       </section>
-      <section id="location" className="bg-brand-muted py-16">
+      <section id="location" className="bg-brand-muted py-12 sm:py-16">
         <div className="container-page">
           <div className="mb-7 max-w-2xl">
             <div className="gold-rule" />
@@ -150,7 +163,7 @@ export default async function HomePage() {
           />
         </div>
       </section>
-      <footer className="bg-brand-primary py-9 text-sm text-white/80">
+      <footer className="bg-brand-primary py-8 text-sm text-white/80 sm:py-9">
         <div className="container-page flex flex-col justify-between gap-3 md:flex-row">
           <p>© {new Date().getFullYear()} MIDA Agency & Development</p>
           <p>{content.contact?.body ?? "โทร 02-000-0000 · Line @midaagency"}</p>

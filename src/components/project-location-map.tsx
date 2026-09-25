@@ -93,17 +93,17 @@ export function ProjectLocationMap({ projects, center }: { projects: MapProject[
   return (
     <div className="relative isolate z-0 overflow-hidden rounded-2xl border border-brand-primary/15 bg-white shadow-sm">
       {center && (
-        <div className="flex items-center gap-3 border-b border-brand-primary/10 bg-brand-primary px-5 py-4 text-white">
+        <div className="flex items-center gap-3 border-b border-brand-primary/10 bg-brand-primary px-4 py-3 text-white sm:px-5 sm:py-4">
           <span className="grid size-9 shrink-0 place-items-center rounded-full bg-white font-black text-brand-primary">
             M
           </span>
-          <span className="text-sm">
+          <span className="min-w-0 text-sm">
             <strong className="block">{center.name} · จุดศูนย์กลาง</strong>
-            <span className="text-xs text-white/75">{center.address}</span>
+            <span className="block text-xs leading-5 text-white/75">{center.address}</span>
           </span>
         </div>
       )}
-      <div ref={mapElement} className="h-112 w-full" aria-label="OpenStreetMap แสดงตำแหน่งโครงการ" />
+      <div ref={mapElement} className="h-80 w-full sm:h-96 lg:h-112" aria-label="OpenStreetMap แสดงตำแหน่งโครงการ" />
     </div>
   );
 }

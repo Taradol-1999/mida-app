@@ -37,19 +37,33 @@ html {
 
 body {
   margin: 0;
+  overflow-x: clip;
   background: var(--mida-mist);
   color: var(--mida-ink);
   font-family: var(--font-ibm-plex-sans-thai), Arial, "Noto Sans Thai", sans-serif;
 }
 
-@utility container-page {
-  width: min(100% - 20rem, 160rem);
-  margin-inline: auto;
-}
+@layer utilities {
+  .container-page,
+  .project-container {
+    width: calc(100% - 2rem);
+    max-width: 160rem;
+    margin-inline: auto;
+  }
 
-@utility project-container {
-  width: min(100% - 20rem, 160rem);
-  margin-inline: auto;
+  @media (min-width: 48rem) {
+    .container-page,
+    .project-container {
+      width: calc(100% - 4rem);
+    }
+  }
+
+  @media (min-width: 80rem) {
+    .container-page,
+    .project-container {
+      width: min(calc(100% - 20rem), 160rem);
+    }
+  }
 }
 
 @utility section-title {

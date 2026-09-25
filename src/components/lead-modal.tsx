@@ -37,7 +37,7 @@ export function LeadModal({ projectId, projectName }: { projectId?: string | nul
           setStatus("idle");
           setOpen(true);
         }}
-        className="fixed bottom-5 right-5 z-30 grid size-16 place-items-center rounded-full bg-brand-primary text-center text-xs font-bold text-white shadow-xl ring-4 ring-white hover:bg-brand-text"
+        className="fixed right-3 bottom-3 z-30 grid size-14 place-items-center rounded-full bg-brand-primary text-center text-[10px] font-bold text-white shadow-xl ring-4 ring-white hover:bg-brand-text sm:right-5 sm:bottom-5 sm:size-16 sm:text-xs"
         aria-label="นัดชมโครงการ"
       >
         นัดชม
@@ -46,16 +46,16 @@ export function LeadModal({ projectId, projectName }: { projectId?: string | nul
       </button>
       {open && (
         <div
-          className="fixed inset-0 z-40 grid place-items-center bg-brand-overlay/65 p-4"
+          className="fixed inset-0 z-40 grid place-items-center bg-brand-overlay/65 p-2 sm:p-4"
           role="dialog"
           aria-modal="true"
           aria-label="นัดชมโครงการ"
         >
-          <div className="max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl md:p-8">
+          <div className="max-h-[96vh] w-full max-w-5xl overflow-y-auto rounded-2xl bg-white p-4 shadow-2xl sm:p-6 md:p-8">
             <div className="mb-5 flex items-start justify-between">
               <div>
                 <p className="text-sm font-bold text-brand-text">MIDA PROPERTY</p>
-                <h2 className="text-2xl font-extrabold text-brand-primary">ลงทะเบียนรับข้อเสนอพิเศษ</h2>
+                <h2 className="text-xl font-extrabold text-brand-primary sm:text-2xl">ลงทะเบียนรับข้อเสนอพิเศษ</h2>
                 <p className="mt-1 text-sm text-slate-500">
                   {projectName ? `โครงการ ${projectName}` : "ทีมงานจะติดต่อกลับโดยเร็วที่สุด"}
                 </p>
