@@ -25,6 +25,8 @@
 
 html {
   scroll-behavior: smooth;
+  /* Keep anchor sections and their orange heading rules below the sticky header. */
+  scroll-padding-top: 5.5rem;
 }
 
 body {

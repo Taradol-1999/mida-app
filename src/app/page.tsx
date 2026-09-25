@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { HeaderNav } from "@/components/header-nav";
 import { HeroImageSlider } from "@/components/hero-image-slider";
 import { ProjectLocationMap } from "@/components/project-location-map";
 import { LeadModal } from "@/components/lead-modal";
@@ -102,11 +103,7 @@ export default async function HomePage() {
             </span>
           </Link>
           <nav className="hidden items-center gap-7 text-sm font-semibold text-slate-600 md:flex">
-            {nav.map((item) => (
-              <a key={item.href} href={item.href} className="hover:text-brand-primary">
-                {item.label}
-              </a>
-            ))}
+            <HeaderNav items={nav} />
             <a href="#projects" aria-label="ค้นหาโครงการ" className="hover:text-brand-primary">
               <i className="fa-solid fa-magnifying-glass" />
             </a>

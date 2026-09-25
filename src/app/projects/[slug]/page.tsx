@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { HeaderNav } from "@/components/header-nav";
 import { notFound } from "next/navigation";
 import { HeroImageSlider } from "@/components/hero-image-slider";
 import { ProjectLocationMap } from "@/components/project-location-map";
@@ -165,18 +166,14 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
             <span className="truncate text-sm sm:text-base">{project.name}</span>
           </Link>
           <nav className="hidden items-center gap-5 text-xs font-semibold text-slate-600 lg:flex">
-            <a href="#house-types" className="border-b-2 border-brand-primary pb-1 text-brand-primary">
-              แบบบ้าน
-            </a>
-            <a href="#facilities" className="hover:text-brand-primary">
-              ส่วนกลาง
-            </a>
-            <a href="#project-promo-news" className="hover:text-brand-primary">
-              Promotion
-            </a>
-            <a href="#mida-care" className="hover:text-brand-primary">
-              บริการหลังการขาย
-            </a>
+            <HeaderNav
+              items={[
+                { href: "#house-types", label: "แบบบ้าน" },
+                { href: "#facilities", label: "ส่วนกลาง" },
+                { href: "#project-promo-news", label: "Promotion" },
+                { href: "#mida-care", label: "บริการหลังการขาย" },
+              ]}
+            />
           </nav>
           <LeadOpenButton className="rounded-lg bg-brand-primary px-3 py-2 text-xs font-bold text-white">
             นัดชมโครงการ
