@@ -34,9 +34,9 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
               key={house.id}
               className="absolute left-1/2 top-0 h-105 w-[86%] overflow-hidden rounded-3xl bg-brand-primary shadow-2xl transition-all duration-500 md:h-130 md:w-[48%]"
               style={{
-                transform: `translateX(calc(-50% + ${offset * 72}%)) scale(${distance === 0 ? 1 : 0.86})`,
+                transform: `translateX(calc(-50% + ${offset * 52}%)) scale(${distance === 0 ? 1 : 0.86})`,
                 zIndex: 20 - distance,
-                opacity: distance > 2 ? 0 : distance === 0 ? 1 : 0.78,
+                opacity: distance > 1 ? 0 : distance === 0 ? 1 : 0.78,
                 pointerEvents: distance > 1 ? "none" : "auto",
               }}
             >

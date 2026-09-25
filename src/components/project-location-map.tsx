@@ -91,7 +91,7 @@ export function ProjectLocationMap({ projects, center }: { projects: MapProject[
   }, [center, projects]);
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-brand-primary/15 bg-white shadow-sm">
+    <div className="relative isolate z-0 overflow-hidden rounded-2xl border border-brand-primary/15 bg-white shadow-sm">
       {center && (
         <div className="flex items-center gap-3 border-b border-brand-primary/10 bg-brand-primary px-5 py-4 text-white">
           <span className="grid size-9 shrink-0 place-items-center rounded-full bg-white font-black text-brand-primary">

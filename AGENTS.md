@@ -199,7 +199,8 @@ Uploaded images and videos are files on the local machine, not remote URLs and n
 - `/admin` is the global dashboard.
 - `/admin/project/[id]/[section]` is the project-scoped workspace.
 - `/admin/projects` creates new projects only. Existing project catalogue details are edited in the project-scoped `project-info` section.
-- Project information and homepage management share the `project-info` page; it contains catalogue fields, cover media, Hero copy/media, and the brochure.
+- Project information and homepage management share one form on the `project-info` page; it contains catalogue fields, cover media, Hero copy/media, and the brochure with one save action. Latitude and longitude are managed only from the contact/map section.
+- Project-scoped house types, facilities, promotions, and news use summary tables. Creating and editing records happens in a modal so existing records remain easy to scan.
 - Project sidebar sections include dashboard, combined project information/homepage, house types, facilities, promotions, news, contact/map, and leads.
 - Edit forms must preload current database values.
 - Image inputs upload files from the user's computer; do not replace them with URL-only fields.

@@ -42,6 +42,11 @@ const projects = [
     removeDemoFacilities: [],
     removeDemoHouses: [],
     houses: [],
+    houseImages: [
+      ["TOWNHOME", "https://www.midaproperty.com/wp-content/uploads/2023/08/AW_Brochure_GVLPKS-05-scaled.jpg"],
+      ["Minor", "https://www.midaproperty.com/wp-content/uploads/2023/08/AW_Brochure_GVLPKS-07-scaled.jpg"],
+      ["Mild", "https://www.midaproperty.com/wp-content/uploads/2023/08/AW_Brochure_GVLPKS-09-scaled.jpg"],
+    ],
     images: [
       ["hero", "https://www.midaproperty.com/wp-content/uploads/2023/08/Ovar-All-Final-1-scaled.jpg"],
       ["hero", "https://www.midaproperty.com/wp-content/uploads/2023/08/AW_Brochure_GVLPKS-03-scaled.jpg"],
@@ -92,6 +97,12 @@ const projects = [
       ["VANDA", "บ้านเดี่ยวสำหรับครอบครัวขนาดใหญ่ ภายในโปร่งและเชื่อมต่อฟังก์ชันอย่างลงตัว", 3, 2, 130],
       ["LAVENDER", "บ้านเดี่ยวที่จัดพื้นที่เป็นสัดส่วน เชื่อมบรรยากาศภายในและภายนอกเพื่อการพักผ่อน", 3, 2, 113],
       ["ASTER", "บ้านเดี่ยวขนาดกะทัดรัดสำหรับการเริ่มต้นครอบครัว พร้อมฟังก์ชันการใช้งานครบ", 2, 1, 90],
+    ],
+    houseImages: [
+      ["TOWNHOME", "https://www.midaproperty.com/wp-content/uploads/2021/08/8-2.jpg"],
+      ["VANDA", "https://www.midaproperty.com/wp-content/uploads/2021/08/2-4.jpg"],
+      ["LAVENDER", "https://www.midaproperty.com/wp-content/uploads/2021/08/6-2.jpg"],
+      ["ASTER", "https://www.midaproperty.com/wp-content/uploads/2021/08/9-2.jpg"],
     ],
     images: [
       ["cover", "https://www.midaproperty.com/wp-content/uploads/2021/08/2-4.jpg"],
@@ -151,6 +162,12 @@ const projects = [
       ["TYPE C", "บ้านเดี่ยว 2 ชั้นสำหรับครอบครัวที่ต้องการพื้นที่ใช้สอยมากขึ้น", 3, 3, 200],
       ["TYPE D", "บ้านเดี่ยว 2 ชั้น ฟังก์ชันลงตัวสำหรับครอบครัวยุคใหม่", 3, 2, 120],
     ],
+    houseImages: [
+      ["TYPE A", "https://www.midaproperty.com/wp-content/uploads/2021/08/Lp-House-Type-A-Preview.jpg"],
+      ["TYPE B", "https://www.midaproperty.com/wp-content/uploads/2021/08/LP-House-Type-B-Preview.jpg"],
+      ["TYPE C", "https://www.midaproperty.com/wp-content/uploads/2021/08/LP-House-Type-C-Preview.jpg"],
+      ["TYPE D", "https://www.midaproperty.com/wp-content/uploads/2021/08/LP-House-Type-D-Preview.jpg"],
+    ],
     images: [
       ["cover", "https://www.midaproperty.com/wp-content/uploads/2021/08/1.jpg"],
       ["hero", "https://www.midaproperty.com/wp-content/uploads/2021/08/Lp-House-Type-A-Preview.jpg"],
@@ -199,6 +216,11 @@ const projects = [
       ["TYPE B", "บ้านเดี่ยวขนาดใหญ่ พร้อมพื้นที่พักผ่อนสำหรับสมาชิกทุกคน", 4, 4, 230],
       ["Home Office", "โฮมออฟฟิศที่รองรับทั้งการอยู่อาศัยและการทำงาน", 4, 3, 190],
     ],
+    houseImages: [
+      ["TYPE A", "https://www.midaproperty.com/wp-content/uploads/2026/02/DSC08595-scaled.jpeg"],
+      ["TYPE B", "https://www.midaproperty.com/wp-content/uploads/2026/02/DSC08756-scaled.jpeg"],
+      ["Home Office", "https://www.midaproperty.com/wp-content/uploads/2021/08/Home-Office.jpg"],
+    ],
     images: [
       ["cover", "https://www.midaproperty.com/wp-content/uploads/2026/02/DSC08595-scaled.jpeg"],
       ["hero", "https://www.midaproperty.com/wp-content/uploads/2026/02/DSC08512-scaled.jpeg"],
@@ -228,6 +250,24 @@ const projects = [
       ["LAVENDER", "บ้านเดี่ยวที่จัดพื้นที่เป็นสัดส่วน โปร่งสบาย และรองรับทุกฟังก์ชันของครอบครัว", 3, 2, 115],
       ["VANDA", "บ้านเดี่ยวพื้นที่กว้างสำหรับครอบครัว พร้อมฟังก์ชันใช้งานครบถ้วน", 3, 2, 130],
       ["TownHome 1ชั้น", "ทาวน์โฮมชั้นเดียวสไตล์โมเดิร์น โปร่ง โล่ง พร้อมช่องระบายอากาศ", 2, 1, 68],
+    ],
+    houseImages: [
+      [
+        "ASTER",
+        "https://www.midaproperty.com/wp-content/uploads/2022/06/LINE_ALBUM_%E0%B9%80%E0%B8%9C%E0%B8%B7%E0%B9%88%E0%B8%AD%E0%B9%83%E0%B8%8A%E0%B9%89%E0%B8%87%E0%B8%B2%E0%B8%99%E0%B8%84%E0%B8%A3%E0%B8%B1%E0%B8%9A_%E0%B9%92%E0%B9%92%E0%B9%90%E0%B9%96%E0%B9%90%E0%B9%99_23.jpg",
+      ],
+      [
+        "LAVENDER",
+        "https://www.midaproperty.com/wp-content/uploads/2022/06/LINE_ALBUM_%E0%B9%80%E0%B8%9C%E0%B8%B7%E0%B9%88%E0%B8%AD%E0%B9%83%E0%B8%8A%E0%B9%89%E0%B8%87%E0%B8%B2%E0%B8%99%E0%B8%84%E0%B8%A3%E0%B8%B1%E0%B8%9A_%E0%B9%92%E0%B9%92%E0%B9%90%E0%B9%96%E0%B9%90%E0%B9%99_22.jpg",
+      ],
+      [
+        "VANDA",
+        "https://www.midaproperty.com/wp-content/uploads/2022/06/LINE_ALBUM_%E0%B9%80%E0%B8%9C%E0%B8%B7%E0%B9%88%E0%B8%AD%E0%B9%83%E0%B8%8A%E0%B9%89%E0%B8%87%E0%B8%B2%E0%B8%99%E0%B8%84%E0%B8%A3%E0%B8%B1%E0%B8%9A_%E0%B9%92%E0%B9%92%E0%B9%90%E0%B9%96%E0%B9%90%E0%B9%99_24.jpg",
+      ],
+      [
+        "TownHome 1ชั้น",
+        "https://www.midaproperty.com/wp-content/uploads/2021/08/TH-%E0%B8%8A%E0%B8%B1%E0%B9%89%E0%B8%99%E0%B9%80%E0%B8%94%E0%B8%B5%E0%B8%A2%E0%B8%A7-01.jpg",
+      ],
     ],
     images: [
       ["hero", "https://www.midaproperty.com/wp-content/uploads/2021/08/06-Newaster-Bedroom.jpg"],
@@ -355,6 +395,42 @@ try {
       }
     }
 
+    let addedHouseImages = 0;
+    for (const [index, [houseName, url]] of project.houseImages.entries()) {
+      const [houseRows] = await connection.execute(
+        "SELECT id FROM house_types WHERE project_id=? AND LOWER(name)=LOWER(?) LIMIT 1",
+        [projectId, houseName],
+      );
+      if (!houseRows.length) continue;
+
+      const houseId = houseRows[0].id;
+      const [coverRows] = await connection.execute(
+        "SELECT id FROM media_assets WHERE entity_type='house-types' AND entity_id=? AND media_kind='cover' LIMIT 1",
+        [houseId],
+      );
+      if (coverRows.length) continue;
+
+      const { buffer, mimeType, extension } = await downloadImage(url);
+      const storageKey = `uploads/${randomUUID()}.${extension}`;
+      const filePath = path.join(uploadsDirectory, path.basename(storageKey));
+      await writeFile(filePath, buffer);
+      createdFiles.push(filePath);
+      await connection.execute(
+        `INSERT INTO media_assets
+           (id, entity_type, entity_id, media_kind, original_name, mime_type, file_size, storage_key, sort_order)
+         VALUES (?, 'house-types', ?, 'cover', ?, ?, ?, ?, 0)`,
+        [
+          randomUUID(),
+          houseId,
+          `official-house-${project.slug}-${String(index + 1).padStart(2, "0")}.${extension}`,
+          mimeType,
+          buffer.length,
+          storageKey,
+        ],
+      );
+      addedHouseImages += 1;
+    }
+
     let addedImages = 0;
     for (const [index, [requestedKind, url]] of project.images.entries()) {
       let mediaKind = requestedKind;
@@ -399,7 +475,7 @@ try {
       addedImages += 1;
     }
 
-    report.push(`${project.heroTitle}: เพิ่มรูป ${addedImages} รูป`);
+    report.push(`${project.heroTitle}: เพิ่มรูปโครงการ ${addedImages} รูป · รูปแบบบ้าน ${addedHouseImages} รูป`);
   }
 
   await connection.commit();

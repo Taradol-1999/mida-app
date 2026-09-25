@@ -19,6 +19,7 @@ type DataConfig = {
   title: string;
   intro: string;
   fields: Field[];
+  columns?: [string, string][];
   readOnlyCreate?: boolean;
 };
 type Brochure = { id: string; name: string; url: string };
@@ -35,6 +36,13 @@ const configs: Partial<Record<Section, DataConfig>> = {
       { key: "starting_price", label: "ราคาเริ่มต้น (บาท)", type: "number" },
       { key: "description", label: "รายละเอียดแบบบ้าน", type: "textarea" },
     ],
+    columns: [
+      ["name", "ชื่อแบบบ้าน"],
+      ["bedrooms", "ห้องนอน"],
+      ["bathrooms", "ห้องน้ำ"],
+      ["usable_area_sqm", "พื้นที่ใช้สอย"],
+      ["starting_price", "ราคาเริ่มต้น"],
+    ],
   },
   facilities: {
     resource: "facilities",
@@ -44,6 +52,11 @@ const configs: Partial<Record<Section, DataConfig>> = {
       { key: "name", label: "ชื่อสิ่งอำนวยความสะดวก", required: true },
       { key: "sort_order", label: "ลำดับ", type: "number" },
       { key: "description", label: "รายละเอียด", type: "textarea" },
+    ],
+    columns: [
+      ["sort_order", "ลำดับ"],
+      ["name", "สิ่งอำนวยความสะดวก"],
+      ["description", "รายละเอียด"],
     ],
   },
   promotions: {
@@ -56,6 +69,12 @@ const configs: Partial<Record<Section, DataConfig>> = {
       { key: "ends_at", label: "วันสิ้นสุด", type: "datetime" },
       { key: "body", label: "รายละเอียด", type: "textarea" },
       { key: "is_published", label: "แสดงผลทันที", type: "checkbox" },
+    ],
+    columns: [
+      ["title", "หัวข้อโปรโมชั่น"],
+      ["starts_at", "วันเริ่ม"],
+      ["ends_at", "วันสิ้นสุด"],
+      ["is_published", "สถานะ"],
     ],
   },
   news: {
@@ -77,6 +96,12 @@ const configs: Partial<Record<Section, DataConfig>> = {
       { key: "published_at", label: "วันเผยแพร่", type: "datetime" },
       { key: "body", label: "เนื้อหาแบบย่อ", type: "textarea" },
       { key: "is_published", label: "เผยแพร่ข่าวสารนี้", type: "checkbox" },
+    ],
+    columns: [
+      ["category", "หมวดหมู่"],
+      ["title", "หัวข้อข่าวสาร"],
+      ["published_at", "วันเผยแพร่"],
+      ["is_published", "สถานะ"],
     ],
   },
   leads: {
@@ -136,6 +161,16 @@ function valueForInput(field: Field, value: unknown) {
   return value ?? (field.type === "checkbox" ? false : "");
 }
 
+function tableValue(field: string, value: unknown) {
+  if (field === "is_published") return value === true || value === 1 ? "เผยแพร่" : "แบบร่าง";
+  if (field === "category") return value === "EVENT" ? "กิจกรรม" : "ข่าวสาร";
+  if (field === "starting_price")
+    return value === null || value === "" ? "สอบถามราคา" : `${Number(value).toLocaleString("th-TH")} บาท`;
+  if (field === "usable_area_sqm") return value ? `${Number(value).toLocaleString("th-TH")} ตร.ม.` : "-";
+  if (field.endsWith("_at")) return value ? leadDate(value) : "-";
+  return value === null || value === "" || value === undefined ? "-" : String(value);
+}
+
 const leadStatus: Record<string, { label: string; className: string }> = {
   NEW: { label: "รอดำเนินการ", className: "bg-amber-100 text-amber-800" },
   CONTACTED: { label: "ติดต่อแล้ว", className: "bg-emerald-100 text-emerald-700" },
@@ -175,6 +210,7 @@ export function ProjectWorkspace({
   const [rows, setRows] = useState<Record<string, unknown>[]>([]);
   const [form, setForm] = useState<Record<string, unknown>>(() => empty(fields));
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [editorOpen, setEditorOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [heroFiles, setHeroFiles] = useState<File[]>([]);
@@ -302,6 +338,7 @@ export function ProjectWorkspace({
     if (!settingMode) {
       setEditingId(null);
       setForm(empty(fields));
+      setEditorOpen(false);
     }
     await load();
   };
@@ -391,7 +428,23 @@ export function ProjectWorkspace({
       const data = response.ok ? await response.json() : { rows: [] };
       setExistingHouseTypeImage(data.rows?.[0]?.url ?? null);
     }
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    setEditorOpen(true);
+  };
+  const startCreate = () => {
+    setEditingId(null);
+    setForm(empty(fields));
+    setHouseTypeImage(null);
+    setExistingHouseTypeImage(null);
+    setMessage("");
+    setEditorOpen(true);
+  };
+  const closeEditor = () => {
+    if (busy) return;
+    setEditorOpen(false);
+    setEditingId(null);
+    setForm(empty(fields));
+    setHouseTypeImage(null);
+    setExistingHouseTypeImage(null);
   };
   const updateLeadStatus = async (id: string, status: string) => {
     setBusy(true);
@@ -674,6 +727,235 @@ export function ProjectWorkspace({
             </table>
           </div>
         </section>
+      </>
+    );
+  if (!settingMode && dataConfig)
+    return (
+      <>
+        <header className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-200 pb-5">
+          <div>
+            <p className="text-xs font-bold tracking-[0.16em] text-brand-primary">{projectName}</p>
+            <h1 className="mt-1 text-xl font-bold text-slate-800">{dataConfig.title}</h1>
+            <p className="mt-1 text-sm text-slate-500">{dataConfig.intro}</p>
+          </div>
+          <button
+            type="button"
+            onClick={startCreate}
+            className="rounded-lg bg-brand-primary px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-brand-text"
+          >
+            <i className="fa-solid fa-circle-plus mr-2" />
+            เพิ่มข้อมูลใหม่
+          </button>
+        </header>
+
+        {message && (
+          <p className="mt-5 rounded-lg border border-brand-primary/10 bg-brand-soft px-4 py-3 text-sm font-semibold text-brand-primary">
+            {message}
+          </p>
+        )}
+
+        <section className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="flex items-center justify-between gap-4 border-b border-slate-100 px-5 py-4">
+            <div>
+              <h2 className="font-bold text-slate-800">รายการข้อมูล</h2>
+              <p className="mt-1 text-xs text-slate-400">ทั้งหมด {rows.length.toLocaleString("th-TH")} รายการ</p>
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-220 text-left text-sm">
+              <thead className="border-b border-slate-200 bg-slate-50 text-xs font-bold text-slate-600">
+                <tr>
+                  {dataConfig.columns?.map(([, label]) => (
+                    <th key={label} className="px-4 py-4">
+                      {label}
+                    </th>
+                  ))}
+                  <th className="px-4 py-4 text-right">การจัดการ</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-slate-600">
+                {rows.map((row) => (
+                  <tr key={String(row.id)} className="align-top transition hover:bg-slate-50/80">
+                    {dataConfig.columns?.map(([field]) => (
+                      <td key={field} className="max-w-88 px-4 py-4">
+                        {field === "is_published" || field === "category" ? (
+                          <span
+                            className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${
+                              field === "is_published"
+                                ? row[field] === true || row[field] === 1
+                                  ? "bg-emerald-100 text-emerald-700"
+                                  : "bg-slate-100 text-slate-500"
+                                : row[field] === "EVENT"
+                                  ? "bg-amber-100 text-amber-800"
+                                  : "bg-brand-soft text-brand-primary"
+                            }`}
+                          >
+                            {tableValue(field, row[field])}
+                          </span>
+                        ) : (
+                          <span className={field === "name" || field === "title" ? "font-bold text-slate-800" : ""}>
+                            {tableValue(field, row[field])}
+                          </span>
+                        )}
+                      </td>
+                    ))}
+                    <td className="whitespace-nowrap px-4 py-4 text-right">
+                      <button
+                        type="button"
+                        onClick={() => void edit(row)}
+                        className="rounded-lg border border-brand-primary/20 px-3 py-2 text-xs font-bold text-brand-primary transition hover:bg-brand-soft"
+                      >
+                        <i className="fa-solid fa-pen-to-square mr-1.5" />
+                        แก้ไข
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {!rows.length && (
+                  <tr>
+                    <td
+                      colSpan={(dataConfig.columns?.length ?? 0) + 1}
+                      className="px-4 py-16 text-center text-slate-400"
+                    >
+                      <i className="fa-regular fa-folder-open mb-3 block text-3xl" />
+                      ยังไม่มีข้อมูล กด “เพิ่มข้อมูลใหม่” เพื่อเริ่มต้น
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        {editorOpen && (
+          <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-brand-overlay/65 p-4 backdrop-blur-sm">
+            <form
+              onSubmit={save}
+              role="dialog"
+              aria-modal="true"
+              aria-label={editingId ? `แก้ไข ${dataConfig.title}` : `เพิ่ม ${dataConfig.title}`}
+              className="my-8 w-full max-w-3xl rounded-2xl bg-white shadow-2xl"
+            >
+              <div className="flex items-start justify-between gap-4 border-b border-slate-200 px-5 py-4 md:px-6">
+                <div>
+                  <p className="text-xs font-bold tracking-widest text-brand-primary">{projectName}</p>
+                  <h2 className="mt-1 text-lg font-bold text-slate-800">
+                    {editingId ? "แก้ไขข้อมูล" : "เพิ่มข้อมูลใหม่"}
+                  </h2>
+                </div>
+                <button
+                  type="button"
+                  onClick={closeEditor}
+                  aria-label="ปิดหน้าต่าง"
+                  className="grid size-9 place-items-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200"
+                >
+                  <i className="fa-solid fa-xmark" />
+                </button>
+              </div>
+
+              <div className="max-h-[70vh] overflow-y-auto px-5 py-5 md:px-6">
+                <div className="grid gap-4 md:grid-cols-2">
+                  {fields.map((field) => (
+                    <label
+                      key={field.key}
+                      className={`text-sm font-semibold text-slate-700 ${field.type === "textarea" ? "md:col-span-2" : ""}`}
+                    >
+                      {field.type === "checkbox" ? (
+                        <span className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-3">
+                          <input
+                            type="checkbox"
+                            checked={Boolean(form[field.key])}
+                            onChange={(event) => setField(field.key, event.target.checked)}
+                            className="size-4 accent-brand-primary"
+                          />
+                          {field.label}
+                        </span>
+                      ) : (
+                        <>
+                          {field.label}
+                          {field.required && <span className="ml-1 text-rose-500">*</span>}
+                          {field.type === "textarea" ? (
+                            <textarea
+                              required={field.required}
+                              value={String(form[field.key] ?? "")}
+                              onChange={(event) => setField(field.key, event.target.value)}
+                              className={`${inputClass} min-h-28`}
+                            />
+                          ) : field.type === "select" ? (
+                            <select
+                              required={field.required}
+                              value={String(form[field.key] ?? "")}
+                              onChange={(event) => setField(field.key, event.target.value)}
+                              className={inputClass}
+                            >
+                              {field.options?.map(([value, label]) => (
+                                <option key={value} value={value}>
+                                  {label}
+                                </option>
+                              ))}
+                            </select>
+                          ) : (
+                            <input
+                              required={field.required}
+                              type={field.type === "datetime" ? "datetime-local" : (field.type ?? "text")}
+                              value={String(form[field.key] ?? "")}
+                              onChange={(event) => setField(field.key, event.target.value)}
+                              className={inputClass}
+                            />
+                          )}
+                        </>
+                      )}
+                    </label>
+                  ))}
+                </div>
+
+                {section === "house-types" && (
+                  <div className="mt-5">
+                    <p className="text-sm font-semibold text-slate-700">รูปแบบบ้าน</p>
+                    <label className="mt-2 flex min-h-32 cursor-pointer items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-4 text-center text-sm font-semibold text-slate-400 hover:border-brand-primary hover:bg-brand-soft">
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        className="sr-only"
+                        onChange={(event) => setHouseTypeImage(event.target.files?.[0] ?? null)}
+                      />
+                      {existingHouseTypeImage && !houseTypeImage ? (
+                        <img
+                          src={existingHouseTypeImage}
+                          alt="รูปแบบบ้านปัจจุบัน"
+                          className="h-40 w-full object-cover"
+                        />
+                      ) : (
+                        <span>
+                          <i className="fa-solid fa-image mr-2 text-xl text-brand-primary" />
+                          {houseTypeImage ? houseTypeImage.name : "คลิกเพื่อเพิ่มหรือเปลี่ยนรูปแบบบ้าน"}
+                        </span>
+                      )}
+                    </label>
+                    <p className="mt-2 text-xs text-slate-400">รองรับ JPG, PNG และ WEBP ขนาดไม่เกิน 5 MB</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-end gap-3 border-t border-slate-200 px-5 py-4 md:px-6">
+                <button
+                  type="button"
+                  onClick={closeEditor}
+                  className="rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  disabled={busy}
+                  className="rounded-lg bg-brand-primary px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-text disabled:opacity-50"
+                >
+                  <i className="fa-solid fa-floppy-disk mr-2" />
+                  {busy ? "กำลังบันทึก..." : editingId ? "บันทึกการแก้ไข" : "เพิ่มข้อมูล"}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
       </>
     );
   return (
