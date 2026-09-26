@@ -12,6 +12,7 @@
     "format:check": "prettier --check .",
     "db:init": "prisma db push",
     "db:seed": "tsx --env-file=.env.local scripts/seed-projects.mjs",
+    "db:fill-english": "tsx --env-file=.env.local scripts/fill-english-content.mjs",
     "db:import-official": "tsx --env-file=.env.local scripts/import-official-projects.mjs",
     "db:create-admin": "tsx --env-file=.env.local scripts/create-admin.mjs",
     "db:generate": "prisma generate",

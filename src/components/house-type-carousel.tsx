@@ -2,11 +2,14 @@
 
 import Image from "next/image";
 import { useRef, useState } from "react";
+import { useTranslation } from "@/components/language-provider";
 
 export type HouseTypeItem = {
   id: string;
   name: string;
+  nameEn?: string | null;
   description: string;
+  descriptionEn?: string | null;
   bedrooms: number | string;
   bathrooms: number | string;
   usableArea: number | string;
@@ -16,6 +19,7 @@ export type HouseTypeItem = {
 
 export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
   const [active, setActive] = useState(0);
+  const { language, t } = useTranslation();
   const dragStartX = useRef<number | null>(null);
   const didDrag = useRef(false);
 
@@ -53,16 +57,16 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
         <div className="flex flex-wrap items-end justify-between gap-4 border-b border-white/15 pb-4 text-white sm:pb-5">
           <div>
             <p className="text-xs font-bold tracking-[0.2em] text-brand-accent">MIDA HOME COLLECTION</p>
-            <p className="mt-1 text-sm text-white/75">เลือกแบบบ้านที่ลงตัวกับทุกจังหวะชีวิต</p>
+            <p className="mt-1 text-sm text-white/75">{t({ th: "เลือกแบบบ้านที่ลงตัวกับทุกจังหวะชีวิต", en: "Choose the home type that fits every moment of your life." })}</p>
             {items.length > 1 && (
               <p className="mt-1.5 text-xs font-semibold text-white/60 md:hidden">
                 <i className="fa-solid fa-hand-pointer mr-1.5 text-brand-accent" aria-hidden="true" />
-                ปัดซ้าย–ขวาเพื่อดูแบบบ้าน
+                {t({ th: "ปัดซ้าย–ขวาเพื่อดูแบบบ้าน", en: "Swipe left or right to view home types." })}
               </p>
             )}
           </div>
           <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-bold backdrop-blur-sm">
-            {active + 1} / {items.length} แบบบ้าน
+            {active + 1} / {items.length} {t({ th: "แบบบ้าน", en: "home types" })}
           </span>
         </div>
 
@@ -90,7 +94,7 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
             <>
               <button
                 type="button"
-                aria-label="เลื่อนดูแบบบ้านก่อนหน้า"
+                aria-label={t({ th: "เลื่อนดูแบบบ้านก่อนหน้า", en: "Previous home type" })}
                 onClick={(event) => {
                   event.stopPropagation();
                   move(-1);
@@ -99,7 +103,7 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
               />
               <button
                 type="button"
-                aria-label="เลื่อนดูแบบบ้านถัดไป"
+                aria-label={t({ th: "เลื่อนดูแบบบ้านถัดไป", en: "Next home type" })}
                 onClick={(event) => {
                   event.stopPropagation();
                   move(1);
@@ -118,7 +122,7 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
                 key={house.id}
                 role="button"
                 tabIndex={0}
-                aria-label={`เลือกแบบบ้าน ${house.name}`}
+                aria-label={`${t({ th: "เลือกแบบบ้าน", en: "Select house type" })} ${t({ th: house.name, en: house.nameEn ?? "" })}`}
                 aria-current={index === active ? "true" : undefined}
                 onClick={() => {
                   if (didDrag.current) {
@@ -144,7 +148,7 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
                 {house.imageUrl ? (
                   <Image
                     src={house.imageUrl}
-                    alt={`แบบบ้าน ${house.name}`}
+                    alt={`${t({ th: "แบบบ้าน", en: "House type" })} ${t({ th: house.name, en: house.nameEn ?? "" })}`}
                     fill
                     unoptimized
                     sizes="(min-width: 768px) 55vw, 90vw"
@@ -159,27 +163,29 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
                 <div className="absolute inset-x-0 bottom-0 p-4 text-white sm:p-5 md:p-7">
                   <p className="text-[0.65rem] font-bold tracking-[0.2em] text-brand-accent">HOUSE TYPE</p>
                   <div className="mt-1 flex flex-wrap items-end justify-between gap-3">
-                    <h3 className="text-2xl font-black sm:text-3xl md:text-4xl">{house.name}</h3>
+                  <h3 className="text-2xl font-black sm:text-3xl md:text-4xl">{t({ th: house.name, en: house.nameEn ?? "" })}</h3>
                     <p className="rounded-full bg-brand-accent px-3 py-1.5 text-sm font-extrabold text-brand-primary shadow-lg">
                       {house.startingPrice === null
-                        ? "สอบถามราคา"
-                        : `เริ่ม ${house.startingPrice.toLocaleString("th-TH")} บาท`}
+                        ? t({ th: "สอบถามราคา", en: "Price on request" })
+                        : language === "en"
+                          ? `From THB ${house.startingPrice.toLocaleString("en-US")}`
+                          : `เริ่ม ${house.startingPrice.toLocaleString("th-TH")} บาท`}
                     </p>
                   </div>
                   {house.description && (
                     <p className="mt-2 line-clamp-2 max-w-2xl text-xs leading-5 text-white/85 sm:text-sm sm:leading-6">
-                      {house.description}
+                      {t({ th: house.description, en: house.descriptionEn ?? "" })}
                     </p>
                   )}
                   <div className="mt-3 grid grid-cols-3 gap-2 rounded-xl border border-white/15 bg-black/25 p-2 text-center text-xs font-semibold backdrop-blur-sm sm:max-w-md">
                     <span>
-                      <b className="block text-sm text-white">{house.bedrooms}</b>ห้องนอน
+                      <b className="block text-sm text-white">{house.bedrooms}</b>{t({ th: "ห้องนอน", en: "Bedrooms" })}
                     </span>
                     <span className="border-x border-white/15">
-                      <b className="block text-sm text-white">{house.bathrooms}</b>ห้องน้ำ
+                      <b className="block text-sm text-white">{house.bathrooms}</b>{t({ th: "ห้องน้ำ", en: "Bathrooms" })}
                     </span>
                     <span>
-                      <b className="block text-sm text-white">{house.usableArea}</b>ตร.ม.
+                      <b className="block text-sm text-white">{house.usableArea}</b>{t({ th: "ตร.ม.", en: "sq.m." })}
                     </span>
                   </div>
                 </div>
@@ -195,7 +201,7 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
                 key={house.id}
                 type="button"
                 onClick={() => setActive(index)}
-                aria-label={`เลือกแบบบ้าน ${house.name}`}
+                aria-label={`${t({ th: "เลือกแบบบ้าน", en: "Select house type" })} ${t({ th: house.name, en: house.nameEn ?? "" })}`}
                 aria-current={index === active ? "true" : undefined}
                 className={`flex shrink-0 snap-start items-center gap-2 rounded-xl border px-2 py-2 text-left text-xs font-bold transition ${index === active ? "border-brand-accent bg-white text-brand-primary shadow-lg" : "border-white/15 bg-white/10 text-white/75 hover:bg-white/20"}`}
               >
@@ -206,7 +212,7 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
                     <i className="fa-solid fa-house absolute inset-0 grid place-items-center text-brand-primary" />
                   )}
                 </span>
-                {house.name}
+                {t({ th: house.name, en: house.nameEn ?? "" })}
               </button>
             ))}
           </div>

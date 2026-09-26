@@ -44,7 +44,9 @@ export type HouseTypeMinAggregateOutputType = {
   id: string | null
   project_id: string | null
   name: string | null
+  name_en: string | null
   description: string | null
+  description_en: string | null
   bedrooms: number | null
   bathrooms: number | null
   usable_area_sqm: runtime.Decimal | null
@@ -55,7 +57,9 @@ export type HouseTypeMaxAggregateOutputType = {
   id: string | null
   project_id: string | null
   name: string | null
+  name_en: string | null
   description: string | null
+  description_en: string | null
   bedrooms: number | null
   bathrooms: number | null
   usable_area_sqm: runtime.Decimal | null
@@ -66,7 +70,9 @@ export type HouseTypeCountAggregateOutputType = {
   id: number
   project_id: number
   name: number
+  name_en: number
   description: number
+  description_en: number
   bedrooms: number
   bathrooms: number
   usable_area_sqm: number
@@ -93,7 +99,9 @@ export type HouseTypeMinAggregateInputType = {
   id?: true
   project_id?: true
   name?: true
+  name_en?: true
   description?: true
+  description_en?: true
   bedrooms?: true
   bathrooms?: true
   usable_area_sqm?: true
@@ -104,7 +112,9 @@ export type HouseTypeMaxAggregateInputType = {
   id?: true
   project_id?: true
   name?: true
+  name_en?: true
   description?: true
+  description_en?: true
   bedrooms?: true
   bathrooms?: true
   usable_area_sqm?: true
@@ -115,7 +125,9 @@ export type HouseTypeCountAggregateInputType = {
   id?: true
   project_id?: true
   name?: true
+  name_en?: true
   description?: true
+  description_en?: true
   bedrooms?: true
   bathrooms?: true
   usable_area_sqm?: true
@@ -213,7 +225,9 @@ export type HouseTypeGroupByOutputType = {
   id: string
   project_id: string
   name: string
+  name_en: string | null
   description: string | null
+  description_en: string | null
   bedrooms: number | null
   bathrooms: number | null
   usable_area_sqm: runtime.Decimal | null
@@ -247,7 +261,9 @@ export type HouseTypeWhereInput = {
   id?: Prisma.StringFilter<"HouseType"> | string
   project_id?: Prisma.StringFilter<"HouseType"> | string
   name?: Prisma.StringFilter<"HouseType"> | string
+  name_en?: Prisma.StringNullableFilter<"HouseType"> | string | null
   description?: Prisma.StringNullableFilter<"HouseType"> | string | null
+  description_en?: Prisma.StringNullableFilter<"HouseType"> | string | null
   bedrooms?: Prisma.IntNullableFilter<"HouseType"> | number | null
   bathrooms?: Prisma.IntNullableFilter<"HouseType"> | number | null
   usable_area_sqm?: Prisma.DecimalNullableFilter<"HouseType"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -259,7 +275,9 @@ export type HouseTypeOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   project_id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  name_en?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  description_en?: Prisma.SortOrderInput | Prisma.SortOrder
   bedrooms?: Prisma.SortOrderInput | Prisma.SortOrder
   bathrooms?: Prisma.SortOrderInput | Prisma.SortOrder
   usable_area_sqm?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -275,7 +293,9 @@ export type HouseTypeWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.HouseTypeWhereInput | Prisma.HouseTypeWhereInput[]
   project_id?: Prisma.StringFilter<"HouseType"> | string
   name?: Prisma.StringFilter<"HouseType"> | string
+  name_en?: Prisma.StringNullableFilter<"HouseType"> | string | null
   description?: Prisma.StringNullableFilter<"HouseType"> | string | null
+  description_en?: Prisma.StringNullableFilter<"HouseType"> | string | null
   bedrooms?: Prisma.IntNullableFilter<"HouseType"> | number | null
   bathrooms?: Prisma.IntNullableFilter<"HouseType"> | number | null
   usable_area_sqm?: Prisma.DecimalNullableFilter<"HouseType"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -287,7 +307,9 @@ export type HouseTypeOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   project_id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  name_en?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  description_en?: Prisma.SortOrderInput | Prisma.SortOrder
   bedrooms?: Prisma.SortOrderInput | Prisma.SortOrder
   bathrooms?: Prisma.SortOrderInput | Prisma.SortOrder
   usable_area_sqm?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -306,7 +328,9 @@ export type HouseTypeScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"HouseType"> | string
   project_id?: Prisma.StringWithAggregatesFilter<"HouseType"> | string
   name?: Prisma.StringWithAggregatesFilter<"HouseType"> | string
+  name_en?: Prisma.StringNullableWithAggregatesFilter<"HouseType"> | string | null
   description?: Prisma.StringNullableWithAggregatesFilter<"HouseType"> | string | null
+  description_en?: Prisma.StringNullableWithAggregatesFilter<"HouseType"> | string | null
   bedrooms?: Prisma.IntNullableWithAggregatesFilter<"HouseType"> | number | null
   bathrooms?: Prisma.IntNullableWithAggregatesFilter<"HouseType"> | number | null
   usable_area_sqm?: Prisma.DecimalNullableWithAggregatesFilter<"HouseType"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -316,7 +340,9 @@ export type HouseTypeScalarWhereWithAggregatesInput = {
 export type HouseTypeCreateInput = {
   id?: string
   name: string
+  name_en?: string | null
   description?: string | null
+  description_en?: string | null
   bedrooms?: number | null
   bathrooms?: number | null
   usable_area_sqm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -328,7 +354,9 @@ export type HouseTypeUncheckedCreateInput = {
   id?: string
   project_id: string
   name: string
+  name_en?: string | null
   description?: string | null
+  description_en?: string | null
   bedrooms?: number | null
   bathrooms?: number | null
   usable_area_sqm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -338,7 +366,9 @@ export type HouseTypeUncheckedCreateInput = {
 export type HouseTypeUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bedrooms?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   bathrooms?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   usable_area_sqm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -350,7 +380,9 @@ export type HouseTypeUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   project_id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bedrooms?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   bathrooms?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   usable_area_sqm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -361,7 +393,9 @@ export type HouseTypeCreateManyInput = {
   id?: string
   project_id: string
   name: string
+  name_en?: string | null
   description?: string | null
+  description_en?: string | null
   bedrooms?: number | null
   bathrooms?: number | null
   usable_area_sqm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -371,7 +405,9 @@ export type HouseTypeCreateManyInput = {
 export type HouseTypeUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bedrooms?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   bathrooms?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   usable_area_sqm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -382,7 +418,9 @@ export type HouseTypeUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   project_id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bedrooms?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   bathrooms?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   usable_area_sqm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -409,7 +447,9 @@ export type HouseTypeCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   project_id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  name_en?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  description_en?: Prisma.SortOrder
   bedrooms?: Prisma.SortOrder
   bathrooms?: Prisma.SortOrder
   usable_area_sqm?: Prisma.SortOrder
@@ -427,7 +467,9 @@ export type HouseTypeMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   project_id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  name_en?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  description_en?: Prisma.SortOrder
   bedrooms?: Prisma.SortOrder
   bathrooms?: Prisma.SortOrder
   usable_area_sqm?: Prisma.SortOrder
@@ -438,7 +480,9 @@ export type HouseTypeMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   project_id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  name_en?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  description_en?: Prisma.SortOrder
   bedrooms?: Prisma.SortOrder
   bathrooms?: Prisma.SortOrder
   usable_area_sqm?: Prisma.SortOrder
@@ -505,7 +549,9 @@ export type NullableIntFieldUpdateOperationsInput = {
 export type HouseTypeCreateWithoutProjectInput = {
   id?: string
   name: string
+  name_en?: string | null
   description?: string | null
+  description_en?: string | null
   bedrooms?: number | null
   bathrooms?: number | null
   usable_area_sqm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -515,7 +561,9 @@ export type HouseTypeCreateWithoutProjectInput = {
 export type HouseTypeUncheckedCreateWithoutProjectInput = {
   id?: string
   name: string
+  name_en?: string | null
   description?: string | null
+  description_en?: string | null
   bedrooms?: number | null
   bathrooms?: number | null
   usable_area_sqm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -555,7 +603,9 @@ export type HouseTypeScalarWhereInput = {
   id?: Prisma.StringFilter<"HouseType"> | string
   project_id?: Prisma.StringFilter<"HouseType"> | string
   name?: Prisma.StringFilter<"HouseType"> | string
+  name_en?: Prisma.StringNullableFilter<"HouseType"> | string | null
   description?: Prisma.StringNullableFilter<"HouseType"> | string | null
+  description_en?: Prisma.StringNullableFilter<"HouseType"> | string | null
   bedrooms?: Prisma.IntNullableFilter<"HouseType"> | number | null
   bathrooms?: Prisma.IntNullableFilter<"HouseType"> | number | null
   usable_area_sqm?: Prisma.DecimalNullableFilter<"HouseType"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -565,7 +615,9 @@ export type HouseTypeScalarWhereInput = {
 export type HouseTypeCreateManyProjectInput = {
   id?: string
   name: string
+  name_en?: string | null
   description?: string | null
+  description_en?: string | null
   bedrooms?: number | null
   bathrooms?: number | null
   usable_area_sqm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -575,7 +627,9 @@ export type HouseTypeCreateManyProjectInput = {
 export type HouseTypeUpdateWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bedrooms?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   bathrooms?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   usable_area_sqm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -585,7 +639,9 @@ export type HouseTypeUpdateWithoutProjectInput = {
 export type HouseTypeUncheckedUpdateWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bedrooms?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   bathrooms?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   usable_area_sqm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -595,7 +651,9 @@ export type HouseTypeUncheckedUpdateWithoutProjectInput = {
 export type HouseTypeUncheckedUpdateManyWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bedrooms?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   bathrooms?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   usable_area_sqm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -608,7 +666,9 @@ export type HouseTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   id?: boolean
   project_id?: boolean
   name?: boolean
+  name_en?: boolean
   description?: boolean
+  description_en?: boolean
   bedrooms?: boolean
   bathrooms?: boolean
   usable_area_sqm?: boolean
@@ -622,14 +682,16 @@ export type HouseTypeSelectScalar = {
   id?: boolean
   project_id?: boolean
   name?: boolean
+  name_en?: boolean
   description?: boolean
+  description_en?: boolean
   bedrooms?: boolean
   bathrooms?: boolean
   usable_area_sqm?: boolean
   starting_price?: boolean
 }
 
-export type HouseTypeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "project_id" | "name" | "description" | "bedrooms" | "bathrooms" | "usable_area_sqm" | "starting_price", ExtArgs["result"]["houseType"]>
+export type HouseTypeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "project_id" | "name" | "name_en" | "description" | "description_en" | "bedrooms" | "bathrooms" | "usable_area_sqm" | "starting_price", ExtArgs["result"]["houseType"]>
 export type HouseTypeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
 }
@@ -643,7 +705,9 @@ export type $HouseTypePayload<ExtArgs extends runtime.Types.Extensions.InternalA
     id: string
     project_id: string
     name: string
+    name_en: string | null
     description: string | null
+    description_en: string | null
     bedrooms: number | null
     bathrooms: number | null
     usable_area_sqm: runtime.Decimal | null
@@ -1021,7 +1085,9 @@ export interface HouseTypeFieldRefs {
   readonly id: Prisma.FieldRef<"HouseType", 'String'>
   readonly project_id: Prisma.FieldRef<"HouseType", 'String'>
   readonly name: Prisma.FieldRef<"HouseType", 'String'>
+  readonly name_en: Prisma.FieldRef<"HouseType", 'String'>
   readonly description: Prisma.FieldRef<"HouseType", 'String'>
+  readonly description_en: Prisma.FieldRef<"HouseType", 'String'>
   readonly bedrooms: Prisma.FieldRef<"HouseType", 'Int'>
   readonly bathrooms: Prisma.FieldRef<"HouseType", 'Int'>
   readonly usable_area_sqm: Prisma.FieldRef<"HouseType", 'Decimal'>

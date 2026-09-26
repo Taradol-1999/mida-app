@@ -28,7 +28,9 @@ export type PromotionMinAggregateOutputType = {
   id: string | null
   project_id: string | null
   title: string | null
+  title_en: string | null
   body: string | null
+  body_en: string | null
   starts_at: Date | null
   ends_at: Date | null
   is_published: boolean | null
@@ -39,7 +41,9 @@ export type PromotionMaxAggregateOutputType = {
   id: string | null
   project_id: string | null
   title: string | null
+  title_en: string | null
   body: string | null
+  body_en: string | null
   starts_at: Date | null
   ends_at: Date | null
   is_published: boolean | null
@@ -50,7 +54,9 @@ export type PromotionCountAggregateOutputType = {
   id: number
   project_id: number
   title: number
+  title_en: number
   body: number
+  body_en: number
   starts_at: number
   ends_at: number
   is_published: number
@@ -63,7 +69,9 @@ export type PromotionMinAggregateInputType = {
   id?: true
   project_id?: true
   title?: true
+  title_en?: true
   body?: true
+  body_en?: true
   starts_at?: true
   ends_at?: true
   is_published?: true
@@ -74,7 +82,9 @@ export type PromotionMaxAggregateInputType = {
   id?: true
   project_id?: true
   title?: true
+  title_en?: true
   body?: true
+  body_en?: true
   starts_at?: true
   ends_at?: true
   is_published?: true
@@ -85,7 +95,9 @@ export type PromotionCountAggregateInputType = {
   id?: true
   project_id?: true
   title?: true
+  title_en?: true
   body?: true
+  body_en?: true
   starts_at?: true
   ends_at?: true
   is_published?: true
@@ -169,7 +181,9 @@ export type PromotionGroupByOutputType = {
   id: string
   project_id: string | null
   title: string
+  title_en: string | null
   body: string | null
+  body_en: string | null
   starts_at: Date | null
   ends_at: Date | null
   is_published: boolean
@@ -201,7 +215,9 @@ export type PromotionWhereInput = {
   id?: Prisma.StringFilter<"Promotion"> | string
   project_id?: Prisma.StringNullableFilter<"Promotion"> | string | null
   title?: Prisma.StringFilter<"Promotion"> | string
+  title_en?: Prisma.StringNullableFilter<"Promotion"> | string | null
   body?: Prisma.StringNullableFilter<"Promotion"> | string | null
+  body_en?: Prisma.StringNullableFilter<"Promotion"> | string | null
   starts_at?: Prisma.DateTimeNullableFilter<"Promotion"> | Date | string | null
   ends_at?: Prisma.DateTimeNullableFilter<"Promotion"> | Date | string | null
   is_published?: Prisma.BoolFilter<"Promotion"> | boolean
@@ -213,7 +229,9 @@ export type PromotionOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   project_id?: Prisma.SortOrderInput | Prisma.SortOrder
   title?: Prisma.SortOrder
+  title_en?: Prisma.SortOrderInput | Prisma.SortOrder
   body?: Prisma.SortOrderInput | Prisma.SortOrder
+  body_en?: Prisma.SortOrderInput | Prisma.SortOrder
   starts_at?: Prisma.SortOrderInput | Prisma.SortOrder
   ends_at?: Prisma.SortOrderInput | Prisma.SortOrder
   is_published?: Prisma.SortOrder
@@ -229,7 +247,9 @@ export type PromotionWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.PromotionWhereInput | Prisma.PromotionWhereInput[]
   project_id?: Prisma.StringNullableFilter<"Promotion"> | string | null
   title?: Prisma.StringFilter<"Promotion"> | string
+  title_en?: Prisma.StringNullableFilter<"Promotion"> | string | null
   body?: Prisma.StringNullableFilter<"Promotion"> | string | null
+  body_en?: Prisma.StringNullableFilter<"Promotion"> | string | null
   starts_at?: Prisma.DateTimeNullableFilter<"Promotion"> | Date | string | null
   ends_at?: Prisma.DateTimeNullableFilter<"Promotion"> | Date | string | null
   is_published?: Prisma.BoolFilter<"Promotion"> | boolean
@@ -241,7 +261,9 @@ export type PromotionOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   project_id?: Prisma.SortOrderInput | Prisma.SortOrder
   title?: Prisma.SortOrder
+  title_en?: Prisma.SortOrderInput | Prisma.SortOrder
   body?: Prisma.SortOrderInput | Prisma.SortOrder
+  body_en?: Prisma.SortOrderInput | Prisma.SortOrder
   starts_at?: Prisma.SortOrderInput | Prisma.SortOrder
   ends_at?: Prisma.SortOrderInput | Prisma.SortOrder
   is_published?: Prisma.SortOrder
@@ -258,7 +280,9 @@ export type PromotionScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Promotion"> | string
   project_id?: Prisma.StringNullableWithAggregatesFilter<"Promotion"> | string | null
   title?: Prisma.StringWithAggregatesFilter<"Promotion"> | string
+  title_en?: Prisma.StringNullableWithAggregatesFilter<"Promotion"> | string | null
   body?: Prisma.StringNullableWithAggregatesFilter<"Promotion"> | string | null
+  body_en?: Prisma.StringNullableWithAggregatesFilter<"Promotion"> | string | null
   starts_at?: Prisma.DateTimeNullableWithAggregatesFilter<"Promotion"> | Date | string | null
   ends_at?: Prisma.DateTimeNullableWithAggregatesFilter<"Promotion"> | Date | string | null
   is_published?: Prisma.BoolWithAggregatesFilter<"Promotion"> | boolean
@@ -268,7 +292,9 @@ export type PromotionScalarWhereWithAggregatesInput = {
 export type PromotionCreateInput = {
   id?: string
   title: string
+  title_en?: string | null
   body?: string | null
+  body_en?: string | null
   starts_at?: Date | string | null
   ends_at?: Date | string | null
   is_published?: boolean
@@ -280,7 +306,9 @@ export type PromotionUncheckedCreateInput = {
   id?: string
   project_id?: string | null
   title: string
+  title_en?: string | null
   body?: string | null
+  body_en?: string | null
   starts_at?: Date | string | null
   ends_at?: Date | string | null
   is_published?: boolean
@@ -290,7 +318,9 @@ export type PromotionUncheckedCreateInput = {
 export type PromotionUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  title_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   starts_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ends_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   is_published?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -302,7 +332,9 @@ export type PromotionUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   project_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  title_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   starts_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ends_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   is_published?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -313,7 +345,9 @@ export type PromotionCreateManyInput = {
   id?: string
   project_id?: string | null
   title: string
+  title_en?: string | null
   body?: string | null
+  body_en?: string | null
   starts_at?: Date | string | null
   ends_at?: Date | string | null
   is_published?: boolean
@@ -323,7 +357,9 @@ export type PromotionCreateManyInput = {
 export type PromotionUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  title_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   starts_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ends_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   is_published?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -334,7 +370,9 @@ export type PromotionUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   project_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  title_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   starts_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ends_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   is_published?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -361,7 +399,9 @@ export type PromotionCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   project_id?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  title_en?: Prisma.SortOrder
   body?: Prisma.SortOrder
+  body_en?: Prisma.SortOrder
   starts_at?: Prisma.SortOrder
   ends_at?: Prisma.SortOrder
   is_published?: Prisma.SortOrder
@@ -372,7 +412,9 @@ export type PromotionMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   project_id?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  title_en?: Prisma.SortOrder
   body?: Prisma.SortOrder
+  body_en?: Prisma.SortOrder
   starts_at?: Prisma.SortOrder
   ends_at?: Prisma.SortOrder
   is_published?: Prisma.SortOrder
@@ -383,7 +425,9 @@ export type PromotionMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   project_id?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  title_en?: Prisma.SortOrder
   body?: Prisma.SortOrder
+  body_en?: Prisma.SortOrder
   starts_at?: Prisma.SortOrder
   ends_at?: Prisma.SortOrder
   is_published?: Prisma.SortOrder
@@ -439,7 +483,9 @@ export type NullableDateTimeFieldUpdateOperationsInput = {
 export type PromotionCreateWithoutProjectInput = {
   id?: string
   title: string
+  title_en?: string | null
   body?: string | null
+  body_en?: string | null
   starts_at?: Date | string | null
   ends_at?: Date | string | null
   is_published?: boolean
@@ -449,7 +495,9 @@ export type PromotionCreateWithoutProjectInput = {
 export type PromotionUncheckedCreateWithoutProjectInput = {
   id?: string
   title: string
+  title_en?: string | null
   body?: string | null
+  body_en?: string | null
   starts_at?: Date | string | null
   ends_at?: Date | string | null
   is_published?: boolean
@@ -489,7 +537,9 @@ export type PromotionScalarWhereInput = {
   id?: Prisma.StringFilter<"Promotion"> | string
   project_id?: Prisma.StringNullableFilter<"Promotion"> | string | null
   title?: Prisma.StringFilter<"Promotion"> | string
+  title_en?: Prisma.StringNullableFilter<"Promotion"> | string | null
   body?: Prisma.StringNullableFilter<"Promotion"> | string | null
+  body_en?: Prisma.StringNullableFilter<"Promotion"> | string | null
   starts_at?: Prisma.DateTimeNullableFilter<"Promotion"> | Date | string | null
   ends_at?: Prisma.DateTimeNullableFilter<"Promotion"> | Date | string | null
   is_published?: Prisma.BoolFilter<"Promotion"> | boolean
@@ -499,7 +549,9 @@ export type PromotionScalarWhereInput = {
 export type PromotionCreateManyProjectInput = {
   id?: string
   title: string
+  title_en?: string | null
   body?: string | null
+  body_en?: string | null
   starts_at?: Date | string | null
   ends_at?: Date | string | null
   is_published?: boolean
@@ -509,7 +561,9 @@ export type PromotionCreateManyProjectInput = {
 export type PromotionUpdateWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  title_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   starts_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ends_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   is_published?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -519,7 +573,9 @@ export type PromotionUpdateWithoutProjectInput = {
 export type PromotionUncheckedUpdateWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  title_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   starts_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ends_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   is_published?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -529,7 +585,9 @@ export type PromotionUncheckedUpdateWithoutProjectInput = {
 export type PromotionUncheckedUpdateManyWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  title_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   starts_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ends_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   is_published?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -542,7 +600,9 @@ export type PromotionSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   id?: boolean
   project_id?: boolean
   title?: boolean
+  title_en?: boolean
   body?: boolean
+  body_en?: boolean
   starts_at?: boolean
   ends_at?: boolean
   is_published?: boolean
@@ -556,14 +616,16 @@ export type PromotionSelectScalar = {
   id?: boolean
   project_id?: boolean
   title?: boolean
+  title_en?: boolean
   body?: boolean
+  body_en?: boolean
   starts_at?: boolean
   ends_at?: boolean
   is_published?: boolean
   created_at?: boolean
 }
 
-export type PromotionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "project_id" | "title" | "body" | "starts_at" | "ends_at" | "is_published" | "created_at", ExtArgs["result"]["promotion"]>
+export type PromotionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "project_id" | "title" | "title_en" | "body" | "body_en" | "starts_at" | "ends_at" | "is_published" | "created_at", ExtArgs["result"]["promotion"]>
 export type PromotionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   project?: boolean | Prisma.Promotion$projectArgs<ExtArgs>
 }
@@ -577,7 +639,9 @@ export type $PromotionPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     id: string
     project_id: string | null
     title: string
+    title_en: string | null
     body: string | null
+    body_en: string | null
     starts_at: Date | null
     ends_at: Date | null
     is_published: boolean
@@ -955,7 +1019,9 @@ export interface PromotionFieldRefs {
   readonly id: Prisma.FieldRef<"Promotion", 'String'>
   readonly project_id: Prisma.FieldRef<"Promotion", 'String'>
   readonly title: Prisma.FieldRef<"Promotion", 'String'>
+  readonly title_en: Prisma.FieldRef<"Promotion", 'String'>
   readonly body: Prisma.FieldRef<"Promotion", 'String'>
+  readonly body_en: Prisma.FieldRef<"Promotion", 'String'>
   readonly starts_at: Prisma.FieldRef<"Promotion", 'DateTime'>
   readonly ends_at: Prisma.FieldRef<"Promotion", 'DateTime'>
   readonly is_published: Prisma.FieldRef<"Promotion", 'Boolean'>

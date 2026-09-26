@@ -6,16 +6,27 @@ import { Input, Select } from "@/components/ui/form-controls";
 import Link from "next/link";
 import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { projects, type Project } from "@/data/projects";
+import { useTranslation } from "@/components/language-provider";
 
-const statusOptions = ["ทั้งหมด", "พร้อมอยู่", "กำลังก่อสร้าง"];
-const typeOptions = ["ทั้งหมด", "บ้านเดี่ยว", "บ้านแฝด", "ทาวน์โฮม", "อาคารพาณิชย์"];
+const statusOptions = [
+  ["ทั้งหมด", { th: "ทั้งหมด", en: "All statuses" }],
+  ["พร้อมอยู่", { th: "พร้อมอยู่", en: "Ready to move in" }],
+  ["กำลังก่อสร้าง", { th: "กำลังก่อสร้าง", en: "Under construction" }],
+] as const;
+const typeOptions = [
+  ["ทั้งหมด", { th: "ทั้งหมด", en: "All types" }],
+  ["บ้านเดี่ยว", { th: "บ้านเดี่ยว", en: "Detached house" }],
+  ["บ้านแฝด", { th: "บ้านแฝด", en: "Semi-detached house" }],
+  ["ทาวน์โฮม", { th: "ทาวน์โฮม", en: "Townhome" }],
+  ["อาคารพาณิชย์", { th: "อาคารพาณิชย์", en: "Commercial building" }],
+] as const;
 const priceOptions = [
-  ["all", "ทุกช่วงราคา"],
-  ["under-2m", "ไม่เกิน 2 ล้านบาท"],
-  ["2m-3m", "2–3 ล้านบาท"],
-  ["3m-4m", "3–4 ล้านบาท"],
-  ["4m-5m", "4–5 ล้านบาท"],
-  ["over-5m", "ตั้งแต่ 5 ล้านบาทขึ้นไป"],
+  ["all", { th: "ทุกช่วงราคา", en: "All price ranges" }],
+  ["under-2m", { th: "ไม่เกิน 2 ล้านบาท", en: "Up to THB 2 million" }],
+  ["2m-3m", { th: "2–3 ล้านบาท", en: "THB 2–3 million" }],
+  ["3m-4m", { th: "3–4 ล้านบาท", en: "THB 3–4 million" }],
+  ["4m-5m", { th: "4–5 ล้านบาท", en: "THB 4–5 million" }],
+  ["over-5m", { th: "ตั้งแต่ 5 ล้านบาทขึ้นไป", en: "THB 5 million and above" }],
 ] as const;
 const selectStyle = "w-full bg-transparent text-xs text-slate-600 outline-none";
 
@@ -42,6 +53,21 @@ function tagsOf(project: Project) {
 }
 
 const preferredTagOrder = ["โครงการแนะนำ", "โครงการล่าสุด", "พร้อมเข้าอยู่ได้ทันที"];
+const tagLabels: Record<string, { th: string; en: string }> = {
+  โครงการแนะนำ: { th: "โครงการแนะนำ", en: "Recommended" },
+  โครงการล่าสุด: { th: "โครงการล่าสุด", en: "New project" },
+  พร้อมเข้าอยู่ได้ทันที: { th: "พร้อมเข้าอยู่ได้ทันที", en: "Ready to move in" },
+};
+const propertyTypeLabels: Record<Project["type"], { th: string; en: string }> = {
+  บ้านเดี่ยว: { th: "บ้านเดี่ยว", en: "Detached house" },
+  บ้านแฝด: { th: "บ้านแฝด", en: "Semi-detached house" },
+  ทาวน์โฮม: { th: "ทาวน์โฮม", en: "Townhome" },
+  อาคารพาณิชย์: { th: "อาคารพาณิชย์", en: "Commercial building" },
+};
+const statusLabels: Record<Project["status"], { th: string; en: string }> = {
+  พร้อมอยู่: { th: "พร้อมอยู่", en: "Ready to move in" },
+  กำลังก่อสร้าง: { th: "กำลังก่อสร้าง", en: "Under construction" },
+};
 
 export function ProjectFilter({
   projectIds,
@@ -52,6 +78,7 @@ export function ProjectFilter({
   allProjectsHref?: string;
   standalone?: boolean;
 }) {
+  const { language, t } = useTranslation();
   const [catalogue, setCatalogue] = useState<Project[]>(projects);
   const [hasLoadedCatalogue, setHasLoadedCatalogue] = useState(false);
   const [keyword, setKeyword] = useState("");
@@ -111,6 +138,10 @@ export function ProjectFilter({
       {child}
     </label>
   );
+  const projectText = (project: Project, field: "name" | "location" | "description") => {
+    const englishField = `${field}_en` as "name_en" | "location_en" | "description_en";
+    return language === "en" && project[englishField] ? String(project[englishField]) : project[field];
+  };
   return (
     <section
       id="projects"
@@ -119,32 +150,32 @@ export function ProjectFilter({
       <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xl shadow-slate-900/10 sm:p-5 md:p-6">
         <p className="mb-4 text-sm font-bold text-brand-primary">
           <i className="fa-solid fa-magnifying-glass mr-2" />
-          ค้นหาโครงการ
+          {t({ th: "ค้นหาโครงการ", en: "Find a project" })}
         </p>
         <Input
           value={keyword}
           onChange={(event) => setKeyword(event.target.value)}
-          placeholder="ค้นหาชื่อโครงการหรือทำเล"
+          placeholder={t({ th: "ค้นหาชื่อโครงการหรือทำเล", en: "Search by project or location" })}
           className="mb-3 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-brand-primary"
         />
         <div className="grid gap-3 sm:grid-cols-3">
           {filterBox(
             "fa-house",
-            "ประเภทบ้าน",
+            t({ th: "ประเภทบ้าน", en: "Property type" }),
             <Select
               variant="plain"
               value={type}
               onChange={(event) => setType(event.target.value)}
               className={selectStyle}
             >
-              {typeOptions.map((item) => (
-                <option key={item}>{item}</option>
+              {typeOptions.map(([value, label]) => (
+                <option key={value} value={value}>{t(label)}</option>
               ))}
             </Select>,
           )}
           {filterBox(
             "fa-baht-sign",
-            "ช่วงราคา",
+            t({ th: "ช่วงราคา", en: "Price range" }),
             <Select
               variant="plain"
               value={priceRange}
@@ -153,22 +184,22 @@ export function ProjectFilter({
             >
               {priceOptions.map(([value, label]) => (
                 <option key={value} value={value}>
-                  {label}
+                  {t(label)}
                 </option>
               ))}
             </Select>,
           )}
           {filterBox(
             "fa-helmet-safety",
-            "สถานะโครงการ",
+            t({ th: "สถานะโครงการ", en: "Project status" }),
             <Select
               variant="plain"
               value={status}
               onChange={(event) => setStatus(event.target.value)}
               className={selectStyle}
             >
-              {statusOptions.map((item) => (
-                <option key={item}>{item}</option>
+              {statusOptions.map(([value, label]) => (
+                <option key={value} value={value}>{t(label)}</option>
               ))}
             </Select>,
           )}
@@ -179,13 +210,13 @@ export function ProjectFilter({
           <div>
             <p className="text-xs font-bold text-brand-primary">
               <i className="fa-solid fa-city mr-2" />
-              {projectIds ? "โครงการคัดสรร" : "โครงการทั้งหมด"}
+              {projectIds ? t({ th: "โครงการคัดสรร", en: "Featured projects" }) : t({ th: "โครงการทั้งหมด", en: "All projects" })}
             </p>
             <h2 className="mt-2 text-2xl font-black tracking-tight text-slate-800 sm:text-3xl">
-              เลือกบ้านที่ใช่สำหรับคุณ
+              {t({ th: "เลือกบ้านที่ใช่สำหรับคุณ", en: "Find the home that fits you" })}
             </h2>
             <p className="mt-2 text-sm text-slate-400">
-              เลือกสไตล์ฟิลเตอร์เพื่อรับชมกลุ่มโครงการที่แมตช์กับไลฟ์สไตล์คุณ
+              {t({ th: "เลือกสไตล์ฟิลเตอร์เพื่อรับชมกลุ่มโครงการที่แมตช์กับไลฟ์สไตล์คุณ", en: "Filter projects to match your lifestyle." })}
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -194,7 +225,7 @@ export function ProjectFilter({
                 href={allProjectsHref}
                 className="inline-flex items-center gap-2 rounded-full border border-brand-primary px-4 py-2 text-xs font-bold text-brand-primary transition hover:bg-brand-primary hover:text-white"
               >
-                ดูโครงการทั้งหมด <i className="fa-solid fa-arrow-right" />
+                {t({ th: "ดูโครงการทั้งหมด", en: "View all projects" })} <i className="fa-solid fa-arrow-right" />
               </Link>
             )}
           </div>
@@ -208,7 +239,7 @@ export function ProjectFilter({
               className={`shrink-0 rounded-full px-5 py-2.5 text-xs font-bold transition ${tag === label ? "bg-brand-primary text-white shadow-sm ring-2 ring-brand-accent" : "border border-slate-200 bg-white text-slate-600 hover:border-brand-accent"}`}
             >
               {label === "โครงการแนะนำ" ? <span className="text-brand-accent">✦ </span> : ""}
-              {label}
+              {t(tagLabels[label] ?? { th: label, en: label })}
             </button>
           ))}
         </div>
@@ -223,7 +254,7 @@ export function ProjectFilter({
               {project.has_cover && project.id ? (
                 <img
                   src={`/api/admin/media?entityType=projects&entityId=${project.id}`}
-                  alt={`ภาพ ${project.name}`}
+                  alt={`${t({ th: "ภาพ", en: "Image" })} ${projectText(project, "name")}`}
                   className="size-full object-cover transition duration-700 group-hover:scale-105"
                 />
               ) : (
@@ -232,7 +263,7 @@ export function ProjectFilter({
                     <span className="mx-auto grid size-16 place-items-center rounded-full border border-white/30 bg-white/15 backdrop-blur-sm">
                       <i className="fa-solid fa-house-chimney text-2xl" />
                     </span>
-                    <p className="mt-3 text-xs font-bold">ภาพโครงการ</p>
+                    <p className="mt-3 text-xs font-bold">{t({ th: "ภาพโครงการ", en: "Project image" })}</p>
                   </div>
                 </div>
               )}
@@ -242,21 +273,21 @@ export function ProjectFilter({
                     key={projectTag}
                     className={`rounded-full px-3 py-1.5 text-[10px] font-black shadow-md backdrop-blur-sm ${tagIndex % 2 === 0 ? "bg-brand-primary/95 text-white" : "bg-brand-accent text-brand-primary"}`}
                   >
-                    {projectTag}
+                    {t(tagLabels[projectTag] ?? { th: projectTag, en: projectTag })}
                   </span>
                 ))}
               </div>
               <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-brand-overlay/65 to-transparent" />
               <span className="absolute bottom-4 left-4 rounded-full border border-white/30 bg-brand-overlay/65 px-3 py-1.5 text-[11px] font-bold text-white backdrop-blur-sm">
                 <i className="fa-solid fa-location-dot mr-1.5 text-brand-accent" />
-                {project.location}
+                {projectText(project, "location")}
               </span>
             </div>
             <div className="flex flex-1 flex-col p-5 sm:p-6">
               <div className="flex items-center justify-between gap-3">
                 <span className="inline-flex rounded-full bg-brand-soft px-3 py-1.5 text-[10px] font-bold text-brand-primary">
                   <i className="fa-solid fa-house-chimney mr-1.5" />
-                  {project.type}
+                  {t(propertyTypeLabels[project.type])}
                 </span>
                 <span
                   className={`inline-flex items-center text-[11px] font-semibold ${project.status === "พร้อมอยู่" ? "text-emerald-700" : "text-amber-700"}`}
@@ -264,21 +295,25 @@ export function ProjectFilter({
                   <i
                     className={`fa-solid ${project.status === "พร้อมอยู่" ? "fa-circle-check" : "fa-helmet-safety"} mr-1.5`}
                   />
-                  {project.status}
+                  {t(statusLabels[project.status])}
                 </span>
               </div>
               <div className="mt-4 h-0.5 w-12 rounded-full bg-brand-accent" />
               <div className="flex-1">
                 <h3 className="mt-4 line-clamp-2 text-[1.35rem] leading-tight font-black tracking-tight text-slate-800">
-                  {project.name}
+                  {projectText(project, "name")}
                 </h3>
-                <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-500">{project.description}</p>
+                <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-500">{projectText(project, "description")}</p>
               </div>
               <div className="mt-5 rounded-xl bg-brand-muted p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">ราคาเริ่มต้น</p>
-                    <p className="mt-1 text-xl font-black text-brand-primary">{project.price}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">{t({ th: "ราคาเริ่มต้น", en: "Starting price" })}</p>
+                    <p className="mt-1 text-xl font-black text-brand-primary">
+                      {language === "en"
+                        ? `THB ${(Number(project.startingPrice) / 1_000_000).toLocaleString("en-US", { maximumFractionDigits: 3 })} million`
+                        : project.price}
+                    </p>
                   </div>
                   {project.has_brochure && project.id ? (
                     <a
@@ -287,7 +322,7 @@ export function ProjectFilter({
                       className="inline-flex items-center rounded-lg border border-brand-primary/20 bg-white px-3 py-2 text-xs font-bold text-brand-primary transition hover:border-brand-accent hover:bg-brand-accent-soft"
                     >
                       <i className="fa-solid fa-file-arrow-down mr-2" />
-                      โบรชัวร์
+                      {t({ th: "โบรชัวร์", en: "Brochure" })}
                     </a>
                   ) : null}
                 </div>
@@ -297,7 +332,7 @@ export function ProjectFilter({
                   href={`/projects/${project.slug}`}
                   className="inline-flex min-h-12 w-full items-center justify-between rounded-xl bg-brand-primary px-5 py-3 text-center text-xs font-bold text-white transition hover:bg-brand-overlay"
                 >
-                  <span>ดูข้อมูลโครงการ</span>
+                  <span>{t({ th: "ดูข้อมูลโครงการ", en: "View project" })}</span>
                   <span className="grid size-7 place-items-center rounded-full bg-white/10">
                     <i className="fa-solid fa-arrow-right transition group-hover:translate-x-0.5" />
                   </span>
@@ -308,7 +343,7 @@ export function ProjectFilter({
         ))}
       </div>
       {!visible.length && (
-        <p className="mt-7 rounded-xl bg-white p-5 text-center text-slate-500">ไม่พบโครงการตามตัวกรองที่เลือก</p>
+        <p className="mt-7 rounded-xl bg-white p-5 text-center text-slate-500">{t({ th: "ไม่พบโครงการตามตัวกรองที่เลือก", en: "No projects match your filters." })}</p>
       )}
     </section>
   );

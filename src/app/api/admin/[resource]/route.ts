@@ -257,6 +257,7 @@ export async function POST(request: Request, context: RouteContext) {
             name_th: value(body, "name_th"),
             name_en: nullable(body, "name_en"),
             location: value(body, "location"),
+            location_en: nullable(body, "location_en"),
             latitude: numberValue(body, "latitude"),
             longitude: numberValue(body, "longitude"),
             property_type: value(body, "property_type") as PropertyType,
@@ -266,6 +267,7 @@ export async function POST(request: Request, context: RouteContext) {
             is_new: boolValue(body, "is_new"),
             tags: tagValue(body),
             description: nullable(body, "description"),
+            description_en: nullable(body, "description_en"),
           },
         });
         createdId = row.id;
@@ -276,7 +278,9 @@ export async function POST(request: Request, context: RouteContext) {
           data: {
             project_id: value(body, "project_id"),
             name: value(body, "name"),
+            name_en: nullable(body, "name_en"),
             description: nullable(body, "description"),
+            description_en: nullable(body, "description_en"),
             bedrooms: numberValue(body, "bedrooms"),
             bathrooms: numberValue(body, "bathrooms"),
             usable_area_sqm: numberValue(body, "usable_area_sqm"),
@@ -292,7 +296,9 @@ export async function POST(request: Request, context: RouteContext) {
             data: {
               project_id: value(body, "project_id"),
               name: value(body, "name"),
+              name_en: nullable(body, "name_en"),
               description: nullable(body, "description"),
+              description_en: nullable(body, "description_en"),
               sort_order: numberValue(body, "sort_order") ?? 0,
             },
           })
@@ -304,7 +310,9 @@ export async function POST(request: Request, context: RouteContext) {
             data: {
               project_id: nullable(body, "project_id"),
               title: value(body, "title"),
+              title_en: nullable(body, "title_en"),
               body: nullable(body, "body"),
+              body_en: nullable(body, "body_en"),
               starts_at: dateValue(body, "starts_at"),
               ends_at: dateValue(body, "ends_at"),
               is_published: boolValue(body, "is_published"),
@@ -319,7 +327,9 @@ export async function POST(request: Request, context: RouteContext) {
               project_id: nullable(body, "project_id"),
               category: (value(body, "category") || "NEWS") as NewsCategory,
               title: value(body, "title"),
+              title_en: nullable(body, "title_en"),
               body: nullable(body, "body"),
+              body_en: nullable(body, "body_en"),
               published_at: dateValue(body, "published_at"),
               is_published: boolValue(body, "is_published"),
             },
@@ -332,7 +342,9 @@ export async function POST(request: Request, context: RouteContext) {
             data: {
               content_key: value(body, "content_key"),
               title: value(body, "title"),
+              title_en: nullable(body, "title_en"),
               body: nullable(body, "body"),
+              body_en: nullable(body, "body_en"),
             },
           })
         ).id;
@@ -388,6 +400,7 @@ export async function PATCH(request: Request, context: RouteContext) {
             name_th: value(body, "name_th"),
             name_en: nullable(body, "name_en"),
             location: value(body, "location"),
+            location_en: nullable(body, "location_en"),
             latitude: numberValue(body, "latitude"),
             longitude: numberValue(body, "longitude"),
             property_type: value(body, "property_type") as PropertyType,
@@ -397,6 +410,7 @@ export async function PATCH(request: Request, context: RouteContext) {
             is_new: boolValue(body, "is_new"),
             tags: tagValue(body),
             description: nullable(body, "description"),
+            description_en: nullable(body, "description_en"),
           },
         });
         break;
@@ -406,7 +420,9 @@ export async function PATCH(request: Request, context: RouteContext) {
           data: {
             project_id: value(body, "project_id"),
             name: value(body, "name"),
+            name_en: nullable(body, "name_en"),
             description: nullable(body, "description"),
+            description_en: nullable(body, "description_en"),
             bedrooms: numberValue(body, "bedrooms"),
             bathrooms: numberValue(body, "bathrooms"),
             usable_area_sqm: numberValue(body, "usable_area_sqm"),
@@ -420,7 +436,9 @@ export async function PATCH(request: Request, context: RouteContext) {
           data: {
             project_id: value(body, "project_id"),
             name: value(body, "name"),
+            name_en: nullable(body, "name_en"),
             description: nullable(body, "description"),
+            description_en: nullable(body, "description_en"),
             sort_order: numberValue(body, "sort_order") ?? 0,
           },
         });
@@ -431,7 +449,9 @@ export async function PATCH(request: Request, context: RouteContext) {
           data: {
             project_id: nullable(body, "project_id"),
             title: value(body, "title"),
+            title_en: nullable(body, "title_en"),
             body: nullable(body, "body"),
+            body_en: nullable(body, "body_en"),
             starts_at: dateValue(body, "starts_at"),
             ends_at: dateValue(body, "ends_at"),
             is_published: boolValue(body, "is_published"),
@@ -445,7 +465,9 @@ export async function PATCH(request: Request, context: RouteContext) {
             project_id: nullable(body, "project_id"),
             category: (value(body, "category") || "NEWS") as NewsCategory,
             title: value(body, "title"),
+            title_en: nullable(body, "title_en"),
             body: nullable(body, "body"),
+            body_en: nullable(body, "body_en"),
             published_at: dateValue(body, "published_at"),
             is_published: boolValue(body, "is_published"),
           },
@@ -457,7 +479,13 @@ export async function PATCH(request: Request, context: RouteContext) {
       case "content":
         await prisma.siteContent.update({
           where: { id },
-          data: { content_key: value(body, "content_key"), title: value(body, "title"), body: nullable(body, "body") },
+          data: {
+            content_key: value(body, "content_key"),
+            title: value(body, "title"),
+            title_en: nullable(body, "title_en"),
+            body: nullable(body, "body"),
+            body_en: nullable(body, "body_en"),
+          },
         });
         break;
       case "users": {

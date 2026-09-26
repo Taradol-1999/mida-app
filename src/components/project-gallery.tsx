@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "@/components/language-provider";
 
 export type ProjectGalleryItem = { src: string; alt: string; type: "image" | "video" };
 
@@ -18,6 +19,7 @@ export function ProjectGallery({ items }: { items: ProjectGalleryItem[] }) {
   const [selected, setSelected] = useState<number | null>(null);
   const [expanded, setExpanded] = useState(false);
   const swipeStartX = useRef<number | null>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (selected === null) return;
@@ -35,7 +37,7 @@ export function ProjectGallery({ items }: { items: ProjectGalleryItem[] }) {
       <div className="grid min-h-64 place-items-center rounded-3xl border border-dashed border-slate-300 bg-white text-sm font-semibold text-slate-500 sm:min-h-96">
         <div className="text-center">
           <i className="fa-regular fa-images mb-3 block text-4xl text-slate-300" />
-          ยังไม่มีรูป Gallery
+          {t({ th: "ยังไม่มีรูป Gallery", en: "No gallery images yet" })}
         </div>
       </div>
     );
@@ -65,7 +67,7 @@ export function ProjectGallery({ items }: { items: ProjectGalleryItem[] }) {
       <div className="mb-6 flex flex-col gap-5 sm:mb-9 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="gold-rule mb-2" />
-          <h2 className="section-title">อัลบั้มภาพ</h2>
+          <h2 className="section-title">{t({ th: "อัลบั้มภาพ", en: "Gallery" })}</h2>
         </div>
       </div>
 
@@ -75,7 +77,7 @@ export function ProjectGallery({ items }: { items: ProjectGalleryItem[] }) {
             key={`${item.src}-${index}`}
             type="button"
             onClick={() => setSelected(index)}
-            aria-label={`ดูสื่อ Gallery ลำดับที่ ${index + 1}`}
+            aria-label={t({ th: `ดูสื่อ Gallery ลำดับที่ ${index + 1}`, en: `View gallery media ${index + 1}` })}
             className={`group relative overflow-hidden bg-slate-200 text-left ${tileClasses[index % tileClasses.length]}`}
           >
             {item.type === "video" ? (
@@ -118,7 +120,7 @@ export function ProjectGallery({ items }: { items: ProjectGalleryItem[] }) {
             aria-expanded={expanded}
             className="group inline-flex min-w-44 items-center justify-center gap-2 rounded-full border border-brand-primary bg-white px-7 py-3 text-sm font-bold text-brand-primary transition hover:bg-brand-primary hover:text-white"
           >
-            {expanded ? "แสดงน้อยลง" : `ดูเพิ่มเติม (${items.length - 6})`}
+            {expanded ? t({ th: "แสดงน้อยลง", en: "Show less" }) : t({ th: `ดูเพิ่มเติม (${items.length - 6})`, en: `View more (${items.length - 6})` })}
             <i
               className={`fa-solid fa-chevron-down text-xs transition-transform ${expanded ? "rotate-180" : "group-hover:translate-y-0.5"}`}
               aria-hidden="true"
@@ -131,14 +133,14 @@ export function ProjectGallery({ items }: { items: ProjectGalleryItem[] }) {
         <div
           role="dialog"
           aria-modal="true"
-          aria-label={`ภาพโครงการ ${selected! + 1} จาก ${items.length}`}
+          aria-label={t({ th: `ภาพโครงการ ${selected! + 1} จาก ${items.length}`, en: `Project image ${selected! + 1} of ${items.length}` })}
           className="fixed inset-0 z-50 grid place-items-center bg-black/90 p-2 backdrop-blur-sm sm:p-4"
           onClick={() => setSelected(null)}
         >
           <button
             type="button"
             onClick={() => setSelected(null)}
-            aria-label="ปิดแกลเลอรี"
+            aria-label={t({ th: "ปิดแกลเลอรี", en: "Close gallery" })}
             className="absolute top-3 right-3 z-10 grid size-10 place-items-center rounded-full bg-white text-slate-950 shadow-lg sm:top-5 sm:right-5 sm:size-11"
           >
             <i className="fa-solid fa-xmark" />
@@ -193,7 +195,7 @@ export function ProjectGallery({ items }: { items: ProjectGalleryItem[] }) {
                 <button
                   type="button"
                   onClick={() => move(-1)}
-                  aria-label="ภาพก่อนหน้า"
+                  aria-label={t({ th: "ภาพก่อนหน้า", en: "Previous image" })}
                   className="absolute top-1/2 left-2 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-brand-primary shadow-lg sm:-left-16 sm:size-12"
                 >
                   <i className="fa-solid fa-chevron-left" />
@@ -201,7 +203,7 @@ export function ProjectGallery({ items }: { items: ProjectGalleryItem[] }) {
                 <button
                   type="button"
                   onClick={() => move(1)}
-                  aria-label="ภาพถัดไป"
+                  aria-label={t({ th: "ภาพถัดไป", en: "Next image" })}
                   className="absolute top-1/2 right-2 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-brand-primary shadow-lg sm:-right-16 sm:size-12"
                 >
                   <i className="fa-solid fa-chevron-right" />

@@ -3,6 +3,7 @@ import { HeaderNav } from "@/components/header-nav";
 import { HeroImageSlider } from "@/components/hero-image-slider";
 import { ProjectLocationMap } from "@/components/project-location-map";
 import { SiteFooter } from "@/components/site-footer";
+import { LanguageToggle, T } from "@/components/language-provider";
 import { NewsPromotionSlider, type NewsPromotionItem } from "@/components/news-promotion-slider";
 import { ProjectFilter } from "@/components/project-filter";
 import { getSession } from "@/lib/auth";
@@ -12,9 +13,9 @@ import type { MapProject } from "@/lib/project-map";
 export const dynamic = "force-dynamic";
 
 const nav = [
-  { href: "#projects", label: "โครงการ" },
-  { href: "#promotion", label: "ข่าวสารและโปรโมชั่น" },
-  { href: "#location", label: "ทำเลที่ตั้ง" },
+  { href: "#projects", label: { th: "โครงการ", en: "Projects" } },
+  { href: "#promotion", label: { th: "ข่าวสารและโปรโมชั่น", en: "News & Promotions" } },
+  { href: "#location", label: { th: "ทำเลที่ตั้ง", en: "Locations" } },
 ];
 
 const defaultUpdates: NewsPromotionItem[] = [
@@ -22,26 +23,34 @@ const defaultUpdates: NewsPromotionItem[] = [
     id: "default-promotion",
     tag: "PROMOTION",
     title: "สิทธิพิเศษสำหรับครอบครัว MIDA",
+    titleEn: "Exclusive Privileges for MIDA Families",
     detail: "ข้อเสนอพิเศษสำหรับลูกค้าใหม่และลูกค้า MIDA Family",
+    detailEn: "Special offers for new customers and MIDA Family members.",
   },
   {
     id: "default-news",
     tag: "NEWS",
     title: "MIDA ร่วมมือกับ ธอส.",
+    titleEn: "MIDA Partners with GHB",
     detail: "สนับสนุนการเข้าถึงที่อยู่อาศัยอย่างมั่นคง",
+    detailEn: "Supporting secure access to home ownership.",
   },
   {
     id: "default-event",
     tag: "EVENT",
     title: "พบกันที่งาน MIDA Home Fair",
+    titleEn: "Meet Us at MIDA Home Fair",
     detail: "เยี่ยมชมโครงการและรับข้อเสนอภายในงาน",
+    detailEn: "Visit our projects and receive exclusive event offers.",
   },
 ];
 
 async function homeData() {
   try {
     const [contentRows, promotions, news, projectRows] = await Promise.all([
-      prisma.siteContent.findMany({ select: { id: true, content_key: true, title: true, body: true } }),
+      prisma.siteContent.findMany({
+        select: { id: true, content_key: true, title: true, title_en: true, body: true, body_en: true },
+      }),
       prisma.promotion.findMany({
         where: { is_published: true },
         include: { project: { select: { slug: true } } },
@@ -60,7 +69,9 @@ async function homeData() {
           id: true,
           slug: true,
           name_th: true,
+          name_en: true,
           location: true,
+          location_en: true,
           latitude: true,
           longitude: true,
           settings: true,
@@ -94,7 +105,9 @@ async function homeData() {
         entityType: "promotions" as const,
         tag: "PROMOTION",
         title: item.title,
+        titleEn: item.title_en,
         detail: item.body ?? "",
+        detailEn: item.body_en,
         date: item.created_at,
         projectSlug: item.project?.slug,
       })),
@@ -103,7 +116,9 @@ async function homeData() {
         entityType: "news" as const,
         tag: item.category,
         title: item.title,
+        titleEn: item.title_en,
         detail: item.body ?? "",
+        detailEn: item.body_en,
         date: item.published_at,
         projectSlug: item.project?.slug,
       })),
@@ -132,13 +147,20 @@ async function homeData() {
       mediaByItem.set(key, [...(mediaByItem.get(key) ?? []), item]);
     }
     return {
-      content: Object.fromEntries(contentRows.map((row) => [row.content_key, { title: row.title, body: row.body }])),
+      content: Object.fromEntries(
+        contentRows.map((row) => [
+          row.content_key,
+          { title: row.title, title_en: row.title_en, body: row.body, body_en: row.body_en },
+        ]),
+      ),
       updates: updateRows.length
         ? updateRows.map((row) => ({
             id: `${row.entityType}-${row.id}`,
             tag: String(row.tag),
             title: String(row.title),
+            titleEn: row.titleEn,
             detail: String(row.detail),
+            detailEn: row.detailEn,
             href: row.projectSlug ? `/projects/${row.projectSlug}#project-promo-news` : undefined,
             images: (mediaByItem.get(`${row.entityType}:${row.id}`) ?? []).map((media) => ({
               src: `/api/admin/media?entityType=${row.entityType}&entityId=${row.id}&mediaKind=gallery&mediaId=${media.id}`,
@@ -156,7 +178,9 @@ async function homeData() {
         id: row.id,
         slug: row.slug,
         name: row.name_th,
+        nameEn: row.name_en,
         location: row.location,
+        locationEn: row.location_en,
         latitude: row.latitude === null ? null : Number(row.latitude),
         longitude: row.longitude === null ? null : Number(row.longitude),
         mapUrl: row.settings?.map_url ?? null,
@@ -194,28 +218,26 @@ export default async function HomePage() {
             <a href="#projects" aria-label="ค้นหาโครงการ" className="hover:text-brand-primary">
               <i className="fa-solid fa-magnifying-glass" />
             </a>
-            {session && (
-              <Link
-                href="/admin"
-                className="rounded-full border border-slate-200 px-3 py-1.5 text-xs hover:border-brand-primary"
-              >
-                ผู้ดูแลระบบ
-              </Link>
-            )}
+            <LanguageToggle />
           </nav>
           <details className="group relative md:hidden">
             <summary className="grid size-10 cursor-pointer list-none place-items-center rounded-lg border border-slate-200 text-brand-primary [&::-webkit-details-marker]:hidden">
               <i className="fa-solid fa-bars" aria-hidden="true" />
-              <span className="sr-only">เปิดเมนู</span>
+              <span className="sr-only">
+                <T th="เปิดเมนู" en="Open menu" />
+              </span>
             </summary>
             <nav className="absolute right-0 top-12 flex w-64 flex-col gap-1 rounded-xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-600 shadow-xl">
               <HeaderNav items={nav} />
               {session && (
                 <Link href="/admin" className="mt-1 rounded-lg bg-brand-soft px-3 py-2.5 text-brand-primary">
                   <i className="fa-solid fa-user-shield mr-2" />
-                  ผู้ดูแลระบบ
+                  <T th="ผู้ดูแลระบบ" en="Admin" />
                 </Link>
               )}
+              <div className="mt-2 px-2">
+                <LanguageToggle />
+              </div>
             </nav>
           </details>
         </div>
@@ -223,13 +245,17 @@ export default async function HomePage() {
       <HeroImageSlider
         images={heroImages}
         title={content.home_hero?.title ?? ""}
+        titleEn={content.home_hero?.title_en}
         description={content.home_hero?.body ?? ""}
+        descriptionEn={content.home_hero?.body_en}
       />
       <ProjectFilter projectIds={homepageProjectIds} allProjectsHref="/projects" />
       <section id="promotion" className="bg-white py-12 sm:py-16">
         <div className="container-page">
           <div className="gold-rule" />
-          <h2 className="section-title">ข่าวสารและโปรโมชั่น</h2>
+          <h2 className="section-title">
+            <T th="ข่าวสารและโปรโมชั่น" en="News & Promotions" />
+          </h2>
           <NewsPromotionSlider items={updates} />
         </div>
       </section>
@@ -238,23 +264,30 @@ export default async function HomePage() {
           <div className="mb-7 max-w-2xl">
             <div className="gold-rule" />
             <p className="mt-4 text-sm font-bold tracking-widest text-brand-text">MIDA LOCATION</p>
-            <h2 className="section-title mt-2">ทำเลโครงการ MIDA PROPERTY</h2>
+            <h2 className="section-title mt-2">
+              <T th="ทำเลโครงการ MIDA PROPERTY" en="MIDA PROPERTY Locations" />
+            </h2>
             <p className="mt-3 leading-7 text-brand-text">
-              ดูตำแหน่งโครงการทั้งหมด และกดเลือกโครงการเพื่อเปิดเส้นทางใน Google Maps
+              <T
+                th="ดูตำแหน่งโครงการทั้งหมด และกดเลือกโครงการเพื่อเปิดเส้นทางใน Google Maps"
+                en="View every project location and select a project for directions in Google Maps."
+              />
             </p>
           </div>
           <ProjectLocationMap
             projects={mapProjects}
             center={{
               name: "MIDA PROPERTY",
+              nameEn: "MIDA PROPERTY",
               address: "267 ถนนจรัญสนิทวงศ์ แขวงบางอ้อ เขตบางพลัด กรุงเทพมหานคร 10700",
+              addressEn: "267 Charansanitwong Road, Bang O, Bang Phlat, Bangkok 10700, Thailand",
               latitude: 13.8040816,
               longitude: 100.5121667,
             }}
           />
         </div>
       </section>
-      <SiteFooter contact={content.contact?.body} />
+      <SiteFooter contact={content.contact?.body} contactEn={content.contact?.body_en} />
     </main>
   );
 }

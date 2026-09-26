@@ -38,7 +38,9 @@ export type FacilityMinAggregateOutputType = {
   id: string | null
   project_id: string | null
   name: string | null
+  name_en: string | null
   description: string | null
+  description_en: string | null
   sort_order: number | null
 }
 
@@ -46,7 +48,9 @@ export type FacilityMaxAggregateOutputType = {
   id: string | null
   project_id: string | null
   name: string | null
+  name_en: string | null
   description: string | null
+  description_en: string | null
   sort_order: number | null
 }
 
@@ -54,7 +58,9 @@ export type FacilityCountAggregateOutputType = {
   id: number
   project_id: number
   name: number
+  name_en: number
   description: number
+  description_en: number
   sort_order: number
   _all: number
 }
@@ -72,7 +78,9 @@ export type FacilityMinAggregateInputType = {
   id?: true
   project_id?: true
   name?: true
+  name_en?: true
   description?: true
+  description_en?: true
   sort_order?: true
 }
 
@@ -80,7 +88,9 @@ export type FacilityMaxAggregateInputType = {
   id?: true
   project_id?: true
   name?: true
+  name_en?: true
   description?: true
+  description_en?: true
   sort_order?: true
 }
 
@@ -88,7 +98,9 @@ export type FacilityCountAggregateInputType = {
   id?: true
   project_id?: true
   name?: true
+  name_en?: true
   description?: true
+  description_en?: true
   sort_order?: true
   _all?: true
 }
@@ -183,7 +195,9 @@ export type FacilityGroupByOutputType = {
   id: string
   project_id: string
   name: string
+  name_en: string | null
   description: string | null
+  description_en: string | null
   sort_order: number
   _count: FacilityCountAggregateOutputType | null
   _avg: FacilityAvgAggregateOutputType | null
@@ -214,7 +228,9 @@ export type FacilityWhereInput = {
   id?: Prisma.StringFilter<"Facility"> | string
   project_id?: Prisma.StringFilter<"Facility"> | string
   name?: Prisma.StringFilter<"Facility"> | string
+  name_en?: Prisma.StringNullableFilter<"Facility"> | string | null
   description?: Prisma.StringNullableFilter<"Facility"> | string | null
+  description_en?: Prisma.StringNullableFilter<"Facility"> | string | null
   sort_order?: Prisma.IntFilter<"Facility"> | number
   project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
 }
@@ -223,7 +239,9 @@ export type FacilityOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   project_id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  name_en?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  description_en?: Prisma.SortOrderInput | Prisma.SortOrder
   sort_order?: Prisma.SortOrder
   project?: Prisma.ProjectOrderByWithRelationInput
   _relevance?: Prisma.FacilityOrderByRelevanceInput
@@ -236,7 +254,9 @@ export type FacilityWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.FacilityWhereInput | Prisma.FacilityWhereInput[]
   project_id?: Prisma.StringFilter<"Facility"> | string
   name?: Prisma.StringFilter<"Facility"> | string
+  name_en?: Prisma.StringNullableFilter<"Facility"> | string | null
   description?: Prisma.StringNullableFilter<"Facility"> | string | null
+  description_en?: Prisma.StringNullableFilter<"Facility"> | string | null
   sort_order?: Prisma.IntFilter<"Facility"> | number
   project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
 }, "id">
@@ -245,7 +265,9 @@ export type FacilityOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   project_id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  name_en?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  description_en?: Prisma.SortOrderInput | Prisma.SortOrder
   sort_order?: Prisma.SortOrder
   _count?: Prisma.FacilityCountOrderByAggregateInput
   _avg?: Prisma.FacilityAvgOrderByAggregateInput
@@ -261,14 +283,18 @@ export type FacilityScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Facility"> | string
   project_id?: Prisma.StringWithAggregatesFilter<"Facility"> | string
   name?: Prisma.StringWithAggregatesFilter<"Facility"> | string
+  name_en?: Prisma.StringNullableWithAggregatesFilter<"Facility"> | string | null
   description?: Prisma.StringNullableWithAggregatesFilter<"Facility"> | string | null
+  description_en?: Prisma.StringNullableWithAggregatesFilter<"Facility"> | string | null
   sort_order?: Prisma.IntWithAggregatesFilter<"Facility"> | number
 }
 
 export type FacilityCreateInput = {
   id?: string
   name: string
+  name_en?: string | null
   description?: string | null
+  description_en?: string | null
   sort_order?: number
   project: Prisma.ProjectCreateNestedOneWithoutFacilitiesInput
 }
@@ -277,14 +303,18 @@ export type FacilityUncheckedCreateInput = {
   id?: string
   project_id: string
   name: string
+  name_en?: string | null
   description?: string | null
+  description_en?: string | null
   sort_order?: number
 }
 
 export type FacilityUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sort_order?: Prisma.IntFieldUpdateOperationsInput | number
   project?: Prisma.ProjectUpdateOneRequiredWithoutFacilitiesNestedInput
 }
@@ -293,7 +323,9 @@ export type FacilityUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   project_id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sort_order?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
@@ -301,14 +333,18 @@ export type FacilityCreateManyInput = {
   id?: string
   project_id: string
   name: string
+  name_en?: string | null
   description?: string | null
+  description_en?: string | null
   sort_order?: number
 }
 
 export type FacilityUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sort_order?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
@@ -316,7 +352,9 @@ export type FacilityUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   project_id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sort_order?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
@@ -340,7 +378,9 @@ export type FacilityCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   project_id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  name_en?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  description_en?: Prisma.SortOrder
   sort_order?: Prisma.SortOrder
 }
 
@@ -352,7 +392,9 @@ export type FacilityMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   project_id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  name_en?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  description_en?: Prisma.SortOrder
   sort_order?: Prisma.SortOrder
 }
 
@@ -360,7 +402,9 @@ export type FacilityMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   project_id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  name_en?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  description_en?: Prisma.SortOrder
   sort_order?: Prisma.SortOrder
 }
 
@@ -413,14 +457,18 @@ export type FacilityUncheckedUpdateManyWithoutProjectNestedInput = {
 export type FacilityCreateWithoutProjectInput = {
   id?: string
   name: string
+  name_en?: string | null
   description?: string | null
+  description_en?: string | null
   sort_order?: number
 }
 
 export type FacilityUncheckedCreateWithoutProjectInput = {
   id?: string
   name: string
+  name_en?: string | null
   description?: string | null
+  description_en?: string | null
   sort_order?: number
 }
 
@@ -457,35 +505,45 @@ export type FacilityScalarWhereInput = {
   id?: Prisma.StringFilter<"Facility"> | string
   project_id?: Prisma.StringFilter<"Facility"> | string
   name?: Prisma.StringFilter<"Facility"> | string
+  name_en?: Prisma.StringNullableFilter<"Facility"> | string | null
   description?: Prisma.StringNullableFilter<"Facility"> | string | null
+  description_en?: Prisma.StringNullableFilter<"Facility"> | string | null
   sort_order?: Prisma.IntFilter<"Facility"> | number
 }
 
 export type FacilityCreateManyProjectInput = {
   id?: string
   name: string
+  name_en?: string | null
   description?: string | null
+  description_en?: string | null
   sort_order?: number
 }
 
 export type FacilityUpdateWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sort_order?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type FacilityUncheckedUpdateWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sort_order?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type FacilityUncheckedUpdateManyWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sort_order?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
@@ -495,7 +553,9 @@ export type FacilitySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   id?: boolean
   project_id?: boolean
   name?: boolean
+  name_en?: boolean
   description?: boolean
+  description_en?: boolean
   sort_order?: boolean
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["facility"]>
@@ -506,11 +566,13 @@ export type FacilitySelectScalar = {
   id?: boolean
   project_id?: boolean
   name?: boolean
+  name_en?: boolean
   description?: boolean
+  description_en?: boolean
   sort_order?: boolean
 }
 
-export type FacilityOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "project_id" | "name" | "description" | "sort_order", ExtArgs["result"]["facility"]>
+export type FacilityOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "project_id" | "name" | "name_en" | "description" | "description_en" | "sort_order", ExtArgs["result"]["facility"]>
 export type FacilityInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
 }
@@ -524,7 +586,9 @@ export type $FacilityPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     id: string
     project_id: string
     name: string
+    name_en: string | null
     description: string | null
+    description_en: string | null
     sort_order: number
   }, ExtArgs["result"]["facility"]>
   composites: {}
@@ -899,7 +963,9 @@ export interface FacilityFieldRefs {
   readonly id: Prisma.FieldRef<"Facility", 'String'>
   readonly project_id: Prisma.FieldRef<"Facility", 'String'>
   readonly name: Prisma.FieldRef<"Facility", 'String'>
+  readonly name_en: Prisma.FieldRef<"Facility", 'String'>
   readonly description: Prisma.FieldRef<"Facility", 'String'>
+  readonly description_en: Prisma.FieldRef<"Facility", 'String'>
   readonly sort_order: Prisma.FieldRef<"Facility", 'Int'>
 }
     

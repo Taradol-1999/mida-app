@@ -35,10 +35,11 @@ const configs: Record<AdminResource, Config> = {
     intro: "สร้างโครงการใหม่และดูแลข้อมูลที่แสดงบนเว็บไซต์",
     formTitle: "เพิ่ม / แก้ไขโครงการ",
     fields: [
-      { name: "name_th", label: "ชื่อโครงการ (ภาษาไทย)", required: true },
-      { name: "name_en", label: "ชื่อโครงการ (ภาษาอังกฤษ)" },
+      { name: "name_th", label: "ชื่อโครงการ (TH)", required: true },
+      { name: "name_en", label: "ชื่อโครงการ (EN)" },
       { name: "slug", label: "Slug สำหรับ URL", hint: "เช่น grand-village-petchkasem", required: true },
       { name: "location", label: "ทำเล / จังหวัด", required: true },
+      { name: "location_en", label: "ทำเล / จังหวัด (EN)" },
       {
         name: "property_type",
         label: "ประเภทโครงการหลัก",
@@ -64,6 +65,7 @@ const configs: Record<AdminResource, Config> = {
         ],
       },
       { name: "description", label: "รายละเอียดโครงการ", type: "textarea", wide: true },
+      { name: "description_en", label: "รายละเอียดโครงการ (EN)", type: "textarea", wide: true },
     ],
     columns: [
       ["name_th", "โครงการ"],
@@ -80,12 +82,14 @@ const configs: Record<AdminResource, Config> = {
     formTitle: "เพิ่ม / แก้ไขแบบบ้าน",
     fields: [
       { name: "project_id", label: "โครงการ", type: "project", required: true },
-      { name: "name", label: "ชื่อแบบบ้าน", required: true },
+      { name: "name", label: "ชื่อแบบบ้าน (TH)", required: true },
+      { name: "name_en", label: "ชื่อแบบบ้าน (EN)" },
       { name: "bedrooms", label: "ห้องนอน", type: "number" },
       { name: "bathrooms", label: "ห้องน้ำ", type: "number" },
       { name: "usable_area_sqm", label: "พื้นที่ใช้สอย (ตร.ม.)", type: "number" },
       { name: "starting_price", label: "ราคาเริ่มต้น (บาท)", type: "number" },
       { name: "description", label: "รายละเอียดแบบบ้าน", type: "textarea", wide: true },
+      { name: "description_en", label: "รายละเอียดแบบบ้าน (EN)", type: "textarea", wide: true },
     ],
     columns: [
       ["project_name", "โครงการ"],
@@ -102,9 +106,11 @@ const configs: Record<AdminResource, Config> = {
     formTitle: "เพิ่มสิ่งอำนวยความสะดวก",
     fields: [
       { name: "project_id", label: "โครงการ", type: "project", required: true },
-      { name: "name", label: "ชื่อสิ่งอำนวยความสะดวก", required: true },
+      { name: "name", label: "ชื่อสิ่งอำนวยความสะดวก (TH)", required: true },
+      { name: "name_en", label: "ชื่อสิ่งอำนวยความสะดวก (EN)" },
       { name: "sort_order", label: "ลำดับการแสดง", type: "number" },
       { name: "description", label: "รายละเอียดเพิ่มเติม", type: "textarea", wide: true },
+      { name: "description_en", label: "รายละเอียดเพิ่มเติม (EN)", type: "textarea", wide: true },
     ],
     columns: [
       ["project_name", "โครงการ"],
@@ -119,10 +125,12 @@ const configs: Record<AdminResource, Config> = {
     formTitle: "เพิ่มโปรโมชั่น / แคมเปญ",
     fields: [
       { name: "project_id", label: "โครงการ", type: "project" },
-      { name: "title", label: "หัวข้อโปรโมชั่น", required: true },
+      { name: "title", label: "หัวข้อโปรโมชั่น (TH)", required: true },
+      { name: "title_en", label: "หัวข้อโปรโมชั่น (EN)" },
       { name: "starts_at", label: "วันเริ่มแคมเปญ", type: "datetime" },
       { name: "ends_at", label: "วันสิ้นสุดแคมเปญ", type: "datetime" },
       { name: "body", label: "รายละเอียดและเงื่อนไข", type: "textarea", wide: true },
+      { name: "body_en", label: "รายละเอียดและเงื่อนไข (EN)", type: "textarea", wide: true },
       { name: "is_published", label: "แสดงผลทันที (Active)", type: "checkbox" },
     ],
     columns: [
@@ -150,10 +158,12 @@ const configs: Record<AdminResource, Config> = {
           ["EVENT", "กิจกรรมประจำโครงการ"],
         ],
       },
-      { name: "title", label: "หัวข้อข่าวสาร", required: true, wide: true },
+      { name: "title", label: "หัวข้อข่าวสาร (TH)", required: true, wide: true },
+      { name: "title_en", label: "หัวข้อข่าวสาร (EN)", wide: true },
       { name: "published_at", label: "วันเผยแพร่", type: "datetime" },
       { name: "is_published", label: "เผยแพร่ข่าวสารนี้", type: "checkbox" },
       { name: "body", label: "เนื้อหาข่าวสารแบบย่อ", type: "textarea", wide: true },
+      { name: "body_en", label: "เนื้อหาข่าวสารแบบย่อ (EN)", type: "textarea", wide: true },
     ],
     columns: [
       ["category", "หมวดหมู่"],
@@ -202,8 +212,10 @@ const configs: Record<AdminResource, Config> = {
     formTitle: "เพิ่ม / แก้ไขเนื้อหาเว็บไซต์",
     fields: [
       { name: "content_key", label: "Content key", hint: "home_hero หรือ contact", required: true },
-      { name: "title", label: "หัวข้อ", required: true },
+      { name: "title", label: "หัวข้อ (TH)", required: true },
+      { name: "title_en", label: "หัวข้อ (EN)" },
       { name: "body", label: "รายละเอียดเนื้อหา", type: "textarea", wide: true },
+      { name: "body_en", label: "รายละเอียดเนื้อหา (EN)", type: "textarea", wide: true },
     ],
     columns: [
       ["content_key", "Content key"],

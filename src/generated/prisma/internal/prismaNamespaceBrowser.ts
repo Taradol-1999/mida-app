@@ -102,6 +102,7 @@ export const ProjectScalarFieldEnum = {
   name_th: 'name_th',
   name_en: 'name_en',
   location: 'location',
+  location_en: 'location_en',
   latitude: 'latitude',
   longitude: 'longitude',
   property_type: 'property_type',
@@ -111,6 +112,7 @@ export const ProjectScalarFieldEnum = {
   is_new: 'is_new',
   tags: 'tags',
   description: 'description',
+  description_en: 'description_en',
   created_at: 'created_at',
   updated_at: 'updated_at'
 } as const
@@ -138,7 +140,9 @@ export const HouseTypeScalarFieldEnum = {
   id: 'id',
   project_id: 'project_id',
   name: 'name',
+  name_en: 'name_en',
   description: 'description',
+  description_en: 'description_en',
   bedrooms: 'bedrooms',
   bathrooms: 'bathrooms',
   usable_area_sqm: 'usable_area_sqm',
@@ -152,7 +156,9 @@ export const FacilityScalarFieldEnum = {
   id: 'id',
   project_id: 'project_id',
   name: 'name',
+  name_en: 'name_en',
   description: 'description',
+  description_en: 'description_en',
   sort_order: 'sort_order'
 } as const
 
@@ -163,7 +169,9 @@ export const PromotionScalarFieldEnum = {
   id: 'id',
   project_id: 'project_id',
   title: 'title',
+  title_en: 'title_en',
   body: 'body',
+  body_en: 'body_en',
   starts_at: 'starts_at',
   ends_at: 'ends_at',
   is_published: 'is_published',
@@ -178,7 +186,9 @@ export const NewsItemScalarFieldEnum = {
   project_id: 'project_id',
   category: 'category',
   title: 'title',
+  title_en: 'title_en',
   body: 'body',
+  body_en: 'body_en',
   published_at: 'published_at',
   is_published: 'is_published'
 } as const
@@ -229,7 +239,9 @@ export const SiteContentScalarFieldEnum = {
   id: 'id',
   content_key: 'content_key',
   title: 'title',
+  title_en: 'title_en',
   body: 'body',
+  body_en: 'body_en',
   updated_at: 'updated_at'
 } as const
 
@@ -333,7 +345,9 @@ export const ProjectOrderByRelevanceFieldEnum = {
   name_th: 'name_th',
   name_en: 'name_en',
   location: 'location',
-  description: 'description'
+  location_en: 'location_en',
+  description: 'description',
+  description_en: 'description_en'
 } as const
 
 export type ProjectOrderByRelevanceFieldEnum = (typeof ProjectOrderByRelevanceFieldEnum)[keyof typeof ProjectOrderByRelevanceFieldEnum]
@@ -358,7 +372,9 @@ export const HouseTypeOrderByRelevanceFieldEnum = {
   id: 'id',
   project_id: 'project_id',
   name: 'name',
-  description: 'description'
+  name_en: 'name_en',
+  description: 'description',
+  description_en: 'description_en'
 } as const
 
 export type HouseTypeOrderByRelevanceFieldEnum = (typeof HouseTypeOrderByRelevanceFieldEnum)[keyof typeof HouseTypeOrderByRelevanceFieldEnum]
@@ -368,7 +384,9 @@ export const FacilityOrderByRelevanceFieldEnum = {
   id: 'id',
   project_id: 'project_id',
   name: 'name',
-  description: 'description'
+  name_en: 'name_en',
+  description: 'description',
+  description_en: 'description_en'
 } as const
 
 export type FacilityOrderByRelevanceFieldEnum = (typeof FacilityOrderByRelevanceFieldEnum)[keyof typeof FacilityOrderByRelevanceFieldEnum]
@@ -378,7 +396,9 @@ export const PromotionOrderByRelevanceFieldEnum = {
   id: 'id',
   project_id: 'project_id',
   title: 'title',
-  body: 'body'
+  title_en: 'title_en',
+  body: 'body',
+  body_en: 'body_en'
 } as const
 
 export type PromotionOrderByRelevanceFieldEnum = (typeof PromotionOrderByRelevanceFieldEnum)[keyof typeof PromotionOrderByRelevanceFieldEnum]
@@ -388,7 +408,9 @@ export const NewsItemOrderByRelevanceFieldEnum = {
   id: 'id',
   project_id: 'project_id',
   title: 'title',
-  body: 'body'
+  title_en: 'title_en',
+  body: 'body',
+  body_en: 'body_en'
 } as const
 
 export type NewsItemOrderByRelevanceFieldEnum = (typeof NewsItemOrderByRelevanceFieldEnum)[keyof typeof NewsItemOrderByRelevanceFieldEnum]
@@ -427,7 +449,9 @@ export const SiteContentOrderByRelevanceFieldEnum = {
   id: 'id',
   content_key: 'content_key',
   title: 'title',
-  body: 'body'
+  title_en: 'title_en',
+  body: 'body',
+  body_en: 'body_en'
 } as const
 
 export type SiteContentOrderByRelevanceFieldEnum = (typeof SiteContentOrderByRelevanceFieldEnum)[keyof typeof SiteContentOrderByRelevanceFieldEnum]

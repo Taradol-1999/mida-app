@@ -33,12 +33,14 @@ const configs: Partial<Record<Section, DataConfig>> = {
     title: "จัดการแบบบ้าน (House Types)",
     intro: "เพิ่ม แก้ไข และแสดงแบบบ้านของโครงการนี้",
     fields: [
-      { key: "name", label: "ชื่อแบบบ้าน", required: true },
+      { key: "name", label: "ชื่อแบบบ้าน (TH)", required: true },
+      { key: "name_en", label: "ชื่อแบบบ้าน (EN)" },
       { key: "bedrooms", label: "ห้องนอน", type: "number" },
       { key: "bathrooms", label: "ห้องน้ำ", type: "number" },
       { key: "usable_area_sqm", label: "พื้นที่ใช้สอย (ตร.ม.)", type: "number" },
       { key: "starting_price", label: "ราคาเริ่มต้น (บาท)", type: "number" },
       { key: "description", label: "รายละเอียดแบบบ้าน", type: "textarea" },
+      { key: "description_en", label: "รายละเอียดแบบบ้าน (EN)", type: "textarea" },
     ],
     columns: [
       ["name", "ชื่อแบบบ้าน"],
@@ -53,9 +55,11 @@ const configs: Partial<Record<Section, DataConfig>> = {
     title: "จัดการสิ่งอำนวยความสะดวก",
     intro: "บันทึกไฮไลท์และส่วนกลางของโครงการนี้",
     fields: [
-      { key: "name", label: "ชื่อสิ่งอำนวยความสะดวก", required: true },
+      { key: "name", label: "ชื่อสิ่งอำนวยความสะดวก (TH)", required: true },
+      { key: "name_en", label: "ชื่อสิ่งอำนวยความสะดวก (EN)" },
       { key: "sort_order", label: "ลำดับ", type: "number" },
       { key: "description", label: "รายละเอียด", type: "textarea" },
+      { key: "description_en", label: "รายละเอียด (EN)", type: "textarea" },
     ],
     columns: [
       ["sort_order", "ลำดับ"],
@@ -68,10 +72,12 @@ const configs: Partial<Record<Section, DataConfig>> = {
     title: "จัดการข้อมูลโปรโมชั่น",
     intro: "กำหนดแคมเปญสำหรับโครงการนี้",
     fields: [
-      { key: "title", label: "หัวข้อโปรโมชั่น", required: true },
+      { key: "title", label: "หัวข้อโปรโมชั่น (TH)", required: true },
+      { key: "title_en", label: "หัวข้อโปรโมชั่น (EN)" },
       { key: "starts_at", label: "วันเริ่ม", type: "datetime" },
       { key: "ends_at", label: "วันสิ้นสุด", type: "datetime" },
       { key: "body", label: "รายละเอียด", type: "textarea" },
+      { key: "body_en", label: "รายละเอียด (EN)", type: "textarea" },
       { key: "is_published", label: "แสดงผลทันที", type: "checkbox" },
     ],
     columns: [
@@ -97,9 +103,11 @@ const configs: Partial<Record<Section, DataConfig>> = {
           ["EVENT", "กิจกรรม"],
         ],
       },
-      { key: "title", label: "หัวข้อข่าวสาร", required: true },
+      { key: "title", label: "หัวข้อข่าวสาร (TH)", required: true },
+      { key: "title_en", label: "หัวข้อข่าวสาร (EN)" },
       { key: "published_at", label: "วันเผยแพร่", type: "datetime" },
       { key: "body", label: "เนื้อหาแบบย่อ", type: "textarea" },
+      { key: "body_en", label: "เนื้อหาแบบย่อ (EN)", type: "textarea" },
       { key: "is_published", label: "เผยแพร่ข่าวสารนี้", type: "checkbox" },
     ],
     columns: [

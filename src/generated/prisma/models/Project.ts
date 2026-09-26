@@ -44,6 +44,7 @@ export type ProjectMinAggregateOutputType = {
   name_th: string | null
   name_en: string | null
   location: string | null
+  location_en: string | null
   latitude: runtime.Decimal | null
   longitude: runtime.Decimal | null
   property_type: $Enums.PropertyType | null
@@ -52,6 +53,7 @@ export type ProjectMinAggregateOutputType = {
   is_featured: boolean | null
   is_new: boolean | null
   description: string | null
+  description_en: string | null
   created_at: Date | null
   updated_at: Date | null
 }
@@ -62,6 +64,7 @@ export type ProjectMaxAggregateOutputType = {
   name_th: string | null
   name_en: string | null
   location: string | null
+  location_en: string | null
   latitude: runtime.Decimal | null
   longitude: runtime.Decimal | null
   property_type: $Enums.PropertyType | null
@@ -70,6 +73,7 @@ export type ProjectMaxAggregateOutputType = {
   is_featured: boolean | null
   is_new: boolean | null
   description: string | null
+  description_en: string | null
   created_at: Date | null
   updated_at: Date | null
 }
@@ -80,6 +84,7 @@ export type ProjectCountAggregateOutputType = {
   name_th: number
   name_en: number
   location: number
+  location_en: number
   latitude: number
   longitude: number
   property_type: number
@@ -89,6 +94,7 @@ export type ProjectCountAggregateOutputType = {
   is_new: number
   tags: number
   description: number
+  description_en: number
   created_at: number
   updated_at: number
   _all: number
@@ -113,6 +119,7 @@ export type ProjectMinAggregateInputType = {
   name_th?: true
   name_en?: true
   location?: true
+  location_en?: true
   latitude?: true
   longitude?: true
   property_type?: true
@@ -121,6 +128,7 @@ export type ProjectMinAggregateInputType = {
   is_featured?: true
   is_new?: true
   description?: true
+  description_en?: true
   created_at?: true
   updated_at?: true
 }
@@ -131,6 +139,7 @@ export type ProjectMaxAggregateInputType = {
   name_th?: true
   name_en?: true
   location?: true
+  location_en?: true
   latitude?: true
   longitude?: true
   property_type?: true
@@ -139,6 +148,7 @@ export type ProjectMaxAggregateInputType = {
   is_featured?: true
   is_new?: true
   description?: true
+  description_en?: true
   created_at?: true
   updated_at?: true
 }
@@ -149,6 +159,7 @@ export type ProjectCountAggregateInputType = {
   name_th?: true
   name_en?: true
   location?: true
+  location_en?: true
   latitude?: true
   longitude?: true
   property_type?: true
@@ -158,6 +169,7 @@ export type ProjectCountAggregateInputType = {
   is_new?: true
   tags?: true
   description?: true
+  description_en?: true
   created_at?: true
   updated_at?: true
   _all?: true
@@ -255,6 +267,7 @@ export type ProjectGroupByOutputType = {
   name_th: string
   name_en: string | null
   location: string
+  location_en: string | null
   latitude: runtime.Decimal | null
   longitude: runtime.Decimal | null
   property_type: $Enums.PropertyType
@@ -264,6 +277,7 @@ export type ProjectGroupByOutputType = {
   is_new: boolean
   tags: runtime.JsonValue | null
   description: string | null
+  description_en: string | null
   created_at: Date
   updated_at: Date
   _count: ProjectCountAggregateOutputType | null
@@ -297,6 +311,7 @@ export type ProjectWhereInput = {
   name_th?: Prisma.StringFilter<"Project"> | string
   name_en?: Prisma.StringNullableFilter<"Project"> | string | null
   location?: Prisma.StringFilter<"Project"> | string
+  location_en?: Prisma.StringNullableFilter<"Project"> | string | null
   latitude?: Prisma.DecimalNullableFilter<"Project"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.DecimalNullableFilter<"Project"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type?: Prisma.EnumPropertyTypeFilter<"Project"> | $Enums.PropertyType
@@ -306,6 +321,7 @@ export type ProjectWhereInput = {
   is_new?: Prisma.BoolFilter<"Project"> | boolean
   tags?: Prisma.JsonNullableFilter<"Project">
   description?: Prisma.StringNullableFilter<"Project"> | string | null
+  description_en?: Prisma.StringNullableFilter<"Project"> | string | null
   created_at?: Prisma.DateTimeFilter<"Project"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"Project"> | Date | string
   users?: Prisma.UserProjectListRelationFilter
@@ -325,6 +341,7 @@ export type ProjectOrderByWithRelationInput = {
   name_th?: Prisma.SortOrder
   name_en?: Prisma.SortOrderInput | Prisma.SortOrder
   location?: Prisma.SortOrder
+  location_en?: Prisma.SortOrderInput | Prisma.SortOrder
   latitude?: Prisma.SortOrderInput | Prisma.SortOrder
   longitude?: Prisma.SortOrderInput | Prisma.SortOrder
   property_type?: Prisma.SortOrder
@@ -334,6 +351,7 @@ export type ProjectOrderByWithRelationInput = {
   is_new?: Prisma.SortOrder
   tags?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  description_en?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
   users?: Prisma.UserProjectOrderByRelationAggregateInput
@@ -357,6 +375,7 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   name_th?: Prisma.StringFilter<"Project"> | string
   name_en?: Prisma.StringNullableFilter<"Project"> | string | null
   location?: Prisma.StringFilter<"Project"> | string
+  location_en?: Prisma.StringNullableFilter<"Project"> | string | null
   latitude?: Prisma.DecimalNullableFilter<"Project"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.DecimalNullableFilter<"Project"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type?: Prisma.EnumPropertyTypeFilter<"Project"> | $Enums.PropertyType
@@ -366,6 +385,7 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   is_new?: Prisma.BoolFilter<"Project"> | boolean
   tags?: Prisma.JsonNullableFilter<"Project">
   description?: Prisma.StringNullableFilter<"Project"> | string | null
+  description_en?: Prisma.StringNullableFilter<"Project"> | string | null
   created_at?: Prisma.DateTimeFilter<"Project"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"Project"> | Date | string
   users?: Prisma.UserProjectListRelationFilter
@@ -385,6 +405,7 @@ export type ProjectOrderByWithAggregationInput = {
   name_th?: Prisma.SortOrder
   name_en?: Prisma.SortOrderInput | Prisma.SortOrder
   location?: Prisma.SortOrder
+  location_en?: Prisma.SortOrderInput | Prisma.SortOrder
   latitude?: Prisma.SortOrderInput | Prisma.SortOrder
   longitude?: Prisma.SortOrderInput | Prisma.SortOrder
   property_type?: Prisma.SortOrder
@@ -394,6 +415,7 @@ export type ProjectOrderByWithAggregationInput = {
   is_new?: Prisma.SortOrder
   tags?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  description_en?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
   _count?: Prisma.ProjectCountOrderByAggregateInput
@@ -412,6 +434,7 @@ export type ProjectScalarWhereWithAggregatesInput = {
   name_th?: Prisma.StringWithAggregatesFilter<"Project"> | string
   name_en?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   location?: Prisma.StringWithAggregatesFilter<"Project"> | string
+  location_en?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   latitude?: Prisma.DecimalNullableWithAggregatesFilter<"Project"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.DecimalNullableWithAggregatesFilter<"Project"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type?: Prisma.EnumPropertyTypeWithAggregatesFilter<"Project"> | $Enums.PropertyType
@@ -421,6 +444,7 @@ export type ProjectScalarWhereWithAggregatesInput = {
   is_new?: Prisma.BoolWithAggregatesFilter<"Project"> | boolean
   tags?: Prisma.JsonNullableWithAggregatesFilter<"Project">
   description?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
+  description_en?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   created_at?: Prisma.DateTimeWithAggregatesFilter<"Project"> | Date | string
   updated_at?: Prisma.DateTimeWithAggregatesFilter<"Project"> | Date | string
 }
@@ -431,6 +455,7 @@ export type ProjectCreateInput = {
   name_th: string
   name_en?: string | null
   location: string
+  location_en?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type: $Enums.PropertyType
@@ -440,6 +465,7 @@ export type ProjectCreateInput = {
   is_new?: boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: string | null
+  description_en?: string | null
   created_at?: Date | string
   updated_at?: Date | string
   users?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
@@ -459,6 +485,7 @@ export type ProjectUncheckedCreateInput = {
   name_th: string
   name_en?: string | null
   location: string
+  location_en?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type: $Enums.PropertyType
@@ -468,6 +495,7 @@ export type ProjectUncheckedCreateInput = {
   is_new?: boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: string | null
+  description_en?: string | null
   created_at?: Date | string
   updated_at?: Date | string
   users?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
@@ -487,6 +515,7 @@ export type ProjectUpdateInput = {
   name_th?: Prisma.StringFieldUpdateOperationsInput | string
   name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
+  location_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
@@ -496,6 +525,7 @@ export type ProjectUpdateInput = {
   is_new?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
@@ -515,6 +545,7 @@ export type ProjectUncheckedUpdateInput = {
   name_th?: Prisma.StringFieldUpdateOperationsInput | string
   name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
+  location_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
@@ -524,6 +555,7 @@ export type ProjectUncheckedUpdateInput = {
   is_new?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
@@ -543,6 +575,7 @@ export type ProjectCreateManyInput = {
   name_th: string
   name_en?: string | null
   location: string
+  location_en?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type: $Enums.PropertyType
@@ -552,6 +585,7 @@ export type ProjectCreateManyInput = {
   is_new?: boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: string | null
+  description_en?: string | null
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -562,6 +596,7 @@ export type ProjectUpdateManyMutationInput = {
   name_th?: Prisma.StringFieldUpdateOperationsInput | string
   name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
+  location_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
@@ -571,6 +606,7 @@ export type ProjectUpdateManyMutationInput = {
   is_new?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -581,6 +617,7 @@ export type ProjectUncheckedUpdateManyInput = {
   name_th?: Prisma.StringFieldUpdateOperationsInput | string
   name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
+  location_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
@@ -590,6 +627,7 @@ export type ProjectUncheckedUpdateManyInput = {
   is_new?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -606,6 +644,7 @@ export type ProjectCountOrderByAggregateInput = {
   name_th?: Prisma.SortOrder
   name_en?: Prisma.SortOrder
   location?: Prisma.SortOrder
+  location_en?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
   property_type?: Prisma.SortOrder
@@ -615,6 +654,7 @@ export type ProjectCountOrderByAggregateInput = {
   is_new?: Prisma.SortOrder
   tags?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  description_en?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -631,6 +671,7 @@ export type ProjectMaxOrderByAggregateInput = {
   name_th?: Prisma.SortOrder
   name_en?: Prisma.SortOrder
   location?: Prisma.SortOrder
+  location_en?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
   property_type?: Prisma.SortOrder
@@ -639,6 +680,7 @@ export type ProjectMaxOrderByAggregateInput = {
   is_featured?: Prisma.SortOrder
   is_new?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  description_en?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -649,6 +691,7 @@ export type ProjectMinOrderByAggregateInput = {
   name_th?: Prisma.SortOrder
   name_en?: Prisma.SortOrder
   location?: Prisma.SortOrder
+  location_en?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
   property_type?: Prisma.SortOrder
@@ -657,6 +700,7 @@ export type ProjectMinOrderByAggregateInput = {
   is_featured?: Prisma.SortOrder
   is_new?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  description_en?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -837,6 +881,7 @@ export type ProjectCreateWithoutHomepage_slotsInput = {
   name_th: string
   name_en?: string | null
   location: string
+  location_en?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type: $Enums.PropertyType
@@ -846,6 +891,7 @@ export type ProjectCreateWithoutHomepage_slotsInput = {
   is_new?: boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: string | null
+  description_en?: string | null
   created_at?: Date | string
   updated_at?: Date | string
   users?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
@@ -864,6 +910,7 @@ export type ProjectUncheckedCreateWithoutHomepage_slotsInput = {
   name_th: string
   name_en?: string | null
   location: string
+  location_en?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type: $Enums.PropertyType
@@ -873,6 +920,7 @@ export type ProjectUncheckedCreateWithoutHomepage_slotsInput = {
   is_new?: boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: string | null
+  description_en?: string | null
   created_at?: Date | string
   updated_at?: Date | string
   users?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
@@ -907,6 +955,7 @@ export type ProjectUpdateWithoutHomepage_slotsInput = {
   name_th?: Prisma.StringFieldUpdateOperationsInput | string
   name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
+  location_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
@@ -916,6 +965,7 @@ export type ProjectUpdateWithoutHomepage_slotsInput = {
   is_new?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
@@ -934,6 +984,7 @@ export type ProjectUncheckedUpdateWithoutHomepage_slotsInput = {
   name_th?: Prisma.StringFieldUpdateOperationsInput | string
   name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
+  location_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
@@ -943,6 +994,7 @@ export type ProjectUncheckedUpdateWithoutHomepage_slotsInput = {
   is_new?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
@@ -961,6 +1013,7 @@ export type ProjectCreateWithoutUsersInput = {
   name_th: string
   name_en?: string | null
   location: string
+  location_en?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type: $Enums.PropertyType
@@ -970,6 +1023,7 @@ export type ProjectCreateWithoutUsersInput = {
   is_new?: boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: string | null
+  description_en?: string | null
   created_at?: Date | string
   updated_at?: Date | string
   settings?: Prisma.ProjectSettingCreateNestedOneWithoutProjectInput
@@ -988,6 +1042,7 @@ export type ProjectUncheckedCreateWithoutUsersInput = {
   name_th: string
   name_en?: string | null
   location: string
+  location_en?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type: $Enums.PropertyType
@@ -997,6 +1052,7 @@ export type ProjectUncheckedCreateWithoutUsersInput = {
   is_new?: boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: string | null
+  description_en?: string | null
   created_at?: Date | string
   updated_at?: Date | string
   settings?: Prisma.ProjectSettingUncheckedCreateNestedOneWithoutProjectInput
@@ -1031,6 +1087,7 @@ export type ProjectUpdateWithoutUsersInput = {
   name_th?: Prisma.StringFieldUpdateOperationsInput | string
   name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
+  location_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
@@ -1040,6 +1097,7 @@ export type ProjectUpdateWithoutUsersInput = {
   is_new?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   settings?: Prisma.ProjectSettingUpdateOneWithoutProjectNestedInput
@@ -1058,6 +1116,7 @@ export type ProjectUncheckedUpdateWithoutUsersInput = {
   name_th?: Prisma.StringFieldUpdateOperationsInput | string
   name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
+  location_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
@@ -1067,6 +1126,7 @@ export type ProjectUncheckedUpdateWithoutUsersInput = {
   is_new?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   settings?: Prisma.ProjectSettingUncheckedUpdateOneWithoutProjectNestedInput
@@ -1085,6 +1145,7 @@ export type ProjectCreateWithoutHouse_typesInput = {
   name_th: string
   name_en?: string | null
   location: string
+  location_en?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type: $Enums.PropertyType
@@ -1094,6 +1155,7 @@ export type ProjectCreateWithoutHouse_typesInput = {
   is_new?: boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: string | null
+  description_en?: string | null
   created_at?: Date | string
   updated_at?: Date | string
   users?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
@@ -1112,6 +1174,7 @@ export type ProjectUncheckedCreateWithoutHouse_typesInput = {
   name_th: string
   name_en?: string | null
   location: string
+  location_en?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type: $Enums.PropertyType
@@ -1121,6 +1184,7 @@ export type ProjectUncheckedCreateWithoutHouse_typesInput = {
   is_new?: boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: string | null
+  description_en?: string | null
   created_at?: Date | string
   updated_at?: Date | string
   users?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
@@ -1155,6 +1219,7 @@ export type ProjectUpdateWithoutHouse_typesInput = {
   name_th?: Prisma.StringFieldUpdateOperationsInput | string
   name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
+  location_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
@@ -1164,6 +1229,7 @@ export type ProjectUpdateWithoutHouse_typesInput = {
   is_new?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
@@ -1182,6 +1248,7 @@ export type ProjectUncheckedUpdateWithoutHouse_typesInput = {
   name_th?: Prisma.StringFieldUpdateOperationsInput | string
   name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
+  location_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
@@ -1191,6 +1258,7 @@ export type ProjectUncheckedUpdateWithoutHouse_typesInput = {
   is_new?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
@@ -1209,6 +1277,7 @@ export type ProjectCreateWithoutFacilitiesInput = {
   name_th: string
   name_en?: string | null
   location: string
+  location_en?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type: $Enums.PropertyType
@@ -1218,6 +1287,7 @@ export type ProjectCreateWithoutFacilitiesInput = {
   is_new?: boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: string | null
+  description_en?: string | null
   created_at?: Date | string
   updated_at?: Date | string
   users?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
@@ -1236,6 +1306,7 @@ export type ProjectUncheckedCreateWithoutFacilitiesInput = {
   name_th: string
   name_en?: string | null
   location: string
+  location_en?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type: $Enums.PropertyType
@@ -1245,6 +1316,7 @@ export type ProjectUncheckedCreateWithoutFacilitiesInput = {
   is_new?: boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: string | null
+  description_en?: string | null
   created_at?: Date | string
   updated_at?: Date | string
   users?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
@@ -1279,6 +1351,7 @@ export type ProjectUpdateWithoutFacilitiesInput = {
   name_th?: Prisma.StringFieldUpdateOperationsInput | string
   name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
+  location_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
@@ -1288,6 +1361,7 @@ export type ProjectUpdateWithoutFacilitiesInput = {
   is_new?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
@@ -1306,6 +1380,7 @@ export type ProjectUncheckedUpdateWithoutFacilitiesInput = {
   name_th?: Prisma.StringFieldUpdateOperationsInput | string
   name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
+  location_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
@@ -1315,6 +1390,7 @@ export type ProjectUncheckedUpdateWithoutFacilitiesInput = {
   is_new?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
@@ -1333,6 +1409,7 @@ export type ProjectCreateWithoutPromotionsInput = {
   name_th: string
   name_en?: string | null
   location: string
+  location_en?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type: $Enums.PropertyType
@@ -1342,6 +1419,7 @@ export type ProjectCreateWithoutPromotionsInput = {
   is_new?: boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: string | null
+  description_en?: string | null
   created_at?: Date | string
   updated_at?: Date | string
   users?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
@@ -1360,6 +1438,7 @@ export type ProjectUncheckedCreateWithoutPromotionsInput = {
   name_th: string
   name_en?: string | null
   location: string
+  location_en?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type: $Enums.PropertyType
@@ -1369,6 +1448,7 @@ export type ProjectUncheckedCreateWithoutPromotionsInput = {
   is_new?: boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: string | null
+  description_en?: string | null
   created_at?: Date | string
   updated_at?: Date | string
   users?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
@@ -1403,6 +1483,7 @@ export type ProjectUpdateWithoutPromotionsInput = {
   name_th?: Prisma.StringFieldUpdateOperationsInput | string
   name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
+  location_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
@@ -1412,6 +1493,7 @@ export type ProjectUpdateWithoutPromotionsInput = {
   is_new?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
@@ -1430,6 +1512,7 @@ export type ProjectUncheckedUpdateWithoutPromotionsInput = {
   name_th?: Prisma.StringFieldUpdateOperationsInput | string
   name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
+  location_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
@@ -1439,6 +1522,7 @@ export type ProjectUncheckedUpdateWithoutPromotionsInput = {
   is_new?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
@@ -1457,6 +1541,7 @@ export type ProjectCreateWithoutNews_itemsInput = {
   name_th: string
   name_en?: string | null
   location: string
+  location_en?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type: $Enums.PropertyType
@@ -1466,6 +1551,7 @@ export type ProjectCreateWithoutNews_itemsInput = {
   is_new?: boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: string | null
+  description_en?: string | null
   created_at?: Date | string
   updated_at?: Date | string
   users?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
@@ -1484,6 +1570,7 @@ export type ProjectUncheckedCreateWithoutNews_itemsInput = {
   name_th: string
   name_en?: string | null
   location: string
+  location_en?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type: $Enums.PropertyType
@@ -1493,6 +1580,7 @@ export type ProjectUncheckedCreateWithoutNews_itemsInput = {
   is_new?: boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: string | null
+  description_en?: string | null
   created_at?: Date | string
   updated_at?: Date | string
   users?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
@@ -1527,6 +1615,7 @@ export type ProjectUpdateWithoutNews_itemsInput = {
   name_th?: Prisma.StringFieldUpdateOperationsInput | string
   name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
+  location_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
@@ -1536,6 +1625,7 @@ export type ProjectUpdateWithoutNews_itemsInput = {
   is_new?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
@@ -1554,6 +1644,7 @@ export type ProjectUncheckedUpdateWithoutNews_itemsInput = {
   name_th?: Prisma.StringFieldUpdateOperationsInput | string
   name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
+  location_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
@@ -1563,6 +1654,7 @@ export type ProjectUncheckedUpdateWithoutNews_itemsInput = {
   is_new?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
@@ -1581,6 +1673,7 @@ export type ProjectCreateWithoutLeadsInput = {
   name_th: string
   name_en?: string | null
   location: string
+  location_en?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type: $Enums.PropertyType
@@ -1590,6 +1683,7 @@ export type ProjectCreateWithoutLeadsInput = {
   is_new?: boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: string | null
+  description_en?: string | null
   created_at?: Date | string
   updated_at?: Date | string
   users?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
@@ -1608,6 +1702,7 @@ export type ProjectUncheckedCreateWithoutLeadsInput = {
   name_th: string
   name_en?: string | null
   location: string
+  location_en?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type: $Enums.PropertyType
@@ -1617,6 +1712,7 @@ export type ProjectUncheckedCreateWithoutLeadsInput = {
   is_new?: boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: string | null
+  description_en?: string | null
   created_at?: Date | string
   updated_at?: Date | string
   users?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
@@ -1651,6 +1747,7 @@ export type ProjectUpdateWithoutLeadsInput = {
   name_th?: Prisma.StringFieldUpdateOperationsInput | string
   name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
+  location_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
@@ -1660,6 +1757,7 @@ export type ProjectUpdateWithoutLeadsInput = {
   is_new?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
@@ -1678,6 +1776,7 @@ export type ProjectUncheckedUpdateWithoutLeadsInput = {
   name_th?: Prisma.StringFieldUpdateOperationsInput | string
   name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
+  location_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
@@ -1687,6 +1786,7 @@ export type ProjectUncheckedUpdateWithoutLeadsInput = {
   is_new?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
@@ -1705,6 +1805,7 @@ export type ProjectCreateWithoutPage_viewsInput = {
   name_th: string
   name_en?: string | null
   location: string
+  location_en?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type: $Enums.PropertyType
@@ -1714,6 +1815,7 @@ export type ProjectCreateWithoutPage_viewsInput = {
   is_new?: boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: string | null
+  description_en?: string | null
   created_at?: Date | string
   updated_at?: Date | string
   users?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
@@ -1732,6 +1834,7 @@ export type ProjectUncheckedCreateWithoutPage_viewsInput = {
   name_th: string
   name_en?: string | null
   location: string
+  location_en?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type: $Enums.PropertyType
@@ -1741,6 +1844,7 @@ export type ProjectUncheckedCreateWithoutPage_viewsInput = {
   is_new?: boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: string | null
+  description_en?: string | null
   created_at?: Date | string
   updated_at?: Date | string
   users?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
@@ -1775,6 +1879,7 @@ export type ProjectUpdateWithoutPage_viewsInput = {
   name_th?: Prisma.StringFieldUpdateOperationsInput | string
   name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
+  location_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
@@ -1784,6 +1889,7 @@ export type ProjectUpdateWithoutPage_viewsInput = {
   is_new?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
@@ -1802,6 +1908,7 @@ export type ProjectUncheckedUpdateWithoutPage_viewsInput = {
   name_th?: Prisma.StringFieldUpdateOperationsInput | string
   name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
+  location_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
@@ -1811,6 +1918,7 @@ export type ProjectUncheckedUpdateWithoutPage_viewsInput = {
   is_new?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
@@ -1829,6 +1937,7 @@ export type ProjectCreateWithoutSettingsInput = {
   name_th: string
   name_en?: string | null
   location: string
+  location_en?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type: $Enums.PropertyType
@@ -1838,6 +1947,7 @@ export type ProjectCreateWithoutSettingsInput = {
   is_new?: boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: string | null
+  description_en?: string | null
   created_at?: Date | string
   updated_at?: Date | string
   users?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
@@ -1856,6 +1966,7 @@ export type ProjectUncheckedCreateWithoutSettingsInput = {
   name_th: string
   name_en?: string | null
   location: string
+  location_en?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type: $Enums.PropertyType
@@ -1865,6 +1976,7 @@ export type ProjectUncheckedCreateWithoutSettingsInput = {
   is_new?: boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: string | null
+  description_en?: string | null
   created_at?: Date | string
   updated_at?: Date | string
   users?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
@@ -1899,6 +2011,7 @@ export type ProjectUpdateWithoutSettingsInput = {
   name_th?: Prisma.StringFieldUpdateOperationsInput | string
   name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
+  location_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
@@ -1908,6 +2021,7 @@ export type ProjectUpdateWithoutSettingsInput = {
   is_new?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
@@ -1926,6 +2040,7 @@ export type ProjectUncheckedUpdateWithoutSettingsInput = {
   name_th?: Prisma.StringFieldUpdateOperationsInput | string
   name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
+  location_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   property_type?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
@@ -1935,6 +2050,7 @@ export type ProjectUncheckedUpdateWithoutSettingsInput = {
   is_new?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
@@ -2047,6 +2163,7 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   name_th?: boolean
   name_en?: boolean
   location?: boolean
+  location_en?: boolean
   latitude?: boolean
   longitude?: boolean
   property_type?: boolean
@@ -2056,6 +2173,7 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   is_new?: boolean
   tags?: boolean
   description?: boolean
+  description_en?: boolean
   created_at?: boolean
   updated_at?: boolean
   users?: boolean | Prisma.Project$usersArgs<ExtArgs>
@@ -2078,6 +2196,7 @@ export type ProjectSelectScalar = {
   name_th?: boolean
   name_en?: boolean
   location?: boolean
+  location_en?: boolean
   latitude?: boolean
   longitude?: boolean
   property_type?: boolean
@@ -2087,11 +2206,12 @@ export type ProjectSelectScalar = {
   is_new?: boolean
   tags?: boolean
   description?: boolean
+  description_en?: boolean
   created_at?: boolean
   updated_at?: boolean
 }
 
-export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "slug" | "name_th" | "name_en" | "location" | "latitude" | "longitude" | "property_type" | "starting_price" | "status" | "is_featured" | "is_new" | "tags" | "description" | "created_at" | "updated_at", ExtArgs["result"]["project"]>
+export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "slug" | "name_th" | "name_en" | "location" | "location_en" | "latitude" | "longitude" | "property_type" | "starting_price" | "status" | "is_featured" | "is_new" | "tags" | "description" | "description_en" | "created_at" | "updated_at", ExtArgs["result"]["project"]>
 export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   users?: boolean | Prisma.Project$usersArgs<ExtArgs>
   settings?: boolean | Prisma.Project$settingsArgs<ExtArgs>
@@ -2124,6 +2244,7 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     name_th: string
     name_en: string | null
     location: string
+    location_en: string | null
     latitude: runtime.Decimal | null
     longitude: runtime.Decimal | null
     property_type: $Enums.PropertyType
@@ -2133,6 +2254,7 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     is_new: boolean
     tags: runtime.JsonValue | null
     description: string | null
+    description_en: string | null
     created_at: Date
     updated_at: Date
   }, ExtArgs["result"]["project"]>
@@ -2518,6 +2640,7 @@ export interface ProjectFieldRefs {
   readonly name_th: Prisma.FieldRef<"Project", 'String'>
   readonly name_en: Prisma.FieldRef<"Project", 'String'>
   readonly location: Prisma.FieldRef<"Project", 'String'>
+  readonly location_en: Prisma.FieldRef<"Project", 'String'>
   readonly latitude: Prisma.FieldRef<"Project", 'Decimal'>
   readonly longitude: Prisma.FieldRef<"Project", 'Decimal'>
   readonly property_type: Prisma.FieldRef<"Project", 'PropertyType'>
@@ -2527,6 +2650,7 @@ export interface ProjectFieldRefs {
   readonly is_new: Prisma.FieldRef<"Project", 'Boolean'>
   readonly tags: Prisma.FieldRef<"Project", 'Json'>
   readonly description: Prisma.FieldRef<"Project", 'String'>
+  readonly description_en: Prisma.FieldRef<"Project", 'String'>
   readonly created_at: Prisma.FieldRef<"Project", 'DateTime'>
   readonly updated_at: Prisma.FieldRef<"Project", 'DateTime'>
 }

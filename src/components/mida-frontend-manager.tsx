@@ -13,7 +13,9 @@ type HomepageProject = { id: string; name_th: string; location: string; status: 
 export function MidaFrontendManager() {
   const [contentId, setContentId] = useState("");
   const [headline, setHeadline] = useState("");
+  const [headlineEn, setHeadlineEn] = useState("");
   const [description, setDescription] = useState("");
+  const [descriptionEn, setDescriptionEn] = useState("");
   const [images, setImages] = useState<Media[]>([]);
   const [files, setFiles] = useState<File[]>([]);
   const [projects, setProjects] = useState<HomepageProject[]>([]);
@@ -45,7 +47,9 @@ export function MidaFrontendManager() {
     const id = String(home.id);
     setContentId(id);
     setHeadline(String(home.title ?? ""));
+    setHeadlineEn(String(home.title_en ?? ""));
     setDescription(String(home.body ?? ""));
+    setDescriptionEn(String(home.body_en ?? ""));
     await loadImages(id);
   }, [loadImages]);
 
@@ -57,7 +61,14 @@ export function MidaFrontendManager() {
     const response = await fetch("/api/admin/content", {
       method: contentId ? "PATCH" : "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: contentId, content_key: "home_hero", title: headline, body: description }),
+      body: JSON.stringify({
+        id: contentId,
+        content_key: "home_hero",
+        title: headline,
+        title_en: headlineEn,
+        body: description,
+        body_en: descriptionEn,
+      }),
     });
     if (!response.ok) {
       const result = await response.json();
@@ -123,8 +134,9 @@ export function MidaFrontendManager() {
         </p>
       </header>
       <form onSubmit={save} className="mt-6 space-y-5 text-sm">
+        <div className="grid gap-5 md:grid-cols-2">
         <label className="block font-semibold text-slate-700">
-          คำพาดหัวหลักของบริษัท (Corporate Headline)
+          คำพาดหัวหลัก (TH)
           <Input
             required
             value={headline}
@@ -133,13 +145,30 @@ export function MidaFrontendManager() {
           />
         </label>
         <label className="block font-semibold text-slate-700">
-          คำอธิบายหน้าแรกส่วนกลาง
+          คำพาดหัวหลัก (EN)
+          <Input
+            value={headlineEn}
+            onChange={(event) => setHeadlineEn(event.target.value)}
+            className="mt-1.5 w-full rounded-lg border border-slate-300 p-2.5 outline-none focus:border-brand-primary"
+          />
+        </label>
+        <label className="block font-semibold text-slate-700">
+          คำอธิบายหน้าแรก (TH)
           <Textarea
             value={description}
             onChange={(event) => setDescription(event.target.value)}
             className="mt-1.5 min-h-24 w-full rounded-lg border border-slate-300 p-2.5 outline-none focus:border-brand-primary"
           />
         </label>
+        <label className="block font-semibold text-slate-700">
+          คำอธิบายหน้าแรก (EN)
+          <Textarea
+            value={descriptionEn}
+            onChange={(event) => setDescriptionEn(event.target.value)}
+            className="mt-1.5 min-h-24 w-full rounded-lg border border-slate-300 p-2.5 outline-none focus:border-brand-primary"
+          />
+        </label>
+        </div>
         <div className="mt-6">
           <BannerMediaUpload
             title="รูปภาพและวิดีโอแบนเนอร์สไลด์หลักหน้าแรกส่วนกลาง"

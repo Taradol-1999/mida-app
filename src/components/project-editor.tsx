@@ -18,6 +18,7 @@ type Project = {
   name_th: string;
   name_en: string | null;
   location: string;
+  location_en: string | null;
   latitude: number | string | null;
   longitude: number | string | null;
   property_type: string;
@@ -27,6 +28,7 @@ type Project = {
   is_new: boolean;
   tags: string[] | string | null;
   description: string | null;
+  description_en: string | null;
 };
 type Form = Omit<Project, "id" | "tags"> & { tags: string[] };
 type HomepageForm = {
@@ -59,6 +61,7 @@ const emptyForm: Form = {
   name_th: "",
   name_en: "",
   location: "",
+  location_en: "",
   latitude: "",
   longitude: "",
   property_type: "DETACHED_HOUSE",
@@ -68,6 +71,7 @@ const emptyForm: Form = {
   is_new: true,
   tags: [],
   description: "",
+  description_en: "",
 };
 const emptyHomepage: HomepageForm = {
   hero_title_th: "",
@@ -112,6 +116,7 @@ export function ProjectEditor({
       name_th: project.name_th,
       name_en: project.name_en ?? "",
       location: project.location,
+      location_en: project.location_en ?? "",
       latitude: project.latitude ?? "",
       longitude: project.longitude ?? "",
       property_type: project.property_type,
@@ -121,6 +126,7 @@ export function ProjectEditor({
       is_new: Boolean(project.is_new),
       tags: parseProjectTags(project.tags),
       description: project.description ?? "",
+      description_en: project.description_en ?? "",
     });
     setImageMissing(false);
   }
@@ -315,12 +321,12 @@ export function ProjectEditor({
           )}
           <div className="grid gap-4 md:grid-cols-2">
             <label className="text-sm font-semibold text-slate-700">
-              ชื่อโครงการ (ภาษาไทย)
+              ชื่อโครงการ (TH)
               <span className="ml-1 text-rose-600">*</span>
               <Input required value={form.name_th} onChange={(event) => setField("name_th", event.target.value)} />
             </label>
             <label className="text-sm font-semibold text-slate-700">
-              ชื่อโครงการ (ภาษาอังกฤษ)
+              ชื่อโครงการ (EN)
               <Input value={form.name_en ?? ""} onChange={(event) => setField("name_en", event.target.value)} />
             </label>
             <label className="text-sm font-semibold text-slate-700">
@@ -332,6 +338,10 @@ export function ProjectEditor({
               ทำเล / จังหวัด
               <span className="ml-1 text-rose-600">*</span>
               <Input required value={form.location} onChange={(event) => setField("location", event.target.value)} />
+            </label>
+            <label className="text-sm font-semibold text-slate-700">
+              ทำเล / จังหวัด (EN)
+              <Input value={form.location_en ?? ""} onChange={(event) => setField("location_en", event.target.value)} />
             </label>
             <label className="text-sm font-semibold text-slate-700">
               ประเภทโครงการ
@@ -389,10 +399,18 @@ export function ProjectEditor({
               </p>
             </fieldset>
             <label className="md:col-span-2 text-sm font-semibold text-slate-700">
-              รายละเอียดโครงการ
+              รายละเอียดโครงการ (TH)
               <Textarea
                 value={form.description ?? ""}
                 onChange={(event) => setField("description", event.target.value)}
+                className="min-h-28"
+              />
+            </label>
+            <label className="md:col-span-2 text-sm font-semibold text-slate-700">
+              รายละเอียดโครงการ (EN)
+              <Textarea
+                value={form.description_en ?? ""}
+                onChange={(event) => setField("description_en", event.target.value)}
                 className="min-h-28"
               />
             </label>

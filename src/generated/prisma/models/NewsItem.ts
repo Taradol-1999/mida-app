@@ -29,7 +29,9 @@ export type NewsItemMinAggregateOutputType = {
   project_id: string | null
   category: $Enums.NewsCategory | null
   title: string | null
+  title_en: string | null
   body: string | null
+  body_en: string | null
   published_at: Date | null
   is_published: boolean | null
 }
@@ -39,7 +41,9 @@ export type NewsItemMaxAggregateOutputType = {
   project_id: string | null
   category: $Enums.NewsCategory | null
   title: string | null
+  title_en: string | null
   body: string | null
+  body_en: string | null
   published_at: Date | null
   is_published: boolean | null
 }
@@ -49,7 +53,9 @@ export type NewsItemCountAggregateOutputType = {
   project_id: number
   category: number
   title: number
+  title_en: number
   body: number
+  body_en: number
   published_at: number
   is_published: number
   _all: number
@@ -61,7 +67,9 @@ export type NewsItemMinAggregateInputType = {
   project_id?: true
   category?: true
   title?: true
+  title_en?: true
   body?: true
+  body_en?: true
   published_at?: true
   is_published?: true
 }
@@ -71,7 +79,9 @@ export type NewsItemMaxAggregateInputType = {
   project_id?: true
   category?: true
   title?: true
+  title_en?: true
   body?: true
+  body_en?: true
   published_at?: true
   is_published?: true
 }
@@ -81,7 +91,9 @@ export type NewsItemCountAggregateInputType = {
   project_id?: true
   category?: true
   title?: true
+  title_en?: true
   body?: true
+  body_en?: true
   published_at?: true
   is_published?: true
   _all?: true
@@ -164,7 +176,9 @@ export type NewsItemGroupByOutputType = {
   project_id: string | null
   category: $Enums.NewsCategory
   title: string
+  title_en: string | null
   body: string | null
+  body_en: string | null
   published_at: Date | null
   is_published: boolean
   _count: NewsItemCountAggregateOutputType | null
@@ -195,7 +209,9 @@ export type NewsItemWhereInput = {
   project_id?: Prisma.StringNullableFilter<"NewsItem"> | string | null
   category?: Prisma.EnumNewsCategoryFilter<"NewsItem"> | $Enums.NewsCategory
   title?: Prisma.StringFilter<"NewsItem"> | string
+  title_en?: Prisma.StringNullableFilter<"NewsItem"> | string | null
   body?: Prisma.StringNullableFilter<"NewsItem"> | string | null
+  body_en?: Prisma.StringNullableFilter<"NewsItem"> | string | null
   published_at?: Prisma.DateTimeNullableFilter<"NewsItem"> | Date | string | null
   is_published?: Prisma.BoolFilter<"NewsItem"> | boolean
   project?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
@@ -206,7 +222,9 @@ export type NewsItemOrderByWithRelationInput = {
   project_id?: Prisma.SortOrderInput | Prisma.SortOrder
   category?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  title_en?: Prisma.SortOrderInput | Prisma.SortOrder
   body?: Prisma.SortOrderInput | Prisma.SortOrder
+  body_en?: Prisma.SortOrderInput | Prisma.SortOrder
   published_at?: Prisma.SortOrderInput | Prisma.SortOrder
   is_published?: Prisma.SortOrder
   project?: Prisma.ProjectOrderByWithRelationInput
@@ -221,7 +239,9 @@ export type NewsItemWhereUniqueInput = Prisma.AtLeast<{
   project_id?: Prisma.StringNullableFilter<"NewsItem"> | string | null
   category?: Prisma.EnumNewsCategoryFilter<"NewsItem"> | $Enums.NewsCategory
   title?: Prisma.StringFilter<"NewsItem"> | string
+  title_en?: Prisma.StringNullableFilter<"NewsItem"> | string | null
   body?: Prisma.StringNullableFilter<"NewsItem"> | string | null
+  body_en?: Prisma.StringNullableFilter<"NewsItem"> | string | null
   published_at?: Prisma.DateTimeNullableFilter<"NewsItem"> | Date | string | null
   is_published?: Prisma.BoolFilter<"NewsItem"> | boolean
   project?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
@@ -232,7 +252,9 @@ export type NewsItemOrderByWithAggregationInput = {
   project_id?: Prisma.SortOrderInput | Prisma.SortOrder
   category?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  title_en?: Prisma.SortOrderInput | Prisma.SortOrder
   body?: Prisma.SortOrderInput | Prisma.SortOrder
+  body_en?: Prisma.SortOrderInput | Prisma.SortOrder
   published_at?: Prisma.SortOrderInput | Prisma.SortOrder
   is_published?: Prisma.SortOrder
   _count?: Prisma.NewsItemCountOrderByAggregateInput
@@ -248,7 +270,9 @@ export type NewsItemScalarWhereWithAggregatesInput = {
   project_id?: Prisma.StringNullableWithAggregatesFilter<"NewsItem"> | string | null
   category?: Prisma.EnumNewsCategoryWithAggregatesFilter<"NewsItem"> | $Enums.NewsCategory
   title?: Prisma.StringWithAggregatesFilter<"NewsItem"> | string
+  title_en?: Prisma.StringNullableWithAggregatesFilter<"NewsItem"> | string | null
   body?: Prisma.StringNullableWithAggregatesFilter<"NewsItem"> | string | null
+  body_en?: Prisma.StringNullableWithAggregatesFilter<"NewsItem"> | string | null
   published_at?: Prisma.DateTimeNullableWithAggregatesFilter<"NewsItem"> | Date | string | null
   is_published?: Prisma.BoolWithAggregatesFilter<"NewsItem"> | boolean
 }
@@ -257,7 +281,9 @@ export type NewsItemCreateInput = {
   id?: string
   category?: $Enums.NewsCategory
   title: string
+  title_en?: string | null
   body?: string | null
+  body_en?: string | null
   published_at?: Date | string | null
   is_published?: boolean
   project?: Prisma.ProjectCreateNestedOneWithoutNews_itemsInput
@@ -268,7 +294,9 @@ export type NewsItemUncheckedCreateInput = {
   project_id?: string | null
   category?: $Enums.NewsCategory
   title: string
+  title_en?: string | null
   body?: string | null
+  body_en?: string | null
   published_at?: Date | string | null
   is_published?: boolean
 }
@@ -277,7 +305,9 @@ export type NewsItemUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.EnumNewsCategoryFieldUpdateOperationsInput | $Enums.NewsCategory
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  title_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   published_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   is_published?: Prisma.BoolFieldUpdateOperationsInput | boolean
   project?: Prisma.ProjectUpdateOneWithoutNews_itemsNestedInput
@@ -288,7 +318,9 @@ export type NewsItemUncheckedUpdateInput = {
   project_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.EnumNewsCategoryFieldUpdateOperationsInput | $Enums.NewsCategory
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  title_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   published_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   is_published?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
@@ -298,7 +330,9 @@ export type NewsItemCreateManyInput = {
   project_id?: string | null
   category?: $Enums.NewsCategory
   title: string
+  title_en?: string | null
   body?: string | null
+  body_en?: string | null
   published_at?: Date | string | null
   is_published?: boolean
 }
@@ -307,7 +341,9 @@ export type NewsItemUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.EnumNewsCategoryFieldUpdateOperationsInput | $Enums.NewsCategory
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  title_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   published_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   is_published?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
@@ -317,7 +353,9 @@ export type NewsItemUncheckedUpdateManyInput = {
   project_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.EnumNewsCategoryFieldUpdateOperationsInput | $Enums.NewsCategory
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  title_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   published_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   is_published?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
@@ -343,7 +381,9 @@ export type NewsItemCountOrderByAggregateInput = {
   project_id?: Prisma.SortOrder
   category?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  title_en?: Prisma.SortOrder
   body?: Prisma.SortOrder
+  body_en?: Prisma.SortOrder
   published_at?: Prisma.SortOrder
   is_published?: Prisma.SortOrder
 }
@@ -353,7 +393,9 @@ export type NewsItemMaxOrderByAggregateInput = {
   project_id?: Prisma.SortOrder
   category?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  title_en?: Prisma.SortOrder
   body?: Prisma.SortOrder
+  body_en?: Prisma.SortOrder
   published_at?: Prisma.SortOrder
   is_published?: Prisma.SortOrder
 }
@@ -363,7 +405,9 @@ export type NewsItemMinOrderByAggregateInput = {
   project_id?: Prisma.SortOrder
   category?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  title_en?: Prisma.SortOrder
   body?: Prisma.SortOrder
+  body_en?: Prisma.SortOrder
   published_at?: Prisma.SortOrder
   is_published?: Prisma.SortOrder
 }
@@ -418,7 +462,9 @@ export type NewsItemCreateWithoutProjectInput = {
   id?: string
   category?: $Enums.NewsCategory
   title: string
+  title_en?: string | null
   body?: string | null
+  body_en?: string | null
   published_at?: Date | string | null
   is_published?: boolean
 }
@@ -427,7 +473,9 @@ export type NewsItemUncheckedCreateWithoutProjectInput = {
   id?: string
   category?: $Enums.NewsCategory
   title: string
+  title_en?: string | null
   body?: string | null
+  body_en?: string | null
   published_at?: Date | string | null
   is_published?: boolean
 }
@@ -466,7 +514,9 @@ export type NewsItemScalarWhereInput = {
   project_id?: Prisma.StringNullableFilter<"NewsItem"> | string | null
   category?: Prisma.EnumNewsCategoryFilter<"NewsItem"> | $Enums.NewsCategory
   title?: Prisma.StringFilter<"NewsItem"> | string
+  title_en?: Prisma.StringNullableFilter<"NewsItem"> | string | null
   body?: Prisma.StringNullableFilter<"NewsItem"> | string | null
+  body_en?: Prisma.StringNullableFilter<"NewsItem"> | string | null
   published_at?: Prisma.DateTimeNullableFilter<"NewsItem"> | Date | string | null
   is_published?: Prisma.BoolFilter<"NewsItem"> | boolean
 }
@@ -475,7 +525,9 @@ export type NewsItemCreateManyProjectInput = {
   id?: string
   category?: $Enums.NewsCategory
   title: string
+  title_en?: string | null
   body?: string | null
+  body_en?: string | null
   published_at?: Date | string | null
   is_published?: boolean
 }
@@ -484,7 +536,9 @@ export type NewsItemUpdateWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.EnumNewsCategoryFieldUpdateOperationsInput | $Enums.NewsCategory
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  title_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   published_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   is_published?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
@@ -493,7 +547,9 @@ export type NewsItemUncheckedUpdateWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.EnumNewsCategoryFieldUpdateOperationsInput | $Enums.NewsCategory
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  title_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   published_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   is_published?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
@@ -502,7 +558,9 @@ export type NewsItemUncheckedUpdateManyWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.EnumNewsCategoryFieldUpdateOperationsInput | $Enums.NewsCategory
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  title_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   published_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   is_published?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
@@ -514,7 +572,9 @@ export type NewsItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   project_id?: boolean
   category?: boolean
   title?: boolean
+  title_en?: boolean
   body?: boolean
+  body_en?: boolean
   published_at?: boolean
   is_published?: boolean
   project?: boolean | Prisma.NewsItem$projectArgs<ExtArgs>
@@ -527,12 +587,14 @@ export type NewsItemSelectScalar = {
   project_id?: boolean
   category?: boolean
   title?: boolean
+  title_en?: boolean
   body?: boolean
+  body_en?: boolean
   published_at?: boolean
   is_published?: boolean
 }
 
-export type NewsItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "project_id" | "category" | "title" | "body" | "published_at" | "is_published", ExtArgs["result"]["newsItem"]>
+export type NewsItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "project_id" | "category" | "title" | "title_en" | "body" | "body_en" | "published_at" | "is_published", ExtArgs["result"]["newsItem"]>
 export type NewsItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   project?: boolean | Prisma.NewsItem$projectArgs<ExtArgs>
 }
@@ -547,7 +609,9 @@ export type $NewsItemPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     project_id: string | null
     category: $Enums.NewsCategory
     title: string
+    title_en: string | null
     body: string | null
+    body_en: string | null
     published_at: Date | null
     is_published: boolean
   }, ExtArgs["result"]["newsItem"]>
@@ -924,7 +988,9 @@ export interface NewsItemFieldRefs {
   readonly project_id: Prisma.FieldRef<"NewsItem", 'String'>
   readonly category: Prisma.FieldRef<"NewsItem", 'NewsCategory'>
   readonly title: Prisma.FieldRef<"NewsItem", 'String'>
+  readonly title_en: Prisma.FieldRef<"NewsItem", 'String'>
   readonly body: Prisma.FieldRef<"NewsItem", 'String'>
+  readonly body_en: Prisma.FieldRef<"NewsItem", 'String'>
   readonly published_at: Prisma.FieldRef<"NewsItem", 'DateTime'>
   readonly is_published: Prisma.FieldRef<"NewsItem", 'Boolean'>
 }

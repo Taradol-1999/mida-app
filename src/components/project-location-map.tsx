@@ -3,10 +3,13 @@
 import { useEffect, useRef } from "react";
 import type { Map as LeafletMap } from "leaflet";
 import { directionsUrl, type MapProject } from "@/lib/project-map";
+import { useTranslation } from "@/components/language-provider";
 
 type MapCenter = {
   name: string;
+  nameEn?: string;
   address: string;
+  addressEn?: string;
   latitude: number;
   longitude: number;
 };
@@ -21,6 +24,7 @@ function escapeHtml(value: string) {
 export function ProjectLocationMap({ projects, center }: { projects: MapProject[]; center?: MapCenter }) {
   const mapElement = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<LeafletMap | null>(null);
+  const { language, t } = useTranslation();
 
   useEffect(() => {
     if (!mapElement.current || mapInstance.current) return;
@@ -62,24 +66,20 @@ export function ProjectLocationMap({ projects, center }: { projects: MapProject[
         });
         L.marker([center.latitude, center.longitude], { icon: centerIcon, zIndexOffset: 1000 })
           .addTo(map)
-          .bindPopup(
-            `<div class="mida-map-popup"><strong>${escapeHtml(center.name)}</strong><span>${escapeHtml(center.address)}</span></div>`,
-          );
+          .bindPopup(`<div class="mida-map-popup"><strong>${escapeHtml(language === "en" && center.nameEn ? center.nameEn : center.name)}</strong><span>${escapeHtml(language === "en" && center.addressEn ? center.addressEn : center.address)}</span></div>`);
       }
 
       projectLocations.forEach((project) => {
         const projectIcon = L.divIcon({
           className: "mida-map-icon",
-          html: `<span class="mida-map-label"><i class="fa-solid fa-location-dot"></i><b>${escapeHtml(project.name)}</b></span>`,
+          html: `<span class="mida-map-label"><i class="fa-solid fa-location-dot"></i><b>${escapeHtml(language === "en" && project.nameEn ? project.nameEn : project.name)}</b></span>`,
           iconSize: [190, 44],
           iconAnchor: [20, 42],
           popupAnchor: [0, -42],
         });
         L.marker([Number(project.latitude), Number(project.longitude)], { icon: projectIcon })
           .addTo(map)
-          .bindPopup(
-            `<div class="mida-map-popup"><strong>${escapeHtml(project.name)}</strong><span>${escapeHtml(project.location)}</span><a href="${escapeHtml(directionsUrl(project))}" target="_blank" rel="noreferrer">นำทางด้วย Google Maps</a></div>`,
-          );
+          .bindPopup(`<div class="mida-map-popup"><strong>${escapeHtml(language === "en" && project.nameEn ? project.nameEn : project.name)}</strong><span>${escapeHtml(language === "en" && project.locationEn ? project.locationEn : project.location)}</span><a href="${escapeHtml(directionsUrl(project))}" target="_blank" rel="noreferrer">${escapeHtml(t({ th: "นำทางด้วย Google Maps", en: "Directions via Google Maps" }))}</a></div>`);
       });
     });
 
@@ -88,7 +88,7 @@ export function ProjectLocationMap({ projects, center }: { projects: MapProject[
       mapInstance.current?.remove();
       mapInstance.current = null;
     };
-  }, [center, projects]);
+  }, [center, language, projects, t]);
 
   return (
     <div className="relative isolate z-0 overflow-hidden rounded-2xl border border-brand-primary/15 bg-white shadow-sm">
@@ -98,12 +98,12 @@ export function ProjectLocationMap({ projects, center }: { projects: MapProject[
             M
           </span>
           <span className="min-w-0 text-sm">
-            <strong className="block">{center.name} · จุดศูนย์กลาง</strong>
-            <span className="block text-xs leading-5 text-white/75">{center.address}</span>
+            <strong className="block">{language === "en" && center.nameEn ? center.nameEn : center.name} · {t({ th: "จุดศูนย์กลาง", en: "Center point" })}</strong>
+            <span className="block text-xs leading-5 text-white/75">{language === "en" && center.addressEn ? center.addressEn : center.address}</span>
           </span>
         </div>
       )}
-      <div ref={mapElement} className="h-80 w-full sm:h-96 lg:h-112" aria-label="OpenStreetMap แสดงตำแหน่งโครงการ" />
+      <div ref={mapElement} className="h-80 w-full sm:h-96 lg:h-112" aria-label={t({ th: "OpenStreetMap แสดงตำแหน่งโครงการ", en: "OpenStreetMap project locations" })} />
     </div>
   );
 }

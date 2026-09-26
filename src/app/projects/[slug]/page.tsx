@@ -6,6 +6,7 @@ import { ProjectLocationMap } from "@/components/project-location-map";
 import { HouseTypeCarousel, type HouseTypeItem } from "@/components/house-type-carousel";
 import { LeadModal } from "@/components/lead-modal";
 import { LeadOpenButton } from "@/components/lead-open-button";
+import { LanguageToggle, T } from "@/components/language-provider";
 import {
   NewsPromotionSlider,
   type NewsPromotionImage,
@@ -19,7 +20,9 @@ import { directionsUrl, type MapProject } from "@/lib/project-map";
 export const dynamic = "force-dynamic";
 const emptySettings = {
   hero_title_th: null,
+  hero_title_en: null,
   hero_subtitle_th: null,
+  hero_subtitle_en: null,
   phone: null,
   email: null,
   facebook_url: null,
@@ -27,6 +30,7 @@ const emptySettings = {
   map_url: null,
   virtual_tour_url: null,
   nearby_places_th: null,
+  nearby_places_en: null,
   care_warranty: null,
   care_maintenance: null,
   care_common_area: null,
@@ -129,7 +133,9 @@ async function getProject(slug: string) {
       id: String(row.id),
       slug: row.slug,
       name: row.name_th,
+      name_en: row.name_en,
       location: row.location,
+      location_en: row.location_en,
       latitude: row.latitude === null ? null : Number(row.latitude),
       longitude: row.longitude === null ? null : Number(row.longitude),
       type: projectType(row.property_type),
@@ -137,7 +143,8 @@ async function getProject(slug: string) {
       status: row.status === "READY" ? "พร้อมอยู่" : "กำลังก่อสร้าง",
       label: "MIDA PROPERTY",
       description: row.description ?? "",
-      facilities: row.facilities.map((facility) => facility.name),
+      description_en: row.description_en,
+      facilities: row.facilities.map((facility) => ({ th: facility.name, en: facility.name_en ?? "" })),
       landmarks: fallback?.landmarks ?? ["โปรดเพิ่มสถานที่ใกล้เคียงจากหลังบ้าน"],
       houseTypes: houseTypeRows,
       promotions: row.promotions.map((item) => ({ ...item, images: contentImages("promotions", item.id, item.title) })),
@@ -158,33 +165,47 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   const project = await getProject(slug);
   if (!project) notFound();
   const heroTitle = project.settings.hero_title_th || project.name;
+  const heroTitleEn = project.settings.hero_title_en || project.name_en;
   const heroDescription = project.settings.hero_subtitle_th || project.description;
+  const heroDescriptionEn = project.settings.hero_subtitle_en || project.description_en;
   const landmarks = project.settings.nearby_places_th
     ? String(project.settings.nearby_places_th)
         .split("\n")
         .map((item) => item.trim())
         .filter(Boolean)
     : project.landmarks;
+  const landmarksEn = project.settings.nearby_places_en
+    ? String(project.settings.nearby_places_en)
+        .split("\n")
+        .map((item) => item.trim())
+        .filter(Boolean)
+    : [];
   const projectUpdates: NewsPromotionItem[] = [
     ...project.promotions.map((promotion) => ({
       id: `promotion-${String(promotion.id)}`,
       tag: "PROMOTION",
       title: String(promotion.title),
+      titleEn: typeof promotion.title_en === "string" ? promotion.title_en : null,
       detail: String(promotion.body ?? ""),
+      detailEn: typeof promotion.body_en === "string" ? promotion.body_en : null,
       images: updateImages(promotion.images),
     })),
     ...project.news.map((item) => ({
       id: `news-${String(item.id)}`,
       tag: "NEWS / EVENT",
       title: String(item.title),
+      titleEn: typeof item.title_en === "string" ? item.title_en : null,
       detail: String(item.body ?? ""),
+      detailEn: typeof item.body_en === "string" ? item.body_en : null,
       images: updateImages(item.images),
     })),
   ];
   const houseTypeItems: HouseTypeItem[] = project.houseTypes.map((house) => ({
     id: String(house.id),
     name: String(house.name),
+    nameEn: typeof house.name_en === "string" ? house.name_en : null,
     description: String(house.description ?? ""),
+    descriptionEn: typeof house.description_en === "string" ? house.description_en : null,
     bedrooms: String(house.bedrooms ?? "-"),
     bathrooms: String(house.bathrooms ?? "-"),
     usableArea: String(house.usable_area_sqm ?? "-"),
@@ -197,49 +218,58 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
     id: project.id ?? undefined,
     slug: project.slug,
     name: project.name,
+    nameEn: project.name_en,
     location: project.location,
+    locationEn: project.location_en,
     latitude: project.latitude ?? null,
     longitude: project.longitude ?? null,
     mapUrl: project.settings.map_url,
   };
+  const careItems = [
+    { title: { th: "การรับประกันหลังขาย", en: "After-sales Warranty" }, detail: project.settings.care_warranty, icon: "fa-shield-heart" },
+    { title: { th: "คู่มือการอยู่อาศัย", en: "Living Guide" }, detail: project.settings.care_maintenance, icon: "fa-book-open" },
+    { title: { th: "นิติบุคคล & พื้นที่ส่วนกลาง", en: "Juristic Office & Common Areas" }, detail: project.settings.care_common_area, icon: "fa-people-roof" },
+  ];
   return (
     <main className="bg-white">
       <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
         <div className="project-container flex min-h-16 items-center justify-between gap-3 sm:min-h-18">
           <Link
             href="/"
-            aria-label={`กลับหน้าหลัก MIDA จากโครงการ ${project.name}`}
+            aria-label={`MIDA home — ${project.name_en || project.name}`}
             className="flex min-w-0 items-center gap-2 font-extrabold text-brand-primary"
           >
             <span className="grid size-8 shrink-0 place-items-center rounded-full bg-brand-accent text-xs text-brand-primary">
               {String(project.name).charAt(0).toUpperCase()}
             </span>
-            <span className="truncate text-sm sm:text-base">{project.name}</span>
+            <span className="truncate text-sm sm:text-base"><T th={project.name} en={project.name_en ?? ""} /></span>
           </Link>
           <nav className="hidden items-center gap-5 text-xs font-semibold text-slate-600 lg:flex">
             <HeaderNav
               items={[
-                { href: "#house-types", label: "แบบบ้าน" },
-                { href: "#facilities", label: "ส่วนกลาง" },
-                { href: "#project-promo-news", label: "Promotion" },
-                { href: "#mida-care", label: "บริการหลังการขาย" },
+                { href: "#house-types", label: { th: "แบบบ้าน", en: "House Types" } },
+                { href: "#facilities", label: { th: "ส่วนกลาง", en: "Facilities" } },
+                { href: "#project-promo-news", label: { th: "โปรโมชั่น", en: "Promotions" } },
+                { href: "#mida-care", label: { th: "บริการหลังการขาย", en: "After-sales" } },
               ]}
             />
+            <LanguageToggle />
           </nav>
           <details className="group relative lg:hidden">
             <summary className="grid size-10 cursor-pointer list-none place-items-center rounded-lg border border-slate-200 text-brand-primary [&::-webkit-details-marker]:hidden">
               <i className="fa-solid fa-bars" aria-hidden="true" />
-              <span className="sr-only">เปิดเมนูโครงการ</span>
+              <span className="sr-only"><T th="เปิดเมนูโครงการ" en="Open project menu" /></span>
             </summary>
             <nav className="absolute right-0 top-12 flex w-64 flex-col gap-1 rounded-xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-600 shadow-xl">
               <HeaderNav
                 items={[
-                  { href: "#house-types", label: "แบบบ้าน" },
-                  { href: "#facilities", label: "ส่วนกลาง" },
-                  { href: "#project-promo-news", label: "Promotion" },
-                  { href: "#mida-care", label: "บริการหลังการขาย" },
+                  { href: "#house-types", label: { th: "แบบบ้าน", en: "House Types" } },
+                  { href: "#facilities", label: { th: "ส่วนกลาง", en: "Facilities" } },
+                  { href: "#project-promo-news", label: { th: "โปรโมชั่น", en: "Promotions" } },
+                  { href: "#mida-care", label: { th: "บริการหลังการขาย", en: "After-sales" } },
                 ]}
               />
+              <div className="mt-2 px-2"><LanguageToggle /></div>
             </nav>
           </details>
         </div>
@@ -247,10 +277,14 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
       <HeroImageSlider
         images={project.heroMedia}
         title={heroTitle}
+        titleEn={heroTitleEn}
         description={heroDescription}
+        descriptionEn={heroDescriptionEn}
         meta={`ราคาเริ่มต้น ${project.price}`}
+        metaEn={`Starting from THB ${(Number(project.price.replace(/[^0-9.]/g, "")) || 0).toLocaleString("en-US")} million`}
         actionHref={project.brochureUrl}
         actionLabel="โหลดโบรชัวร์โครงการ"
+        actionLabelEn="Download project brochure"
       />
       <section id="overview" className="border-b border-slate-100 bg-white py-12 sm:py-16 md:py-20">
         <div className="project-container">
@@ -258,12 +292,12 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         </div>
       </section>
       {project.houseTypes.length > 0 && (
-        <section id="house-types" className="overflow-hidden bg-brand-muted pะ-12 sm:pt-16 md:pt-20">
+        <section id="house-types" className="overflow-hidden bg-brand-muted py-12 sm:py-16 md:py-20">
           <div className="project-container relative z-10">
             <div className="gold-rule mb-3" />
-            <h2 className="section-title">รูปแบบบ้านและราคาเริ่มต้น (House Types)</h2>
+            <h2 className="section-title"><T th="รูปแบบบ้านและราคาเริ่มต้น (House Types)" en="House Types & Starting Prices" /></h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-              สำรวจพื้นที่ใช้สอย ฟังก์ชัน และราคาเริ่มต้นของแบบบ้านในโครงการนี้
+              <T th="สำรวจพื้นที่ใช้สอย ฟังก์ชัน และราคาเริ่มต้นของแบบบ้านในโครงการนี้" en="Explore layouts, features, and starting prices for every home type in this project." />
             </p>
             <HouseTypeCarousel items={houseTypeItems} />
           </div>
@@ -275,21 +309,21 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           <div className="project-container">
             <div>
               <p className="mb-3 text-xs font-bold tracking-[0.18em] text-brand-accent">MIDA LIVING</p>
-              <h2 className="text-2xl font-extrabold text-brand-primary md:text-3xl">สิ่งอำนวยความสะดวกในโครงการ</h2>
+              <h2 className="text-2xl font-extrabold text-brand-primary md:text-3xl"><T th="สิ่งอำนวยความสะดวกในโครงการ" en="Project Facilities" /></h2>
               <p className="max-w-lg text-sm leading-6 text-slate-500">
-                พื้นที่และบริการที่ออกแบบมาเพื่อเติมเต็มทุกช่วงเวลาของการอยู่อาศัย
+                <T th="พื้นที่และบริการที่ออกแบบมาเพื่อเติมเต็มทุกช่วงเวลาของการอยู่อาศัย" en="Spaces and services designed to enhance every moment of living." />
               </p>
             </div>
             <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {project.facilities.map((item) => (
                 <div
-                  key={item}
+                  key={typeof item === "string" ? item : item.th}
                   className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 text-sm font-semibold text-brand-text shadow-sm transition duration-300 hover:-translate-y-1 hover:border-brand-primary/30 hover:shadow-lg"
                 >
                   <span className="grid size-9 shrink-0 place-items-center rounded-full bg-brand-primary text-white">
                     <i className="fa-solid fa-check" />
                   </span>
-                  {item}
+                  {typeof item === "string" ? <T th={item} en="Project facility" /> : <T th={item.th} en={item.en} />}
                 </div>
               ))}
             </div>
@@ -300,9 +334,9 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         <section id="project-promo-news" className="bg-brand-muted py-12 sm:py-16 md:py-20">
           <div className="project-container">
             <div className="gold-rule mb-3" />
-            <h2 className="section-title">โปรโมชั่น ข่าวสาร & กิจกรรมพิเศษ</h2>
+            <h2 className="section-title"><T th="โปรโมชั่น ข่าวสาร & กิจกรรมพิเศษ" en="Promotions, News & Special Events" /></h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-              อัปเดตข้อเสนอ ข่าวสาร และกิจกรรมล่าสุดสำหรับโครงการนี้
+              <T th="อัปเดตข้อเสนอ ข่าวสาร และกิจกรรมล่าสุดสำหรับโครงการนี้" en="Discover the latest offers, news, and events for this project." />
             </p>
             <NewsPromotionSlider items={projectUpdates} variant="project" />
           </div>
@@ -314,10 +348,10 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <div className="gold-rule mb-3" />
-              <h2 className="section-title">แผนที่และสถานที่ใกล้เคียง</h2>
+              <h2 className="section-title"><T th="แผนที่และสถานที่ใกล้เคียง" en="Map & Nearby Places" /></h2>
             </div>
             <p className="max-w-md text-sm leading-6 text-slate-500">
-              ค้นพบความสะดวกสบายรอบโครงการ และวางแผนการเดินทางได้ทันที
+              <T th="ค้นพบความสะดวกสบายรอบโครงการ และวางแผนการเดินทางได้ทันที" en="Discover nearby conveniences and plan your journey with ease." />
             </p>
           </div>
           <div className="mt-7 grid gap-6 lg:grid-cols-[1.35fr_.65fr]">
@@ -327,7 +361,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                 <span className="grid size-10 place-items-center rounded-xl bg-brand-primary text-white">
                   <i className="fa-solid fa-location-dot" />
                 </span>
-                <h3 className="font-extrabold text-brand-primary">สถานที่ใกล้เคียง</h3>
+                <h3 className="font-extrabold text-brand-primary"><T th="สถานที่ใกล้เคียง" en="Nearby Places" /></h3>
               </div>
               <a
                 href={project.settings.map_url || directionsUrl(mapProject)}
@@ -336,7 +370,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                 className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-primary px-4 py-3 text-sm font-bold text-white transition hover:bg-brand-text"
               >
                 <i className="fa-solid fa-diamond-turn-right" />
-                นำทางไปโครงการ
+                <T th="นำทางไปโครงการ" en="Get directions" />
               </a>
               <ul className="mt-5 space-y-1 text-sm text-slate-600">
                 {landmarks.map((landmark, index) => (
@@ -344,7 +378,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                     <span className="grid size-6 shrink-0 place-items-center rounded-full bg-white text-[0.65rem] font-bold text-brand-primary">
                       {index + 1}
                     </span>
-                    {landmark}
+                    <T th={landmark} en={landmarksEn[index] ?? "Nearby landmark"} />
                   </li>
                 ))}
               </ul>
@@ -360,7 +394,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                   rel="noreferrer"
                   className="rounded-full bg-brand-primary px-4 py-2 text-xs font-bold text-white"
                 >
-                  เปิดเต็มหน้าจอ
+                  <T th="เปิดเต็มหน้าจอ" en="Open full screen" />
                 </a>
               </div>
               <iframe
@@ -378,28 +412,24 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         <div className="project-container">
           <div className="text-center">
             <p className="text-sm font-bold tracking-widest text-brand-text">MIDA CARE</p>
-            <h2 className="section-title mt-2">บริการหลังการขาย</h2>
+            <h2 className="section-title mt-2"><T th="บริการหลังการขาย" en="After-sales Service" /></h2>
           </div>
           <div className="mt-8 grid gap-4 md:grid-cols-3">
-            {[
-              ["การรับประกันหลังขาย", project.settings.care_warranty, "fa-shield-heart"],
-              ["คู่มือการอยู่อาศัย", project.settings.care_maintenance, "fa-book-open"],
-              ["นิติบุคคล & พื้นที่ส่วนกลาง", project.settings.care_common_area, "fa-people-roof"],
-            ].map(([title, detail, icon]) => (
+            {careItems.map(({ title, detail, icon }) => (
               <details
                 open
-                key={String(title)}
+                key={title.th}
                 className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
               >
                 <summary className="flex cursor-pointer list-none items-center gap-3 font-bold text-brand-primary">
                   <span className="grid size-10 place-items-center rounded-full bg-blue-50">
                     <i className={`fa-solid ${icon}`} />
                   </span>
-                  <span className="flex-1">{title}</span>
+                  <span className="flex-1"><T th={title.th} en={title.en} /></span>
                   <i className="fa-solid fa-chevron-down text-xs transition group-open:rotate-180" />
                 </summary>
                 <p className="mt-4 border-t border-slate-100 pt-4 text-sm leading-7 text-brand-text">
-                  {detail || "สอบถามรายละเอียดบริการได้จากเจ้าหน้าที่โครงการ"}
+                  <T th={String(detail || "สอบถามรายละเอียดบริการได้จากเจ้าหน้าที่โครงการ")} en="Please contact the project team for service details." />
                 </p>
               </details>
             ))}
@@ -416,12 +446,12 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         />
         <div className="project-container relative">
           <p className="text-xs font-bold tracking-[0.2em] text-brand-accent">MAKE YOUR MOVE</p>
-          <h2 className="mt-2 text-3xl font-extrabold sm:text-4xl">รับข้อเสนอพิเศษ</h2>
+          <h2 className="mt-2 text-3xl font-extrabold sm:text-4xl"><T th="รับข้อเสนอพิเศษ" en="Receive a Special Offer" /></h2>
           <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-blue-100">
-            ลงทะเบียนเพื่อรับข้อมูลโครงการ รับข้อเสนอ และนัดหมายเข้าชมกับเจ้าหน้าที่
+            <T th="ลงทะเบียนเพื่อรับข้อมูลโครงการ รับข้อเสนอ และนัดหมายเข้าชมกับเจ้าหน้าที่" en="Register to receive project information, exclusive offers, and support from our sales team." />
           </p>
           <LeadOpenButton className="mt-7 rounded-full bg-brand-accent px-8 py-3.5 text-sm font-bold text-brand-primary shadow-xl transition hover:-translate-y-0.5 hover:bg-white">
-            ลงทะเบียนรับข้อเสนอพิเศษ <i className="fa-solid fa-arrow-right ml-1" />
+            <T th="ลงทะเบียนรับข้อเสนอพิเศษ" en="Register for a Special Offer" /> <i className="fa-solid fa-arrow-right ml-1" />
           </LeadOpenButton>
           <div className="mx-auto mt-7 flex max-w-xl flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-blue-100">
             {project.settings.phone && (
@@ -465,7 +495,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           )}
         </div>
       </section>
-      <LeadModal projectId={project.id} projectName={project.name} />
+      <LeadModal projectId={project.id} projectName={project.name} projectNameEn={project.name_en} />
     </main>
   );
 }

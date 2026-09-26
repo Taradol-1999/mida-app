@@ -2,7 +2,9 @@ export type Project = {
   id?: string;
   slug: string;
   name: string;
+  name_en?: string | null;
   location: string;
+  location_en?: string | null;
   latitude?: number | null;
   longitude?: number | null;
   type: "บ้านเดี่ยว" | "บ้านแฝด" | "ทาวน์โฮม" | "อาคารพาณิชย์";
@@ -11,6 +13,7 @@ export type Project = {
   status: "พร้อมอยู่" | "กำลังก่อสร้าง";
   label: string;
   description: string;
+  description_en?: string | null;
   facilities: string[];
   landmarks: string[];
   has_cover?: boolean | number;

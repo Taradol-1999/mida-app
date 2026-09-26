@@ -1,10 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { type BilingualText, useTranslation } from "@/components/language-provider";
 
-export function HeaderNav({ items }: { items: { href: string; label: string }[] }) {
+type NavItem = { href: string; label: string | BilingualText };
+
+export function HeaderNav({ items }: { items: NavItem[] }) {
   const [activeHref, setActiveHref] = useState("");
   const sectionKeys = items.map((item) => item.href).join("|");
+  const { t } = useTranslation();
 
   useEffect(() => {
     let frame = 0;
@@ -57,7 +61,7 @@ export function HeaderNav({ items }: { items: { href: string; label: string }[] 
           : "border-transparent hover:border-brand-accent hover:text-brand-primary"
       }`}
     >
-      {item.label}
+      {typeof item.label === "string" ? item.label : t(item.label)}
     </a>
   ));
 }

@@ -28,7 +28,9 @@ export type SiteContentMinAggregateOutputType = {
   id: string | null
   content_key: string | null
   title: string | null
+  title_en: string | null
   body: string | null
+  body_en: string | null
   updated_at: Date | null
 }
 
@@ -36,7 +38,9 @@ export type SiteContentMaxAggregateOutputType = {
   id: string | null
   content_key: string | null
   title: string | null
+  title_en: string | null
   body: string | null
+  body_en: string | null
   updated_at: Date | null
 }
 
@@ -44,7 +48,9 @@ export type SiteContentCountAggregateOutputType = {
   id: number
   content_key: number
   title: number
+  title_en: number
   body: number
+  body_en: number
   updated_at: number
   _all: number
 }
@@ -54,7 +60,9 @@ export type SiteContentMinAggregateInputType = {
   id?: true
   content_key?: true
   title?: true
+  title_en?: true
   body?: true
+  body_en?: true
   updated_at?: true
 }
 
@@ -62,7 +70,9 @@ export type SiteContentMaxAggregateInputType = {
   id?: true
   content_key?: true
   title?: true
+  title_en?: true
   body?: true
+  body_en?: true
   updated_at?: true
 }
 
@@ -70,7 +80,9 @@ export type SiteContentCountAggregateInputType = {
   id?: true
   content_key?: true
   title?: true
+  title_en?: true
   body?: true
+  body_en?: true
   updated_at?: true
   _all?: true
 }
@@ -151,7 +163,9 @@ export type SiteContentGroupByOutputType = {
   id: string
   content_key: string
   title: string
+  title_en: string | null
   body: string | null
+  body_en: string | null
   updated_at: Date
   _count: SiteContentCountAggregateOutputType | null
   _min: SiteContentMinAggregateOutputType | null
@@ -180,7 +194,9 @@ export type SiteContentWhereInput = {
   id?: Prisma.StringFilter<"SiteContent"> | string
   content_key?: Prisma.StringFilter<"SiteContent"> | string
   title?: Prisma.StringFilter<"SiteContent"> | string
+  title_en?: Prisma.StringNullableFilter<"SiteContent"> | string | null
   body?: Prisma.StringNullableFilter<"SiteContent"> | string | null
+  body_en?: Prisma.StringNullableFilter<"SiteContent"> | string | null
   updated_at?: Prisma.DateTimeFilter<"SiteContent"> | Date | string
 }
 
@@ -188,7 +204,9 @@ export type SiteContentOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   content_key?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  title_en?: Prisma.SortOrderInput | Prisma.SortOrder
   body?: Prisma.SortOrderInput | Prisma.SortOrder
+  body_en?: Prisma.SortOrderInput | Prisma.SortOrder
   updated_at?: Prisma.SortOrder
   _relevance?: Prisma.SiteContentOrderByRelevanceInput
 }
@@ -200,7 +218,9 @@ export type SiteContentWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.SiteContentWhereInput[]
   NOT?: Prisma.SiteContentWhereInput | Prisma.SiteContentWhereInput[]
   title?: Prisma.StringFilter<"SiteContent"> | string
+  title_en?: Prisma.StringNullableFilter<"SiteContent"> | string | null
   body?: Prisma.StringNullableFilter<"SiteContent"> | string | null
+  body_en?: Prisma.StringNullableFilter<"SiteContent"> | string | null
   updated_at?: Prisma.DateTimeFilter<"SiteContent"> | Date | string
 }, "id" | "content_key">
 
@@ -208,7 +228,9 @@ export type SiteContentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   content_key?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  title_en?: Prisma.SortOrderInput | Prisma.SortOrder
   body?: Prisma.SortOrderInput | Prisma.SortOrder
+  body_en?: Prisma.SortOrderInput | Prisma.SortOrder
   updated_at?: Prisma.SortOrder
   _count?: Prisma.SiteContentCountOrderByAggregateInput
   _max?: Prisma.SiteContentMaxOrderByAggregateInput
@@ -222,7 +244,9 @@ export type SiteContentScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"SiteContent"> | string
   content_key?: Prisma.StringWithAggregatesFilter<"SiteContent"> | string
   title?: Prisma.StringWithAggregatesFilter<"SiteContent"> | string
+  title_en?: Prisma.StringNullableWithAggregatesFilter<"SiteContent"> | string | null
   body?: Prisma.StringNullableWithAggregatesFilter<"SiteContent"> | string | null
+  body_en?: Prisma.StringNullableWithAggregatesFilter<"SiteContent"> | string | null
   updated_at?: Prisma.DateTimeWithAggregatesFilter<"SiteContent"> | Date | string
 }
 
@@ -230,7 +254,9 @@ export type SiteContentCreateInput = {
   id?: string
   content_key: string
   title: string
+  title_en?: string | null
   body?: string | null
+  body_en?: string | null
   updated_at?: Date | string
 }
 
@@ -238,7 +264,9 @@ export type SiteContentUncheckedCreateInput = {
   id?: string
   content_key: string
   title: string
+  title_en?: string | null
   body?: string | null
+  body_en?: string | null
   updated_at?: Date | string
 }
 
@@ -246,7 +274,9 @@ export type SiteContentUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   content_key?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  title_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -254,7 +284,9 @@ export type SiteContentUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   content_key?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  title_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -262,7 +294,9 @@ export type SiteContentCreateManyInput = {
   id?: string
   content_key: string
   title: string
+  title_en?: string | null
   body?: string | null
+  body_en?: string | null
   updated_at?: Date | string
 }
 
@@ -270,7 +304,9 @@ export type SiteContentUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   content_key?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  title_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -278,7 +314,9 @@ export type SiteContentUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   content_key?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  title_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -292,7 +330,9 @@ export type SiteContentCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   content_key?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  title_en?: Prisma.SortOrder
   body?: Prisma.SortOrder
+  body_en?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
 
@@ -300,7 +340,9 @@ export type SiteContentMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   content_key?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  title_en?: Prisma.SortOrder
   body?: Prisma.SortOrder
+  body_en?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
 
@@ -308,7 +350,9 @@ export type SiteContentMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   content_key?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  title_en?: Prisma.SortOrder
   body?: Prisma.SortOrder
+  body_en?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
 
@@ -318,7 +362,9 @@ export type SiteContentSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   id?: boolean
   content_key?: boolean
   title?: boolean
+  title_en?: boolean
   body?: boolean
+  body_en?: boolean
   updated_at?: boolean
 }, ExtArgs["result"]["siteContent"]>
 
@@ -328,11 +374,13 @@ export type SiteContentSelectScalar = {
   id?: boolean
   content_key?: boolean
   title?: boolean
+  title_en?: boolean
   body?: boolean
+  body_en?: boolean
   updated_at?: boolean
 }
 
-export type SiteContentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "content_key" | "title" | "body" | "updated_at", ExtArgs["result"]["siteContent"]>
+export type SiteContentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "content_key" | "title" | "title_en" | "body" | "body_en" | "updated_at", ExtArgs["result"]["siteContent"]>
 
 export type $SiteContentPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "SiteContent"
@@ -341,7 +389,9 @@ export type $SiteContentPayload<ExtArgs extends runtime.Types.Extensions.Interna
     id: string
     content_key: string
     title: string
+    title_en: string | null
     body: string | null
+    body_en: string | null
     updated_at: Date
   }, ExtArgs["result"]["siteContent"]>
   composites: {}
@@ -715,7 +765,9 @@ export interface SiteContentFieldRefs {
   readonly id: Prisma.FieldRef<"SiteContent", 'String'>
   readonly content_key: Prisma.FieldRef<"SiteContent", 'String'>
   readonly title: Prisma.FieldRef<"SiteContent", 'String'>
+  readonly title_en: Prisma.FieldRef<"SiteContent", 'String'>
   readonly body: Prisma.FieldRef<"SiteContent", 'String'>
+  readonly body_en: Prisma.FieldRef<"SiteContent", 'String'>
   readonly updated_at: Prisma.FieldRef<"SiteContent", 'DateTime'>
 }
     

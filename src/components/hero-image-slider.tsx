@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "@/components/language-provider";
 
 type HeroMedia = { src: string; alt: string; type: "image" | "video" };
 
@@ -32,21 +33,30 @@ function HeroVideo({ src, alt, active, onEnded }: { src: string; alt: string; ac
 export function HeroImageSlider({
   images,
   title,
+  titleEn,
   description,
+  descriptionEn,
   meta,
+  metaEn,
   actionHref,
   actionLabel,
+  actionLabelEn,
 }: {
   images: HeroMedia[];
   title: string;
+  titleEn?: string | null;
   description: string;
+  descriptionEn?: string | null;
   meta?: string;
+  metaEn?: string;
   actionHref?: string | null;
   actionLabel?: string;
+  actionLabelEn?: string;
 }) {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
   const swipeStartX = useRef<number | null>(null);
+  const { t } = useTranslation();
   const hasImages = images.length > 0;
   const activeMedia = images[active];
 
@@ -90,7 +100,7 @@ export function HeroImageSlider({
       }}
       style={{ touchAction: "pan-y" }}
       aria-roledescription="carousel"
-      aria-label="แบนเนอร์หน้าแรก MIDA Property"
+      aria-label={t({ th: "แบนเนอร์หน้าแรก MIDA Property", en: "MIDA Property hero banner" })}
     >
       {images.map((image, index) => (
         <div
@@ -124,11 +134,17 @@ export function HeroImageSlider({
 
       <div className="container-page relative flex min-h-112 items-center py-16 text-white sm:min-h-120 sm:py-24">
         <div className="w-full max-w-5xl">
-          <h1 className="text-3xl leading-tight font-extrabold drop-shadow-md sm:text-4xl md:text-6xl">{title}</h1>
+          <h1 className="text-3xl leading-tight font-extrabold drop-shadow-md sm:text-4xl md:text-6xl">
+            {t({ th: title, en: titleEn ?? "" })}
+          </h1>
           <p className="mt-4 max-w-3xl text-base leading-7 text-slate-100 drop-shadow sm:mt-6 sm:text-lg sm:leading-8">
-            {description}
+            {t({ th: description, en: descriptionEn ?? "" })}
           </p>
-          {meta && <p className="mt-4 text-lg font-extrabold text-white drop-shadow sm:mt-5 sm:text-xl">{meta}</p>}
+          {meta && (
+            <p className="mt-4 text-lg font-extrabold text-white drop-shadow sm:mt-5 sm:text-xl">
+              {t({ th: meta, en: metaEn ?? "" })}
+            </p>
+          )}
           {actionHref && (
             <a
               href={actionHref}
@@ -136,7 +152,7 @@ export function HeroImageSlider({
               className="mt-5 inline-flex max-w-full items-center gap-2 rounded-xl border border-brand-accent/50 bg-brand-accent px-4 py-2.5 text-sm font-bold text-brand-primary shadow-lg transition hover:-translate-y-0.5 hover:bg-brand-accent-soft sm:mt-6 sm:px-5 sm:py-3"
             >
               <i className="fa-solid fa-file-arrow-down" />
-              {actionLabel ?? "ดาวน์โหลด"}
+              {t({ th: actionLabel ?? "ดาวน์โหลด", en: actionLabelEn ?? "Download" })}
             </a>
           )}
         </div>
@@ -147,7 +163,7 @@ export function HeroImageSlider({
           <button
             type="button"
             onClick={() => move(-1)}
-            aria-label="แบนเนอร์ก่อนหน้า"
+            aria-label={t({ th: "แบนเนอร์ก่อนหน้า", en: "Previous banner" })}
             className="absolute left-4 top-1/2 hidden size-11 -translate-y-1/2 place-items-center rounded-full bg-white/85 text-brand-primary shadow-lg transition hover:bg-white md:grid"
           >
             <i className="fa-solid fa-chevron-left" aria-hidden="true" />
@@ -155,7 +171,7 @@ export function HeroImageSlider({
           <button
             type="button"
             onClick={() => move(1)}
-            aria-label="แบนเนอร์ถัดไป"
+            aria-label={t({ th: "แบนเนอร์ถัดไป", en: "Next banner" })}
             className="absolute right-4 top-1/2 hidden size-11 -translate-y-1/2 place-items-center rounded-full bg-white/85 text-brand-primary shadow-lg transition hover:bg-white md:grid"
           >
             <i className="fa-solid fa-chevron-right" aria-hidden="true" />
@@ -166,7 +182,7 @@ export function HeroImageSlider({
                 key={`${image.src}-dot`}
                 type="button"
                 onClick={() => setActive(index)}
-                aria-label={`เลือกแบนเนอร์รูปที่ ${index + 1}`}
+                aria-label={t({ th: `เลือกแบนเนอร์รูปที่ ${index + 1}`, en: `Select banner ${index + 1}` })}
                 aria-current={index === active ? "true" : undefined}
                 className={`h-2.5 rounded-full transition-all ${index === active ? "w-8 bg-white" : "w-2.5 bg-white/55 hover:bg-white"}`}
               />

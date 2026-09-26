@@ -2,7 +2,9 @@ export type MapProject = {
   id?: string;
   slug: string;
   name: string;
+  nameEn?: string | null;
   location: string;
+  locationEn?: string | null;
   latitude: number | null;
   longitude: number | null;
   mapUrl?: string | null;
