@@ -14,6 +14,8 @@ const fields = [
   "hero_subtitle_en",
   "phone",
   "email",
+  "facebook_url",
+  "line_url",
   "map_url",
   "virtual_tour_url",
   "nearby_places_th",
@@ -109,7 +111,9 @@ export async function PUT(request: Request) {
       );
     }
     await prisma.$transaction(operations);
-  } catch {
+  } catch (error) {
+    // Keep the client response safe, while preserving the database error in the server log for diagnosis.
+    console.error("Unable to save project settings", { projectId, error });
     return NextResponse.json({ message: "บันทึกข้อมูลไม่สำเร็จ" }, { status: 500 });
   }
   return NextResponse.json({ ok: true, coordinates: mapCoordinates });

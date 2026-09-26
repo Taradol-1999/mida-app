@@ -22,6 +22,8 @@ export function NewsPromotionSlider({
   variant?: "default" | "project";
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
+  const trackSwipeStartX = useRef<number | null>(null);
+  const imageSwipeStartX = useRef<number | null>(null);
   const [selected, setSelected] = useState<{ itemIndex: number; imageIndex: number } | null>(null);
   const [detailIndex, setDetailIndex] = useState<number | null>(null);
   const projectStyle = variant === "project";
@@ -96,6 +98,18 @@ export function NewsPromotionSlider({
       return { ...current, imageIndex: (current.imageIndex + direction + imageCount) % imageCount };
     });
   }
+  function endTrackSwipe(clientX: number) {
+    const startX = trackSwipeStartX.current;
+    trackSwipeStartX.current = null;
+    if (startX === null || Math.abs(clientX - startX) < 42) return;
+    move(clientX < startX ? 1 : -1);
+  }
+  function endImageSwipe(clientX: number) {
+    const startX = imageSwipeStartX.current;
+    imageSwipeStartX.current = null;
+    if (startX === null || Math.abs(clientX - startX) < 42) return;
+    moveImage(clientX < startX ? 1 : -1);
+  }
 
   return (
     <>
@@ -121,7 +135,15 @@ export function NewsPromotionSlider({
 
         <div
           ref={trackRef}
-          className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-4 pt-2 scrollbar-none [&::-webkit-scrollbar]:hidden"
+          className="flex cursor-grab snap-x snap-mandatory scroll-smooth gap-5 overflow-x-auto pb-4 pt-2 scrollbar-none active:cursor-grabbing [&::-webkit-scrollbar]:hidden"
+          onTouchStart={(event) => {
+            trackSwipeStartX.current = event.touches[0]?.clientX ?? null;
+          }}
+          onTouchEnd={(event) => endTrackSwipe(event.changedTouches[0]?.clientX ?? 0)}
+          onTouchCancel={() => {
+            trackSwipeStartX.current = null;
+          }}
+          style={{ touchAction: "pan-y" }}
         >
           {loopItems.map((item, loopIndex) => {
             const index = items.length > 1 ? (loopIndex - 1 + items.length) % items.length : loopIndex;
@@ -199,7 +221,7 @@ export function NewsPromotionSlider({
                 {firstImage && item.href && !projectStyle ? (
                   <Link
                     href={item.href}
-                    className="group relative block aspect-[16/8] w-full overflow-hidden bg-brand-muted text-left"
+                    className="group relative block aspect-16/8 w-full overflow-hidden bg-brand-muted text-left"
                     aria-label={`ดูข้อมูลโครงการ ${item.title}`}
                   >
                     {mediaPreview}
@@ -208,7 +230,7 @@ export function NewsPromotionSlider({
                   <button
                     type="button"
                     onClick={() => setSelected({ itemIndex: index, imageIndex: 0 })}
-                    className="group relative block aspect-[16/8] w-full overflow-hidden bg-brand-muted text-left"
+                    className="group relative block aspect-16/8 w-full overflow-hidden bg-brand-muted text-left"
                     aria-label={`ดูรูปภาพ ${item.title} ทั้งหมด ${item.images?.length ?? 0} รูป`}
                   >
                     {mediaPreview}
@@ -216,7 +238,7 @@ export function NewsPromotionSlider({
                 ) : item.href ? (
                   <Link
                     href={item.href}
-                    className="group relative block aspect-[16/8] w-full overflow-hidden text-left"
+                    className="group relative block aspect-16/8 w-full overflow-hidden text-left"
                     aria-label={`ดูข้อมูลโครงการ ${item.title}`}
                   >
                     {emptyMediaPreview}
@@ -225,7 +247,7 @@ export function NewsPromotionSlider({
                   <button
                     type="button"
                     onClick={() => setDetailIndex(index)}
-                    className="group relative block aspect-[16/8] w-full overflow-hidden text-left"
+                    className="group relative block aspect-16/8 w-full overflow-hidden text-left"
                     aria-label={`ดูรายละเอียด ${item.title}`}
                   >
                     {emptyMediaPreview}
@@ -261,7 +283,7 @@ export function NewsPromotionSlider({
           role="dialog"
           aria-modal="true"
           aria-label={`รูปภาพ ${selectedItem.title}`}
-          className="fixed inset-0 z-[60] grid place-items-center bg-black/90 p-3 backdrop-blur-sm sm:p-6"
+          className="fixed inset-0 z-60 grid place-items-center bg-black/90 p-3 backdrop-blur-sm sm:p-6"
           onClick={() => setSelected(null)}
         >
           <button
@@ -272,19 +294,48 @@ export function NewsPromotionSlider({
           >
             <i className="fa-solid fa-xmark" />
           </button>
-          <div className="relative h-[78vh] w-full max-w-6xl" onClick={(event) => event.stopPropagation()}>
-            {selectedImage.type === "video" ? (
-              <video src={selectedImage.src} controls autoPlay playsInline className="size-full object-contain" />
-            ) : (
-              <Image
-                src={selectedImage.src}
-                alt={selectedImage.alt}
-                fill
-                unoptimized
-                sizes="100vw"
-                className="object-contain"
-              />
-            )}
+          <div
+            className="relative h-[78vh] w-full max-w-6xl select-none"
+            onClick={(event) => event.stopPropagation()}
+            onTouchStart={(event) => {
+              imageSwipeStartX.current = event.touches[0]?.clientX ?? null;
+            }}
+            onTouchEnd={(event) => endImageSwipe(event.changedTouches[0]?.clientX ?? 0)}
+            onTouchCancel={() => {
+              imageSwipeStartX.current = null;
+            }}
+            style={{ touchAction: "pan-y" }}
+          >
+            <div className="size-full overflow-hidden rounded-xl">
+              <div
+                className="flex h-full transition-transform duration-300 ease-out motion-reduce:transition-none"
+                style={{ transform: `translateX(-${selected.imageIndex * 100}%)` }}
+              >
+                {selectedItem.images?.map((image, imageIndex) => (
+                  <div key={`${image.src}-${imageIndex}`} className="relative h-full w-full shrink-0">
+                    {image.type === "video" ? (
+                      <video
+                        src={image.src}
+                        controls
+                        autoPlay={imageIndex === selected.imageIndex}
+                        playsInline
+                        className="size-full object-contain"
+                      />
+                    ) : (
+                      <Image
+                        src={image.src}
+                        alt={image.alt}
+                        fill
+                        priority={imageIndex === selected.imageIndex}
+                        unoptimized
+                        sizes="100vw"
+                        className="object-contain"
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
             {(selectedItem.images?.length ?? 0) > 1 && (
               <>
                 <button

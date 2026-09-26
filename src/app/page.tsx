@@ -3,8 +3,10 @@ import { HeaderNav } from "@/components/header-nav";
 import { HeroImageSlider } from "@/components/hero-image-slider";
 import { ProjectLocationMap } from "@/components/project-location-map";
 import { LeadModal } from "@/components/lead-modal";
+import { SiteFooter } from "@/components/site-footer";
 import { NewsPromotionSlider, type NewsPromotionItem } from "@/components/news-promotion-slider";
 import { ProjectFilter } from "@/components/project-filter";
+import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import type { MapProject } from "@/lib/project-map";
 
@@ -174,7 +176,10 @@ async function homeData() {
 }
 
 export default async function HomePage() {
-  const { content, updates, heroImages, mapProjects, homepageProjectIds } = await homeData();
+  const [{ content, updates, heroImages, mapProjects, homepageProjectIds }, session] = await Promise.all([
+    homeData(),
+    getSession(),
+  ]);
   return (
     <main>
       <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur">
@@ -190,12 +195,14 @@ export default async function HomePage() {
             <a href="#projects" aria-label="ค้นหาโครงการ" className="hover:text-brand-primary">
               <i className="fa-solid fa-magnifying-glass" />
             </a>
-            <Link
-              href="/login"
-              className="rounded-full border border-slate-200 px-3 py-1.5 text-xs hover:border-brand-primary"
-            >
-              ผู้ดูแลระบบ
-            </Link>
+            {session && (
+              <Link
+                href="/admin"
+                className="rounded-full border border-slate-200 px-3 py-1.5 text-xs hover:border-brand-primary"
+              >
+                ผู้ดูแลระบบ
+              </Link>
+            )}
           </nav>
           <details className="group relative md:hidden">
             <summary className="grid size-10 cursor-pointer list-none place-items-center rounded-lg border border-slate-200 text-brand-primary [&::-webkit-details-marker]:hidden">
@@ -204,10 +211,12 @@ export default async function HomePage() {
             </summary>
             <nav className="absolute right-0 top-12 flex w-64 flex-col gap-1 rounded-xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-600 shadow-xl">
               <HeaderNav items={nav} />
-              <Link href="/login" className="mt-1 rounded-lg bg-brand-soft px-3 py-2.5 text-brand-primary">
-                <i className="fa-solid fa-user-shield mr-2" />
-                ผู้ดูแลระบบ
-              </Link>
+              {session && (
+                <Link href="/admin" className="mt-1 rounded-lg bg-brand-soft px-3 py-2.5 text-brand-primary">
+                  <i className="fa-solid fa-user-shield mr-2" />
+                  ผู้ดูแลระบบ
+                </Link>
+              )}
             </nav>
           </details>
         </div>
@@ -246,12 +255,7 @@ export default async function HomePage() {
           />
         </div>
       </section>
-      <footer className="bg-brand-primary py-8 text-sm text-white/80 sm:py-9">
-        <div className="container-page flex flex-col justify-between gap-3 md:flex-row">
-          <p>© {new Date().getFullYear()} MIDA PROPERTY</p>
-          <p>{content.contact?.body ?? "โทร 02-000-0000 · Line @midaagency"}</p>
-        </div>
-      </footer>
+      <SiteFooter contact={content.contact?.body} />
       <LeadModal />
     </main>
   );

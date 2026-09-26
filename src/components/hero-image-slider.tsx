@@ -46,6 +46,7 @@ export function HeroImageSlider({
 }) {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
+  const swipeStartX = useRef<number | null>(null);
   const hasImages = images.length > 0;
   const activeMedia = images[active];
 
@@ -61,6 +62,13 @@ export function HeroImageSlider({
     setActive((current) => (current + direction + images.length) % images.length);
   }
 
+  function endSwipe(clientX: number) {
+    const startX = swipeStartX.current;
+    swipeStartX.current = null;
+    if (startX === null || Math.abs(clientX - startX) < 42) return;
+    move(clientX < startX ? 1 : -1);
+  }
+
   return (
     <section
       className="relative min-h-112 overflow-hidden bg-brand-primary sm:min-h-120"
@@ -68,13 +76,26 @@ export function HeroImageSlider({
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}
       onBlur={() => setPaused(false)}
+      onTouchStart={(event) => {
+        swipeStartX.current = event.touches[0]?.clientX ?? null;
+        setPaused(true);
+      }}
+      onTouchEnd={(event) => {
+        endSwipe(event.changedTouches[0]?.clientX ?? 0);
+        setPaused(false);
+      }}
+      onTouchCancel={() => {
+        swipeStartX.current = null;
+        setPaused(false);
+      }}
+      style={{ touchAction: "pan-y" }}
       aria-roledescription="carousel"
       aria-label="แบนเนอร์หน้าแรก MIDA Property"
     >
       {images.map((image, index) => (
         <div
           key={`${image.src}-${index}`}
-          className={`absolute inset-0 transition-opacity duration-1000 ${index === active ? "opacity-100" : "opacity-0"}`}
+          className={`absolute inset-0 transition-[opacity,transform] duration-700 ease-out ${index === active ? "scale-100 opacity-100" : "scale-105 opacity-0"}`}
           aria-hidden={index !== active}
         >
           {image.type === "video" ? (

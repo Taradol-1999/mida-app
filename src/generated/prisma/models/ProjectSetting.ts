@@ -32,6 +32,8 @@ export type ProjectSettingMinAggregateOutputType = {
   hero_subtitle_en: string | null
   phone: string | null
   email: string | null
+  facebook_url: string | null
+  line_url: string | null
   map_url: string | null
   virtual_tour_url: string | null
   nearby_places_th: string | null
@@ -50,6 +52,8 @@ export type ProjectSettingMaxAggregateOutputType = {
   hero_subtitle_en: string | null
   phone: string | null
   email: string | null
+  facebook_url: string | null
+  line_url: string | null
   map_url: string | null
   virtual_tour_url: string | null
   nearby_places_th: string | null
@@ -68,6 +72,8 @@ export type ProjectSettingCountAggregateOutputType = {
   hero_subtitle_en: number
   phone: number
   email: number
+  facebook_url: number
+  line_url: number
   map_url: number
   virtual_tour_url: number
   nearby_places_th: number
@@ -88,6 +94,8 @@ export type ProjectSettingMinAggregateInputType = {
   hero_subtitle_en?: true
   phone?: true
   email?: true
+  facebook_url?: true
+  line_url?: true
   map_url?: true
   virtual_tour_url?: true
   nearby_places_th?: true
@@ -106,6 +114,8 @@ export type ProjectSettingMaxAggregateInputType = {
   hero_subtitle_en?: true
   phone?: true
   email?: true
+  facebook_url?: true
+  line_url?: true
   map_url?: true
   virtual_tour_url?: true
   nearby_places_th?: true
@@ -124,6 +134,8 @@ export type ProjectSettingCountAggregateInputType = {
   hero_subtitle_en?: true
   phone?: true
   email?: true
+  facebook_url?: true
+  line_url?: true
   map_url?: true
   virtual_tour_url?: true
   nearby_places_th?: true
@@ -215,6 +227,8 @@ export type ProjectSettingGroupByOutputType = {
   hero_subtitle_en: string | null
   phone: string | null
   email: string | null
+  facebook_url: string | null
+  line_url: string | null
   map_url: string | null
   virtual_tour_url: string | null
   nearby_places_th: string | null
@@ -254,6 +268,8 @@ export type ProjectSettingWhereInput = {
   hero_subtitle_en?: Prisma.StringNullableFilter<"ProjectSetting"> | string | null
   phone?: Prisma.StringNullableFilter<"ProjectSetting"> | string | null
   email?: Prisma.StringNullableFilter<"ProjectSetting"> | string | null
+  facebook_url?: Prisma.StringNullableFilter<"ProjectSetting"> | string | null
+  line_url?: Prisma.StringNullableFilter<"ProjectSetting"> | string | null
   map_url?: Prisma.StringNullableFilter<"ProjectSetting"> | string | null
   virtual_tour_url?: Prisma.StringNullableFilter<"ProjectSetting"> | string | null
   nearby_places_th?: Prisma.StringNullableFilter<"ProjectSetting"> | string | null
@@ -273,6 +289,8 @@ export type ProjectSettingOrderByWithRelationInput = {
   hero_subtitle_en?: Prisma.SortOrderInput | Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
+  facebook_url?: Prisma.SortOrderInput | Prisma.SortOrder
+  line_url?: Prisma.SortOrderInput | Prisma.SortOrder
   map_url?: Prisma.SortOrderInput | Prisma.SortOrder
   virtual_tour_url?: Prisma.SortOrderInput | Prisma.SortOrder
   nearby_places_th?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -296,6 +314,8 @@ export type ProjectSettingWhereUniqueInput = Prisma.AtLeast<{
   hero_subtitle_en?: Prisma.StringNullableFilter<"ProjectSetting"> | string | null
   phone?: Prisma.StringNullableFilter<"ProjectSetting"> | string | null
   email?: Prisma.StringNullableFilter<"ProjectSetting"> | string | null
+  facebook_url?: Prisma.StringNullableFilter<"ProjectSetting"> | string | null
+  line_url?: Prisma.StringNullableFilter<"ProjectSetting"> | string | null
   map_url?: Prisma.StringNullableFilter<"ProjectSetting"> | string | null
   virtual_tour_url?: Prisma.StringNullableFilter<"ProjectSetting"> | string | null
   nearby_places_th?: Prisma.StringNullableFilter<"ProjectSetting"> | string | null
@@ -315,6 +335,8 @@ export type ProjectSettingOrderByWithAggregationInput = {
   hero_subtitle_en?: Prisma.SortOrderInput | Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
+  facebook_url?: Prisma.SortOrderInput | Prisma.SortOrder
+  line_url?: Prisma.SortOrderInput | Prisma.SortOrder
   map_url?: Prisma.SortOrderInput | Prisma.SortOrder
   virtual_tour_url?: Prisma.SortOrderInput | Prisma.SortOrder
   nearby_places_th?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -339,6 +361,8 @@ export type ProjectSettingScalarWhereWithAggregatesInput = {
   hero_subtitle_en?: Prisma.StringNullableWithAggregatesFilter<"ProjectSetting"> | string | null
   phone?: Prisma.StringNullableWithAggregatesFilter<"ProjectSetting"> | string | null
   email?: Prisma.StringNullableWithAggregatesFilter<"ProjectSetting"> | string | null
+  facebook_url?: Prisma.StringNullableWithAggregatesFilter<"ProjectSetting"> | string | null
+  line_url?: Prisma.StringNullableWithAggregatesFilter<"ProjectSetting"> | string | null
   map_url?: Prisma.StringNullableWithAggregatesFilter<"ProjectSetting"> | string | null
   virtual_tour_url?: Prisma.StringNullableWithAggregatesFilter<"ProjectSetting"> | string | null
   nearby_places_th?: Prisma.StringNullableWithAggregatesFilter<"ProjectSetting"> | string | null
@@ -356,6 +380,8 @@ export type ProjectSettingCreateInput = {
   hero_subtitle_en?: string | null
   phone?: string | null
   email?: string | null
+  facebook_url?: string | null
+  line_url?: string | null
   map_url?: string | null
   virtual_tour_url?: string | null
   nearby_places_th?: string | null
@@ -375,6 +401,8 @@ export type ProjectSettingUncheckedCreateInput = {
   hero_subtitle_en?: string | null
   phone?: string | null
   email?: string | null
+  facebook_url?: string | null
+  line_url?: string | null
   map_url?: string | null
   virtual_tour_url?: string | null
   nearby_places_th?: string | null
@@ -392,6 +420,8 @@ export type ProjectSettingUpdateInput = {
   hero_subtitle_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  line_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   map_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   virtual_tour_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nearby_places_th?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -411,6 +441,8 @@ export type ProjectSettingUncheckedUpdateInput = {
   hero_subtitle_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  line_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   map_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   virtual_tour_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nearby_places_th?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -429,6 +461,8 @@ export type ProjectSettingCreateManyInput = {
   hero_subtitle_en?: string | null
   phone?: string | null
   email?: string | null
+  facebook_url?: string | null
+  line_url?: string | null
   map_url?: string | null
   virtual_tour_url?: string | null
   nearby_places_th?: string | null
@@ -446,6 +480,8 @@ export type ProjectSettingUpdateManyMutationInput = {
   hero_subtitle_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  line_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   map_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   virtual_tour_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nearby_places_th?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -464,6 +500,8 @@ export type ProjectSettingUncheckedUpdateManyInput = {
   hero_subtitle_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  line_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   map_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   virtual_tour_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nearby_places_th?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -493,6 +531,8 @@ export type ProjectSettingCountOrderByAggregateInput = {
   hero_subtitle_en?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   email?: Prisma.SortOrder
+  facebook_url?: Prisma.SortOrder
+  line_url?: Prisma.SortOrder
   map_url?: Prisma.SortOrder
   virtual_tour_url?: Prisma.SortOrder
   nearby_places_th?: Prisma.SortOrder
@@ -511,6 +551,8 @@ export type ProjectSettingMaxOrderByAggregateInput = {
   hero_subtitle_en?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   email?: Prisma.SortOrder
+  facebook_url?: Prisma.SortOrder
+  line_url?: Prisma.SortOrder
   map_url?: Prisma.SortOrder
   virtual_tour_url?: Prisma.SortOrder
   nearby_places_th?: Prisma.SortOrder
@@ -529,6 +571,8 @@ export type ProjectSettingMinOrderByAggregateInput = {
   hero_subtitle_en?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   email?: Prisma.SortOrder
+  facebook_url?: Prisma.SortOrder
+  line_url?: Prisma.SortOrder
   map_url?: Prisma.SortOrder
   virtual_tour_url?: Prisma.SortOrder
   nearby_places_th?: Prisma.SortOrder
@@ -578,6 +622,8 @@ export type ProjectSettingCreateWithoutProjectInput = {
   hero_subtitle_en?: string | null
   phone?: string | null
   email?: string | null
+  facebook_url?: string | null
+  line_url?: string | null
   map_url?: string | null
   virtual_tour_url?: string | null
   nearby_places_th?: string | null
@@ -595,6 +641,8 @@ export type ProjectSettingUncheckedCreateWithoutProjectInput = {
   hero_subtitle_en?: string | null
   phone?: string | null
   email?: string | null
+  facebook_url?: string | null
+  line_url?: string | null
   map_url?: string | null
   virtual_tour_url?: string | null
   nearby_places_th?: string | null
@@ -628,6 +676,8 @@ export type ProjectSettingUpdateWithoutProjectInput = {
   hero_subtitle_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  line_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   map_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   virtual_tour_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nearby_places_th?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -645,6 +695,8 @@ export type ProjectSettingUncheckedUpdateWithoutProjectInput = {
   hero_subtitle_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  line_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   map_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   virtual_tour_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nearby_places_th?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -665,6 +717,8 @@ export type ProjectSettingSelect<ExtArgs extends runtime.Types.Extensions.Intern
   hero_subtitle_en?: boolean
   phone?: boolean
   email?: boolean
+  facebook_url?: boolean
+  line_url?: boolean
   map_url?: boolean
   virtual_tour_url?: boolean
   nearby_places_th?: boolean
@@ -686,6 +740,8 @@ export type ProjectSettingSelectScalar = {
   hero_subtitle_en?: boolean
   phone?: boolean
   email?: boolean
+  facebook_url?: boolean
+  line_url?: boolean
   map_url?: boolean
   virtual_tour_url?: boolean
   nearby_places_th?: boolean
@@ -696,7 +752,7 @@ export type ProjectSettingSelectScalar = {
   updated_at?: boolean
 }
 
-export type ProjectSettingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"project_id" | "hero_title_th" | "hero_title_en" | "hero_subtitle_th" | "hero_subtitle_en" | "phone" | "email" | "map_url" | "virtual_tour_url" | "nearby_places_th" | "nearby_places_en" | "care_warranty" | "care_maintenance" | "care_common_area" | "updated_at", ExtArgs["result"]["projectSetting"]>
+export type ProjectSettingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"project_id" | "hero_title_th" | "hero_title_en" | "hero_subtitle_th" | "hero_subtitle_en" | "phone" | "email" | "facebook_url" | "line_url" | "map_url" | "virtual_tour_url" | "nearby_places_th" | "nearby_places_en" | "care_warranty" | "care_maintenance" | "care_common_area" | "updated_at", ExtArgs["result"]["projectSetting"]>
 export type ProjectSettingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
 }
@@ -714,6 +770,8 @@ export type $ProjectSettingPayload<ExtArgs extends runtime.Types.Extensions.Inte
     hero_subtitle_en: string | null
     phone: string | null
     email: string | null
+    facebook_url: string | null
+    line_url: string | null
     map_url: string | null
     virtual_tour_url: string | null
     nearby_places_th: string | null
@@ -1099,6 +1157,8 @@ export interface ProjectSettingFieldRefs {
   readonly hero_subtitle_en: Prisma.FieldRef<"ProjectSetting", 'String'>
   readonly phone: Prisma.FieldRef<"ProjectSetting", 'String'>
   readonly email: Prisma.FieldRef<"ProjectSetting", 'String'>
+  readonly facebook_url: Prisma.FieldRef<"ProjectSetting", 'String'>
+  readonly line_url: Prisma.FieldRef<"ProjectSetting", 'String'>
   readonly map_url: Prisma.FieldRef<"ProjectSetting", 'String'>
   readonly virtual_tour_url: Prisma.FieldRef<"ProjectSetting", 'String'>
   readonly nearby_places_th: Prisma.FieldRef<"ProjectSetting", 'String'>

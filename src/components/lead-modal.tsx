@@ -53,7 +53,7 @@ export function LeadModal({ projectId, projectName }: { projectId?: string | nul
         >
           <div className="flex max-h-[calc(100dvh-1rem)] w-full max-w-5xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl sm:max-h-[calc(100dvh-2rem)]">
             <div className="relative shrink-0 overflow-hidden bg-brand-primary px-5 py-6 text-white shadow-md sm:px-8 sm:py-7">
-              <span className="absolute -top-20 -right-10 size-52 rounded-full border-[28px] border-white/10" />
+              <span className="absolute -top-20 -right-10 size-52 rounded-full border-28 border-white/10" />
               <span className="absolute -bottom-24 right-36 size-40 rounded-full bg-brand-accent/20 blur-2xl" />
               <div className="relative flex items-start justify-between gap-4">
                 <div className="flex items-start gap-4">
@@ -86,7 +86,10 @@ export function LeadModal({ projectId, projectName }: { projectId?: string | nul
                 </div>
               </div>
             ) : (
-              <form onSubmit={submit} className="scrollbar-mida min-h-0 flex-1 space-y-6 overflow-y-auto overscroll-contain p-5 sm:p-8">
+              <form
+                onSubmit={submit}
+                className="scrollbar-mida min-h-0 flex-1 space-y-6 overflow-y-auto overscroll-contain p-5 sm:p-8"
+              >
                 {projectId && <Input type="hidden" name="projectId" value={projectId} />}
                 <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4 sm:p-5">
                   <div className="mb-4 flex items-center gap-3">
@@ -105,7 +108,12 @@ export function LeadModal({ projectId, projectName }: { projectId?: string | nul
                       <Field label="นามสกุล" name="lastName" placeholder="นามสกุล" />
                       <Field label="อีเมล" name="email" type="email" placeholder="อีเมลของคุณ" />
                       <Field label="เบอร์โทรศัพท์" name="phone" type="tel" placeholder="เบอร์โทรศัพท์" />
-                      <Field label="จำนวนสมาชิกในครอบครัว" name="familyMembers" type="number" placeholder="จำนวนสมาชิก" />
+                      <Field
+                        label="จำนวนสมาชิกในครอบครัว"
+                        name="familyMembers"
+                        type="number"
+                        placeholder="จำนวนสมาชิก"
+                      />
                     </div>
                   </fieldset>
                 </div>
@@ -119,27 +127,33 @@ export function LeadModal({ projectId, projectName }: { projectId?: string | nul
                   </div>
                   <fieldset>
                     <legend className="sr-only">ที่อยู่ปัจจุบัน</legend>
-                  <div className="grid gap-4 md:grid-cols-3">
-                    <label className="text-sm font-semibold text-slate-700">
-                      จังหวัด <span className="text-red-500">*</span>
-                      <Input
-                        name="province"
-                        required
-                        list="thai-provinces"
-                        placeholder="เลือกหรือพิมพ์จังหวัด"
-                        className="mt-1.5 w-full rounded-xl border border-slate-200 p-3 outline-none focus:border-brand-primary"
-                      />
-                      <datalist id="thai-provinces">
-                        {["กรุงเทพมหานคร", "นครปฐม", "นนทบุรี", "ปทุมธานี", "สมุทรสาคร", "สมุทรปราการ", "ขอนแก่น"].map(
-                          (province) => (
+                    <div className="grid gap-4 md:grid-cols-3">
+                      <label className="text-sm font-semibold text-slate-700">
+                        จังหวัด <span className="text-red-500">*</span>
+                        <Input
+                          name="province"
+                          required
+                          list="thai-provinces"
+                          placeholder="เลือกหรือพิมพ์จังหวัด"
+                          className="mt-1.5 w-full rounded-xl border border-slate-200 p-3 outline-none focus:border-brand-primary"
+                        />
+                        <datalist id="thai-provinces">
+                          {[
+                            "กรุงเทพมหานคร",
+                            "นครปฐม",
+                            "นนทบุรี",
+                            "ปทุมธานี",
+                            "สมุทรสาคร",
+                            "สมุทรปราการ",
+                            "ขอนแก่น",
+                          ].map((province) => (
                             <option key={province} value={province} />
-                          ),
-                        )}
-                      </datalist>
-                    </label>
-                    <Field label="เขต / อำเภอ" name="district" placeholder="เขต / อำเภอ" />
-                    <Field label="ตำบล / แขวง" name="subdistrict" placeholder="ตำบล / แขวง" />
-                  </div>
+                          ))}
+                        </datalist>
+                      </label>
+                      <Field label="เขต / อำเภอ" name="district" placeholder="เขต / อำเภอ" />
+                      <Field label="ตำบล / แขวง" name="subdistrict" placeholder="ตำบล / แขวง" />
+                    </div>
                   </fieldset>
                 </div>
 
@@ -168,20 +182,20 @@ export function LeadModal({ projectId, projectName }: { projectId?: string | nul
                     </div>
                   </fieldset>
                   <div className="space-y-4 rounded-2xl border border-slate-100 p-4 sm:p-5">
-                  <label className="block text-sm font-semibold text-slate-700">
-                    งบประมาณ <span className="text-red-500">*</span>
-                    <Select
-                      name="budget"
-                      required
-                      className="mt-1.5 w-full rounded-xl border border-slate-200 p-3 text-slate-600"
-                    >
-                      <option value="">เลือกงบประมาณ</option>
-                      <option>1-2 ล้านบาท</option>
-                      <option>2-3 ล้านบาท</option>
-                      <option>3-5 ล้านบาท</option>
-                      <option>มากกว่า 5 ล้านบาท</option>
-                    </Select>
-                  </label>
+                    <label className="block text-sm font-semibold text-slate-700">
+                      งบประมาณ <span className="text-red-500">*</span>
+                      <Select
+                        name="budget"
+                        required
+                        className="mt-1.5 w-full rounded-xl border border-slate-200 p-3 text-slate-600"
+                      >
+                        <option value="">เลือกงบประมาณ</option>
+                        <option>1-2 ล้านบาท</option>
+                        <option>2-3 ล้านบาท</option>
+                        <option>3-5 ล้านบาท</option>
+                        <option>มากกว่า 5 ล้านบาท</option>
+                      </Select>
+                    </label>
                     <div className="grid gap-4 sm:grid-cols-2">
                       <Field label="วันที่สะดวกให้ติดต่อกลับ" name="preferredContactDate" type="date" />
                       <Field label="ช่วงเวลาที่สะดวก" name="preferredContactTime" type="time" />
@@ -210,8 +224,10 @@ export function LeadModal({ projectId, projectName }: { projectId?: string | nul
                   </div>
                 </fieldset>
                 {status === "error" && <p className="text-sm text-red-600">ส่งข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง</p>}
-                <p className="text-center text-xs text-slate-400">ช่องที่มี <span className="font-bold text-red-500">*</span> จำเป็นต้องกรอก</p>
-                <button disabled={status === "sending"} className="button-primary w-full py-3.5 text-base disabled:opacity-60">
+                <button
+                  disabled={status === "sending"}
+                  className="button-primary w-full py-3.5 text-base disabled:opacity-60"
+                >
                   {status === "sending" ? "กำลังส่ง..." : "ยืนยันข้อมูล"}
                 </button>
               </form>

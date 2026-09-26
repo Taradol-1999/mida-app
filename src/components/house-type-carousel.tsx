@@ -54,6 +54,12 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
           <div>
             <p className="text-xs font-bold tracking-[0.2em] text-brand-accent">MIDA HOME COLLECTION</p>
             <p className="mt-1 text-sm text-white/75">เลือกแบบบ้านที่ลงตัวกับทุกจังหวะชีวิต</p>
+            {items.length > 1 && (
+              <p className="mt-1.5 text-xs font-semibold text-white/60 md:hidden">
+                <i className="fa-solid fa-hand-pointer mr-1.5 text-brand-accent" aria-hidden="true" />
+                ปัดซ้าย–ขวาเพื่อดูแบบบ้าน
+              </p>
+            )}
           </div>
           <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-bold backdrop-blur-sm">
             {active + 1} / {items.length} แบบบ้าน
@@ -89,7 +95,7 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
                   event.stopPropagation();
                   move(-1);
                 }}
-                className="absolute inset-y-0 left-0 z-10 w-[10%] cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-brand-accent md:w-[18%]"
+                className="absolute inset-y-0 left-0 z-10 w-[10%] cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-brand-accent md:w-[18%]"
               />
               <button
                 type="button"
@@ -98,7 +104,7 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
                   event.stopPropagation();
                   move(1);
                 }}
-                className="absolute inset-y-0 right-0 z-10 w-[10%] cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-brand-accent md:w-[18%]"
+                className="absolute inset-y-0 right-0 z-10 w-[10%] cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-brand-accent md:w-[18%]"
               />
             </>
           )}

@@ -22,6 +22,8 @@ const emptySettings = {
   hero_subtitle_th: null,
   phone: null,
   email: null,
+  facebook_url: null,
+  line_url: null,
   map_url: null,
   virtual_tour_url: null,
   nearby_places_th: null,
@@ -435,9 +437,32 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
               </p>
             )}
           </div>
-          <p className="mt-5 text-xs text-blue-200">
-            * ราคาและรายละเอียดเป็นข้อมูลจำลอง โปรดตรวจสอบกับฝ่ายขายก่อนตัดสินใจ
-          </p>
+          {(project.settings.facebook_url || project.settings.line_url) && (
+            <div className="mt-5 flex flex-wrap justify-center gap-3">
+              {project.settings.facebook_url && (
+                <a
+                  href={project.settings.facebook_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-2.5 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:border-brand-accent hover:bg-brand-accent hover:text-brand-primary"
+                >
+                  <i className="fa-brands fa-facebook-f" aria-hidden="true" />
+                  Facebook
+                </a>
+              )}
+              {project.settings.line_url && (
+                <a
+                  href={project.settings.line_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-2.5 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:border-brand-accent hover:bg-brand-accent hover:text-brand-primary"
+                >
+                  <i className="fa-brands fa-line" aria-hidden="true" />
+                  LINE
+                </a>
+              )}
+            </div>
+          )}
         </div>
       </section>
       <LeadModal projectId={project.id} projectName={project.name} />

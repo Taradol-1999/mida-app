@@ -141,6 +141,8 @@ const settingFields: Record<"homepage" | "contact" | "after-sales", Field[]> = {
   contact: [
     { key: "phone", label: "เบอร์โทรศัพท์โครงการ" },
     { key: "email", label: "อีเมลโครงการ" },
+    { key: "facebook_url", label: "ลิงก์ Facebook" },
+    { key: "line_url", label: "ลิงก์ LINE / LINE OA" },
     { key: "map_url", label: "Google Maps URL หรือ Embed", type: "text" },
     { key: "virtual_tour_url", label: "ลิงก์ Map 3D / Virtual Tour", type: "text" },
     { key: "latitude", label: "ละติจูด (Latitude)", type: "number" },
