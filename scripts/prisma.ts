@@ -1,13 +1,17 @@
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 import { PrismaClient } from "../src/generated/prisma/client";
 
+const host = process.env.DB_HOST ?? "127.0.0.1";
+const localHost = host === "127.0.0.1" || host === "localhost" || host === "::1";
+
 const adapter = new PrismaMariaDb({
-  host: process.env.DB_HOST ?? "127.0.0.1",
+  host,
   port: Number(process.env.DB_PORT ?? 3306),
   user: process.env.DB_USER ?? "root",
   password: process.env.DB_PASSWORD ?? "",
   database: process.env.DB_NAME ?? "mida_app",
   connectionLimit: 5,
+  allowPublicKeyRetrieval: localHost || process.env.DB_ALLOW_PUBLIC_KEY_RETRIEVAL === "true",
 });
 
 export const prisma = new PrismaClient({ adapter });

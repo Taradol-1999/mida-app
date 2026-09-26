@@ -39,7 +39,7 @@ const defaultUpdates: NewsPromotionItem[] = [
 
 async function homeData() {
   try {
-    const [contentRows, promotions, news, projectRows] = await Promise.all([
+    const [contentRows, promotions, news, projectRows, homepageRows] = await Promise.all([
       prisma.siteContent.findMany({ select: { id: true, content_key: true, title: true, body: true } }),
       prisma.promotion.findMany({
         where: { is_published: true },
@@ -65,6 +65,11 @@ async function homeData() {
           settings: true,
         },
         orderBy: { name_th: "asc" },
+      }),
+      prisma.homepageProject.findMany({
+        where: { project: { status: { not: "ARCHIVED" } } },
+        select: { project_id: true },
+        orderBy: { sort_order: "asc" },
       }),
     ]);
     const homeHero = contentRows.find((row) => row.content_key === "home_hero");
@@ -147,14 +152,21 @@ async function homeData() {
         longitude: row.longitude === null ? null : Number(row.longitude),
         mapUrl: row.settings?.map_url ?? null,
       })),
+      homepageProjectIds: homepageRows.map((row) => row.project_id),
     };
   } catch {
-    return { content: {}, updates: defaultUpdates, heroImages: [], mapProjects: [] as MapProject[] };
+    return {
+      content: {},
+      updates: defaultUpdates,
+      heroImages: [],
+      mapProjects: [] as MapProject[],
+      homepageProjectIds: [] as string[],
+    };
   }
 }
 
 export default async function HomePage() {
-  const { content, updates, heroImages, mapProjects } = await homeData();
+  const { content, updates, heroImages, mapProjects, homepageProjectIds } = await homeData();
   return (
     <main>
       <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur">
@@ -197,7 +209,7 @@ export default async function HomePage() {
         title={content.home_hero?.title ?? ""}
         description={content.home_hero?.body ?? ""}
       />
-      <ProjectFilter />
+      <ProjectFilter projectIds={homepageProjectIds} allProjectsHref="/projects" />
       <section id="promotion" className="bg-white py-12 sm:py-16">
         <div className="container-page">
           <div className="gold-rule" />
@@ -228,7 +240,7 @@ export default async function HomePage() {
       </section>
       <footer className="bg-brand-primary py-8 text-sm text-white/80 sm:py-9">
         <div className="container-page flex flex-col justify-between gap-3 md:flex-row">
-          <p>© {new Date().getFullYear()} MIDA Agency & Development</p>
+          <p>© {new Date().getFullYear()} MIDA PROPERTY</p>
           <p>{content.contact?.body ?? "โทร 02-000-0000 · Line @midaagency"}</p>
         </div>
       </footer>

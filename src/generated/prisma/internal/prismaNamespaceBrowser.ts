@@ -53,6 +53,7 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   User: 'User',
   Project: 'Project',
+  HomepageProject: 'HomepageProject',
   UserProject: 'UserProject',
   HouseType: 'HouseType',
   Facility: 'Facility',
@@ -115,6 +116,14 @@ export const ProjectScalarFieldEnum = {
 } as const
 
 export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
+
+
+export const HomepageProjectScalarFieldEnum = {
+  project_id: 'project_id',
+  sort_order: 'sort_order'
+} as const
+
+export type HomepageProjectScalarFieldEnum = (typeof HomepageProjectScalarFieldEnum)[keyof typeof HomepageProjectScalarFieldEnum]
 
 
 export const UserProjectScalarFieldEnum = {
@@ -326,6 +335,13 @@ export const ProjectOrderByRelevanceFieldEnum = {
 } as const
 
 export type ProjectOrderByRelevanceFieldEnum = (typeof ProjectOrderByRelevanceFieldEnum)[keyof typeof ProjectOrderByRelevanceFieldEnum]
+
+
+export const HomepageProjectOrderByRelevanceFieldEnum = {
+  project_id: 'project_id'
+} as const
+
+export type HomepageProjectOrderByRelevanceFieldEnum = (typeof HomepageProjectOrderByRelevanceFieldEnum)[keyof typeof HomepageProjectOrderByRelevanceFieldEnum]
 
 
 export const UserProjectOrderByRelevanceFieldEnum = {

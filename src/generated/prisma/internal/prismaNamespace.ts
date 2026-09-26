@@ -399,6 +399,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   User: 'User',
   Project: 'Project',
+  HomepageProject: 'HomepageProject',
   UserProject: 'UserProject',
   HouseType: 'HouseType',
   Facility: 'Facility',
@@ -424,7 +425,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "project" | "userProject" | "houseType" | "facility" | "promotion" | "newsItem" | "lead" | "pageView" | "siteContent" | "mediaAsset" | "projectSetting"
+    modelProps: "user" | "project" | "homepageProject" | "userProject" | "houseType" | "facility" | "promotion" | "newsItem" | "lead" | "pageView" | "siteContent" | "mediaAsset" | "projectSetting"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -557,6 +558,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ProjectCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ProjectCountAggregateOutputType> | number
+        }
+      }
+    }
+    HomepageProject: {
+      payload: Prisma.$HomepageProjectPayload<ExtArgs>
+      fields: Prisma.HomepageProjectFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.HomepageProjectFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HomepageProjectPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.HomepageProjectFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HomepageProjectPayload>
+        }
+        findFirst: {
+          args: Prisma.HomepageProjectFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HomepageProjectPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.HomepageProjectFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HomepageProjectPayload>
+        }
+        findMany: {
+          args: Prisma.HomepageProjectFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HomepageProjectPayload>[]
+        }
+        create: {
+          args: Prisma.HomepageProjectCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HomepageProjectPayload>
+        }
+        createMany: {
+          args: Prisma.HomepageProjectCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.HomepageProjectDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HomepageProjectPayload>
+        }
+        update: {
+          args: Prisma.HomepageProjectUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HomepageProjectPayload>
+        }
+        deleteMany: {
+          args: Prisma.HomepageProjectDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.HomepageProjectUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.HomepageProjectUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HomepageProjectPayload>
+        }
+        aggregate: {
+          args: Prisma.HomepageProjectAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateHomepageProject>
+        }
+        groupBy: {
+          args: Prisma.HomepageProjectGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.HomepageProjectGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.HomepageProjectCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.HomepageProjectCountAggregateOutputType> | number
         }
       }
     }
@@ -1295,6 +1362,14 @@ export const ProjectScalarFieldEnum = {
 export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
 
 
+export const HomepageProjectScalarFieldEnum = {
+  project_id: 'project_id',
+  sort_order: 'sort_order'
+} as const
+
+export type HomepageProjectScalarFieldEnum = (typeof HomepageProjectScalarFieldEnum)[keyof typeof HomepageProjectScalarFieldEnum]
+
+
 export const UserProjectScalarFieldEnum = {
   user_id: 'user_id',
   project_id: 'project_id'
@@ -1504,6 +1579,13 @@ export const ProjectOrderByRelevanceFieldEnum = {
 } as const
 
 export type ProjectOrderByRelevanceFieldEnum = (typeof ProjectOrderByRelevanceFieldEnum)[keyof typeof ProjectOrderByRelevanceFieldEnum]
+
+
+export const HomepageProjectOrderByRelevanceFieldEnum = {
+  project_id: 'project_id'
+} as const
+
+export type HomepageProjectOrderByRelevanceFieldEnum = (typeof HomepageProjectOrderByRelevanceFieldEnum)[keyof typeof HomepageProjectOrderByRelevanceFieldEnum]
 
 
 export const UserProjectOrderByRelevanceFieldEnum = {
@@ -1882,6 +1964,7 @@ export type PrismaClientOptions = PrismaClientOptionsWithAccelerateUrl | PrismaC
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   project?: Prisma.ProjectOmit
+  homepageProject?: Prisma.HomepageProjectOmit
   userProject?: Prisma.UserProjectOmit
   houseType?: Prisma.HouseTypeOmit
   facility?: Prisma.FacilityOmit

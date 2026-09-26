@@ -43,7 +43,15 @@ function tagsOf(project: Project) {
 
 const preferredTagOrder = ["โครงการแนะนำ", "โครงการล่าสุด", "พร้อมเข้าอยู่ได้ทันที"];
 
-export function ProjectFilter() {
+export function ProjectFilter({
+  projectIds,
+  allProjectsHref,
+  standalone = false,
+}: {
+  projectIds?: string[];
+  allProjectsHref?: string;
+  standalone?: boolean;
+}) {
   const [catalogue, setCatalogue] = useState<Project[]>(projects);
   const [keyword, setKeyword] = useState("");
   const [type, setType] = useState("ทั้งหมด");
@@ -76,6 +84,7 @@ export function ProjectFilter() {
     () =>
       catalogue.filter(
         (project) =>
+          (!projectIds || projectIds.includes(String(project.id))) &&
           (!keyword.trim() ||
             `${project.name} ${project.location} ${project.description}`
               .toLocaleLowerCase("th")
@@ -85,7 +94,7 @@ export function ProjectFilter() {
           (status === "ทั้งหมด" || project.status === status) &&
           (tag === "all" || tagsOf(project).includes(tag)),
       ),
-    [catalogue, keyword, priceRange, status, tag, type],
+    [catalogue, keyword, priceRange, projectIds, status, tag, type],
   );
   const filterBox = (icon: string, label: string, child: ReactNode) => (
     <label className="flex min-h-18 flex-col justify-center rounded-lg border border-slate-200 bg-slate-50 p-3">
@@ -97,7 +106,10 @@ export function ProjectFilter() {
     </label>
   );
   return (
-    <section id="projects" className="container-page relative z-10 -mt-10 pb-12 sm:-mt-14 sm:pb-18">
+    <section
+      id="projects"
+      className={`container-page relative z-10 ${standalone ? "py-12 sm:py-16" : "-mt-10 pb-12 sm:-mt-14 sm:pb-18"}`}
+    >
       <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xl shadow-slate-900/10 sm:p-5 md:p-6">
         <p className="mb-4 text-sm font-bold text-brand-primary">
           <i className="fa-solid fa-magnifying-glass mr-2" />
@@ -161,7 +173,7 @@ export function ProjectFilter() {
           <div>
             <p className="text-xs font-bold text-brand-primary">
               <i className="fa-solid fa-city mr-2" />
-              โครงการทั้งหมด
+              {projectIds ? "โครงการคัดสรร" : "โครงการทั้งหมด"}
             </p>
             <h2 className="mt-2 text-2xl font-black tracking-tight text-slate-800 sm:text-3xl">
               เลือกบ้านที่ใช่สำหรับคุณ
@@ -170,10 +182,20 @@ export function ProjectFilter() {
               เลือกสไตล์ฟิลเตอร์เพื่อรับชมกลุ่มโครงการที่แมตช์กับไลฟ์สไตล์คุณ
             </p>
           </div>
-          <span className="inline-flex items-center rounded-full bg-brand-primary px-4 py-2 text-xs font-bold text-white shadow-sm">
-            <i className="fa-solid fa-house mr-2 text-brand-accent" />
-            พบ {visible.length} โครงการ
-          </span>
+          <div className="flex items-center gap-3">
+            {allProjectsHref && (
+              <Link
+                href={allProjectsHref}
+                className="inline-flex items-center gap-2 rounded-full border border-brand-primary px-4 py-2 text-xs font-bold text-brand-primary transition hover:bg-brand-primary hover:text-white"
+              >
+                ดูโครงการทั้งหมด <i className="fa-solid fa-arrow-right" />
+              </Link>
+            )}
+            <span className="inline-flex items-center rounded-full bg-brand-primary px-4 py-2 text-xs font-bold text-white shadow-sm">
+              <i className="fa-solid fa-house mr-2 text-brand-accent" />
+              พบ {visible.length} โครงการ
+            </span>
+          </div>
         </div>
         <div className="mt-4 flex gap-2 overflow-x-auto pb-3 pt-2">
           {tagOptions.map((label) => (

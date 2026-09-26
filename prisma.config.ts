@@ -1,5 +1,10 @@
-import "dotenv/config";
+import { config } from "dotenv";
 import { defineConfig } from "prisma/config";
+
+// Prisma CLI does not load Next.js' .env.local automatically.
+// Read it first so db push, generate, and Studio use the same local MySQL connection as the app.
+config({ path: ".env.local" });
+config();
 
 function databaseUrl() {
   if (process.env.DATABASE_URL) return process.env.DATABASE_URL;

@@ -76,8 +76,19 @@ model Project {
   news_items     NewsItem[]
   leads          Lead[]
   page_views     PageView[]
+  homepage_slots HomepageProject[]
 
   @@map("projects")
+}
+
+model HomepageProject {
+  project_id String  @db.Char(36)
+  sort_order Int     @default(0)
+  project    Project @relation(fields: [project_id], references: [id], onDelete: Cascade)
+
+  @@id([project_id])
+  @@index([sort_order])
+  @@map("homepage_projects")
 }
 
 model UserProject {

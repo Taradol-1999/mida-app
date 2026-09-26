@@ -8,6 +8,7 @@ import { Input, Textarea } from "@/components/ui/form-controls";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 
 type Media = { id: string; name: string; mimeType: string; url: string };
+type HomepageProject = { id: string; name_th: string; location: string; status: "READY" | "CONSTRUCTION" };
 
 export function MidaFrontendManager() {
   const [contentId, setContentId] = useState("");
@@ -15,6 +16,8 @@ export function MidaFrontendManager() {
   const [description, setDescription] = useState("");
   const [images, setImages] = useState<Media[]>([]);
   const [files, setFiles] = useState<File[]>([]);
+  const [projects, setProjects] = useState<HomepageProject[]>([]);
+  const [selectedProjectIds, setSelectedProjectIds] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -26,9 +29,17 @@ export function MidaFrontendManager() {
   }, []);
 
   const load = useCallback(async () => {
-    const response = await fetch("/api/admin/content");
+    const [response, projectResponse] = await Promise.all([
+      fetch("/api/admin/content"),
+      fetch("/api/admin/homepage-projects"),
+    ]);
     if (!response.ok) return setMessage("ไม่สามารถโหลดข้อมูลเว็บไซต์ส่วนกลางได้");
     const data = await response.json();
+    if (projectResponse.ok) {
+      const projectData = await projectResponse.json();
+      setProjects(projectData.projects ?? []);
+      setSelectedProjectIds(projectData.project_ids ?? []);
+    }
     const home = (data.rows ?? []).find((row: Record<string, unknown>) => row.content_key === "home_hero");
     if (!home) return;
     const id = String(home.id);
@@ -54,16 +65,18 @@ export function MidaFrontendManager() {
       setBusy(false);
       return;
     }
-    if (!contentId) {
-      await load();
-      setMessage("บันทึกข้อความแล้ว กรุณากดบันทึกอีกครั้งเพื่ออัปโหลดรูปภาพหรือวิดีโอ");
+    const result = await response.json();
+    const savedContentId = contentId || String(result.id ?? "");
+    if (!savedContentId) {
+      setMessage("บันทึกข้อมูลแล้ว แต่ไม่สามารถระบุรายการสำหรับอัปโหลดสื่อได้");
       setBusy(false);
       return;
     }
+    if (!contentId) setContentId(savedContentId);
     for (const file of files) {
       const upload = new FormData();
       upload.set("entityType", "site-content");
-      upload.set("entityId", contentId);
+      upload.set("entityId", savedContentId);
       upload.set("mediaKind", "hero");
       upload.set("file", file);
       const uploadResponse = await fetch("/api/admin/media", { method: "POST", body: upload });
@@ -73,8 +86,18 @@ export function MidaFrontendManager() {
         return;
       }
     }
+    const selectionResponse = await fetch("/api/admin/homepage-projects", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ project_ids: selectedProjectIds }),
+    });
+    if (!selectionResponse.ok) {
+      setMessage("บันทึกข้อความแล้ว แต่ไม่สามารถบันทึกรายการโครงการหน้าแรกได้");
+      setBusy(false);
+      return;
+    }
     setFiles([]);
-    await loadImages(contentId);
+    await loadImages(savedContentId);
     setMessage("บันทึกข้อมูลเว็บไซต์ส่วนกลาง MIDA เรียบร้อย");
     setBusy(false);
   }
@@ -127,6 +150,61 @@ export function MidaFrontendManager() {
             disabled={busy}
           />
         </div>
+
+        <fieldset className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <legend className="font-bold text-slate-800">
+                <i className="fa-solid fa-building-circle-check mr-2 text-brand-primary" />
+                โครงการที่แสดงบนหน้าแรก
+              </legend>
+              <p className="mt-1 text-xs leading-5 text-slate-500">
+                เลือกเฉพาะโครงการที่ต้องการแสดงในหน้าแรก ผู้ชมสามารถดูครบทุกโครงการได้จากหน้า “โครงการทั้งหมด”
+              </p>
+            </div>
+            <span className="rounded-full bg-brand-primary px-3 py-1.5 text-xs font-bold text-white">
+              เลือกแล้ว {selectedProjectIds.length} โครงการ
+            </span>
+          </div>
+          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            {projects.map((project) => {
+              const selectedIndex = selectedProjectIds.indexOf(project.id);
+              const checked = selectedIndex >= 0;
+              return (
+                <label
+                  key={project.id}
+                  className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition ${checked ? "border-brand-primary bg-white shadow-sm" : "border-slate-200 bg-white/60 hover:border-brand-primary/40"}`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={() =>
+                      setSelectedProjectIds((current) =>
+                        current.includes(project.id)
+                          ? current.filter((id) => id !== project.id)
+                          : [...current, project.id],
+                      )
+                    }
+                    className="size-4 accent-[#002D62]"
+                  />
+                  <span className="min-w-0 flex-1">
+                    <b className="block truncate text-sm text-slate-800">{project.name_th}</b>
+                    <span className="block text-xs text-slate-500">{project.location}</span>
+                  </span>
+                  {checked && (
+                    <span
+                      className="grid size-6 shrink-0 place-items-center rounded-full bg-brand-accent text-[11px] font-black text-brand-primary"
+                      title={`ลำดับ ${selectedIndex + 1}`}
+                    >
+                      {selectedIndex + 1}
+                    </span>
+                  )}
+                </label>
+              );
+            })}
+          </div>
+          {!projects.length && <p className="mt-3 text-xs text-slate-500">ยังไม่มีโครงการสำหรับเลือก</p>}
+        </fieldset>
 
         {message && <p className="rounded-lg bg-brand-soft px-4 py-3 text-brand-primary">{message}</p>}
         <button

@@ -316,6 +316,7 @@ export type ProjectWhereInput = {
   news_items?: Prisma.NewsItemListRelationFilter
   leads?: Prisma.LeadListRelationFilter
   page_views?: Prisma.PageViewListRelationFilter
+  homepage_slots?: Prisma.HomepageProjectListRelationFilter
 }
 
 export type ProjectOrderByWithRelationInput = {
@@ -343,6 +344,7 @@ export type ProjectOrderByWithRelationInput = {
   news_items?: Prisma.NewsItemOrderByRelationAggregateInput
   leads?: Prisma.LeadOrderByRelationAggregateInput
   page_views?: Prisma.PageViewOrderByRelationAggregateInput
+  homepage_slots?: Prisma.HomepageProjectOrderByRelationAggregateInput
   _relevance?: Prisma.ProjectOrderByRelevanceInput
 }
 
@@ -374,6 +376,7 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   news_items?: Prisma.NewsItemListRelationFilter
   leads?: Prisma.LeadListRelationFilter
   page_views?: Prisma.PageViewListRelationFilter
+  homepage_slots?: Prisma.HomepageProjectListRelationFilter
 }, "id" | "slug">
 
 export type ProjectOrderByWithAggregationInput = {
@@ -447,6 +450,7 @@ export type ProjectCreateInput = {
   news_items?: Prisma.NewsItemCreateNestedManyWithoutProjectInput
   leads?: Prisma.LeadCreateNestedManyWithoutProjectInput
   page_views?: Prisma.PageViewCreateNestedManyWithoutProjectInput
+  homepage_slots?: Prisma.HomepageProjectCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateInput = {
@@ -474,6 +478,7 @@ export type ProjectUncheckedCreateInput = {
   news_items?: Prisma.NewsItemUncheckedCreateNestedManyWithoutProjectInput
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutProjectInput
   page_views?: Prisma.PageViewUncheckedCreateNestedManyWithoutProjectInput
+  homepage_slots?: Prisma.HomepageProjectUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUpdateInput = {
@@ -501,6 +506,7 @@ export type ProjectUpdateInput = {
   news_items?: Prisma.NewsItemUpdateManyWithoutProjectNestedInput
   leads?: Prisma.LeadUpdateManyWithoutProjectNestedInput
   page_views?: Prisma.PageViewUpdateManyWithoutProjectNestedInput
+  homepage_slots?: Prisma.HomepageProjectUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateInput = {
@@ -528,6 +534,7 @@ export type ProjectUncheckedUpdateInput = {
   news_items?: Prisma.NewsItemUncheckedUpdateManyWithoutProjectNestedInput
   leads?: Prisma.LeadUncheckedUpdateManyWithoutProjectNestedInput
   page_views?: Prisma.PageViewUncheckedUpdateManyWithoutProjectNestedInput
+  homepage_slots?: Prisma.HomepageProjectUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateManyInput = {
@@ -690,6 +697,20 @@ export type EnumProjectStatusFieldUpdateOperationsInput = {
   set?: $Enums.ProjectStatus
 }
 
+export type ProjectCreateNestedOneWithoutHomepage_slotsInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutHomepage_slotsInput, Prisma.ProjectUncheckedCreateWithoutHomepage_slotsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutHomepage_slotsInput
+  connect?: Prisma.ProjectWhereUniqueInput
+}
+
+export type ProjectUpdateOneRequiredWithoutHomepage_slotsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutHomepage_slotsInput, Prisma.ProjectUncheckedCreateWithoutHomepage_slotsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutHomepage_slotsInput
+  upsert?: Prisma.ProjectUpsertWithoutHomepage_slotsInput
+  connect?: Prisma.ProjectWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutHomepage_slotsInput, Prisma.ProjectUpdateWithoutHomepage_slotsInput>, Prisma.ProjectUncheckedUpdateWithoutHomepage_slotsInput>
+}
+
 export type ProjectCreateNestedOneWithoutUsersInput = {
   create?: Prisma.XOR<Prisma.ProjectCreateWithoutUsersInput, Prisma.ProjectUncheckedCreateWithoutUsersInput>
   connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutUsersInput
@@ -810,6 +831,130 @@ export type ProjectUpdateOneRequiredWithoutSettingsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutSettingsInput, Prisma.ProjectUpdateWithoutSettingsInput>, Prisma.ProjectUncheckedUpdateWithoutSettingsInput>
 }
 
+export type ProjectCreateWithoutHomepage_slotsInput = {
+  id?: string
+  slug: string
+  name_th: string
+  name_en?: string | null
+  location: string
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  property_type: $Enums.PropertyType
+  starting_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  status?: $Enums.ProjectStatus
+  is_featured?: boolean
+  is_new?: boolean
+  tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  description?: string | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  users?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
+  settings?: Prisma.ProjectSettingCreateNestedOneWithoutProjectInput
+  house_types?: Prisma.HouseTypeCreateNestedManyWithoutProjectInput
+  facilities?: Prisma.FacilityCreateNestedManyWithoutProjectInput
+  promotions?: Prisma.PromotionCreateNestedManyWithoutProjectInput
+  news_items?: Prisma.NewsItemCreateNestedManyWithoutProjectInput
+  leads?: Prisma.LeadCreateNestedManyWithoutProjectInput
+  page_views?: Prisma.PageViewCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectUncheckedCreateWithoutHomepage_slotsInput = {
+  id?: string
+  slug: string
+  name_th: string
+  name_en?: string | null
+  location: string
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  property_type: $Enums.PropertyType
+  starting_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  status?: $Enums.ProjectStatus
+  is_featured?: boolean
+  is_new?: boolean
+  tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  description?: string | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  users?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
+  settings?: Prisma.ProjectSettingUncheckedCreateNestedOneWithoutProjectInput
+  house_types?: Prisma.HouseTypeUncheckedCreateNestedManyWithoutProjectInput
+  facilities?: Prisma.FacilityUncheckedCreateNestedManyWithoutProjectInput
+  promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutProjectInput
+  news_items?: Prisma.NewsItemUncheckedCreateNestedManyWithoutProjectInput
+  leads?: Prisma.LeadUncheckedCreateNestedManyWithoutProjectInput
+  page_views?: Prisma.PageViewUncheckedCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectCreateOrConnectWithoutHomepage_slotsInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutHomepage_slotsInput, Prisma.ProjectUncheckedCreateWithoutHomepage_slotsInput>
+}
+
+export type ProjectUpsertWithoutHomepage_slotsInput = {
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutHomepage_slotsInput, Prisma.ProjectUncheckedUpdateWithoutHomepage_slotsInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutHomepage_slotsInput, Prisma.ProjectUncheckedCreateWithoutHomepage_slotsInput>
+  where?: Prisma.ProjectWhereInput
+}
+
+export type ProjectUpdateToOneWithWhereWithoutHomepage_slotsInput = {
+  where?: Prisma.ProjectWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutHomepage_slotsInput, Prisma.ProjectUncheckedUpdateWithoutHomepage_slotsInput>
+}
+
+export type ProjectUpdateWithoutHomepage_slotsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  name_th?: Prisma.StringFieldUpdateOperationsInput | string
+  name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  property_type?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
+  starting_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  is_featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  is_new?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
+  settings?: Prisma.ProjectSettingUpdateOneWithoutProjectNestedInput
+  house_types?: Prisma.HouseTypeUpdateManyWithoutProjectNestedInput
+  facilities?: Prisma.FacilityUpdateManyWithoutProjectNestedInput
+  promotions?: Prisma.PromotionUpdateManyWithoutProjectNestedInput
+  news_items?: Prisma.NewsItemUpdateManyWithoutProjectNestedInput
+  leads?: Prisma.LeadUpdateManyWithoutProjectNestedInput
+  page_views?: Prisma.PageViewUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutHomepage_slotsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  name_th?: Prisma.StringFieldUpdateOperationsInput | string
+  name_en?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  property_type?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
+  starting_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  is_featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  is_new?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
+  settings?: Prisma.ProjectSettingUncheckedUpdateOneWithoutProjectNestedInput
+  house_types?: Prisma.HouseTypeUncheckedUpdateManyWithoutProjectNestedInput
+  facilities?: Prisma.FacilityUncheckedUpdateManyWithoutProjectNestedInput
+  promotions?: Prisma.PromotionUncheckedUpdateManyWithoutProjectNestedInput
+  news_items?: Prisma.NewsItemUncheckedUpdateManyWithoutProjectNestedInput
+  leads?: Prisma.LeadUncheckedUpdateManyWithoutProjectNestedInput
+  page_views?: Prisma.PageViewUncheckedUpdateManyWithoutProjectNestedInput
+}
+
 export type ProjectCreateWithoutUsersInput = {
   id?: string
   slug: string
@@ -834,6 +979,7 @@ export type ProjectCreateWithoutUsersInput = {
   news_items?: Prisma.NewsItemCreateNestedManyWithoutProjectInput
   leads?: Prisma.LeadCreateNestedManyWithoutProjectInput
   page_views?: Prisma.PageViewCreateNestedManyWithoutProjectInput
+  homepage_slots?: Prisma.HomepageProjectCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutUsersInput = {
@@ -860,6 +1006,7 @@ export type ProjectUncheckedCreateWithoutUsersInput = {
   news_items?: Prisma.NewsItemUncheckedCreateNestedManyWithoutProjectInput
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutProjectInput
   page_views?: Prisma.PageViewUncheckedCreateNestedManyWithoutProjectInput
+  homepage_slots?: Prisma.HomepageProjectUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutUsersInput = {
@@ -902,6 +1049,7 @@ export type ProjectUpdateWithoutUsersInput = {
   news_items?: Prisma.NewsItemUpdateManyWithoutProjectNestedInput
   leads?: Prisma.LeadUpdateManyWithoutProjectNestedInput
   page_views?: Prisma.PageViewUpdateManyWithoutProjectNestedInput
+  homepage_slots?: Prisma.HomepageProjectUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutUsersInput = {
@@ -928,6 +1076,7 @@ export type ProjectUncheckedUpdateWithoutUsersInput = {
   news_items?: Prisma.NewsItemUncheckedUpdateManyWithoutProjectNestedInput
   leads?: Prisma.LeadUncheckedUpdateManyWithoutProjectNestedInput
   page_views?: Prisma.PageViewUncheckedUpdateManyWithoutProjectNestedInput
+  homepage_slots?: Prisma.HomepageProjectUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutHouse_typesInput = {
@@ -954,6 +1103,7 @@ export type ProjectCreateWithoutHouse_typesInput = {
   news_items?: Prisma.NewsItemCreateNestedManyWithoutProjectInput
   leads?: Prisma.LeadCreateNestedManyWithoutProjectInput
   page_views?: Prisma.PageViewCreateNestedManyWithoutProjectInput
+  homepage_slots?: Prisma.HomepageProjectCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutHouse_typesInput = {
@@ -980,6 +1130,7 @@ export type ProjectUncheckedCreateWithoutHouse_typesInput = {
   news_items?: Prisma.NewsItemUncheckedCreateNestedManyWithoutProjectInput
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutProjectInput
   page_views?: Prisma.PageViewUncheckedCreateNestedManyWithoutProjectInput
+  homepage_slots?: Prisma.HomepageProjectUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutHouse_typesInput = {
@@ -1022,6 +1173,7 @@ export type ProjectUpdateWithoutHouse_typesInput = {
   news_items?: Prisma.NewsItemUpdateManyWithoutProjectNestedInput
   leads?: Prisma.LeadUpdateManyWithoutProjectNestedInput
   page_views?: Prisma.PageViewUpdateManyWithoutProjectNestedInput
+  homepage_slots?: Prisma.HomepageProjectUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutHouse_typesInput = {
@@ -1048,6 +1200,7 @@ export type ProjectUncheckedUpdateWithoutHouse_typesInput = {
   news_items?: Prisma.NewsItemUncheckedUpdateManyWithoutProjectNestedInput
   leads?: Prisma.LeadUncheckedUpdateManyWithoutProjectNestedInput
   page_views?: Prisma.PageViewUncheckedUpdateManyWithoutProjectNestedInput
+  homepage_slots?: Prisma.HomepageProjectUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutFacilitiesInput = {
@@ -1074,6 +1227,7 @@ export type ProjectCreateWithoutFacilitiesInput = {
   news_items?: Prisma.NewsItemCreateNestedManyWithoutProjectInput
   leads?: Prisma.LeadCreateNestedManyWithoutProjectInput
   page_views?: Prisma.PageViewCreateNestedManyWithoutProjectInput
+  homepage_slots?: Prisma.HomepageProjectCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutFacilitiesInput = {
@@ -1100,6 +1254,7 @@ export type ProjectUncheckedCreateWithoutFacilitiesInput = {
   news_items?: Prisma.NewsItemUncheckedCreateNestedManyWithoutProjectInput
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutProjectInput
   page_views?: Prisma.PageViewUncheckedCreateNestedManyWithoutProjectInput
+  homepage_slots?: Prisma.HomepageProjectUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutFacilitiesInput = {
@@ -1142,6 +1297,7 @@ export type ProjectUpdateWithoutFacilitiesInput = {
   news_items?: Prisma.NewsItemUpdateManyWithoutProjectNestedInput
   leads?: Prisma.LeadUpdateManyWithoutProjectNestedInput
   page_views?: Prisma.PageViewUpdateManyWithoutProjectNestedInput
+  homepage_slots?: Prisma.HomepageProjectUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutFacilitiesInput = {
@@ -1168,6 +1324,7 @@ export type ProjectUncheckedUpdateWithoutFacilitiesInput = {
   news_items?: Prisma.NewsItemUncheckedUpdateManyWithoutProjectNestedInput
   leads?: Prisma.LeadUncheckedUpdateManyWithoutProjectNestedInput
   page_views?: Prisma.PageViewUncheckedUpdateManyWithoutProjectNestedInput
+  homepage_slots?: Prisma.HomepageProjectUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutPromotionsInput = {
@@ -1194,6 +1351,7 @@ export type ProjectCreateWithoutPromotionsInput = {
   news_items?: Prisma.NewsItemCreateNestedManyWithoutProjectInput
   leads?: Prisma.LeadCreateNestedManyWithoutProjectInput
   page_views?: Prisma.PageViewCreateNestedManyWithoutProjectInput
+  homepage_slots?: Prisma.HomepageProjectCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutPromotionsInput = {
@@ -1220,6 +1378,7 @@ export type ProjectUncheckedCreateWithoutPromotionsInput = {
   news_items?: Prisma.NewsItemUncheckedCreateNestedManyWithoutProjectInput
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutProjectInput
   page_views?: Prisma.PageViewUncheckedCreateNestedManyWithoutProjectInput
+  homepage_slots?: Prisma.HomepageProjectUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutPromotionsInput = {
@@ -1262,6 +1421,7 @@ export type ProjectUpdateWithoutPromotionsInput = {
   news_items?: Prisma.NewsItemUpdateManyWithoutProjectNestedInput
   leads?: Prisma.LeadUpdateManyWithoutProjectNestedInput
   page_views?: Prisma.PageViewUpdateManyWithoutProjectNestedInput
+  homepage_slots?: Prisma.HomepageProjectUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutPromotionsInput = {
@@ -1288,6 +1448,7 @@ export type ProjectUncheckedUpdateWithoutPromotionsInput = {
   news_items?: Prisma.NewsItemUncheckedUpdateManyWithoutProjectNestedInput
   leads?: Prisma.LeadUncheckedUpdateManyWithoutProjectNestedInput
   page_views?: Prisma.PageViewUncheckedUpdateManyWithoutProjectNestedInput
+  homepage_slots?: Prisma.HomepageProjectUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutNews_itemsInput = {
@@ -1314,6 +1475,7 @@ export type ProjectCreateWithoutNews_itemsInput = {
   promotions?: Prisma.PromotionCreateNestedManyWithoutProjectInput
   leads?: Prisma.LeadCreateNestedManyWithoutProjectInput
   page_views?: Prisma.PageViewCreateNestedManyWithoutProjectInput
+  homepage_slots?: Prisma.HomepageProjectCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutNews_itemsInput = {
@@ -1340,6 +1502,7 @@ export type ProjectUncheckedCreateWithoutNews_itemsInput = {
   promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutProjectInput
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutProjectInput
   page_views?: Prisma.PageViewUncheckedCreateNestedManyWithoutProjectInput
+  homepage_slots?: Prisma.HomepageProjectUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutNews_itemsInput = {
@@ -1382,6 +1545,7 @@ export type ProjectUpdateWithoutNews_itemsInput = {
   promotions?: Prisma.PromotionUpdateManyWithoutProjectNestedInput
   leads?: Prisma.LeadUpdateManyWithoutProjectNestedInput
   page_views?: Prisma.PageViewUpdateManyWithoutProjectNestedInput
+  homepage_slots?: Prisma.HomepageProjectUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutNews_itemsInput = {
@@ -1408,6 +1572,7 @@ export type ProjectUncheckedUpdateWithoutNews_itemsInput = {
   promotions?: Prisma.PromotionUncheckedUpdateManyWithoutProjectNestedInput
   leads?: Prisma.LeadUncheckedUpdateManyWithoutProjectNestedInput
   page_views?: Prisma.PageViewUncheckedUpdateManyWithoutProjectNestedInput
+  homepage_slots?: Prisma.HomepageProjectUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutLeadsInput = {
@@ -1434,6 +1599,7 @@ export type ProjectCreateWithoutLeadsInput = {
   promotions?: Prisma.PromotionCreateNestedManyWithoutProjectInput
   news_items?: Prisma.NewsItemCreateNestedManyWithoutProjectInput
   page_views?: Prisma.PageViewCreateNestedManyWithoutProjectInput
+  homepage_slots?: Prisma.HomepageProjectCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutLeadsInput = {
@@ -1460,6 +1626,7 @@ export type ProjectUncheckedCreateWithoutLeadsInput = {
   promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutProjectInput
   news_items?: Prisma.NewsItemUncheckedCreateNestedManyWithoutProjectInput
   page_views?: Prisma.PageViewUncheckedCreateNestedManyWithoutProjectInput
+  homepage_slots?: Prisma.HomepageProjectUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutLeadsInput = {
@@ -1502,6 +1669,7 @@ export type ProjectUpdateWithoutLeadsInput = {
   promotions?: Prisma.PromotionUpdateManyWithoutProjectNestedInput
   news_items?: Prisma.NewsItemUpdateManyWithoutProjectNestedInput
   page_views?: Prisma.PageViewUpdateManyWithoutProjectNestedInput
+  homepage_slots?: Prisma.HomepageProjectUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutLeadsInput = {
@@ -1528,6 +1696,7 @@ export type ProjectUncheckedUpdateWithoutLeadsInput = {
   promotions?: Prisma.PromotionUncheckedUpdateManyWithoutProjectNestedInput
   news_items?: Prisma.NewsItemUncheckedUpdateManyWithoutProjectNestedInput
   page_views?: Prisma.PageViewUncheckedUpdateManyWithoutProjectNestedInput
+  homepage_slots?: Prisma.HomepageProjectUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutPage_viewsInput = {
@@ -1554,6 +1723,7 @@ export type ProjectCreateWithoutPage_viewsInput = {
   promotions?: Prisma.PromotionCreateNestedManyWithoutProjectInput
   news_items?: Prisma.NewsItemCreateNestedManyWithoutProjectInput
   leads?: Prisma.LeadCreateNestedManyWithoutProjectInput
+  homepage_slots?: Prisma.HomepageProjectCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutPage_viewsInput = {
@@ -1580,6 +1750,7 @@ export type ProjectUncheckedCreateWithoutPage_viewsInput = {
   promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutProjectInput
   news_items?: Prisma.NewsItemUncheckedCreateNestedManyWithoutProjectInput
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutProjectInput
+  homepage_slots?: Prisma.HomepageProjectUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutPage_viewsInput = {
@@ -1622,6 +1793,7 @@ export type ProjectUpdateWithoutPage_viewsInput = {
   promotions?: Prisma.PromotionUpdateManyWithoutProjectNestedInput
   news_items?: Prisma.NewsItemUpdateManyWithoutProjectNestedInput
   leads?: Prisma.LeadUpdateManyWithoutProjectNestedInput
+  homepage_slots?: Prisma.HomepageProjectUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutPage_viewsInput = {
@@ -1648,6 +1820,7 @@ export type ProjectUncheckedUpdateWithoutPage_viewsInput = {
   promotions?: Prisma.PromotionUncheckedUpdateManyWithoutProjectNestedInput
   news_items?: Prisma.NewsItemUncheckedUpdateManyWithoutProjectNestedInput
   leads?: Prisma.LeadUncheckedUpdateManyWithoutProjectNestedInput
+  homepage_slots?: Prisma.HomepageProjectUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutSettingsInput = {
@@ -1674,6 +1847,7 @@ export type ProjectCreateWithoutSettingsInput = {
   news_items?: Prisma.NewsItemCreateNestedManyWithoutProjectInput
   leads?: Prisma.LeadCreateNestedManyWithoutProjectInput
   page_views?: Prisma.PageViewCreateNestedManyWithoutProjectInput
+  homepage_slots?: Prisma.HomepageProjectCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutSettingsInput = {
@@ -1700,6 +1874,7 @@ export type ProjectUncheckedCreateWithoutSettingsInput = {
   news_items?: Prisma.NewsItemUncheckedCreateNestedManyWithoutProjectInput
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutProjectInput
   page_views?: Prisma.PageViewUncheckedCreateNestedManyWithoutProjectInput
+  homepage_slots?: Prisma.HomepageProjectUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutSettingsInput = {
@@ -1742,6 +1917,7 @@ export type ProjectUpdateWithoutSettingsInput = {
   news_items?: Prisma.NewsItemUpdateManyWithoutProjectNestedInput
   leads?: Prisma.LeadUpdateManyWithoutProjectNestedInput
   page_views?: Prisma.PageViewUpdateManyWithoutProjectNestedInput
+  homepage_slots?: Prisma.HomepageProjectUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutSettingsInput = {
@@ -1768,6 +1944,7 @@ export type ProjectUncheckedUpdateWithoutSettingsInput = {
   news_items?: Prisma.NewsItemUncheckedUpdateManyWithoutProjectNestedInput
   leads?: Prisma.LeadUncheckedUpdateManyWithoutProjectNestedInput
   page_views?: Prisma.PageViewUncheckedUpdateManyWithoutProjectNestedInput
+  homepage_slots?: Prisma.HomepageProjectUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 
@@ -1783,6 +1960,7 @@ export type ProjectCountOutputType = {
   news_items: number
   leads: number
   page_views: number
+  homepage_slots: number
 }
 
 export type ProjectCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1793,6 +1971,7 @@ export type ProjectCountOutputTypeSelect<ExtArgs extends runtime.Types.Extension
   news_items?: boolean | ProjectCountOutputTypeCountNews_itemsArgs
   leads?: boolean | ProjectCountOutputTypeCountLeadsArgs
   page_views?: boolean | ProjectCountOutputTypeCountPage_viewsArgs
+  homepage_slots?: boolean | ProjectCountOutputTypeCountHomepage_slotsArgs
 }
 
 /**
@@ -1854,6 +2033,13 @@ export type ProjectCountOutputTypeCountPage_viewsArgs<ExtArgs extends runtime.Ty
   where?: Prisma.PageViewWhereInput
 }
 
+/**
+ * ProjectCountOutputType without action
+ */
+export type ProjectCountOutputTypeCountHomepage_slotsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.HomepageProjectWhereInput
+}
+
 
 export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1880,6 +2066,7 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   news_items?: boolean | Prisma.Project$news_itemsArgs<ExtArgs>
   leads?: boolean | Prisma.Project$leadsArgs<ExtArgs>
   page_views?: boolean | Prisma.Project$page_viewsArgs<ExtArgs>
+  homepage_slots?: boolean | Prisma.Project$homepage_slotsArgs<ExtArgs>
   _count?: boolean | Prisma.ProjectCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["project"]>
 
@@ -1914,6 +2101,7 @@ export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   news_items?: boolean | Prisma.Project$news_itemsArgs<ExtArgs>
   leads?: boolean | Prisma.Project$leadsArgs<ExtArgs>
   page_views?: boolean | Prisma.Project$page_viewsArgs<ExtArgs>
+  homepage_slots?: boolean | Prisma.Project$homepage_slotsArgs<ExtArgs>
   _count?: boolean | Prisma.ProjectCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -1928,6 +2116,7 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     news_items: Prisma.$NewsItemPayload<ExtArgs>[]
     leads: Prisma.$LeadPayload<ExtArgs>[]
     page_views: Prisma.$PageViewPayload<ExtArgs>[]
+    homepage_slots: Prisma.$HomepageProjectPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2294,6 +2483,7 @@ export interface Prisma__ProjectClient<T, Null = never, ExtArgs extends runtime.
   news_items<T extends Prisma.Project$news_itemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$news_itemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NewsItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   leads<T extends Prisma.Project$leadsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$leadsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LeadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   page_views<T extends Prisma.Project$page_viewsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$page_viewsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PageViewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  homepage_slots<T extends Prisma.Project$homepage_slotsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$homepage_slotsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$HomepageProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2871,6 +3061,30 @@ export type Project$page_viewsArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.PageViewScalarFieldEnum | Prisma.PageViewScalarFieldEnum[]
+}
+
+/**
+ * Project.homepage_slots
+ */
+export type Project$homepage_slotsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the HomepageProject
+   */
+  select?: Prisma.HomepageProjectSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the HomepageProject
+   */
+  omit?: Prisma.HomepageProjectOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.HomepageProjectInclude<ExtArgs> | null
+  where?: Prisma.HomepageProjectWhereInput
+  orderBy?: Prisma.HomepageProjectOrderByWithRelationInput | Prisma.HomepageProjectOrderByWithRelationInput[]
+  cursor?: Prisma.HomepageProjectWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.HomepageProjectScalarFieldEnum | Prisma.HomepageProjectScalarFieldEnum[]
 }
 
 /**
