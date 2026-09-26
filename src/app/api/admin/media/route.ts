@@ -25,7 +25,7 @@ function isEntityType(value: string): value is EntityType {
   return entityTypes.includes(value as EntityType);
 }
 function isKind(value: string) {
-  return value === "cover" || value === "hero" || value === "brochure";
+  return value === "cover" || value === "hero" || value === "gallery" || value === "brochure";
 }
 async function authorise() {
   const user = await getSession();
@@ -47,8 +47,21 @@ export async function GET(request: Request) {
   const { entityType, entityId, mediaKind, list } = valid(request);
   if (!isEntityType(entityType) || !idSchema.safeParse(entityId).success || !isKind(mediaKind))
     return NextResponse.json({ message: "คำขอรูปภาพไม่ถูกต้อง" }, { status: 400 });
-  // Published image URLs remain public; CMS listings and private media enforce project access.
-  if (list || (entityType !== "projects" && entityType !== "house-types")) {
+  // Published project and homepage hero media remain public; CMS listings and private media enforce project access.
+  const publicProjectMedia =
+    (entityType === "projects" || entityType === "house-types") && !list
+      ? true
+      : entityType === "site-content" && mediaKind === "hero" && !list;
+  const publishedContentMedia =
+    !list && mediaKind === "gallery" && entityType === "promotions"
+      ? (await prisma.promotion.findUnique({ where: { id: entityId }, select: { is_published: true } }))
+          ?.is_published === true
+      : !list && mediaKind === "gallery" && entityType === "news"
+        ? (await prisma.newsItem.findUnique({ where: { id: entityId }, select: { is_published: true } }))
+            ?.is_published === true
+        : false;
+  const isPublicMedia = publicProjectMedia || publishedContentMedia;
+  if (!isPublicMedia) {
     const user = await authorise();
     if (!user) return NextResponse.json({ message: "กรุณาเข้าสู่ระบบด้วยสิทธิ์ผู้ดูแล" }, { status: 401 });
     if (!(await canAccessRecord(user, entityType, entityId)))
@@ -169,7 +182,7 @@ export async function DELETE(request: Request) {
     !isEntityType(entityType) ||
     !idSchema.safeParse(entityId).success ||
     !idSchema.safeParse(mediaId).success ||
-    mediaKind !== "hero"
+    (mediaKind !== "hero" && mediaKind !== "gallery")
   )
     return NextResponse.json({ message: "คำขอลบรูปภาพไม่ถูกต้อง" }, { status: 400 });
   if (!(await canAccessRecord(user, entityType, entityId)))

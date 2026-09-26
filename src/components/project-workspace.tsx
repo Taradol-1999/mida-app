@@ -76,6 +76,7 @@ const configs: Partial<Record<Section, DataConfig>> = {
     ],
     columns: [
       ["title", "หัวข้อโปรโมชั่น"],
+      ["media_count", "รูปภาพ"],
       ["starts_at", "วันเริ่ม"],
       ["ends_at", "วันสิ้นสุด"],
       ["is_published", "สถานะ"],
@@ -104,6 +105,7 @@ const configs: Partial<Record<Section, DataConfig>> = {
     columns: [
       ["category", "หมวดหมู่"],
       ["title", "หัวข้อข่าวสาร"],
+      ["media_count", "รูปภาพ"],
       ["published_at", "วันเผยแพร่"],
       ["is_published", "สถานะ"],
     ],
@@ -164,6 +166,7 @@ function valueForInput(field: Field, value: unknown) {
 }
 
 function tableValue(field: string, value: unknown) {
+  if (field === "media_count") return `${Number(value ?? 0).toLocaleString("th-TH")} รูป`;
   if (field === "is_published") return value === true || value === 1 ? "เผยแพร่" : "แบบร่าง";
   if (field === "category") return value === "EVENT" ? "กิจกรรม" : "ข่าวสาร";
   if (field === "starting_price")
@@ -221,6 +224,8 @@ export function ProjectWorkspace({
   const [brochureBusy, setBrochureBusy] = useState(false);
   const [houseTypeImage, setHouseTypeImage] = useState<File | null>(null);
   const [existingHouseTypeImage, setExistingHouseTypeImage] = useState<string | null>(null);
+  const [contentMediaFiles, setContentMediaFiles] = useState<File[]>([]);
+  const [contentMedia, setContentMedia] = useState<{ id: string; name: string; mimeType: string; url: string }[]>([]);
   const [stats, setStats] = useState({ leads: 0, homes: 0, promos: 0, news: 0 });
   const load = useCallback(async () => {
     if (section === "dashboard") {
@@ -333,10 +338,28 @@ export function ProjectWorkspace({
         return;
       }
     }
+    if ((section === "promotions" || section === "news") && savedId) {
+      for (const file of contentMediaFiles) {
+        const upload = new FormData();
+        upload.set("entityType", section);
+        upload.set("entityId", savedId);
+        upload.set("mediaKind", "gallery");
+        upload.set("file", file);
+        const imageResponse = await fetch("/api/admin/media", { method: "POST", body: upload });
+        if (!imageResponse.ok) {
+          const imageResult = await imageResponse.json();
+          setMessage(imageResult.message ?? "บันทึกข้อมูลแล้ว แต่อัปโหลดรูปภาพไม่สำเร็จ");
+          setBusy(false);
+          return;
+        }
+      }
+    }
     setMessage("บันทึกข้อมูลเรียบร้อย");
     setBusy(false);
     setHouseTypeImage(null);
     setExistingHouseTypeImage(null);
+    setContentMediaFiles([]);
+    setContentMedia([]);
     if (!settingMode) {
       setEditingId(null);
       setForm(empty(fields));
@@ -425,10 +448,20 @@ export function ProjectWorkspace({
       ),
     );
     setHouseTypeImage(null);
+    setContentMediaFiles([]);
     if (section === "house-types") {
       const response = await fetch(`/api/admin/media?entityType=house-types&entityId=${row.id}&mediaKind=cover&list=1`);
       const data = response.ok ? await response.json() : { rows: [] };
       setExistingHouseTypeImage(data.rows?.[0]?.url ?? null);
+    }
+    if (section === "promotions" || section === "news") {
+      const response = await fetch(
+        `/api/admin/media?entityType=${section}&entityId=${row.id}&mediaKind=gallery&list=1`,
+      );
+      const data = response.ok ? await response.json() : { rows: [] };
+      setContentMedia(data.rows ?? []);
+    } else {
+      setContentMedia([]);
     }
     setEditorOpen(true);
   };
@@ -437,6 +470,8 @@ export function ProjectWorkspace({
     setForm(empty(fields));
     setHouseTypeImage(null);
     setExistingHouseTypeImage(null);
+    setContentMediaFiles([]);
+    setContentMedia([]);
     setMessage("");
     setEditorOpen(true);
   };
@@ -447,6 +482,18 @@ export function ProjectWorkspace({
     setForm(empty(fields));
     setHouseTypeImage(null);
     setExistingHouseTypeImage(null);
+    setContentMediaFiles([]);
+    setContentMedia([]);
+  };
+  const removeContentMedia = async (id: string) => {
+    if (!editingId || (section !== "promotions" && section !== "news")) return;
+    if (!confirm("ต้องการลบรูปภาพนี้ใช่หรือไม่")) return;
+    const response = await fetch(
+      `/api/admin/media?entityType=${section}&entityId=${editingId}&mediaKind=gallery&mediaId=${id}`,
+      { method: "DELETE" },
+    );
+    if (response.ok) setContentMedia((items) => items.filter((item) => item.id !== id));
+    else setMessage("ลบรูปภาพไม่สำเร็จ");
   };
   const updateLeadStatus = async (id: string, status: string) => {
     setBusy(true);
@@ -905,6 +952,22 @@ export function ProjectWorkspace({
                       )}
                     </label>
                     <p className="mt-2 text-xs text-slate-400">รองรับ JPG, PNG และ WEBP ขนาดไม่เกิน 5 MB</p>
+                  </div>
+                )}
+                {(section === "promotions" || section === "news") && (
+                  <div className="mt-5">
+                    <BannerMediaUpload
+                      title="รูปภาพประกอบข่าวสาร / โปรโมชั่น"
+                      allowVideo={false}
+                      media={contentMedia}
+                      files={contentMediaFiles}
+                      onFilesChange={setContentMediaFiles}
+                      onRemove={removeContentMedia}
+                      disabled={busy}
+                    />
+                    <p className="mt-2 text-xs text-slate-500">
+                      รูปแรกใช้เป็นภาพหน้าปกในการ์ดหน้าแรก ส่วนรูปทั้งหมดดูได้จากหน้าของโครงการ
+                    </p>
                   </div>
                 )}
               </div>

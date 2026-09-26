@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/form-controls";
 type BannerMedia = { id: string; name: string; mimeType: string; url: string };
 type Props = {
   title?: string;
+  allowVideo?: boolean;
   media: BannerMedia[];
   files: File[];
   onFilesChange: (files: File[]) => void;
@@ -50,6 +51,7 @@ function SelectedPreview({ file }: { file: File }) {
 
 export function BannerMediaUpload({
   title = "รูปภาพหรือวิดีโอสไลด์แบนเนอร์หลัก",
+  allowVideo = true,
   media,
   files,
   onFilesChange,
@@ -60,7 +62,9 @@ export function BannerMediaUpload({
   const [error, setError] = useState("");
 
   function selectFiles(selected: File[]) {
-    const validTypes = ["image/jpeg", "image/png", "image/webp", "video/mp4", "video/webm"];
+    const validTypes = allowVideo
+      ? ["image/jpeg", "image/png", "image/webp", "video/mp4", "video/webm"]
+      : ["image/jpeg", "image/png", "image/webp"];
     const invalid = selected.find(
       (file) => !validTypes.includes(file.type) || file.size > (file.type.startsWith("video/") ? 50 : 5) * 1024 * 1024,
     );
@@ -82,7 +86,9 @@ export function BannerMediaUpload({
               <i className="fa-solid fa-photo-film text-xl" aria-hidden="true" />
             </span>
             <div>
-              <p className="text-sm font-semibold text-brand-primary">แบนเนอร์รูปภาพและวิดีโอ</p>
+              <p className="text-sm font-semibold text-brand-primary">
+                {allowVideo ? "แบนเนอร์รูปภาพและวิดีโอ" : "รูปภาพประกอบ"}
+              </p>
               <p className="mt-1 text-xs text-brand-text">
                 บันทึกแล้ว {media.length} ไฟล์ · รอบันทึก {files.length} ไฟล์
               </p>
@@ -92,13 +98,15 @@ export function BannerMediaUpload({
             className={`relative rounded-lg bg-brand-primary px-4 py-2.5 text-sm font-semibold text-brand-surface focus-within:ring-2 focus-within:ring-brand-accent focus-within:ring-offset-2 ${disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}
           >
             <i className="fa-solid fa-plus mr-2" aria-hidden="true" />
-            เพิ่มรูปภาพ / วิดีโอ
+            {allowVideo ? "เพิ่มรูปภาพ / วิดีโอ" : "เพิ่มรูปภาพ"}
             <Input
               type="file"
               aria-label={title}
               aria-describedby={`${id}-hint`}
               multiple
-              accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
+              accept={
+                allowVideo ? "image/jpeg,image/png,image/webp,video/mp4,video/webm" : "image/jpeg,image/png,image/webp"
+              }
               className="sr-only"
               onChange={(event) => {
                 selectFiles(Array.from(event.target.files ?? []));
@@ -108,7 +116,9 @@ export function BannerMediaUpload({
           </label>
         </div>
         <p id={`${id}-hint`} className="mt-3 text-xs text-brand-text">
-          JPG, PNG, WEBP ไม่เกิน 5 MB · MP4, WEBM ไม่เกิน 50 MB ต่อไฟล์ · เลือกได้หลายไฟล์
+          {allowVideo
+            ? "JPG, PNG, WEBP ไม่เกิน 5 MB · MP4, WEBM ไม่เกิน 50 MB ต่อไฟล์ · เลือกได้หลายไฟล์"
+            : "JPG, PNG, WEBP ไม่เกิน 5 MB ต่อไฟล์ · เลือกได้หลายไฟล์"}
         </p>
         {error && (
           <p role="alert" className="mt-2 text-sm text-rose-600">
@@ -167,7 +177,7 @@ export function BannerMediaUpload({
           </div>
         ) : (
           <p className="mt-4 rounded-xl bg-brand-surface p-8 text-center text-sm text-brand-text">
-            ยังไม่มีแบนเนอร์ เพิ่มรูปภาพหรือวิดีโอเพื่อแสดงตัวอย่างที่นี่
+            {allowVideo ? "ยังไม่มีแบนเนอร์ เพิ่มรูปภาพหรือวิดีโอเพื่อแสดงตัวอย่างที่นี่" : "ยังไม่มีรูปภาพประกอบ"}
           </p>
         )}
       </div>

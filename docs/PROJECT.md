@@ -71,6 +71,7 @@ Uploaded images and videos are files on the local machine, not remote URLs and n
 - Current limits: 5 MB per image, 20 MB per PDF brochure, and 50 MB per video.
 - Project and house-type public media reads are intentionally available without an admin session; mutations require admin authorization.
 - Hero media supports multiple items. Image slides advance automatically; video slides advance only after the video ends.
+- Published news and promotions support multiple local gallery images. Their first image is the card cover on the MIDA homepage; all images remain available in the lightbox on the linked project page.
 - Cover media is single-value and replacing it must remove the old metadata and file.
 - Before deleting or moving stored media, resolve exact targets and keep the filesystem and `media_assets` consistent.
 
@@ -81,6 +82,7 @@ Uploaded images and videos are files on the local machine, not remote URLs and n
 - `/admin/projects` creates new projects only. Existing project catalogue details are edited in the project-scoped `project-info` section.
 - Project information and homepage management share one form on the `project-info` page; it contains catalogue fields, cover media, Hero copy/media, and the brochure with one save action. Latitude and longitude are managed only from the contact/map section.
 - Project-scoped house types, facilities, promotions, and news use summary tables. Creating and editing records happens in a modal so existing records remain easy to scan.
+- News and promotion edit modals can upload, review, and remove multiple JPG, PNG, or WEBP images. The table displays the saved image count.
 - Project sidebar sections include dashboard, combined project information/homepage, house types, facilities, promotions, news, contact/map, and leads.
 - Edit forms must preload current database values.
 - Image inputs upload files from the user's computer; do not replace them with URL-only fields.

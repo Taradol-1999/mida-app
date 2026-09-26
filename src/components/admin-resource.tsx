@@ -1,6 +1,7 @@
 "use client";
 import { userRoleOptions } from "@/lib/user-roles";
 
+import { BannerMediaUpload } from "@/components/banner-media-upload";
 import { Input, Textarea, Select } from "@/components/ui/form-controls";
 /* eslint-disable react-hooks/set-state-in-effect */
 
@@ -127,6 +128,7 @@ const configs: Record<AdminResource, Config> = {
     columns: [
       ["project_name", "โครงการ"],
       ["title", "หัวข้อโปรโมชั่น"],
+      ["media_count", "รูปภาพ"],
       ["is_published", "สถานะ"],
       ["created_at", "สร้างเมื่อ"],
     ],
@@ -157,6 +159,7 @@ const configs: Record<AdminResource, Config> = {
       ["category", "หมวดหมู่"],
       ["title", "หัวข้อข่าวสาร"],
       ["project_name", "โครงการ"],
+      ["media_count", "รูปภาพ"],
       ["is_published", "สถานะ"],
     ],
   },
@@ -244,6 +247,7 @@ function initialValues(config: Config) {
   };
 }
 function display(field: string, value: unknown) {
+  if (field === "media_count") return `${Number(value ?? 0).toLocaleString("th-TH")} รูป`;
   if (field === "projects" && Array.isArray(value))
     return (
       value
@@ -288,6 +292,9 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
   const [editing, setEditing] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const [contentMediaFiles, setContentMediaFiles] = useState<File[]>([]);
+  const [contentMedia, setContentMedia] = useState<{ id: string; name: string; mimeType: string; url: string }[]>([]);
+  const contentResource = resource === "promotions" || resource === "news";
   const load = useCallback(async () => {
     const response = await fetch(`/api/admin/${resource}`);
     if (!response.ok) {
@@ -307,6 +314,8 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
     setEditing(null);
     setForm(initialValues(config));
     setMessage("");
+    setContentMediaFiles([]);
+    setContentMedia([]);
   };
   const setField = (name: string, value: unknown) => setForm((current) => ({ ...current, [name]: value }));
   const submit = async (event: FormEvent<HTMLFormElement>) => {
@@ -319,16 +328,34 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
       body: JSON.stringify(editing ? { ...form, id: editing } : form),
     });
     const result = await response.json();
-    setBusy(false);
     if (!response.ok) {
+      setBusy(false);
       setMessage(result.message ?? "บันทึกไม่สำเร็จ");
       return;
     }
+    const savedId = editing ?? String(result.id ?? "");
+    if (contentResource && savedId) {
+      for (const file of contentMediaFiles) {
+        const upload = new FormData();
+        upload.set("entityType", resource);
+        upload.set("entityId", savedId);
+        upload.set("mediaKind", "gallery");
+        upload.set("file", file);
+        const mediaResponse = await fetch("/api/admin/media", { method: "POST", body: upload });
+        if (!mediaResponse.ok) {
+          const mediaResult = await mediaResponse.json();
+          setBusy(false);
+          setMessage(mediaResult.message ?? "บันทึกข้อมูลแล้ว แต่อัปโหลดรูปภาพไม่สำเร็จ");
+          return;
+        }
+      }
+    }
+    setBusy(false);
     reset();
     setMessage("บันทึกข้อมูลเรียบร้อย");
     await load();
   };
-  const edit = (row: Record<string, unknown>) => {
+  const edit = async (row: Record<string, unknown>) => {
     setEditing(String(row.id));
     setForm({
       ...Object.fromEntries(
@@ -339,7 +366,27 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
       ),
       project_ids: Array.isArray(row.projects) ? row.projects.map((item) => item.project_id) : [],
     });
+    setContentMediaFiles([]);
+    if (contentResource) {
+      const response = await fetch(
+        `/api/admin/media?entityType=${resource}&entityId=${row.id}&mediaKind=gallery&list=1`,
+      );
+      const data = response.ok ? await response.json() : { rows: [] };
+      setContentMedia(data.rows ?? []);
+    } else {
+      setContentMedia([]);
+    }
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+  const removeContentMedia = async (id: string) => {
+    if (!editing || !contentResource) return;
+    if (!window.confirm("ต้องการลบรูปภาพนี้หรือไม่?")) return;
+    const response = await fetch(
+      `/api/admin/media?entityType=${resource}&entityId=${editing}&mediaKind=gallery&mediaId=${id}`,
+      { method: "DELETE" },
+    );
+    if (response.ok) setContentMedia((items) => items.filter((item) => item.id !== id));
+    else setMessage("ลบรูปภาพไม่สำเร็จ");
   };
   const remove = async (id: string) => {
     if (!window.confirm("ต้องการลบรายการนี้หรือไม่?")) return;
@@ -473,6 +520,22 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
       {resource === "users" && form.role === "SUPER_ADMIN" && (
         <p className="mt-4 text-sm text-brand-primary">Super Admin เข้าถึงทุกโครงการได้โดยอัตโนมัติ</p>
       )}
+      {contentResource && (
+        <div className="mt-5">
+          <BannerMediaUpload
+            title="รูปภาพประกอบข่าวสาร / โปรโมชั่น"
+            allowVideo={false}
+            media={contentMedia}
+            files={contentMediaFiles}
+            onFilesChange={setContentMediaFiles}
+            onRemove={removeContentMedia}
+            disabled={busy}
+          />
+          <p className="mt-2 text-xs text-slate-500">
+            รูปแรกใช้เป็นภาพหน้าปกในการ์ด หากเลือกโครงการ รายการนี้จะแสดงและกดไปยังหน้าโครงการได้
+          </p>
+        </div>
+      )}
       {message && (
         <p className="mt-4 rounded-lg bg-brand-soft px-3 py-2 text-sm font-medium text-brand-primary">{message}</p>
       )}
@@ -552,7 +615,10 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
                       </td>
                     ))}
                     <td className="whitespace-nowrap p-3 text-right">
-                      <button onClick={() => edit(row)} className="mr-3 font-bold text-brand-primary hover:underline">
+                      <button
+                        onClick={() => void edit(row)}
+                        className="mr-3 font-bold text-brand-primary hover:underline"
+                      >
                         แก้ไข
                       </button>
                       <button

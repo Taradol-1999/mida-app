@@ -17,17 +17,42 @@ const nav = [
 ];
 
 const defaultUpdates: NewsPromotionItem[] = [
-  ["PROMOTION", "สิทธิพิเศษสำหรับครอบครัว MIDA", "ข้อเสนอพิเศษสำหรับลูกค้าใหม่และลูกค้า MIDA Family"],
-  ["NEWS", "MIDA ร่วมมือกับ ธอส.", "สนับสนุนการเข้าถึงที่อยู่อาศัยอย่างมั่นคง"],
-  ["EVENT", "พบกันที่งาน MIDA Home Fair", "เยี่ยมชมโครงการและรับข้อเสนอภายในงาน"],
+  {
+    id: "default-promotion",
+    tag: "PROMOTION",
+    title: "สิทธิพิเศษสำหรับครอบครัว MIDA",
+    detail: "ข้อเสนอพิเศษสำหรับลูกค้าใหม่และลูกค้า MIDA Family",
+  },
+  {
+    id: "default-news",
+    tag: "NEWS",
+    title: "MIDA ร่วมมือกับ ธอส.",
+    detail: "สนับสนุนการเข้าถึงที่อยู่อาศัยอย่างมั่นคง",
+  },
+  {
+    id: "default-event",
+    tag: "EVENT",
+    title: "พบกันที่งาน MIDA Home Fair",
+    detail: "เยี่ยมชมโครงการและรับข้อเสนอภายในงาน",
+  },
 ];
 
 async function homeData() {
   try {
     const [contentRows, promotions, news, projectRows] = await Promise.all([
       prisma.siteContent.findMany({ select: { id: true, content_key: true, title: true, body: true } }),
-      prisma.promotion.findMany({ where: { is_published: true }, orderBy: { created_at: "desc" }, take: 12 }),
-      prisma.newsItem.findMany({ where: { is_published: true }, orderBy: { published_at: "desc" }, take: 12 }),
+      prisma.promotion.findMany({
+        where: { is_published: true },
+        include: { project: { select: { slug: true } } },
+        orderBy: { created_at: "desc" },
+        take: 12,
+      }),
+      prisma.newsItem.findMany({
+        where: { is_published: true },
+        include: { project: { select: { slug: true } } },
+        orderBy: { published_at: "desc" },
+        take: 12,
+      }),
       prisma.project.findMany({
         where: { status: { not: "ARCHIVED" } },
         select: {
@@ -51,27 +76,65 @@ async function homeData() {
       : [];
     const updateRows = [
       ...promotions.map((item) => ({
+        id: item.id,
+        entityType: "promotions" as const,
         tag: "PROMOTION",
         title: item.title,
         detail: item.body ?? "",
         date: item.created_at,
+        projectSlug: item.project?.slug,
       })),
       ...news.map((item) => ({
+        id: item.id,
+        entityType: "news" as const,
         tag: item.category,
         title: item.title,
         detail: item.body ?? "",
         date: item.published_at,
+        projectSlug: item.project?.slug,
       })),
     ]
       .sort((a, b) => (b.date?.getTime() ?? 0) - (a.date?.getTime() ?? 0))
       .slice(0, 12);
+    const updateMedia = await prisma.mediaAsset.findMany({
+      where: {
+        media_kind: "gallery",
+        OR: [
+          {
+            entity_type: "promotions",
+            entity_id: { in: updateRows.filter((row) => row.entityType === "promotions").map((row) => row.id) },
+          },
+          {
+            entity_type: "news",
+            entity_id: { in: updateRows.filter((row) => row.entityType === "news").map((row) => row.id) },
+          },
+        ],
+      },
+      orderBy: [{ sort_order: "asc" }, { created_at: "asc" }],
+    });
+    const mediaByItem = new Map<string, typeof updateMedia>();
+    for (const item of updateMedia) {
+      const key = `${item.entity_type}:${item.entity_id}`;
+      mediaByItem.set(key, [...(mediaByItem.get(key) ?? []), item]);
+    }
     return {
       content: Object.fromEntries(contentRows.map((row) => [row.content_key, { title: row.title, body: row.body }])),
       updates: updateRows.length
-        ? updateRows.map((row) => [String(row.tag), String(row.title), String(row.detail)] as NewsPromotionItem)
+        ? updateRows.map((row) => ({
+            id: `${row.entityType}-${row.id}`,
+            tag: String(row.tag),
+            title: String(row.title),
+            detail: String(row.detail),
+            href: row.projectSlug ? `/projects/${row.projectSlug}#project-promo-news` : undefined,
+            images: (mediaByItem.get(`${row.entityType}:${row.id}`) ?? []).map((media) => ({
+              src: `/api/admin/media?entityType=${row.entityType}&entityId=${row.id}&mediaKind=gallery&mediaId=${media.id}`,
+              alt: String(media.original_name || row.title),
+              type: String(media.mime_type).startsWith("video/") ? ("video" as const) : ("image" as const),
+            })),
+          }))
         : defaultUpdates,
       heroImages: heroImageRows.map((row) => ({
-        src: `/${String(row.storage_key)}`,
+        src: `/api/admin/media?entityType=site-content&entityId=${homeHero?.id}&mediaKind=hero&mediaId=${row.id}`,
         alt: String(row.original_name || "แบนเนอร์ MIDA Property"),
         type: String(row.mime_type).startsWith("video/") ? ("video" as const) : ("image" as const),
       })),

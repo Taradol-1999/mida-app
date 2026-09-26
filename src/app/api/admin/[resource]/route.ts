@@ -115,8 +115,18 @@ async function list(resource: Resource, user: SessionUser) {
         include: { project: { select: { name_th: true } } },
         orderBy: { created_at: "desc" },
       });
+      const mediaCounts = await prisma.mediaAsset.groupBy({
+        by: ["entity_id"],
+        where: { entity_type: "promotions", entity_id: { in: rows.map((row) => row.id) }, media_kind: "gallery" },
+        _count: { _all: true },
+      });
+      const countById = new Map(mediaCounts.map((item) => [item.entity_id, item._count._all]));
       return {
-        rows: rows.map(({ project, ...row }) => ({ ...row, project_name: project?.name_th ?? null })),
+        rows: rows.map(({ project, ...row }) => ({
+          ...row,
+          project_name: project?.name_th ?? null,
+          media_count: countById.get(row.id) ?? 0,
+        })),
         projectOptions: await projectOptions(user),
       };
     }
@@ -126,8 +136,18 @@ async function list(resource: Resource, user: SessionUser) {
         include: { project: { select: { name_th: true } } },
         orderBy: { published_at: "desc" },
       });
+      const mediaCounts = await prisma.mediaAsset.groupBy({
+        by: ["entity_id"],
+        where: { entity_type: "news", entity_id: { in: rows.map((row) => row.id) }, media_kind: "gallery" },
+        _count: { _all: true },
+      });
+      const countById = new Map(mediaCounts.map((item) => [item.entity_id, item._count._all]));
       return {
-        rows: rows.map(({ project, ...row }) => ({ ...row, project_name: project?.name_th ?? null })),
+        rows: rows.map(({ project, ...row }) => ({
+          ...row,
+          project_name: project?.name_th ?? null,
+          media_count: countById.get(row.id) ?? 0,
+        })),
         projectOptions: await projectOptions(user),
       };
     }
