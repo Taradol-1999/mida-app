@@ -203,3 +203,31 @@ body {
   margin-top: 4px;
   font-weight: 700;
 }
+
+/* A restrained scrollbar for long forms and modal content. */
+.scrollbar-mida {
+  scrollbar-color: var(--mida-blue) #edf2f7;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+}
+
+.scrollbar-mida::-webkit-scrollbar {
+  width: 10px;
+}
+
+.scrollbar-mida::-webkit-scrollbar-track {
+  margin-block: 14px;
+  border-radius: 999px;
+  background: #edf2f7;
+}
+
+.scrollbar-mida::-webkit-scrollbar-thumb {
+  min-height: 44px;
+  border: 3px solid #edf2f7;
+  border-radius: 999px;
+  background: var(--mida-blue);
+}
+
+.scrollbar-mida::-webkit-scrollbar-thumb:hover {
+  background: var(--mida-ink);
+}

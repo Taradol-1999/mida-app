@@ -43,7 +43,7 @@ export function ProjectLocationMap({ projects, center }: { projects: MapProject[
           : [13.7563, 100.5018];
       const map = L.map(mapElement.current, {
         center: initialPosition,
-        zoom: center ? 7 : 15,
+        zoom: center ? 10 : 15,
         scrollWheelZoom: false,
       });
       mapInstance.current = map;
