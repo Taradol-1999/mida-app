@@ -43,6 +43,17 @@ body {
   font-family: var(--font-ibm-plex-sans-thai), Arial, "Noto Sans Thai", sans-serif;
 }
 
+/* Keep taps responsive in Safari and iOS in-app browsers. */
+@media (pointer: coarse) {
+  button,
+  a,
+  summary,
+  [role="button"] {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
 @layer utilities {
   .container-page,
   .project-container {

@@ -70,13 +70,16 @@ async function homeData() {
     // Keep the essential homepage content available while a running dev server
     // is refreshed after a Prisma schema update. The curated-project list is an
     // enhancement; it must never hide the Hero banner or the rest of the page.
-    const homepageRows = await prisma.homepageProject
-      .findMany({
-        where: { project: { status: { not: "ARCHIVED" } } },
-        select: { project_id: true },
-        orderBy: { sort_order: "asc" },
-      })
-      .catch(() => []);
+    const homepageProjectDelegate = prisma.homepageProject;
+    const homepageRows = homepageProjectDelegate
+      ? await homepageProjectDelegate
+          .findMany({
+            where: { project: { status: { not: "ARCHIVED" } } },
+            select: { project_id: true },
+            orderBy: { sort_order: "asc" },
+          })
+          .catch(() => null)
+      : null;
     const homeHero = contentRows.find((row) => row.content_key === "home_hero");
     const heroImageRows = homeHero
       ? await prisma.mediaAsset.findMany({
@@ -157,7 +160,7 @@ async function homeData() {
         longitude: row.longitude === null ? null : Number(row.longitude),
         mapUrl: row.settings?.map_url ?? null,
       })),
-      homepageProjectIds: homepageRows.map((row) => row.project_id),
+      homepageProjectIds: homepageRows?.map((row) => row.project_id),
     };
   } catch {
     return {
@@ -165,7 +168,7 @@ async function homeData() {
       updates: defaultUpdates,
       heroImages: [],
       mapProjects: [] as MapProject[],
-      homepageProjectIds: [] as string[],
+      homepageProjectIds: undefined as string[] | undefined,
     };
   }
 }

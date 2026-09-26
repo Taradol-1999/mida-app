@@ -53,6 +53,7 @@ export function ProjectFilter({
   standalone?: boolean;
 }) {
   const [catalogue, setCatalogue] = useState<Project[]>(projects);
+  const [hasLoadedCatalogue, setHasLoadedCatalogue] = useState(false);
   const [keyword, setKeyword] = useState("");
   const [type, setType] = useState("ทั้งหมด");
   const [priceRange, setPriceRange] = useState("all");
@@ -62,7 +63,10 @@ export function ProjectFilter({
     fetch("/api/projects")
       .then((response) => (response.ok ? response.json() : []))
       .then((data) => {
-        if (Array.isArray(data)) setCatalogue(data);
+        if (Array.isArray(data)) {
+          setCatalogue(data);
+          setHasLoadedCatalogue(true);
+        }
       })
       .catch(() => undefined);
   }, []);
@@ -84,7 +88,9 @@ export function ProjectFilter({
     () =>
       catalogue.filter(
         (project) =>
-          (!projectIds || projectIds.includes(String(project.id))) &&
+          // The bundled catalogue has no database IDs. Keep cards visible while
+          // the public catalogue is loading, then apply the curated selection.
+          (!hasLoadedCatalogue || !projectIds || projectIds.includes(String(project.id))) &&
           (!keyword.trim() ||
             `${project.name} ${project.location} ${project.description}`
               .toLocaleLowerCase("th")
@@ -94,7 +100,7 @@ export function ProjectFilter({
           (status === "ทั้งหมด" || project.status === status) &&
           (tag === "all" || tagsOf(project).includes(tag)),
       ),
-    [catalogue, keyword, priceRange, projectIds, status, tag, type],
+    [catalogue, hasLoadedCatalogue, keyword, priceRange, projectIds, status, tag, type],
   );
   const filterBox = (icon: string, label: string, child: ReactNode) => (
     <label className="flex min-h-18 flex-col justify-center rounded-lg border border-slate-200 bg-slate-50 p-3">

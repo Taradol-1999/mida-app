@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export type ProjectGalleryItem = { src: string; alt: string; type: "image" | "video" };
 
@@ -17,6 +17,7 @@ const tileClasses = [
 export function ProjectGallery({ items }: { items: ProjectGalleryItem[] }) {
   const [selected, setSelected] = useState<number | null>(null);
   const [expanded, setExpanded] = useState(false);
+  const swipeStartX = useRef<number | null>(null);
 
   useEffect(() => {
     if (selected === null) return;
@@ -44,6 +45,19 @@ export function ProjectGallery({ items }: { items: ProjectGalleryItem[] }) {
   const visibleItems = expanded ? items : items.slice(0, 6);
   const move = (direction: -1 | 1) => {
     setSelected((value) => ((value ?? 0) + direction + items.length) % items.length);
+  };
+  const beginSwipe = (clientX: number) => {
+    swipeStartX.current = clientX;
+  };
+  const endSwipe = (clientX: number) => {
+    const startX = swipeStartX.current;
+    swipeStartX.current = null;
+    if (startX === null) return;
+
+    const distance = clientX - startX;
+    // Keep taps/clicks on the media and navigation controls working normally.
+    if (Math.abs(distance) < 42) return;
+    move(distance < 0 ? 1 : -1);
   };
 
   return (
@@ -129,19 +143,51 @@ export function ProjectGallery({ items }: { items: ProjectGalleryItem[] }) {
           >
             <i className="fa-solid fa-xmark" />
           </button>
-          <div className="relative h-[78vh] w-full max-w-6xl sm:h-[82vh]" onClick={(event) => event.stopPropagation()}>
-            {current.type === "video" ? (
-              <video src={current.src} controls autoPlay playsInline className="size-full object-contain" />
-            ) : (
-              <Image
-                src={current.src}
-                alt={current.alt}
-                fill
-                unoptimized={current.src.includes("?")}
-                sizes="100vw"
-                className="object-contain"
-              />
-            )}
+          <div
+            className="relative h-[78vh] w-full max-w-6xl select-none sm:h-[82vh]"
+            onClick={(event) => event.stopPropagation()}
+            onMouseDown={(event) => beginSwipe(event.clientX)}
+            onMouseUp={(event) => endSwipe(event.clientX)}
+            onMouseLeave={() => {
+              swipeStartX.current = null;
+            }}
+            onTouchStart={(event) => beginSwipe(event.touches[0].clientX)}
+            onTouchEnd={(event) => endSwipe(event.changedTouches[0].clientX)}
+            onTouchCancel={() => {
+              swipeStartX.current = null;
+            }}
+            style={{ touchAction: "pan-y" }}
+          >
+            <div className="size-full overflow-hidden rounded-xl">
+              <div
+                className="flex h-full transition-transform duration-300 ease-out motion-reduce:transition-none"
+                style={{ transform: `translateX(-${selected! * 100}%)` }}
+              >
+                {items.map((item, index) => (
+                  <div key={`${item.src}-${index}`} className="relative h-full w-full shrink-0">
+                    {item.type === "video" ? (
+                      <video
+                        src={item.src}
+                        controls
+                        autoPlay={index === selected}
+                        playsInline
+                        className="size-full object-contain"
+                      />
+                    ) : (
+                      <Image
+                        src={item.src}
+                        alt={item.alt}
+                        fill
+                        priority={index === selected}
+                        unoptimized={item.src.includes("?")}
+                        sizes="100vw"
+                        className="object-contain"
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
             {items.length > 1 && (
               <>
                 <button

@@ -28,6 +28,7 @@ export function NewsPromotionSlider({
   const selectedItem = selected === null ? null : items[selected.itemIndex];
   const selectedImage = selectedItem && selected ? selectedItem.images?.[selected.imageIndex] : null;
   const detailItem = detailIndex === null ? null : items[detailIndex];
+  const loopItems = items.length > 1 ? [items[items.length - 1], ...items, items[0]] : items;
 
   useEffect(() => {
     if (!selected && detailIndex === null) return;
@@ -51,10 +52,42 @@ export function NewsPromotionSlider({
     return () => window.removeEventListener("keydown", close);
   }, [detailIndex, items, selected]);
 
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track || items.length <= 1) return;
+
+    const cards = Array.from(track.children) as HTMLElement[];
+    const firstOriginal = cards[1];
+    const lastOriginal = cards[items.length];
+    if (!firstOriginal || !lastOriginal) return;
+
+    // Start at the real first slide, leaving a cloned card on either side.
+    track.scrollLeft = firstOriginal.offsetLeft;
+    let timer = 0;
+    const wrapIfNeeded = () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        if (track.scrollLeft <= 2) track.scrollTo({ left: lastOriginal.offsetLeft, behavior: "auto" });
+        // With multiple visible cards, max scrollLeft can be before the cloned
+        // first card's offset. Use the actual scroll boundary instead.
+        if (track.scrollLeft >= track.scrollWidth - track.clientWidth - 2)
+          track.scrollTo({ left: firstOriginal.offsetLeft, behavior: "auto" });
+      }, 90);
+    };
+    track.addEventListener("scroll", wrapIfNeeded, { passive: true });
+    return () => {
+      window.clearTimeout(timer);
+      track.removeEventListener("scroll", wrapIfNeeded);
+    };
+  }, [items]);
+
   function move(direction: -1 | 1) {
     const track = trackRef.current;
     if (!track) return;
-    track.scrollBy({ left: direction * track.clientWidth * 0.9, behavior: "smooth" });
+    const cards = Array.from(track.children) as HTMLElement[];
+    if (!cards.length) return;
+    const step = cards.length > 1 ? cards[1].offsetLeft - cards[0].offsetLeft : track.clientWidth;
+    track.scrollBy({ left: direction * step, behavior: "smooth" });
   }
   function moveImage(direction: -1 | 1) {
     setSelected((current) => {
@@ -90,7 +123,8 @@ export function NewsPromotionSlider({
           ref={trackRef}
           className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-4 pt-2 scrollbar-none [&::-webkit-scrollbar]:hidden"
         >
-          {items.map((item, index) => {
+          {loopItems.map((item, loopIndex) => {
+            const index = items.length > 1 ? (loopIndex - 1 + items.length) % items.length : loopIndex;
             const firstImage = item.images?.[0];
             const contentIcon = item.tag === "PROMOTION" ? "fa-tags" : "fa-newspaper";
             const mediaPreview = firstImage && (
@@ -159,7 +193,7 @@ export function NewsPromotionSlider({
             );
             return (
               <article
-                key={item.id}
+                key={`${item.id}-${loopIndex}`}
                 className={`flex min-w-[92%] flex-col snap-start overflow-hidden rounded-2xl bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg sm:min-w-[calc(50%-0.625rem)] ${projectStyle ? "border border-brand-primary/15 lg:min-w-[calc(50%-0.625rem)]" : "border border-slate-200 lg:min-w-[calc(33.333%-0.875rem)]"}`}
               >
                 {firstImage && item.href && !projectStyle ? (

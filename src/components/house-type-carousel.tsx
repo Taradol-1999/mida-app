@@ -32,6 +32,12 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
     move(distance < 0 ? 1 : -1);
   }
 
+  function startDrag(clientX: number) {
+    if (items.length <= 1) return;
+    didDrag.current = false;
+    dragStartX.current = clientX;
+  }
+
   return (
     <section className="relative left-1/2 mt-7 w-screen -translate-x-1/2 overflow-hidden border-y border-brand-primary/10 bg-linear-to-br from-brand-primary via-[#063f82] to-brand-text p-4 shadow-2xl sm:mt-9 sm:p-6 md:p-8">
       <span
@@ -55,20 +61,22 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
         </div>
 
         <div
-          className="relative mt-5 h-86 touch-pan-y cursor-grab select-none active:cursor-grabbing sm:h-105 md:mt-7 md:h-116"
-          onPointerDown={(event) => {
-            if (items.length > 1) {
-              dragStartX.current = event.clientX;
-              event.currentTarget.setPointerCapture(event.pointerId);
-            }
+          className="relative mt-5 h-86 cursor-grab select-none active:cursor-grabbing sm:h-105 md:mt-7 md:h-116"
+          style={{ touchAction: "pan-y" }}
+          // Use native mouse/touch events instead of Pointer Capture: iOS Safari
+          // may cancel captured pointer gestures when the page itself scrolls.
+          onMouseDown={(event) => startDrag(event.clientX)}
+          onMouseUp={(event) => finishDrag(event.clientX)}
+          onMouseLeave={() => {
+            dragStartX.current = null;
           }}
-          onPointerUp={(event) => {
-            if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-              event.currentTarget.releasePointerCapture(event.pointerId);
-            }
-            finishDrag(event.clientX);
+          onTouchStart={(event) => {
+            startDrag(event.touches[0]?.clientX ?? 0);
           }}
-          onPointerCancel={() => {
+          onTouchEnd={(event) => {
+            finishDrag(event.changedTouches[0]?.clientX ?? 0);
+          }}
+          onTouchCancel={() => {
             dragStartX.current = null;
           }}
         >
@@ -77,8 +85,6 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
               <button
                 type="button"
                 aria-label="เลื่อนดูแบบบ้านก่อนหน้า"
-                onPointerDown={(event) => event.stopPropagation()}
-                onPointerUp={(event) => event.stopPropagation()}
                 onClick={(event) => {
                   event.stopPropagation();
                   move(-1);
@@ -88,8 +94,6 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
               <button
                 type="button"
                 aria-label="เลื่อนดูแบบบ้านถัดไป"
-                onPointerDown={(event) => event.stopPropagation()}
-                onPointerUp={(event) => event.stopPropagation()}
                 onClick={(event) => {
                   event.stopPropagation();
                   move(1);
