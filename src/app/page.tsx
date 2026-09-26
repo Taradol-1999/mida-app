@@ -2,7 +2,6 @@ import Link from "next/link";
 import { HeaderNav } from "@/components/header-nav";
 import { HeroImageSlider } from "@/components/hero-image-slider";
 import { ProjectLocationMap } from "@/components/project-location-map";
-import { LeadModal } from "@/components/lead-modal";
 import { SiteFooter } from "@/components/site-footer";
 import { NewsPromotionSlider, type NewsPromotionItem } from "@/components/news-promotion-slider";
 import { ProjectFilter } from "@/components/project-filter";
@@ -256,7 +255,6 @@ export default async function HomePage() {
         </div>
       </section>
       <SiteFooter contact={content.contact?.body} />
-      <LeadModal />
     </main>
   );
 }
