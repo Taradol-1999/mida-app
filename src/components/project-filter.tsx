@@ -191,10 +191,6 @@ export function ProjectFilter({
                 ดูโครงการทั้งหมด <i className="fa-solid fa-arrow-right" />
               </Link>
             )}
-            <span className="inline-flex items-center rounded-full bg-brand-primary px-4 py-2 text-xs font-bold text-white shadow-sm">
-              <i className="fa-solid fa-house mr-2 text-brand-accent" />
-              พบ {visible.length} โครงการ
-            </span>
           </div>
         </div>
         <div className="mt-4 flex gap-2 overflow-x-auto pb-3 pt-2">

@@ -290,6 +290,7 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
   const [projects, setProjects] = useState<Record<string, string>[]>([]);
   const [form, setForm] = useState<Record<string, unknown>>(() => initialValues(config));
   const [editing, setEditing] = useState<string | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [contentMediaFiles, setContentMediaFiles] = useState<File[]>([]);
@@ -312,6 +313,7 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
 
   const reset = () => {
     setEditing(null);
+    setIsFormOpen(false);
     setForm(initialValues(config));
     setMessage("");
     setContentMediaFiles([]);
@@ -357,6 +359,7 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
   };
   const edit = async (row: Record<string, unknown>) => {
     setEditing(String(row.id));
+    setIsFormOpen(true);
     setForm({
       ...Object.fromEntries(
         config.fields.map((field) => [
@@ -403,7 +406,10 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
     }
   };
   const formCard = (config.canCreate !== false || editing) && (
-    <form onSubmit={submit} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
+    <form
+      onSubmit={submit}
+      className={`rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6 ${resource === "users" ? "max-h-[calc(100vh-5rem)] overflow-y-auto" : ""}`}
+    >
       <div className="mb-5 border-b border-slate-100 pb-4">
         <div className="flex items-center justify-between gap-3">
           <div>
@@ -412,8 +418,9 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
             </h2>
             <p className="mt-1 text-xs text-slate-400">กรอกเฉพาะข้อมูลที่ต้องการแสดงผลบนเว็บไซต์</p>
           </div>
-          {editing && (
+          {(editing || resource === "users") && (
             <button type="button" onClick={reset} className="text-sm font-semibold text-slate-500 hover:text-slate-800">
+              <i className="fa-solid fa-xmark mr-1" aria-hidden="true" />
               ยกเลิก
             </button>
           )}
@@ -569,11 +576,24 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
             ⇩ ส่งออกข้อมูลลูกค้า (CSV)
           </a>
         )}
+        {resource === "users" && (
+          <button
+            type="button"
+            onClick={() => {
+              reset();
+              setIsFormOpen(true);
+            }}
+            className="inline-flex items-center gap-2 rounded-lg bg-brand-primary px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-brand-text"
+          >
+            <i className="fa-solid fa-user-plus" aria-hidden="true" />
+            เพิ่มผู้ใช้งานใหม่
+          </button>
+        )}
       </header>
-      <div className={`mt-6 gap-6 ${resource === "users" ? "xl:grid xl:grid-cols-[22rem_1fr]" : ""}`}>
-        {formCard}
+      <div className="mt-6">
+        {resource !== "users" && formCard}
         <section
-          className={`overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm ${resource === "users" ? "xl:mt-0" : "mt-6"}`}
+          className={`overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm ${resource === "users" ? "" : "mt-6"}`}
         >
           <div className="border-b border-slate-100 px-5 py-4">
             <h2 className="text-base font-bold text-slate-800">
@@ -642,6 +662,19 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
           </div>
         </section>
       </div>
+      {resource === "users" && isFormOpen && formCard && (
+        <div
+          className="fixed inset-0 z-50 flex items-end bg-slate-950/45 p-0 backdrop-blur-sm sm:items-center sm:justify-center sm:p-6"
+          role="dialog"
+          aria-modal="true"
+          aria-label={editing ? "แก้ไขผู้ใช้งาน" : "เพิ่มผู้ใช้งานใหม่"}
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) reset();
+          }}
+        >
+          <div className="w-full max-w-2xl rounded-t-2xl sm:rounded-2xl">{formCard}</div>
+        </div>
+      )}
     </>
   );
 }

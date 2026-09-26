@@ -39,7 +39,7 @@ const defaultUpdates: NewsPromotionItem[] = [
 
 async function homeData() {
   try {
-    const [contentRows, promotions, news, projectRows, homepageRows] = await Promise.all([
+    const [contentRows, promotions, news, projectRows] = await Promise.all([
       prisma.siteContent.findMany({ select: { id: true, content_key: true, title: true, body: true } }),
       prisma.promotion.findMany({
         where: { is_published: true },
@@ -66,12 +66,17 @@ async function homeData() {
         },
         orderBy: { name_th: "asc" },
       }),
-      prisma.homepageProject.findMany({
+    ]);
+    // Keep the essential homepage content available while a running dev server
+    // is refreshed after a Prisma schema update. The curated-project list is an
+    // enhancement; it must never hide the Hero banner or the rest of the page.
+    const homepageRows = await prisma.homepageProject
+      .findMany({
         where: { project: { status: { not: "ARCHIVED" } } },
         select: { project_id: true },
         orderBy: { sort_order: "asc" },
-      }),
-    ]);
+      })
+      .catch(() => []);
     const homeHero = contentRows.find((row) => row.content_key === "home_hero");
     const heroImageRows = homeHero
       ? await prisma.mediaAsset.findMany({
