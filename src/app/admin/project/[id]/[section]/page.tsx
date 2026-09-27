@@ -77,6 +77,7 @@ async function getProjectDashboardData(projectId: string): Promise<ProjectDashbo
     { id: "house-types", label: "ข้อมูลแบบบ้าน" },
     { id: "facilities", label: "สิ่งอำนวยความสะดวก" },
     { id: "project-promo-news", label: "โปรโมชั่น / ข่าวสาร" },
+    { id: "map", label: "ทำเลที่ตั้ง" },
     { id: "mida-care", label: "บริการหลังการขาย" },
   ];
   const sectionCounts = new Map(sectionLabels.map((section) => [section.id, 0]));

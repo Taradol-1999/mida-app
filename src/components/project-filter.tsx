@@ -4,7 +4,7 @@ import { Input, Select } from "@/components/ui/form-controls";
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
-import { type ReactNode, useEffect, useMemo, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { projects, type Project } from "@/data/projects";
 import { useTranslation } from "@/components/language-provider";
 
@@ -82,6 +82,7 @@ export function ProjectFilter({
   const [catalogue, setCatalogue] = useState<Project[]>(projects);
   const [hasLoadedCatalogue, setHasLoadedCatalogue] = useState(false);
   const [keyword, setKeyword] = useState("");
+  const [address, setAddress] = useState("all");
   const [type, setType] = useState("ทั้งหมด");
   const [priceRange, setPriceRange] = useState("all");
   const [status, setStatus] = useState("ทั้งหมด");
@@ -111,6 +112,35 @@ export function ProjectFilter({
         }),
     [catalogue],
   );
+  const addressOptions = useMemo(() => {
+    const provinces = new Map<string, string>();
+    const districts = new Map<string, string>();
+    const subdistricts = new Map<string, string>();
+    for (const project of catalogue) {
+      const province = project.province?.trim() || project.location?.trim();
+      const district = project.district?.trim();
+      const subdistrict = project.subdistrict?.trim();
+      if (province) provinces.set(`province:${province}`, province);
+      if (province && district) districts.set(`district:${province}:${district}`, `${province}, ${district}`);
+      if (province && district && subdistrict)
+        subdistricts.set(
+          `subdistrict:${province}:${district}:${subdistrict}`,
+          `${province}, ${district}, ${subdistrict}`,
+        );
+    }
+    return [...provinces, ...districts, ...subdistricts].map(([value, label]) => ({ value, label }));
+  }, [catalogue]);
+  const addressMatches = useCallback(
+    (project: Project) => {
+      if (address === "all") return true;
+      const [level, province, district, subdistrict] = address.split(":");
+      const projectProvince = project.province || project.location;
+      if (level === "province") return projectProvince === province;
+      if (level === "district") return projectProvince === province && project.district === district;
+      return projectProvince === province && project.district === district && project.subdistrict === subdistrict;
+    },
+    [address],
+  );
   const visible = useMemo(
     () =>
       catalogue.filter(
@@ -119,15 +149,16 @@ export function ProjectFilter({
           // the public catalogue is loading, then apply the curated selection.
           (!hasLoadedCatalogue || !projectIds || projectIds.includes(String(project.id))) &&
           (!keyword.trim() ||
-            `${project.name} ${project.location} ${project.description}`
+            `${project.name} ${project.name_en ?? ""} ${project.location} ${project.location_en ?? ""} ${project.province ?? ""} ${project.district ?? ""} ${project.subdistrict ?? ""} ${project.description}`
               .toLocaleLowerCase("th")
               .includes(keyword.trim().toLocaleLowerCase("th"))) &&
+          addressMatches(project) &&
           (type === "ทั้งหมด" || project.type === type) &&
           matchesPrice(Number(project.startingPrice), priceRange) &&
           (status === "ทั้งหมด" || project.status === status) &&
           (tag === "all" || tagsOf(project).includes(tag)),
       ),
-    [catalogue, hasLoadedCatalogue, keyword, priceRange, projectIds, status, tag, type],
+    [addressMatches, catalogue, hasLoadedCatalogue, keyword, priceRange, projectIds, status, tag, type],
   );
   const filterBox = (icon: string, label: string, child: ReactNode) => (
     <label className="flex min-h-18 flex-col justify-center rounded-lg border border-slate-200 bg-slate-50 p-3">
@@ -158,7 +189,25 @@ export function ProjectFilter({
           placeholder={t({ th: "ค้นหาชื่อโครงการหรือทำเล", en: "Search by project or location" })}
           className="mb-3 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-brand-primary"
         />
-        <div className="grid gap-3 sm:grid-cols-3">
+
+        <div className="grid gap-3 sm:grid-cols-4">
+          {filterBox(
+            "fa-location-dot",
+            t({ th: "จังหวัด / อำเภอ / ตำบล", en: "Province / District / Subdistrict" }),
+            <Select
+              variant="plain"
+              value={address}
+              onChange={(event) => setAddress(event.target.value)}
+              className={selectStyle}
+            >
+              <option value="all">{t({ th: "ทุกทำเล", en: "All locations" })}</option>
+              {addressOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </Select>
+          )}
           {filterBox(
             "fa-house",
             t({ th: "ประเภทบ้าน", en: "Property type" }),
@@ -169,7 +218,9 @@ export function ProjectFilter({
               className={selectStyle}
             >
               {typeOptions.map(([value, label]) => (
-                <option key={value} value={value}>{t(label)}</option>
+                <option key={value} value={value}>
+                  {t(label)}
+                </option>
               ))}
             </Select>,
           )}
@@ -199,7 +250,9 @@ export function ProjectFilter({
               className={selectStyle}
             >
               {statusOptions.map(([value, label]) => (
-                <option key={value} value={value}>{t(label)}</option>
+                <option key={value} value={value}>
+                  {t(label)}
+                </option>
               ))}
             </Select>,
           )}
@@ -210,13 +263,18 @@ export function ProjectFilter({
           <div>
             <p className="text-xs font-bold text-brand-primary">
               <i className="fa-solid fa-city mr-2" />
-              {projectIds ? t({ th: "โครงการคัดสรร", en: "Featured projects" }) : t({ th: "โครงการทั้งหมด", en: "All projects" })}
+              {projectIds
+                ? t({ th: "โครงการคัดสรร", en: "Featured projects" })
+                : t({ th: "โครงการทั้งหมด", en: "All projects" })}
             </p>
             <h2 className="mt-2 text-2xl font-black tracking-tight text-slate-800 sm:text-3xl">
               {t({ th: "เลือกบ้านที่ใช่สำหรับคุณ", en: "Find the home that fits you" })}
             </h2>
             <p className="mt-2 text-sm text-slate-400">
-              {t({ th: "เลือกสไตล์ฟิลเตอร์เพื่อรับชมกลุ่มโครงการที่แมตช์กับไลฟ์สไตล์คุณ", en: "Filter projects to match your lifestyle." })}
+              {t({
+                th: "เลือกสไตล์ฟิลเตอร์เพื่อรับชมกลุ่มโครงการที่แมตช์กับไลฟ์สไตล์คุณ",
+                en: "Filter projects to match your lifestyle.",
+              })}
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -309,12 +367,16 @@ export function ProjectFilter({
                 <h3 className="mt-4 line-clamp-2 text-[1.35rem] leading-tight font-black tracking-tight text-slate-800">
                   {projectText(project, "name")}
                 </h3>
-                <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-500">{projectText(project, "description")}</p>
+                <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-500">
+                  {projectText(project, "description")}
+                </p>
               </div>
               <div className="mt-5 rounded-xl bg-brand-muted p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">{t({ th: "ราคาเริ่มต้น", en: "Starting price" })}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">
+                      {t({ th: "ราคาเริ่มต้น", en: "Starting price" })}
+                    </p>
                     <p className="mt-1 text-xl font-black text-brand-primary">
                       {language === "en"
                         ? `THB ${(Number(project.startingPrice) / 1_000_000).toLocaleString("en-US", { maximumFractionDigits: 3 })} million`
@@ -349,7 +411,9 @@ export function ProjectFilter({
         ))}
       </div>
       {!visible.length && (
-        <p className="mt-7 rounded-xl bg-white p-5 text-center text-slate-500">{t({ th: "ไม่พบโครงการตามตัวกรองที่เลือก", en: "No projects match your filters." })}</p>
+        <p className="mt-7 rounded-xl bg-white p-5 text-center text-slate-500">
+          {t({ th: "ไม่พบโครงการตามตัวกรองที่เลือก", en: "No projects match your filters." })}
+        </p>
       )}
     </section>
   );

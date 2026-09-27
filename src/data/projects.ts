@@ -5,6 +5,9 @@ export type Project = {
   name_en?: string | null;
   location: string;
   location_en?: string | null;
+  province?: string | null;
+  district?: string | null;
+  subdistrict?: string | null;
   latitude?: number | null;
   longitude?: number | null;
   type: "บ้านเดี่ยว" | "บ้านแฝด" | "ทาวน์โฮม" | "อาคารพาณิชย์";

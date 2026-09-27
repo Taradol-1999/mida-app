@@ -103,6 +103,9 @@ export const ProjectScalarFieldEnum = {
   name_en: 'name_en',
   location: 'location',
   location_en: 'location_en',
+  province: 'province',
+  district: 'district',
+  subdistrict: 'subdistrict',
   latitude: 'latitude',
   longitude: 'longitude',
   property_type: 'property_type',
@@ -353,6 +356,9 @@ export const ProjectOrderByRelevanceFieldEnum = {
   name_en: 'name_en',
   location: 'location',
   location_en: 'location_en',
+  province: 'province',
+  district: 'district',
+  subdistrict: 'subdistrict',
   description: 'description',
   description_en: 'description_en'
 } as const

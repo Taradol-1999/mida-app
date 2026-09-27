@@ -64,6 +64,9 @@ async function getProject(slug: string) {
   const fallbackData = fallback && {
     ...fallback,
     id: null,
+    province: fallback.province ?? null,
+    district: fallback.district ?? null,
+    subdistrict: fallback.subdistrict ?? null,
     coverUrl: null,
     houseTypes: [] as Array<Record<string, unknown>>,
     promotions: [] as Array<Record<string, unknown>>,
@@ -137,6 +140,9 @@ async function getProject(slug: string) {
       name_en: row.name_en,
       location: row.location,
       location_en: row.location_en,
+      province: row.province,
+      district: row.district,
+      subdistrict: row.subdistrict,
       latitude: row.latitude === null ? null : Number(row.latitude),
       longitude: row.longitude === null ? null : Number(row.longitude),
       type: projectType(row.property_type),
@@ -215,12 +221,16 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
       ? `/api/admin/media?entityType=house-types&entityId=${house.id}&mediaKind=cover&mediaId=${house.image_id}`
       : null,
   }));
+  const projectAddress = [project.province, project.district, project.subdistrict].filter(
+    (value): value is string => Boolean(value),
+  );
+  const projectAddressText = projectAddress.join(" · ");
   const mapProject: MapProject = {
     id: project.id ?? undefined,
     slug: project.slug,
     name: project.name,
     nameEn: project.name_en,
-    location: project.location,
+    location: projectAddressText || project.location,
     locationEn: project.location_en,
     latitude: project.latitude ?? null,
     longitude: project.longitude ?? null,
@@ -238,6 +248,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
     ...(projectUpdates.length > 0
       ? [{ href: "#project-promo-news", label: { th: "โปรโมชั่น", en: "Promotions" } }]
       : []),
+    { href: "#map", label: { th: "ทำเลที่ตั้ง", en: "Location" } },
     { href: "#mida-care", label: { th: "บริการหลังการขาย", en: "After-sales" } },
   ];
   return (
@@ -351,35 +362,56 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
               <T th="ค้นพบความสะดวกสบายรอบโครงการ และวางแผนการเดินทางได้ทันที" en="Discover nearby conveniences and plan your journey with ease." />
             </p>
           </div>
-          <div className="mt-7 grid gap-6 lg:grid-cols-[1.35fr_.65fr]">
+          <div className="mt-7">
             <ProjectLocationMap projects={[mapProject]} />
-            <aside className="rounded-3xl border border-slate-100 bg-brand-muted p-5 shadow-sm sm:p-6">
-              <div className="flex items-center gap-3">
-                <span className="grid size-10 place-items-center rounded-xl bg-brand-primary text-white">
+          </div>
+          <div className="mt-6 grid gap-5 lg:grid-cols-[.75fr_1.25fr]">
+            <aside className="relative overflow-hidden rounded-3xl bg-brand-primary p-5 text-white shadow-[0_14px_30px_rgba(0,45,98,0.16)] sm:p-6">
+              <span className="absolute -right-12 -bottom-16 size-48 rounded-full border-[28px] border-white/10" />
+              <div className="relative">
+                <span className="grid size-11 place-items-center rounded-2xl bg-brand-accent text-lg text-brand-primary shadow-sm">
                   <i className="fa-solid fa-location-dot" />
                 </span>
-                <h3 className="font-extrabold text-brand-primary"><T th="สถานที่ใกล้เคียง" en="Nearby Places" /></h3>
+                <p className="mt-4 text-[10px] font-extrabold tracking-[0.15em] text-brand-accent">
+                  <T th="ที่อยู่โครงการ" en="PROJECT ADDRESS" />
+                </p>
+                <p className="mt-2 text-base font-extrabold leading-7 sm:text-lg">
+                  {projectAddressText || project.location}
+                </p>
+                <a
+                  href={project.settings.map_url || directionsUrl(mapProject)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-bold text-brand-primary transition hover:bg-brand-accent"
+                >
+                  <i className="fa-solid fa-diamond-turn-right" />
+                  <T th="นำทางไปโครงการ" en="Get directions" />
+                </a>
               </div>
-              <a
-                href={project.settings.map_url || directionsUrl(mapProject)}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-primary px-4 py-3 text-sm font-bold text-white transition hover:bg-brand-text"
-              >
-                <i className="fa-solid fa-diamond-turn-right" />
-                <T th="นำทางไปโครงการ" en="Get directions" />
-              </a>
-              <ul className="mt-5 space-y-1 text-sm text-slate-600">
+            </aside>
+            <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+              <div className="flex items-center gap-3">
+                <span className="grid size-10 place-items-center rounded-xl bg-brand-accent-soft text-brand-primary">
+                  <i className="fa-solid fa-map-pin" />
+                </span>
+                <div>
+                  <p className="text-[10px] font-extrabold tracking-[0.13em] text-brand-accent">MIDA LOCATION</p>
+                  <h3 className="mt-0.5 font-extrabold text-brand-primary"><T th="สถานที่ใกล้เคียง" en="Nearby Places" /></h3>
+                </div>
+              </div>
+              <ul className="mt-5 grid gap-x-6 sm:grid-cols-2">
                 {landmarks.map((landmark, index) => (
-                  <li key={landmark} className="flex items-center gap-3 border-b border-slate-200 py-3 last:border-0">
-                    <span className="grid size-6 shrink-0 place-items-center rounded-full bg-white text-[0.65rem] font-bold text-brand-primary">
-                      {index + 1}
+                  <li key={landmark} className="flex min-w-0 items-center gap-3 border-b border-slate-100 py-3 last:border-0">
+                    <span className="grid size-7 shrink-0 place-items-center rounded-full bg-brand-soft text-[0.65rem] font-extrabold text-brand-primary">
+                      {String(index + 1).padStart(2, "0")}
                     </span>
-                    <T th={landmark} en={landmarksEn[index] ?? "Nearby landmark"} />
+                    <span className="min-w-0 truncate text-sm font-medium text-slate-600">
+                      <T th={landmark} en={landmarksEn[index] ?? "Nearby landmark"} />
+                    </span>
                   </li>
                 ))}
               </ul>
-            </aside>
+            </section>
           </div>
           {project.settings.virtual_tour_url && (
             <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-brand-muted p-4">

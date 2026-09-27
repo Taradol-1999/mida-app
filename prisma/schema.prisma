@@ -62,6 +62,9 @@ model Project {
   name_en        String?           @db.VarChar(255)
   location       String            @db.VarChar(120)
   location_en    String?           @db.VarChar(120)
+  province       String?           @db.VarChar(120)
+  district       String?           @db.VarChar(120)
+  subdistrict    String?           @db.VarChar(120)
   latitude       Decimal?          @db.Decimal(10, 7)
   longitude      Decimal?          @db.Decimal(10, 7)
   property_type  PropertyType

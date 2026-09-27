@@ -19,6 +19,9 @@ type Project = {
   name_en: string | null;
   location: string;
   location_en: string | null;
+  province: string | null;
+  district: string | null;
+  subdistrict: string | null;
   latitude: number | string | null;
   longitude: number | string | null;
   property_type: string;
@@ -62,6 +65,9 @@ const emptyForm: Form = {
   name_en: "",
   location: "",
   location_en: "",
+  province: "",
+  district: "",
+  subdistrict: "",
   latitude: "",
   longitude: "",
   property_type: "DETACHED_HOUSE",
@@ -117,6 +123,9 @@ export function ProjectEditor({
       name_en: project.name_en ?? "",
       location: project.location,
       location_en: project.location_en ?? "",
+      province: project.province ?? "",
+      district: project.district ?? "",
+      subdistrict: project.subdistrict ?? "",
       latitude: project.latitude ?? "",
       longitude: project.longitude ?? "",
       property_type: project.property_type,
@@ -180,7 +189,11 @@ export function ProjectEditor({
     const response = await fetch("/api/admin/projects", {
       method: isEditMode ? "PATCH" : "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(isEditMode ? { ...form, id: editingId } : form),
+      body: JSON.stringify(
+        isEditMode
+          ? { ...form, id: editingId }
+          : { ...form, location: form.location || [form.subdistrict, form.district, form.province].filter(Boolean).join(" ") },
+      ),
     });
     const result = await response.json();
     if (!response.ok) {
@@ -334,15 +347,25 @@ export function ProjectEditor({
               <span className="ml-1 text-rose-600">*</span>
               <Input required value={form.slug} onChange={(event) => setField("slug", event.target.value)} />
             </label>
-            <label className="text-sm font-semibold text-slate-700">
-              ทำเล / จังหวัด
-              <span className="ml-1 text-rose-600">*</span>
-              <Input required value={form.location} onChange={(event) => setField("location", event.target.value)} />
-            </label>
-            <label className="text-sm font-semibold text-slate-700">
-              ทำเล / จังหวัด (EN)
-              <Input value={form.location_en ?? ""} onChange={(event) => setField("location_en", event.target.value)} />
-            </label>
+            <fieldset className="md:col-span-2">
+              <legend className="text-sm font-semibold text-slate-700">
+                ที่อยู่โครงการ <span className="ml-1 text-rose-600">*</span>
+              </legend>
+              <div className="mt-2 grid gap-4 md:grid-cols-3">
+                <label className="text-sm font-semibold text-slate-700">
+                  จังหวัด <span className="ml-1 text-rose-600">*</span>
+                  <Input required value={form.province ?? ""} onChange={(event) => setField("province", event.target.value)} />
+                </label>
+                <label className="text-sm font-semibold text-slate-700">
+                  เขต / อำเภอ <span className="ml-1 text-rose-600">*</span>
+                  <Input required value={form.district ?? ""} onChange={(event) => setField("district", event.target.value)} />
+                </label>
+                <label className="text-sm font-semibold text-slate-700">
+                  แขวง / ตำบล <span className="ml-1 text-rose-600">*</span>
+                  <Input required value={form.subdistrict ?? ""} onChange={(event) => setField("subdistrict", event.target.value)} />
+                </label>
+              </div>
+            </fieldset>
             <label className="text-sm font-semibold text-slate-700">
               ประเภทโครงการ
               <Select value={form.property_type} onChange={(event) => setField("property_type", event.target.value)}>

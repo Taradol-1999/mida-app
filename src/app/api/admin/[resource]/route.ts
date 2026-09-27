@@ -66,6 +66,12 @@ function dateValue(body: Record<string, unknown>, key: string) {
   const raw = value(body, key);
   return raw ? new Date(raw) : null;
 }
+function projectAddress(body: Record<string, unknown>) {
+  const province = value(body, "province");
+  const district = value(body, "district");
+  const subdistrict = value(body, "subdistrict");
+  return province && district && subdistrict ? { province, district, subdistrict } : null;
+}
 
 function auditDetail(resource: Resource, verb: string, body: Record<string, unknown>, id: string) {
   const title =
@@ -93,6 +99,7 @@ async function auditPayload(resource: Resource, id: string): Promise<Prisma.Inpu
         where: { id },
         select: {
           id: true, slug: true, name_th: true, name_en: true, location: true, location_en: true,
+          province: true, district: true, subdistrict: true,
           latitude: true, longitude: true, property_type: true, starting_price: true, status: true,
           is_featured: true, is_new: true, tags: true, description: true, description_en: true,
         },
@@ -376,6 +383,9 @@ export async function POST(request: Request, context: RouteContext) {
     (access.resource === "projects" || !canAccessProject(access.user, value(body, "project_id")))
   )
     return apiError("ไม่มีสิทธิ์จัดการโครงการนี้", 403);
+  const address = access.resource === "projects" ? projectAddress(body) : null;
+  if (access.resource === "projects" && !address)
+    return apiError("กรุณากรอกจังหวัด เขต / อำเภอ และแขวง / ตำบลของโครงการให้ครบ", 400);
   try {
     let createdId: string | undefined;
     switch (access.resource) {
@@ -385,8 +395,11 @@ export async function POST(request: Request, context: RouteContext) {
             slug: value(body, "slug"),
             name_th: value(body, "name_th"),
             name_en: nullable(body, "name_en"),
-            location: value(body, "location"),
+            location: value(body, "location") || [address?.subdistrict, address?.district, address?.province].filter(Boolean).join(" "),
             location_en: nullable(body, "location_en"),
+            province: address?.province,
+            district: address?.district,
+            subdistrict: address?.subdistrict,
             latitude: numberValue(body, "latitude"),
             longitude: numberValue(body, "longitude"),
             property_type: value(body, "property_type") as PropertyType,
@@ -529,6 +542,9 @@ export async function PATCH(request: Request, context: RouteContext) {
     ("project_id" in body && !canAccessProject(access.user, nullable(body, "project_id")))
   )
     return apiError("ไม่มีสิทธิ์จัดการโครงการนี้", 403);
+  const address = access.resource === "projects" ? projectAddress(body) : null;
+  if (access.resource === "projects" && !address)
+    return apiError("กรุณากรอกจังหวัด เขต / อำเภอ และแขวง / ตำบลของโครงการให้ครบ", 400);
   const oldPayload = await auditPayload(access.resource, id);
   try {
     switch (access.resource) {
@@ -539,8 +555,11 @@ export async function PATCH(request: Request, context: RouteContext) {
             slug: value(body, "slug"),
             name_th: value(body, "name_th"),
             name_en: nullable(body, "name_en"),
-            location: value(body, "location"),
+            location: value(body, "location") || [address?.subdistrict, address?.district, address?.province].filter(Boolean).join(" "),
             location_en: nullable(body, "location_en"),
+            province: address?.province,
+            district: address?.district,
+            subdistrict: address?.subdistrict,
             latitude: numberValue(body, "latitude"),
             longitude: numberValue(body, "longitude"),
             property_type: value(body, "property_type") as PropertyType,

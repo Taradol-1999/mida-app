@@ -39,8 +39,9 @@ const configs: Record<AdminResource, Config> = {
       { name: "name_th", label: "ชื่อโครงการ (TH)", required: true },
       { name: "name_en", label: "ชื่อโครงการ (EN)" },
       { name: "slug", label: "Slug สำหรับ URL", hint: "เช่น grand-village-petchkasem", required: true },
-      { name: "location", label: "ทำเล / จังหวัด", required: true },
-      { name: "location_en", label: "ทำเล / จังหวัด (EN)" },
+      { name: "province", label: "จังหวัด", required: true },
+      { name: "district", label: "เขต / อำเภอ", required: true },
+      { name: "subdistrict", label: "แขวง / ตำบล", required: true },
       {
         name: "property_type",
         label: "ประเภทโครงการหลัก",
@@ -70,7 +71,7 @@ const configs: Record<AdminResource, Config> = {
     ],
     columns: [
       ["name_th", "โครงการ"],
-      ["location", "ทำเล"],
+      ["province", "จังหวัด"],
       ["property_type", "ประเภท"],
       ["starting_price", "ราคาเริ่มต้น"],
       ["status", "สถานะ"],
