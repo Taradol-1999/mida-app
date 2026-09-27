@@ -5,7 +5,15 @@ import { Input, Select } from "@/components/ui/form-controls";
 import { FormEvent, useEffect, useState } from "react";
 import { useTranslation } from "@/components/language-provider";
 
-export function LeadModal({ projectId, projectName, projectNameEn }: { projectId?: string | null; projectName?: string; projectNameEn?: string | null }) {
+export function LeadModal({
+  projectId,
+  projectName,
+  projectNameEn,
+}: {
+  projectId?: string | null;
+  projectName?: string;
+  projectNameEn?: string | null;
+}) {
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const { t } = useTranslation();
@@ -34,18 +42,29 @@ export function LeadModal({ projectId, projectName, projectNameEn }: { projectId
 
   return (
     <>
-      <button
-        onClick={() => {
-          setStatus("idle");
-          setOpen(true);
-        }}
-        className="fixed right-3 bottom-3 z-30 grid size-14 place-items-center rounded-full bg-brand-primary text-center text-[10px] font-bold text-white shadow-xl ring-4 ring-white hover:bg-brand-text sm:right-5 sm:bottom-5 sm:size-16 sm:text-xs"
-        aria-label={t({ th: "นัดชมโครงการ", en: "Schedule a visit" })}
-      >
-        {t({ th: "นัดชม", en: "Book" })}
-        <br />
-        {t({ th: "โครงการ", en: "a visit" })}
-      </button>
+      {!open && (
+        <button
+          onClick={() => {
+            setStatus("idle");
+            setOpen(true);
+          }}
+          className="group fixed right-3 bottom-3 z-60 flex w-39 items-center gap-2 rounded-2xl border-2 border-white bg-brand-primary p-2 text-left text-white shadow-[0_12px_28px_rgba(0,45,98,0.3)] transition duration-200 hover:-translate-y-1 hover:bg-brand-text hover:shadow-[0_18px_34px_rgba(0,45,98,0.38)] active:translate-y-0 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-accent sm:right-5 sm:bottom-5 sm:w-44 sm:gap-2.5 sm:p-2.5"
+          aria-label={t({ th: "นัดชมโครงการ", en: "Schedule a visit" })}
+          title={projectName ? t({ th: projectName, en: projectNameEn || projectName }) : "MIDA PROPERTY"}
+        >
+          <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-brand-accent text-sm text-brand-primary shadow-sm transition duration-200 group-hover:scale-105 sm:size-10 sm:text-base">
+            <i className="fa-solid fa-calendar-check" aria-hidden="true" />
+          </span>
+          <span className="min-w-0 leading-tight">
+            <span className="block truncate text-[8px] font-extrabold tracking-[0.07em] text-brand-accent sm:text-[10px]">
+              {projectName ? t({ th: projectName, en: projectNameEn || projectName }) : "MIDA PROPERTY"}
+            </span>
+            <span className="mt-1 block whitespace-nowrap text-[10px] font-extrabold sm:text-xs">
+              {t({ th: "นัดชมโครงการ", en: "Schedule a visit" })}
+            </span>
+          </span>
+        </button>
+      )}
       {open && (
         <div
           className="fixed inset-0 z-40 grid place-items-center bg-brand-overlay/65 p-2 sm:p-4"
@@ -64,11 +83,16 @@ export function LeadModal({ projectId, projectName, projectNameEn }: { projectId
                   </span>
                   <div>
                     <p className="text-xs font-extrabold tracking-[0.16em] text-brand-accent">MIDA PROPERTY</p>
-                    <h2 className="mt-1 text-xl font-extrabold sm:text-2xl">{t({ th: "ลงทะเบียนรับข้อเสนอพิเศษ", en: "Register for a Special Offer" })}</h2>
+                    <h2 className="mt-1 text-xl font-extrabold sm:text-2xl">
+                      {t({ th: "ลงทะเบียนรับข้อเสนอพิเศษ", en: "Register for a Special Offer" })}
+                    </h2>
                     <p className="mt-1 text-sm text-white/75">
                       {projectName
                         ? t({ th: `สนใจโครงการ ${projectName}`, en: `Interested in ${projectNameEn || projectName}` })
-                        : t({ th: "ให้เราช่วยแนะนำโครงการที่เหมาะกับคุณ", en: "Let us help you find the right project." })}
+                        : t({
+                            th: "ให้เราช่วยแนะนำโครงการที่เหมาะกับคุณ",
+                            en: "Let us help you find the right project.",
+                          })}
                     </p>
                   </div>
                 </div>
@@ -85,8 +109,15 @@ export function LeadModal({ projectId, projectName, projectNameEn }: { projectId
               <div className="p-6 sm:p-10">
                 <div className="mx-auto max-w-md rounded-2xl bg-emerald-50 p-7 text-center text-emerald-800">
                   <i className="fa-solid fa-circle-check text-4xl" aria-hidden="true" />
-                  <p className="mt-3 font-bold">{t({ th: "ส่งข้อมูลเรียบร้อย", en: "Your information has been sent." })}</p>
-                  <p className="mt-1 text-sm">{t({ th: "ขอบคุณที่สนใจโครงการ MIDA ทีมงานจะติดต่อกลับโดยเร็วที่สุด", en: "Thank you for your interest in MIDA. Our team will contact you shortly." })}</p>
+                  <p className="mt-3 font-bold">
+                    {t({ th: "ส่งข้อมูลเรียบร้อย", en: "Your information has been sent." })}
+                  </p>
+                  <p className="mt-1 text-sm">
+                    {t({
+                      th: "ขอบคุณที่สนใจโครงการ MIDA ทีมงานจะติดต่อกลับโดยเร็วที่สุด",
+                      en: "Thank you for your interest in MIDA. Our team will contact you shortly.",
+                    })}
+                  </p>
                 </div>
               </div>
             ) : (
@@ -101,17 +132,42 @@ export function LeadModal({ projectId, projectName, projectNameEn }: { projectId
                       <i className="fa-solid fa-user" aria-hidden="true" />
                     </span>
                     <div>
-                      <h3 className="font-bold text-brand-primary">{t({ th: "ข้อมูลส่วนตัว", en: "Personal Information" })}</h3>
-                      <p className="text-xs text-slate-500">{t({ th: "กรอกข้อมูลเพื่อให้ทีมงานติดต่อกลับ", en: "Please provide your details so our team can contact you." })}</p>
+                      <h3 className="font-bold text-brand-primary">
+                        {t({ th: "ข้อมูลส่วนตัว", en: "Personal Information" })}
+                      </h3>
+                      <p className="text-xs text-slate-500">
+                        {t({
+                          th: "กรอกข้อมูลเพื่อให้ทีมงานติดต่อกลับ",
+                          en: "Please provide your details so our team can contact you.",
+                        })}
+                      </p>
                     </div>
                   </div>
                   <fieldset>
                     <legend className="sr-only">{t({ th: "ข้อมูลส่วนตัว", en: "Personal Information" })}</legend>
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                      <Field label={t({ th: "ชื่อ", en: "First name" })} name="firstName" placeholder={t({ th: "ชื่อ", en: "First name" })} />
-                      <Field label={t({ th: "นามสกุล", en: "Last name" })} name="lastName" placeholder={t({ th: "นามสกุล", en: "Last name" })} />
-                      <Field label={t({ th: "อีเมล", en: "Email" })} name="email" type="email" placeholder={t({ th: "อีเมลของคุณ", en: "Your email" })} />
-                      <Field label={t({ th: "เบอร์โทรศัพท์", en: "Phone" })} name="phone" type="tel" placeholder={t({ th: "เบอร์โทรศัพท์", en: "Phone number" })} />
+                      <Field
+                        label={t({ th: "ชื่อ", en: "First name" })}
+                        name="firstName"
+                        placeholder={t({ th: "ชื่อ", en: "First name" })}
+                      />
+                      <Field
+                        label={t({ th: "นามสกุล", en: "Last name" })}
+                        name="lastName"
+                        placeholder={t({ th: "นามสกุล", en: "Last name" })}
+                      />
+                      <Field
+                        label={t({ th: "อีเมล", en: "Email" })}
+                        name="email"
+                        type="email"
+                        placeholder={t({ th: "อีเมลของคุณ", en: "Your email" })}
+                      />
+                      <Field
+                        label={t({ th: "เบอร์โทรศัพท์", en: "Phone" })}
+                        name="phone"
+                        type="tel"
+                        placeholder={t({ th: "เบอร์โทรศัพท์", en: "Phone number" })}
+                      />
                       <Field
                         label={t({ th: "จำนวนสมาชิกในครอบครัว", en: "Number of family members" })}
                         name="familyMembers"
@@ -127,7 +183,9 @@ export function LeadModal({ projectId, projectName, projectNameEn }: { projectId
                     <span className="grid size-8 place-items-center rounded-xl bg-brand-accent-soft text-sm text-brand-primary">
                       <i className="fa-solid fa-location-dot" aria-hidden="true" />
                     </span>
-                    <h3 className="font-bold text-brand-primary">{t({ th: "ที่อยู่ปัจจุบัน", en: "Current Address" })}</h3>
+                    <h3 className="font-bold text-brand-primary">
+                      {t({ th: "ที่อยู่ปัจจุบัน", en: "Current Address" })}
+                    </h3>
                   </div>
                   <fieldset>
                     <legend className="sr-only">{t({ th: "ที่อยู่ปัจจุบัน", en: "Current Address" })}</legend>
@@ -155,8 +213,16 @@ export function LeadModal({ projectId, projectName, projectNameEn }: { projectId
                           ))}
                         </datalist>
                       </label>
-                      <Field label={t({ th: "เขต / อำเภอ", en: "District" })} name="district" placeholder={t({ th: "เขต / อำเภอ", en: "District" })} />
-                      <Field label={t({ th: "ตำบล / แขวง", en: "Subdistrict" })} name="subdistrict" placeholder={t({ th: "ตำบล / แขวง", en: "Subdistrict" })} />
+                      <Field
+                        label={t({ th: "เขต / อำเภอ", en: "District" })}
+                        name="district"
+                        placeholder={t({ th: "เขต / อำเภอ", en: "District" })}
+                      />
+                      <Field
+                        label={t({ th: "ตำบล / แขวง", en: "Subdistrict" })}
+                        name="subdistrict"
+                        placeholder={t({ th: "ตำบล / แขวง", en: "Subdistrict" })}
+                      />
                     </div>
                   </fieldset>
                 </div>
@@ -164,14 +230,17 @@ export function LeadModal({ projectId, projectName, projectNameEn }: { projectId
                 <div className="grid gap-4 md:grid-cols-2">
                   <fieldset className="rounded-2xl border border-slate-100 p-4 sm:p-5">
                     <legend className="text-sm font-semibold text-slate-700">
-                      {t({ th: "ประเภทที่อยู่อาศัยปัจจุบัน", en: "Current residence type" })} <span className="text-red-500">*</span>
+                      {t({ th: "ประเภทที่อยู่อาศัยปัจจุบัน", en: "Current residence type" })}{" "}
+                      <span className="text-red-500">*</span>
                     </legend>
                     <div className="mt-3 flex flex-wrap gap-4 text-sm text-slate-600">
-                      {([
-                        ["HOUSE", { th: "บ้าน", en: "House" }],
-                        ["CONDO", { th: "คอนโดมิเนียม", en: "Condominium" }],
-                        ["DORMITORY", { th: "อพาร์ทเม้น", en: "Apartment" }],
-                      ] as const).map(([value, label]) => (
+                      {(
+                        [
+                          ["HOUSE", { th: "บ้าน", en: "House" }],
+                          ["CONDO", { th: "คอนโดมิเนียม", en: "Condominium" }],
+                          ["DORMITORY", { th: "อพาร์ทเม้น", en: "Apartment" }],
+                        ] as const
+                      ).map(([value, label]) => (
                         <label key={value} className="flex items-center gap-2">
                           <Input
                             type="radio"
@@ -201,18 +270,31 @@ export function LeadModal({ projectId, projectName, projectNameEn }: { projectId
                       </Select>
                     </label>
                     <div className="grid gap-4 sm:grid-cols-2">
-                      <Field label={t({ th: "วันที่สะดวกให้ติดต่อกลับ", en: "Preferred contact date" })} name="preferredContactDate" type="date" />
-                      <Field label={t({ th: "ช่วงเวลาที่สะดวก", en: "Preferred contact time" })} name="preferredContactTime" type="time" />
+                      <Field
+                        label={t({ th: "วันที่สะดวกให้ติดต่อกลับ", en: "Preferred contact date" })}
+                        name="preferredContactDate"
+                        type="date"
+                      />
+                      <Field
+                        label={t({ th: "ช่วงเวลาที่สะดวก", en: "Preferred contact time" })}
+                        name="preferredContactTime"
+                        type="time"
+                      />
                     </div>
                   </div>
                 </div>
 
                 <fieldset className="rounded-2xl border border-brand-accent/25 bg-brand-accent-soft/50 p-4 sm:p-5">
-                  <legend className="px-1 text-sm font-semibold text-slate-700">{t({ th: "การรับข่าวสาร", en: "News Updates" })}</legend>
+                  <legend className="px-1 text-sm font-semibold text-slate-700">
+                    {t({ th: "การรับข่าวสาร", en: "News Updates" })}
+                  </legend>
                   <div className="space-y-3 text-sm text-slate-600">
                     <label className="flex items-start gap-2">
                       <Input type="checkbox" name="consentNews" value="true" className="mt-1 accent-brand-primary" />
-                      {t({ th: "ท่านต้องการรับข่าวสารจาก Mida Property", en: "I would like to receive news from MIDA Property." })}
+                      {t({
+                        th: "ท่านต้องการรับข่าวสารจาก Mida Property",
+                        en: "I would like to receive news from MIDA Property.",
+                      })}
                     </label>
                     <label className="flex items-start gap-2">
                       <Input
@@ -222,17 +304,29 @@ export function LeadModal({ projectId, projectName, projectNameEn }: { projectId
                         required
                         className="mt-1 accent-brand-primary"
                       />
-                      {t({ th: "ท่านยินยอมให้เจ้าหน้าที่ติดต่อกลับในช่วงเวลาที่ท่านกำหนด", en: "I consent to being contacted by a representative during my preferred time." })}
+                      {t({
+                        th: "ท่านยินยอมให้เจ้าหน้าที่ติดต่อกลับในช่วงเวลาที่ท่านกำหนด",
+                        en: "I consent to being contacted by a representative during my preferred time.",
+                      })}
                       <span className="text-red-500">*</span>
                     </label>
                   </div>
                 </fieldset>
-                {status === "error" && <p className="text-sm text-red-600">{t({ th: "ส่งข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง", en: "Unable to send your information. Please try again." })}</p>}
+                {status === "error" && (
+                  <p className="text-sm text-red-600">
+                    {t({
+                      th: "ส่งข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
+                      en: "Unable to send your information. Please try again.",
+                    })}
+                  </p>
+                )}
                 <button
                   disabled={status === "sending"}
                   className="button-primary w-full py-3.5 text-base disabled:opacity-60"
                 >
-                  {status === "sending" ? t({ th: "กำลังส่ง...", en: "Sending..." }) : t({ th: "ยืนยันข้อมูล", en: "Submit information" })}
+                  {status === "sending"
+                    ? t({ th: "กำลังส่ง...", en: "Sending..." })
+                    : t({ th: "ยืนยันข้อมูล", en: "Submit information" })}
                 </button>
               </form>
             )}
