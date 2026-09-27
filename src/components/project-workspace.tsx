@@ -1,6 +1,7 @@
 "use client";
 
 import { BannerMediaUpload } from "@/components/banner-media-upload";
+import { DashboardBarChart, DashboardDoughnutChart } from "@/components/dashboard-charts";
 
 import { Input, Textarea, Select } from "@/components/ui/form-controls";
 /* eslint-disable @next/next/no-img-element */
@@ -27,6 +28,18 @@ type DataConfig = {
   readOnlyCreate?: boolean;
 };
 type Brochure = { id: string; name: string; url: string };
+type ProjectDashboard = {
+  views: number;
+  leads: number;
+  averageDuration: number;
+  houseTypes: Array<{ label: string; value: number }>;
+  contentViews: Array<{ label: string; value: number }>;
+  demographics: {
+    ages: Array<{ label: string; value: number; percent: number }>;
+    occupations: Array<{ label: string; value: number; percent: number }>;
+    budgets: Array<{ label: string; value: number; percent: number }>;
+  };
+};
 const configs: Partial<Record<Section, DataConfig>> = {
   "house-types": {
     resource: "house-types",
@@ -210,11 +223,13 @@ export function ProjectWorkspace({
   projectName,
   section,
   embedded = false,
+  dashboard,
 }: {
   projectId: string;
   projectName: string;
   section: Section;
   embedded?: boolean;
+  dashboard?: ProjectDashboard;
 }) {
   const dataConfig = configs[section];
   const settingMode = section === "homepage" || section === "contact" || section === "after-sales";
@@ -236,20 +251,8 @@ export function ProjectWorkspace({
   const [existingHouseTypeImage, setExistingHouseTypeImage] = useState<string | null>(null);
   const [contentMediaFiles, setContentMediaFiles] = useState<File[]>([]);
   const [contentMedia, setContentMedia] = useState<{ id: string; name: string; mimeType: string; url: string }[]>([]);
-  const [stats, setStats] = useState({ leads: 0, homes: 0, promos: 0, news: 0 });
   const load = useCallback(async () => {
     if (section === "dashboard") {
-      const results = await Promise.all(
-        ["leads", "house-types", "promotions", "news"].map((resource) =>
-          fetch(`/api/admin/${resource}`).then((response) => (response.ok ? response.json() : { rows: [] })),
-        ),
-      );
-      setStats({
-        leads: results[0].rows.filter((row: Record<string, unknown>) => row.project_id === projectId).length,
-        homes: results[1].rows.filter((row: Record<string, unknown>) => row.project_id === projectId).length,
-        promos: results[2].rows.filter((row: Record<string, unknown>) => row.project_id === projectId).length,
-        news: results[3].rows.filter((row: Record<string, unknown>) => row.project_id === projectId).length,
-      });
       return;
     }
     if (settingMode) {
@@ -527,36 +530,145 @@ export function ProjectWorkspace({
       setBusy(false);
     }
   };
-  if (section === "dashboard")
+  if (section === "dashboard") {
+    const summary = dashboard ?? {
+      views: 0,
+      leads: 0,
+      averageDuration: 0,
+      houseTypes: [],
+      contentViews: [],
+      demographics: { ages: [], occupations: [], budgets: [] },
+    };
+    const duration = `${String(Math.floor(summary.averageDuration / 60)).padStart(2, "0")}:${String(
+      summary.averageDuration % 60,
+    ).padStart(2, "0")}`;
+    const demographicPanels = [
+      { title: "ช่วงอายุผู้ใช้งาน", icon: "fa-user-clock", rows: summary.demographics.ages },
+      { title: "อาชีพผู้ใช้งาน", icon: "fa-briefcase", rows: summary.demographics.occupations },
+      { title: "งบประมาณรวม", icon: "fa-wallet", rows: summary.demographics.budgets },
+    ];
     return (
       <>
-        <header className="border-b border-slate-200 pb-5">
-          <p className="inline-flex rounded-full bg-brand-accent-soft px-3 py-1 text-xs font-bold tracking-[0.16em] text-brand-primary">
-            DASHBOARD HP
+        <header className="flex flex-col gap-3 border-b border-slate-200 pb-5 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="inline-flex rounded-full bg-brand-accent-soft px-3 py-1 text-xs font-bold tracking-[0.16em] text-brand-primary">
+              DASHBOARD HP
+            </p>
+            <h1 className="mt-2 text-xl font-bold text-slate-800">{projectName}</h1>
+            <p className="mt-1 text-sm text-slate-500">ภาพรวมข้อมูลเฉพาะโครงการ</p>
+          </div>
+          <p className="inline-flex items-center gap-2 text-xs font-semibold text-slate-500">
+            <i className="fa-solid fa-circle-info text-brand-accent" />
+            ข้อมูลอ้างอิงจากการใช้งานที่ระบบบันทึกไว้
           </p>
-          <h1 className="mt-1 text-xl font-bold text-slate-800">{projectName}</h1>
-          <p className="mt-1 text-sm text-slate-500">ภาพรวมข้อมูลเฉพาะโครงการ</p>
         </header>
-        <div className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-          {[
-            ["ผู้ลงทะเบียน", stats.leads, "fa-user-pen", "text-emerald-700"],
-            ["แบบบ้าน", stats.homes, "fa-house", "text-brand-primary"],
-            ["โปรโมชั่น", stats.promos, "fa-tags", "text-brand-primary"],
-            ["ข่าวสาร", stats.news, "fa-newspaper", "text-amber-700"],
-          ].map(([label, count, icon, color]) => (
-            <div key={String(label)} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <i className={`fa-solid ${icon} ${color} text-xl`} />
-              <p className="mt-4 text-sm text-slate-500">{label}</p>
-              <p className={`mt-1 text-3xl font-bold ${color}`}>{count}</p>
-            </div>
-          ))}
+
+        <div className="mt-6 grid gap-6 xl:grid-cols-[18rem_1fr]">
+          <aside className="grid gap-4 sm:grid-cols-3 xl:grid-cols-1">
+            {[
+              [
+                "จำนวนการเข้าชมเว็บไซต์",
+                summary.views.toLocaleString("th-TH"),
+                "ครั้ง",
+                "fa-chart-line",
+                "text-brand-primary",
+              ],
+              [
+                "จำนวนการลงทะเบียน",
+                summary.leads.toLocaleString("th-TH"),
+                "รายชื่อ",
+                "fa-user-pen",
+                "text-emerald-700",
+              ],
+              ["ข้อมูลเฉลี่ยเวลาเข้าชม", duration, "นาที", "fa-clock", "text-brand-primary"],
+            ].map(([label, value, unit, icon, tone]) => (
+              <section
+                key={label}
+                className="relative overflow-hidden rounded-2xl border border-brand-primary/15 bg-linear-to-br from-brand-soft via-white to-brand-accent-soft/60 p-5 shadow-[0_10px_28px_rgba(0,45,98,0.08)]"
+              >
+                <i
+                  className={`fa-solid ${icon} absolute right-5 top-5 text-lg text-brand-accent/70`}
+                  aria-hidden="true"
+                />
+                <p className="border-l-4 border-brand-accent pl-2 text-xs font-bold text-brand-primary">{label}</p>
+                <p className={`mt-2 text-2xl font-bold ${tone}`}>
+                  {value} <span className="text-xs font-normal text-slate-500">{unit}</span>
+                </p>
+              </section>
+            ))}
+          </aside>
+
+          <div className="grid gap-6 md:grid-cols-2">
+            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_28px_rgba(0,45,98,0.06)]">
+              <h2 className="flex items-center gap-2 text-sm font-extrabold text-brand-primary">
+                <i className="fa-solid fa-house text-brand-accent" /> ข้อมูล Type บ้าน (รูปแบบกราฟ)
+              </h2>
+              <div className="mt-4 rounded-xl bg-brand-muted p-3">
+                <DashboardBarChart
+                  labels={summary.houseTypes.map((item) => item.label)}
+                  values={summary.houseTypes.map((item) => item.value)}
+                  label="จำนวนแบบบ้าน"
+                />
+              </div>
+              <p className="mt-3 text-xs text-slate-500">จำนวนแบบบ้านที่ตั้งค่าไว้ในโครงการ</p>
+            </section>
+
+            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_28px_rgba(0,45,98,0.06)]">
+              <h2 className="flex items-center gap-2 text-sm font-extrabold text-brand-primary">
+                <i className="fa-solid fa-share-nodes text-brand-accent" /> ข้อมูลโซเชียลมีเดียที่ผู้ใช้เข้าชม
+              </h2>
+              <div className="mt-4 rounded-xl bg-brand-muted p-3">
+                <DashboardDoughnutChart labels={[]} values={[]} emptyLabel="รอเชื่อมต่อ Analytics" />
+              </div>
+              <p className="mt-3 text-xs text-slate-500">เพื่อแสดงแหล่งที่มาจาก Facebook, Google และช่องทางอื่น</p>
+            </section>
+
+            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_28px_rgba(0,45,98,0.06)] md:col-span-2">
+              <h2 className="flex items-center gap-2 text-sm font-extrabold text-brand-primary">
+                <i className="fa-solid fa-bars-progress text-brand-accent" /> ข้อมูลที่ผู้ใช้งานเข้าชมแต่ละหัวข้อ
+              </h2>
+              <div className="mt-4 rounded-xl bg-brand-muted p-3">
+                <DashboardBarChart
+                  labels={summary.contentViews.map((item) => item.label)}
+                  values={summary.contentViews.map((item) => item.value)}
+                  label="ยอดคลิกเข้าชม"
+                  horizontal
+                />
+              </div>
+              <p className="mt-3 text-xs text-slate-500">อ้างอิงจาก URL ที่ระบบบันทึกการเข้าชมไว้</p>
+            </section>
+          </div>
         </div>
-        <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500">
-          <i className="fa-solid fa-chart-column mr-2 text-brand-primary" />
-          ข้อมูล Dashboard HP จะเปลี่ยนตามข้อมูลแบบบ้าน โปรโมชั่น ข่าวสาร และ Leads ของโครงการนี้
-        </div>
+
+        <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_28px_rgba(0,45,98,0.06)]">
+          <h2 className="flex items-center gap-2 text-sm font-extrabold text-brand-primary">
+            <i className="fa-solid fa-id-card-clip text-brand-accent" /> ข้อมูลเชิงลึก Demographics (เฉพาะโครงการ)
+          </h2>
+          <div className="mt-4 grid gap-3 md:grid-cols-3">
+            {demographicPanels.map((panel) => (
+              <section key={panel.title} className="rounded-xl bg-brand-muted p-4">
+                <p className="flex items-center gap-2 text-sm font-bold text-slate-700">
+                  <i className={`fa-solid ${panel.icon} text-brand-accent`} /> {panel.title}
+                </p>
+                {panel.rows.length ? (
+                  <ul className="mt-3 space-y-1.5 text-sm text-slate-600">
+                    {panel.rows.map((row) => (
+                      <li key={row.label} className="flex justify-between gap-3">
+                        <span className="truncate">{row.label}</span>
+                        <b className="shrink-0 text-brand-primary">{row.percent}%</b>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-3 text-sm text-slate-400">รอข้อมูลจากแบบฟอร์มลงทะเบียน</p>
+                )}
+              </section>
+            ))}
+          </div>
+        </section>
       </>
     );
+  }
   if (section === "homepage")
     return (
       <section id="homepage-content" className={embedded ? "mt-8 border-t border-slate-200 pt-8" : ""}>

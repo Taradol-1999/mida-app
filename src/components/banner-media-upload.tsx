@@ -17,6 +17,11 @@ type Props = {
   disabled?: boolean;
 };
 
+// One source size is used for every hero banner. The live site uses a
+// responsive cover crop, so keeping key subjects inside the centre safe area
+// preserves them on both wide desktop and taller mobile screens.
+const heroBannerSpecification = "1920 × 1080 px (16:9)";
+
 function Preview({ url, name, mimeType }: Omit<BannerMedia, "id">) {
   return mimeType.startsWith("video/") ? (
     <video
@@ -79,18 +84,18 @@ export function BannerMediaUpload({
   return (
     <fieldset disabled={disabled} className="min-w-0">
       <legend className="text-sm font-bold text-brand-text">{title}</legend>
-      <div className="mt-2 rounded-2xl border-2 border-dashed border-brand-primary/25 bg-brand-muted p-4 sm:p-5">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-brand-accent-soft text-brand-primary">
+      <div className="mt-2 overflow-hidden rounded-2xl border-2 border-dashed border-brand-primary/25 bg-brand-muted p-4 sm:p-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-brand-accent-soft text-brand-primary shadow-sm">
               <i className="fa-solid fa-photo-film text-xl" aria-hidden="true" />
             </span>
-            <div>
+            <div className="min-w-0">
               <p className="text-sm font-semibold text-brand-primary">
                 {allowVideo ? "แบนเนอร์รูปภาพและวิดีโอ" : "รูปภาพประกอบ"}
               </p>
-              <p className="mt-1 text-xs text-brand-text">
-                บันทึกแล้ว {media.length} ไฟล์ · รอบันทึก {files.length} ไฟล์
+              <p className="mt-1 text-xs text-brand-text/75">
+                จัดลำดับไฟล์ได้หลายรายการ และสไลด์จะแสดงตามลำดับที่เพิ่ม
               </p>
             </div>
           </div>
@@ -115,11 +120,24 @@ export function BannerMediaUpload({
             />
           </label>
         </div>
-        <p id={`${id}-hint`} className="mt-3 text-xs text-brand-text">
-          {allowVideo
-            ? "JPG, PNG, WEBP ไม่เกิน 5 MB · MP4, WEBM ไม่เกิน 50 MB ต่อไฟล์ · เลือกได้หลายไฟล์"
-            : "JPG, PNG, WEBP ไม่เกิน 5 MB ต่อไฟล์ · เลือกได้หลายไฟล์"}
-        </p>
+        <div id={`${id}-hint`} className={`mt-5 grid gap-2 ${allowVideo ? "sm:grid-cols-2 xl:grid-cols-4" : "sm:grid-cols-2"}`}>
+          {allowVideo && (
+            <InfoChip icon="fa-expand" title="ขนาดมาตรฐาน" detail={heroBannerSpecification} accent />
+          )}
+          <InfoChip icon="fa-image" title="รูปภาพ" detail="JPG, PNG, WEBP · ไม่เกิน 5 MB" />
+          {allowVideo && <InfoChip icon="fa-film" title="วิดีโอ" detail="MP4, WEBM · ไม่เกิน 50 MB" />}
+          <InfoChip
+            icon="fa-layer-group"
+            title="จำนวนไฟล์"
+            detail={`บันทึกแล้ว ${media.length} · รอบันทึก ${files.length}`}
+          />
+        </div>
+        {allowVideo && (
+          <div className="mt-3 flex gap-2 rounded-xl border border-brand-accent/30 bg-brand-accent-soft/65 px-3 py-2.5 text-xs leading-5 text-brand-text">
+            <i className="fa-solid fa-lightbulb mt-0.5 text-brand-primary" aria-hidden="true" />
+            <p>วางโลโก้หรือข้อความสำคัญไว้บริเวณกึ่งกลางภาพ เพื่อให้ไม่ถูกตัดบนหน้าจอมือถือ</p>
+          </div>
+        )}
         {error && (
           <p role="alert" className="mt-2 text-sm text-rose-600">
             {error}
@@ -182,5 +200,29 @@ export function BannerMediaUpload({
         )}
       </div>
     </fieldset>
+  );
+}
+
+function InfoChip({
+  icon,
+  title,
+  detail,
+  accent = false,
+}: {
+  icon: string;
+  title: string;
+  detail: string;
+  accent?: boolean;
+}) {
+  return (
+    <div className={`flex min-w-0 items-center gap-2.5 rounded-xl border px-3 py-2.5 ${accent ? "border-brand-accent/45 bg-brand-accent-soft" : "border-slate-200 bg-white/80"}`}>
+      <span className={`grid size-7 shrink-0 place-items-center rounded-lg text-xs ${accent ? "bg-brand-accent text-brand-primary" : "bg-brand-soft text-brand-primary"}`}>
+        <i className={`fa-solid ${icon}`} aria-hidden="true" />
+      </span>
+      <span className="min-w-0">
+        <span className="block text-[0.65rem] font-bold tracking-wide text-slate-500">{title}</span>
+        <span className="block truncate text-xs font-semibold text-brand-text">{detail}</span>
+      </span>
+    </div>
   );
 }
