@@ -3,6 +3,7 @@ import { userRoleOptions } from "@/lib/user-roles";
 
 import { BannerMediaUpload } from "@/components/banner-media-upload";
 import { Input, Textarea, Select } from "@/components/ui/form-controls";
+import { PasswordInput } from "@/components/ui/password-input";
 /* eslint-disable react-hooks/set-state-in-effect */
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
@@ -417,6 +418,7 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
       await load();
     }
   };
+
   const formCard = (config.canCreate !== false || editing) && (
     <form
       onSubmit={submit}
@@ -428,12 +430,10 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
             <h2 className="text-base font-bold text-slate-800">
               {editing ? `แก้ไข: ${config.formTitle}` : config.formTitle}
             </h2>
-            <p className="mt-1 text-xs text-slate-400">กรอกเฉพาะข้อมูลที่ต้องการแสดงผลบนเว็บไซต์</p>
           </div>
           {(editing || resource === "users") && (
             <button type="button" onClick={reset} className="text-sm font-semibold text-slate-500 hover:text-slate-800">
               <i className="fa-solid fa-xmark mr-1" aria-hidden="true" />
-              ยกเลิก
             </button>
           )}
         </div>
@@ -484,6 +484,14 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
                           </option>
                         ))}
                   </Select>
+                ) : field.type === "password" ? (
+                  <PasswordInput
+                    required={field.required}
+                    name={field.name}
+                    autoComplete="new-password"
+                    value={String(form[field.name] ?? "")}
+                    onChange={(event) => setField(field.name, event.target.value)}
+                  />
                 ) : (
                   <Input
                     required={field.required}

@@ -1,6 +1,7 @@
 "use client";
 
 import { Input } from "@/components/ui/form-controls";
+import { PasswordInput } from "@/components/ui/password-input";
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -31,16 +32,16 @@ export function LoginForm() {
           required
           name="email"
           type="email"
-          className="mt-1.5 w-full rounded-xl border border-slate-200 p-3 font-normal outline-none focus:border-brand-primary"
+          className="w-full rounded-xl border border-slate-200 p-3 font-normal outline-none focus:border-brand-primary"
           placeholder="admin@mida.local"
         />
       </label>
       <label className="block text-sm font-bold text-slate-700">
         รหัสผ่าน
-        <Input
+        <PasswordInput
           required
           name="password"
-          type="password"
+          autoComplete="current-password"
           className="mt-1.5 w-full rounded-xl border border-slate-200 p-3 font-normal outline-none focus:border-brand-primary"
         />
       </label>

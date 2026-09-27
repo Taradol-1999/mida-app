@@ -236,9 +236,15 @@ export function ProjectFilter({
               key={label}
               type="button"
               onClick={() => setTag((current) => (current === label ? "all" : label))}
-              className={`shrink-0 rounded-full px-5 py-2.5 text-xs font-bold transition ${tag === label ? "bg-brand-primary text-white shadow-sm ring-2 ring-brand-accent" : "border border-slate-200 bg-white text-slate-600 hover:border-brand-accent"}`}
+              aria-pressed={tag === label}
+              className={`inline-flex shrink-0 items-center gap-2 rounded-full px-5 py-2.5 text-xs font-bold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent ${tag === label ? "bg-brand-primary text-white shadow-sm ring-2 ring-brand-accent" : "border border-slate-200 bg-white text-slate-600 hover:border-brand-accent"}`}
             >
-              {label === "โครงการแนะนำ" ? <span className="text-brand-accent">✦ </span> : ""}
+              <i
+                className={`fa-solid ${
+                  label === "โครงการแนะนำ" ? "fa-star" : label === "โครงการล่าสุด" ? "fa-calendar-plus" : "fa-key"
+                } text-brand-accent`}
+                aria-hidden="true"
+              />
               {t(tagLabels[label] ?? { th: label, en: label })}
             </button>
           ))}
