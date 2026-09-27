@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model MediaAsset
- * 
+ * เมทาดาทาของไฟล์รูปภาพ วิดีโอ และเอกสารที่อัปโหลด พร้อมความสัมพันธ์กับข้อมูลต้นทาง
  */
 export type MediaAssetModel = runtime.Types.Result.DefaultSelection<Prisma.$MediaAssetPayload>
 

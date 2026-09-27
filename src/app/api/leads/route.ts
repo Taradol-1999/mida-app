@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { getClientIp } from "@/lib/client-ip";
 import { prisma } from "@/lib/prisma";
 
 const leadSchema = z.object({
@@ -44,5 +45,19 @@ export async function POST(request: Request) {
       consent_contact: value.consentContact ?? false,
     },
   });
+  try {
+    await prisma.activityLog.create({
+      data: {
+        area: "PUBLIC",
+        action: "LEAD_CREATE",
+        path: new URL(request.url).pathname,
+        project_id: value.projectId ?? null,
+        ip_address: getClientIp(request),
+        detail: "ลงทะเบียนรับข้อเสนอพิเศษ",
+      },
+    });
+  } catch (error) {
+    console.error("Unable to write lead activity log", error);
+  }
   return NextResponse.json({ ok: true }, { status: 201 });
 }

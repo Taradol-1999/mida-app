@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model HomepageProject
- * 
+ * รายการโครงการที่เลือกมาแสดงหน้าแรก พร้อมลำดับการแสดงผล
  */
 export type HomepageProjectModel = runtime.Types.Result.DefaultSelection<Prisma.$HomepageProjectPayload>
 

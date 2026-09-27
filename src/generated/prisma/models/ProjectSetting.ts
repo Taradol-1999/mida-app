@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model ProjectSetting
- * 
+ * การตั้งค่าหน้าโครงการ เช่น Hero ติดต่อ แผนที่ สถานที่ใกล้เคียง และบริการหลังการขาย
  */
 export type ProjectSettingModel = runtime.Types.Result.DefaultSelection<Prisma.$ProjectSettingPayload>
 

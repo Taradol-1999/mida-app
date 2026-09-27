@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model SiteContent
- * 
+ * เนื้อหาส่วนกลางของเว็บไซต์ MIDA ที่ไม่ผูกกับโครงการใดโครงการหนึ่ง
  */
 export type SiteContentModel = runtime.Types.Result.DefaultSelection<Prisma.$SiteContentPayload>
 

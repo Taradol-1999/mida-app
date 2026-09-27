@@ -3,6 +3,7 @@ import { mkdir, readFile, unlink, writeFile } from "fs/promises";
 import path from "path";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { recordAdminActivity } from "@/lib/admin-activity";
 import { getSession } from "@/lib/auth";
 import { canAccessRecord } from "@/lib/project-access";
 import { prisma } from "@/lib/prisma";
@@ -26,6 +27,20 @@ function isEntityType(value: string): value is EntityType {
 }
 function isKind(value: string) {
   return value === "cover" || value === "hero" || value === "gallery" || value === "brochure";
+}
+async function mediaProjectId(entityType: EntityType, entityId: string) {
+  switch (entityType) {
+    case "projects":
+      return entityId;
+    case "house-types":
+      return (await prisma.houseType.findUnique({ where: { id: entityId }, select: { project_id: true } }))?.project_id ?? null;
+    case "promotions":
+      return (await prisma.promotion.findUnique({ where: { id: entityId }, select: { project_id: true } }))?.project_id ?? null;
+    case "news":
+      return (await prisma.newsItem.findUnique({ where: { id: entityId }, select: { project_id: true } }))?.project_id ?? null;
+    case "site-content":
+      return null;
+  }
 }
 async function authorise() {
   const user = await getSession();
@@ -155,7 +170,7 @@ export async function POST(request: Request) {
       where: { entity_type: entityType, entity_id: entityId, media_kind: mediaKind },
       _max: { sort_order: true },
     });
-    await prisma.mediaAsset.create({
+    const createdMedia = await prisma.mediaAsset.create({
       data: {
         entity_type: entityType,
         entity_id: entityId,
@@ -165,6 +180,23 @@ export async function POST(request: Request) {
         file_size: file.size,
         storage_key: storageKey,
         sort_order: (maximum._max.sort_order ?? -1) + 1,
+      },
+    });
+    await recordAdminActivity({
+      request,
+      user,
+      action: "ADMIN_CREATE",
+      detail: `อัปโหลด${mediaKind}: ${file.name || `upload.${extension}`}`,
+      projectId: await mediaProjectId(entityType, entityId),
+      newPayload: {
+        id: createdMedia.id,
+        entity_type: createdMedia.entity_type,
+        entity_id: createdMedia.entity_id,
+        media_kind: createdMedia.media_kind,
+        original_name: createdMedia.original_name,
+        mime_type: createdMedia.mime_type,
+        file_size: createdMedia.file_size,
+        sort_order: createdMedia.sort_order,
       },
     });
     return NextResponse.json({ ok: true });
@@ -188,11 +220,18 @@ export async function DELETE(request: Request) {
   if (!(await canAccessRecord(user, entityType, entityId)))
     return NextResponse.json({ message: "ไม่มีสิทธิ์จัดการโครงการนี้" }, { status: 403 });
   const media = await prisma.mediaAsset.findFirst({
-    where: { id: mediaId, entity_type: entityType, entity_id: entityId, media_kind: "hero" },
-    select: { storage_key: true },
+    where: { id: mediaId, entity_type: entityType, entity_id: entityId, media_kind: mediaKind },
+    select: { storage_key: true, original_name: true },
   });
   if (!media) return NextResponse.json({ message: "ไม่พบรูปภาพ" }, { status: 404 });
   await prisma.mediaAsset.delete({ where: { id: mediaId } });
   await unlink(storedFilePath(media.storage_key)).catch(() => undefined);
+  await recordAdminActivity({
+    request,
+    user,
+    action: "ADMIN_DELETE",
+    detail: `ลบ${mediaKind}: ${media.original_name}`,
+    projectId: await mediaProjectId(entityType, entityId),
+  });
   return NextResponse.json({ ok: true });
 }

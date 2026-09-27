@@ -37,8 +37,10 @@ enum LeadStatus {
   CLOSED
 }
 
+/// บัญชีผู้ดูแลระบบสำหรับการเข้าสู่ระบบ กำหนดบทบาท และสิทธิ์เข้าถึงโครงการ
 model User {
   projects      UserProject[]
+  activity_logs ActivityLog[]
   id            String        @id @default(uuid()) @db.Char(36)
   name          String        @db.VarChar(120)
   email         String        @unique @db.VarChar(190)
@@ -51,6 +53,7 @@ model User {
   @@map("users")
 }
 
+/// ข้อมูลหลักของโครงการอสังหาริมทรัพย์ที่นำไปแสดงทั้งหน้าบ้านและหลังบ้าน
 model Project {
   users          UserProject[]
   id             String            @id @default(uuid()) @db.Char(36)
@@ -77,12 +80,13 @@ model Project {
   promotions     Promotion[]
   news_items     NewsItem[]
   leads          Lead[]
-  page_views     PageView[]
+  activity_logs  ActivityLog[]
   homepage_slots HomepageProject[]
 
   @@map("projects")
 }
 
+/// รายการโครงการที่เลือกมาแสดงหน้าแรก พร้อมลำดับการแสดงผล
 model HomepageProject {
   project_id String  @db.Char(36)
   sort_order Int     @default(0)
@@ -93,6 +97,7 @@ model HomepageProject {
   @@map("homepage_projects")
 }
 
+/// ความสัมพันธ์ระหว่างผู้ใช้ Marketing กับโครงการที่ได้รับมอบหมายให้ดูแล
 model UserProject {
   user_id    String  @db.Char(36)
   project_id String  @db.Char(36)
@@ -104,6 +109,7 @@ model UserProject {
   @@map("user_projects")
 }
 
+/// แบบบ้านของแต่ละโครงการ เช่น รายละเอียด จำนวนห้อง พื้นที่ใช้สอย และราคาเริ่มต้น
 model HouseType {
   id              String   @id @default(uuid()) @db.Char(36)
   project_id      String   @db.Char(36)
@@ -120,6 +126,7 @@ model HouseType {
   @@map("house_types")
 }
 
+/// สิ่งอำนวยความสะดวกของโครงการ พร้อมคำอธิบายและลำดับการแสดงผล
 model Facility {
   id             String  @id @default(uuid()) @db.Char(36)
   project_id     String  @db.Char(36)
@@ -133,6 +140,7 @@ model Facility {
   @@map("facilities")
 }
 
+/// ข้อเสนอหรือแคมเปญส่งเสริมการขายของโครงการ หรือของ MIDA ส่วนกลาง
 model Promotion {
   id           String    @id @default(uuid()) @db.Char(36)
   project_id   String?   @db.Char(36)
@@ -149,6 +157,7 @@ model Promotion {
   @@map("promotions")
 }
 
+/// ข่าวสารและกิจกรรมพิเศษของโครงการ หรือของ MIDA ส่วนกลาง
 model NewsItem {
   id           String       @id @default(uuid()) @db.Char(36)
   project_id   String?      @db.Char(36)
@@ -164,6 +173,7 @@ model NewsItem {
   @@map("news_items")
 }
 
+/// ข้อมูลผู้สนใจที่ส่งมาจากแบบฟอร์มรับข้อเสนอพิเศษ เพื่อติดตามงานฝ่ายขาย
 model Lead {
   id                     String     @id @default(uuid()) @db.Char(36)
   project_id             String?    @db.Char(36)
@@ -193,6 +203,7 @@ model Lead {
   @@map("leads")
 }
 
+/// ตารางสถิติเข้าชมเดิม เก็บไว้เพื่ออ้างอิงข้อมูลเก่าและไม่ได้ถูกใช้งานโดยระบบใหม่
 model PageView {
   id               BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
   project_id       String?  @db.Char(36)
@@ -200,12 +211,38 @@ model PageView {
   session_key      String?  @db.VarChar(100)
   duration_seconds Int?     @db.UnsignedInt
   created_at       DateTime @default(now()) @db.Timestamp(0)
-  project          Project? @relation(fields: [project_id], references: [id], onDelete: SetNull)
 
-  @@index([created_at], map: "idx_page_views_created_at")
   @@map("page_views")
+  @@ignore
 }
 
+/// บันทึกกิจกรรมการเข้าใช้งานหน้าบ้านและหลังบ้าน เพื่อใช้สร้างสถิติการใช้งาน
+model ActivityLog {
+  id               BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  area             String   @db.VarChar(20)
+  action           String   @db.VarChar(40)
+  path             String   @db.VarChar(255)
+  user_id          String?  @db.Char(36)
+  project_id       String?  @db.Char(36)
+  session_key      String?  @db.VarChar(100)
+  ip_address       String?  @db.VarChar(45)
+  duration_seconds Int?     @db.UnsignedInt
+  detail           String?  @db.VarChar(255)
+  old_payload      Json?
+  new_payload      Json?
+  created_at       DateTime @default(now()) @db.Timestamp(0)
+  user             User?    @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  project          Project? @relation(fields: [project_id], references: [id], onDelete: SetNull)
+
+  @@index([created_at], map: "idx_activity_logs_created_at")
+  @@index([area, action], map: "idx_activity_logs_area_action")
+  @@index([project_id], map: "idx_activity_logs_project_id")
+  @@index([user_id], map: "idx_activity_logs_user_id")
+  @@index([ip_address], map: "idx_activity_logs_ip_address")
+  @@map("activity_logs")
+}
+
+/// เนื้อหาส่วนกลางของเว็บไซต์ MIDA ที่ไม่ผูกกับโครงการใดโครงการหนึ่ง
 model SiteContent {
   id          String   @id @default(uuid()) @db.Char(36)
   content_key String   @unique @db.VarChar(100)
@@ -218,6 +255,7 @@ model SiteContent {
   @@map("site_content")
 }
 
+/// เมทาดาทาของไฟล์รูปภาพ วิดีโอ และเอกสารที่อัปโหลด พร้อมความสัมพันธ์กับข้อมูลต้นทาง
 model MediaAsset {
   id            String   @id @default(uuid()) @db.Char(36)
   entity_type   String   @db.VarChar(40)
@@ -236,6 +274,7 @@ model MediaAsset {
   @@map("media_assets")
 }
 
+/// การตั้งค่าหน้าโครงการ เช่น Hero ติดต่อ แผนที่ สถานที่ใกล้เคียง และบริการหลังการขาย
 model ProjectSetting {
   project_id       String   @id @db.Char(36)
   hero_title_th    String?  @db.VarChar(255)

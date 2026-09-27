@@ -3,6 +3,7 @@ import { HeaderNav } from "@/components/header-nav";
 import { notFound } from "next/navigation";
 import { HeroImageSlider } from "@/components/hero-image-slider";
 import { ProjectLocationMap } from "@/components/project-location-map";
+import { ProjectSectionTracker } from "@/components/project-section-tracker";
 import { HouseTypeCarousel, type HouseTypeItem } from "@/components/house-type-carousel";
 import { LeadModal } from "@/components/lead-modal";
 import { LeadOpenButton } from "@/components/lead-open-button";
@@ -230,8 +231,17 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
     { title: { th: "คู่มือการอยู่อาศัย", en: "Living Guide" }, detail: project.settings.care_maintenance, icon: "fa-book-open" },
     { title: { th: "นิติบุคคล & พื้นที่ส่วนกลาง", en: "Juristic Office & Common Areas" }, detail: project.settings.care_common_area, icon: "fa-people-roof" },
   ];
+  const projectNavigation = [
+    { href: "#project-top", label: { th: "ภาพรวมโครงการ", en: "Overview" } },
+    ...(project.houseTypes.length > 0 ? [{ href: "#house-types", label: { th: "แบบบ้าน", en: "House Types" } }] : []),
+    ...(project.facilities.length > 0 ? [{ href: "#facilities", label: { th: "ส่วนกลาง", en: "Facilities" } }] : []),
+    ...(projectUpdates.length > 0
+      ? [{ href: "#project-promo-news", label: { th: "โปรโมชั่น", en: "Promotions" } }]
+      : []),
+    { href: "#mida-care", label: { th: "บริการหลังการขาย", en: "After-sales" } },
+  ];
   return (
-    <main className="bg-white">
+    <main id="project-top" className="bg-white">
       <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
         <div className="project-container flex min-h-16 items-center justify-between gap-3 sm:min-h-18">
           <Link
@@ -245,14 +255,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
             <span className="truncate text-sm sm:text-base"><T th={project.name} en={project.name_en ?? ""} /></span>
           </Link>
           <nav className="hidden items-center gap-5 text-xs font-semibold text-slate-600 lg:flex">
-            <HeaderNav
-              items={[
-                { href: "#house-types", label: { th: "แบบบ้าน", en: "House Types" } },
-                { href: "#facilities", label: { th: "ส่วนกลาง", en: "Facilities" } },
-                { href: "#project-promo-news", label: { th: "โปรโมชั่น", en: "Promotions" } },
-                { href: "#mida-care", label: { th: "บริการหลังการขาย", en: "After-sales" } },
-              ]}
-            />
+            <HeaderNav items={projectNavigation} />
             <LanguageToggle />
           </nav>
           <details className="group relative lg:hidden">
@@ -261,19 +264,13 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
               <span className="sr-only"><T th="เปิดเมนูโครงการ" en="Open project menu" /></span>
             </summary>
             <nav className="absolute right-0 top-12 flex w-64 flex-col gap-1 rounded-xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-600 shadow-xl">
-              <HeaderNav
-                items={[
-                  { href: "#house-types", label: { th: "แบบบ้าน", en: "House Types" } },
-                  { href: "#facilities", label: { th: "ส่วนกลาง", en: "Facilities" } },
-                  { href: "#project-promo-news", label: { th: "โปรโมชั่น", en: "Promotions" } },
-                  { href: "#mida-care", label: { th: "บริการหลังการขาย", en: "After-sales" } },
-                ]}
-              />
+              <HeaderNav items={projectNavigation} />
               <div className="mt-2 px-2"><LanguageToggle /></div>
             </nav>
           </details>
         </div>
       </header>
+      <ProjectSectionTracker sectionIds={projectNavigation.map((item) => item.href.slice(1))} />
       <HeroImageSlider
         images={project.heroMedia}
         title={heroTitle}

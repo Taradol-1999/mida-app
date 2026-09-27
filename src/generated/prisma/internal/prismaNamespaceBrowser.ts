@@ -60,7 +60,7 @@ export const ModelName = {
   Promotion: 'Promotion',
   NewsItem: 'NewsItem',
   Lead: 'Lead',
-  PageView: 'PageView',
+  ActivityLog: 'ActivityLog',
   SiteContent: 'SiteContent',
   MediaAsset: 'MediaAsset',
   ProjectSetting: 'ProjectSetting'
@@ -223,16 +223,23 @@ export const LeadScalarFieldEnum = {
 export type LeadScalarFieldEnum = (typeof LeadScalarFieldEnum)[keyof typeof LeadScalarFieldEnum]
 
 
-export const PageViewScalarFieldEnum = {
+export const ActivityLogScalarFieldEnum = {
   id: 'id',
-  project_id: 'project_id',
+  area: 'area',
+  action: 'action',
   path: 'path',
+  user_id: 'user_id',
+  project_id: 'project_id',
   session_key: 'session_key',
+  ip_address: 'ip_address',
   duration_seconds: 'duration_seconds',
+  detail: 'detail',
+  old_payload: 'old_payload',
+  new_payload: 'new_payload',
   created_at: 'created_at'
 } as const
 
-export type PageViewScalarFieldEnum = (typeof PageViewScalarFieldEnum)[keyof typeof PageViewScalarFieldEnum]
+export type ActivityLogScalarFieldEnum = (typeof ActivityLogScalarFieldEnum)[keyof typeof ActivityLogScalarFieldEnum]
 
 
 export const SiteContentScalarFieldEnum = {
@@ -436,13 +443,18 @@ export const LeadOrderByRelevanceFieldEnum = {
 export type LeadOrderByRelevanceFieldEnum = (typeof LeadOrderByRelevanceFieldEnum)[keyof typeof LeadOrderByRelevanceFieldEnum]
 
 
-export const PageViewOrderByRelevanceFieldEnum = {
-  project_id: 'project_id',
+export const ActivityLogOrderByRelevanceFieldEnum = {
+  area: 'area',
+  action: 'action',
   path: 'path',
-  session_key: 'session_key'
+  user_id: 'user_id',
+  project_id: 'project_id',
+  session_key: 'session_key',
+  ip_address: 'ip_address',
+  detail: 'detail'
 } as const
 
-export type PageViewOrderByRelevanceFieldEnum = (typeof PageViewOrderByRelevanceFieldEnum)[keyof typeof PageViewOrderByRelevanceFieldEnum]
+export type ActivityLogOrderByRelevanceFieldEnum = (typeof ActivityLogOrderByRelevanceFieldEnum)[keyof typeof ActivityLogOrderByRelevanceFieldEnum]
 
 
 export const SiteContentOrderByRelevanceFieldEnum = {

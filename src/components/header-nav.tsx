@@ -20,7 +20,9 @@ export function HeaderNav({ items }: { items: NavItem[] }) {
     function updateActive() {
       frame = 0;
       const scrollPadding = Number.parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 88;
-      const marker = scrollPadding + 80;
+      // Anchor links stop just below the 88px sticky header. Keep the active
+      // state near that same line so the next menu does not activate too early.
+      const marker = scrollPadding + 16;
       let current = "";
       for (const { href, element } of sections) {
         if (element.getBoundingClientRect().top <= marker) current = href;

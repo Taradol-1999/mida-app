@@ -27,7 +27,7 @@ The MySQL database name defaults to `mida_app`. Important tables:
 - `leads`: registrations and follow-up status.
 - `site_content`: editable global website copy.
 - `media_assets`: file metadata, entity ownership, media kind, and sort order.
-- `page_views`: basic analytics records.
+- `activity_logs`: anonymous public page visits/durations and authenticated admin usage records.
 
 When adding a persisted field:
 

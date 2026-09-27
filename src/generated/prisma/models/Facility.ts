@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model Facility
- * 
+ * สิ่งอำนวยความสะดวกของโครงการ พร้อมคำอธิบายและลำดับการแสดงผล
  */
 export type FacilityModel = runtime.Types.Result.DefaultSelection<Prisma.$FacilityPayload>
 

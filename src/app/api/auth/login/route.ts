@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createSession, type UserRole } from "@/lib/auth";
+import { getClientIp } from "@/lib/client-ip";
 import { prisma } from "@/lib/prisma";
 
 const schema = z.object({ email: z.string().email(), password: z.string().min(1) });
@@ -18,5 +19,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "อีเมลหรือรหัสผ่านไม่ถูกต้อง" }, { status: 401 });
   }
   await createSession({ id: user.id, name: user.name, email: user.email, role: user.role as UserRole });
+  await prisma.activityLog.create({
+    data: {
+      area: "ADMIN",
+      action: "LOGIN",
+      path: "/login",
+      user_id: user.id,
+      ip_address: getClientIp(request),
+      detail: "เข้าสู่ระบบหลังบ้าน",
+    },
+  });
   return NextResponse.json({ ok: true });
 }

@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model NewsItem
- * 
+ * ข่าวสารและกิจกรรมพิเศษของโครงการ หรือของ MIDA ส่วนกลาง
  */
 export type NewsItemModel = runtime.Types.Result.DefaultSelection<Prisma.$NewsItemPayload>
 

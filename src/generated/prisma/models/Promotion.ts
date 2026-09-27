@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model Promotion
- * 
+ * ข้อเสนอหรือแคมเปญส่งเสริมการขายของโครงการ หรือของ MIDA ส่วนกลาง
  */
 export type PromotionModel = runtime.Types.Result.DefaultSelection<Prisma.$PromotionPayload>
 

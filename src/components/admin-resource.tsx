@@ -303,6 +303,7 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
   const [projects, setProjects] = useState<Record<string, string>[]>([]);
   const [form, setForm] = useState<Record<string, unknown>>(() => initialValues(config));
   const [editing, setEditing] = useState<string | null>(null);
+  const [isEditingCurrentUser, setIsEditingCurrentUser] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
@@ -326,11 +327,21 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
 
   const reset = () => {
     setEditing(null);
+    setIsEditingCurrentUser(false);
     setIsFormOpen(false);
     setForm(initialValues(config));
     setMessage("");
     setContentMediaFiles([]);
     setContentMedia([]);
+  };
+  const openCreateUser = () => {
+    setEditing(null);
+    setIsEditingCurrentUser(false);
+    setForm(initialValues(config));
+    setMessage("");
+    setContentMediaFiles([]);
+    setContentMedia([]);
+    setIsFormOpen(true);
   };
   const setField = (name: string, value: unknown) => setForm((current) => ({ ...current, [name]: value }));
   const submit = async (event: FormEvent<HTMLFormElement>) => {
@@ -372,6 +383,7 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
   };
   const edit = async (row: Record<string, unknown>) => {
     setEditing(String(row.id));
+    setIsEditingCurrentUser(Boolean(row.is_current_user));
     setIsFormOpen(true);
     setForm({
       ...Object.fromEntries(
@@ -449,6 +461,7 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
                 <Input
                   type="checkbox"
                   checked={Boolean(form[field.name])}
+                  disabled={isEditingCurrentUser && field.name === "is_active"}
                   onChange={(event) => setField(field.name, event.target.checked)}
                   className="size-4 accent-brand-primary"
                 />
@@ -468,6 +481,7 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
                 ) : field.type === "select" || field.type === "project" ? (
                   <Select
                     required={field.required}
+                    disabled={isEditingCurrentUser && field.name === "role"}
                     value={String(form[field.name] ?? "")}
                     onChange={(event) => setField(field.name, event.target.value)}
                   >
@@ -506,7 +520,7 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
           </label>
         ))}
       </div>
-      {resource === "users" && form.role === "MARKETING" && (
+      {resource === "users" && form.role === "MARKETING" && !isEditingCurrentUser && (
         <fieldset className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4">
           <legend className="px-1 text-sm font-semibold text-brand-primary">
             โครงการที่ดูแล <span className="text-rose-600">*</span>
@@ -546,6 +560,11 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
       )}
       {resource === "users" && form.role === "SUPER_ADMIN" && (
         <p className="mt-4 text-sm text-brand-primary">Super Admin เข้าถึงทุกโครงการได้โดยอัตโนมัติ</p>
+      )}
+      {resource === "users" && isEditingCurrentUser && (
+        <p className="mt-4 rounded-lg bg-brand-soft px-3 py-2 text-sm text-brand-primary">
+          บัญชีปัจจุบันแก้ไขชื่อ อีเมล และรหัสผ่านได้ ส่วนระดับสิทธิ์ สถานะบัญชี และโครงการที่ดูแลถูกล็อกไว้
+        </p>
       )}
       {contentResource && (
         <div className="mt-5">
@@ -599,10 +618,7 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
         {resource === "users" && (
           <button
             type="button"
-            onClick={() => {
-              reset();
-              setIsFormOpen(true);
-            }}
+            onClick={openCreateUser}
             className="inline-flex items-center gap-2 rounded-lg bg-brand-primary px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-brand-text"
           >
             <i className="fa-solid fa-user-plus" aria-hidden="true" />

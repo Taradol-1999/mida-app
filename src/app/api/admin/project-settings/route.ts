@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import type { Prisma } from "@/generated/prisma/client";
+import { recordAdminActivity } from "@/lib/admin-activity";
 import { getSession } from "@/lib/auth";
 import { canAccessProject } from "@/lib/project-access";
 import { resolveGoogleMapsCoordinates } from "@/lib/map-coordinates";
@@ -40,6 +41,20 @@ function coordinate(body: Record<string, unknown>, field: "latitude" | "longitud
   const limit = field === "latitude" ? 90 : 180;
   return Number.isFinite(value) && Math.abs(value) <= limit ? value : undefined;
 }
+function settingsPayload(
+  project: { id: string; latitude: unknown; longitude: unknown; settings: unknown },
+  submittedFields: readonly string[],
+  includeCoordinates: boolean,
+): Prisma.InputJsonObject {
+  const settings = (project.settings ?? {}) as Record<string, unknown>;
+  return JSON.parse(
+    JSON.stringify({
+      project_id: project.id,
+      ...(includeCoordinates ? { latitude: project.latitude, longitude: project.longitude } : {}),
+      settings: Object.fromEntries(submittedFields.map((field) => [field, settings[field] ?? null])),
+    }),
+  ) as Prisma.InputJsonObject;
+}
 
 export async function GET(request: Request) {
   const user = await authorise();
@@ -72,7 +87,10 @@ export async function PUT(request: Request) {
     return NextResponse.json({ message: "รหัสโครงการไม่ถูกต้อง" }, { status: 400 });
   if (!canAccessProject(user, projectId))
     return NextResponse.json({ message: "ไม่มีสิทธิ์จัดการโครงการนี้" }, { status: 403 });
-  const project = await prisma.project.findUnique({ where: { id: projectId }, select: { id: true } });
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    select: { id: true, latitude: true, longitude: true, settings: true },
+  });
   if (!project) return NextResponse.json({ message: "ไม่พบโครงการ" }, { status: 404 });
   const submittedFields = fields.filter((field) => Object.prototype.hasOwnProperty.call(body, field));
   const hasCoordinates =
@@ -116,5 +134,31 @@ export async function PUT(request: Request) {
     console.error("Unable to save project settings", { projectId, error });
     return NextResponse.json({ message: "บันทึกข้อมูลไม่สำเร็จ" }, { status: 500 });
   }
+  const updatedProject = await prisma.project.findUnique({
+    where: { id: projectId },
+    select: { id: true, latitude: true, longitude: true, settings: true },
+  });
+  await recordAdminActivity({
+    request,
+    user,
+    action: "ADMIN_UPDATE",
+    detail: `แก้ไข${[
+      submittedFields.some((field) => field.startsWith("hero_")) ? "ข้อมูลหน้าหลักโครงการ" : "",
+      submittedFields.some((field) => ["phone", "email", "facebook_url", "line_url"].includes(field))
+        ? "ข้อมูลติดต่อ"
+        : "",
+      submittedFields.some((field) => ["map_url", "nearby_places_th", "nearby_places_en"].includes(field)) || hasCoordinates
+        ? "แผนที่และสถานที่ใกล้เคียง"
+        : "",
+      submittedFields.some((field) => field.startsWith("care_")) ? "บริการหลังการขาย" : "",
+    ]
+      .filter(Boolean)
+      .join(" / ")}`,
+    projectId,
+    oldPayload: settingsPayload(project, submittedFields, hasCoordinates || Boolean(mapCoordinates)),
+    newPayload: updatedProject
+      ? settingsPayload(updatedProject, submittedFields, hasCoordinates || Boolean(mapCoordinates))
+      : undefined,
+  });
   return NextResponse.json({ ok: true, coordinates: mapCoordinates });
 }

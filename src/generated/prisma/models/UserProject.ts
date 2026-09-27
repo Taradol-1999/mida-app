@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model UserProject
- * 
+ * ความสัมพันธ์ระหว่างผู้ใช้ Marketing กับโครงการที่ได้รับมอบหมายให้ดูแล
  */
 export type UserProjectModel = runtime.Types.Result.DefaultSelection<Prisma.$UserProjectPayload>
 

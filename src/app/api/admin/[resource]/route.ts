@@ -1,7 +1,8 @@
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import type { LeadStatus, NewsCategory, ProjectStatus, PropertyType } from "@/generated/prisma/client";
+import type { LeadStatus, NewsCategory, Prisma, ProjectStatus, PropertyType } from "@/generated/prisma/client";
+import { recordAdminActivity } from "@/lib/admin-activity";
 import { isUserRole } from "@/lib/user-roles";
 import { getSession, type SessionUser } from "@/lib/auth";
 import { canAccessProject, canAccessRecord, projectScope, projectContentScope } from "@/lib/project-access";
@@ -12,6 +13,16 @@ type Resource = (typeof resources)[number];
 type RouteContext = { params: Promise<{ resource: string }> };
 const idSchema = z.string().uuid();
 const projectTagOptions = ["โครงการแนะนำ", "โครงการล่าสุด", "พร้อมเข้าอยู่ได้ทันที"] as const;
+const resourceLabels: Record<Resource, string> = {
+  projects: "โครงการ",
+  "house-types": "แบบบ้าน",
+  facilities: "สิ่งอำนวยความสะดวก",
+  promotions: "โปรโมชั่น",
+  news: "ข่าวสาร",
+  leads: "รายชื่อผู้สนใจ",
+  content: "เนื้อหาส่วนกลาง",
+  users: "ผู้ใช้งาน",
+};
 
 function apiError(message: string, status: number) {
   return NextResponse.json({ message }, { status });
@@ -54,6 +65,115 @@ function tagValue(body: Record<string, unknown>) {
 function dateValue(body: Record<string, unknown>, key: string) {
   const raw = value(body, key);
   return raw ? new Date(raw) : null;
+}
+
+function auditDetail(resource: Resource, verb: string, body: Record<string, unknown>, id: string) {
+  const title =
+    resource === "projects"
+      ? value(body, "name_th")
+      : resource === "house-types" || resource === "facilities"
+        ? value(body, "name")
+        : resource === "promotions" || resource === "news"
+          ? value(body, "title")
+          : resource === "content"
+            ? value(body, "content_key")
+            : "";
+  return `${verb}${resourceLabels[resource]}${title ? `: ${title}` : ` (${id})`}`;
+}
+
+/**
+ * Stores a readable, non-sensitive snapshot for audit purposes. In particular,
+ * user passwords and password hashes are never included in activity logs.
+ */
+async function auditPayload(resource: Resource, id: string): Promise<Prisma.InputJsonObject | null> {
+  let row: unknown;
+  switch (resource) {
+    case "projects":
+      row = await prisma.project.findUnique({
+        where: { id },
+        select: {
+          id: true, slug: true, name_th: true, name_en: true, location: true, location_en: true,
+          latitude: true, longitude: true, property_type: true, starting_price: true, status: true,
+          is_featured: true, is_new: true, tags: true, description: true, description_en: true,
+        },
+      });
+      break;
+    case "house-types":
+      row = await prisma.houseType.findUnique({
+        where: { id },
+        select: {
+          id: true, project_id: true, name: true, name_en: true, description: true, description_en: true,
+          bedrooms: true, bathrooms: true, usable_area_sqm: true, starting_price: true,
+        },
+      });
+      break;
+    case "facilities":
+      row = await prisma.facility.findUnique({
+        where: { id },
+        select: { id: true, project_id: true, name: true, name_en: true, description: true, description_en: true, sort_order: true },
+      });
+      break;
+    case "promotions":
+      row = await prisma.promotion.findUnique({
+        where: { id },
+        select: {
+          id: true, project_id: true, title: true, title_en: true, body: true, body_en: true,
+          starts_at: true, ends_at: true, is_published: true,
+        },
+      });
+      break;
+    case "news":
+      row = await prisma.newsItem.findUnique({
+        where: { id },
+        select: {
+          id: true, project_id: true, category: true, title: true, title_en: true, body: true,
+          body_en: true, published_at: true, is_published: true,
+        },
+      });
+      break;
+    case "leads":
+      row = await prisma.lead.findUnique({ where: { id }, select: { id: true, project_id: true, status: true } });
+      break;
+    case "content":
+      row = await prisma.siteContent.findUnique({
+        where: { id },
+        select: { id: true, content_key: true, title: true, title_en: true, body: true, body_en: true },
+      });
+      break;
+    case "users":
+      row = await prisma.user.findUnique({
+        where: { id },
+        select: {
+          id: true, name: true, email: true, role: true, is_active: true,
+          projects: { select: { project_id: true }, orderBy: { project_id: "asc" } },
+        },
+      });
+      break;
+  }
+  if (!row) return null;
+  return JSON.parse(
+    JSON.stringify(row, (_key, value) => (typeof value === "bigint" ? value.toString() : value)),
+  ) as Prisma.InputJsonObject;
+}
+
+async function auditProjectId(resource: Resource, id: string, body: Record<string, unknown>) {
+  if (resource === "projects") return id;
+  const submittedProjectId = nullable(body, "project_id");
+  if (submittedProjectId) return submittedProjectId;
+  switch (resource) {
+    case "house-types":
+      return (await prisma.houseType.findUnique({ where: { id }, select: { project_id: true } }))?.project_id ?? null;
+    case "facilities":
+      return (await prisma.facility.findUnique({ where: { id }, select: { project_id: true } }))?.project_id ?? null;
+    case "promotions":
+      return (await prisma.promotion.findUnique({ where: { id }, select: { project_id: true } }))?.project_id ?? null;
+    case "news":
+      return (await prisma.newsItem.findUnique({ where: { id }, select: { project_id: true } }))?.project_id ?? null;
+    case "leads":
+      return (await prisma.lead.findUnique({ where: { id }, select: { project_id: true } }))?.project_id ?? null;
+    default:
+      return null;
+  }
 }
 
 async function authorise(resource: string) {
@@ -155,23 +275,25 @@ async function list(resource: Resource, user: SessionUser) {
       return listLeads(user);
     case "content":
       return { rows: await prisma.siteContent.findMany({ orderBy: { content_key: "asc" } }) };
-    case "users":
+    case "users": {
+      const users = await prisma.user.findMany({
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          is_active: true,
+          created_at: true,
+          updated_at: true,
+          projects: { select: { project_id: true, project: { select: { name_th: true } } } },
+        },
+        orderBy: { created_at: "desc" },
+      });
       return {
         projectOptions: await projectOptions(user),
-        rows: await prisma.user.findMany({
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            role: true,
-            is_active: true,
-            created_at: true,
-            updated_at: true,
-            projects: { select: { project_id: true, project: { select: { name_th: true } } } },
-          },
-          orderBy: { created_at: "desc" },
-        }),
+        rows: users.map((row) => ({ ...row, is_current_user: row.id === user.id })),
       };
+    }
   }
 }
 
@@ -227,6 +349,13 @@ export async function GET(request: Request, context: RouteContext) {
         .map(csvEscape)
         .join(","),
     );
+    await recordAdminActivity({
+      request,
+      user: access.user,
+      action: "LEADS_EXPORT",
+      detail: "ส่งออกรายชื่อผู้สนใจ (CSV)",
+      projectId,
+    });
     return new Response(`\uFEFF${header.map(csvEscape).join(",")}\n${lines.join("\n")}`, {
       headers: {
         "Content-Type": "text/csv; charset=utf-8",
@@ -372,6 +501,16 @@ export async function POST(request: Request, context: RouteContext) {
       case "leads":
         return apiError("รายชื่อผู้สนใจมาจากแบบฟอร์มหน้าเว็บไซต์", 405);
     }
+    if (createdId) {
+      await recordAdminActivity({
+        request,
+        user: access.user,
+        action: "ADMIN_CREATE",
+        detail: auditDetail(access.resource, "เพิ่ม", body, createdId),
+        projectId: await auditProjectId(access.resource, createdId, body),
+        newPayload: (await auditPayload(access.resource, createdId)) ?? undefined,
+      });
+    }
     return NextResponse.json({ ok: true, id: createdId }, { status: 201 });
   } catch {
     return apiError("บันทึกข้อมูลไม่สำเร็จ กรุณาตรวจสอบข้อมูลซ้ำหรือข้อมูลที่ซ้ำกัน", 400);
@@ -390,6 +529,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     ("project_id" in body && !canAccessProject(access.user, nullable(body, "project_id")))
   )
     return apiError("ไม่มีสิทธิ์จัดการโครงการนี้", 403);
+  const oldPayload = await auditPayload(access.resource, id);
   try {
     switch (access.resource) {
       case "projects":
@@ -489,12 +629,22 @@ export async function PATCH(request: Request, context: RouteContext) {
         });
         break;
       case "users": {
+        const password = value(body, "password");
+        if (password && password.length < 8) return apiError("รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร", 400);
+        if (id === access.user.id) {
+          await prisma.user.update({
+            where: { id },
+            data: {
+              name: value(body, "name"),
+              email: value(body, "email"),
+              ...(password ? { password_hash: await bcrypt.hash(password, 12) } : {}),
+            },
+          });
+          break;
+        }
         if (!isUserRole(body.role)) return apiError("กรุณาเลือก Marketing หรือ Super Admin", 400);
         const projectIds = await assignedProjectIds(body);
         if (!projectIds) return apiError("กรุณาเลือกโครงการที่ถูกต้องอย่างน้อย 1 โครงการสำหรับ Marketing", 400);
-        if (id === access.user.id) return apiError("ไม่สามารถแก้ไขสิทธิ์ของบัญชีที่กำลังใช้งานจากหน้านี้", 400);
-        const password = value(body, "password");
-        if (password && password.length < 8) return apiError("รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร", 400);
         await prisma.user.update({
           where: { id },
           data: {
@@ -509,6 +659,15 @@ export async function PATCH(request: Request, context: RouteContext) {
         break;
       }
     }
+    await recordAdminActivity({
+      request,
+      user: access.user,
+      action: "ADMIN_UPDATE",
+      detail: auditDetail(access.resource, "แก้ไข", body, id),
+      projectId: await auditProjectId(access.resource, id, body),
+      oldPayload: oldPayload ?? undefined,
+      newPayload: (await auditPayload(access.resource, id)) ?? undefined,
+    });
     return NextResponse.json({ ok: true });
   } catch {
     return apiError("แก้ไขข้อมูลไม่สำเร็จ", 400);
@@ -525,6 +684,7 @@ export async function DELETE(request: Request, context: RouteContext) {
   if (!(await canAccessRecord(access.user, access.resource, id))) return apiError("ไม่มีสิทธิ์จัดการโครงการนี้", 403);
   if (access.resource === "users" && id === access.user.id) return apiError("ไม่สามารถลบบัญชีที่กำลังใช้งาน", 400);
   try {
+    const projectId = await auditProjectId(access.resource, id, {});
     switch (access.resource) {
       case "projects":
         await prisma.project.delete({ where: { id } });
@@ -551,6 +711,13 @@ export async function DELETE(request: Request, context: RouteContext) {
         await prisma.user.delete({ where: { id } });
         break;
     }
+    await recordAdminActivity({
+      request,
+      user: access.user,
+      action: "ADMIN_DELETE",
+      detail: auditDetail(access.resource, "ลบ", {}, id),
+      projectId,
+    });
     return NextResponse.json({ ok: true });
   } catch {
     return apiError("ไม่พบข้อมูล", 404);

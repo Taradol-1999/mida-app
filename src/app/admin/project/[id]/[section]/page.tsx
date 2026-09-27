@@ -23,7 +23,7 @@ type ProjectDashboardData = {
   views: number;
   leads: number;
   averageDuration: number;
-  houseTypes: Array<{ label: string; value: number }>;
+  houseTypeViews: Array<{ label: string; value: number }>;
   contentViews: Array<{ label: string; value: number }>;
   demographics: {
     ages: Array<{ label: string; value: number; percent: number }>;
@@ -47,29 +47,63 @@ function distribution(values: Array<string | null>) {
 
 async function getProjectDashboardData(projectId: string): Promise<ProjectDashboardData> {
   const projectWhere = { project_id: projectId };
-  const [views, duration, leads, houseTypes, pageViews, demographicLeads] = await Promise.all([
-    prisma.pageView.count({ where: projectWhere }),
-    prisma.pageView.aggregate({
+  const publicVisitWhere = { ...projectWhere, area: "PUBLIC", action: "PAGE_VISIT" };
+  const publicDurationWhere = { ...projectWhere, area: "PUBLIC", action: "PAGE_DURATION" };
+  const sectionDurationWhere = { ...projectWhere, area: "PUBLIC", action: "SECTION_DURATION" };
+  const [views, duration, sectionDuration, leads, houseTypes, houseTypeLogs, sectionLogs, demographicLeads] = await Promise.all([
+    prisma.activityLog.count({ where: publicVisitWhere }),
+    prisma.activityLog.aggregate({
       _avg: { duration_seconds: true },
-      where: { ...projectWhere, duration_seconds: { not: null } },
+      where: { ...publicDurationWhere, duration_seconds: { gt: 0 } },
+    }),
+    prisma.activityLog.aggregate({
+      _avg: { duration_seconds: true },
+      where: { ...sectionDurationWhere, duration_seconds: { gt: 0 } },
     }),
     prisma.lead.count({ where: projectWhere }),
-    prisma.houseType.findMany({ where: projectWhere, orderBy: { name: "asc" }, select: { name: true } }),
-    prisma.pageView.findMany({ where: projectWhere, select: { path: true } }),
+    prisma.houseType.findMany({ where: projectWhere, orderBy: { name: "asc" }, select: { id: true, name: true } }),
+    prisma.activityLog.findMany({
+      where: { ...projectWhere, area: "PUBLIC", action: "HOUSE_TYPE_VIEW" },
+      select: { path: true },
+    }),
+    prisma.activityLog.findMany({
+      where: { ...projectWhere, area: "PUBLIC", action: "SECTION_VIEW" },
+      select: { path: true },
+    }),
     prisma.lead.findMany({ where: projectWhere, select: { age_range: true, occupation: true, budget: true } }),
   ]);
-  const contentViews = [
-    { label: "หน้าแรกโครงการ", match: (path: string) => !/(gallery|house|location|map)/i.test(path) },
-    { label: "แกลเลอรีรูปภาพ", match: (path: string) => /gallery/i.test(path) },
-    { label: "ข้อมูลแบบบ้าน", match: (path: string) => /house/i.test(path) },
-    { label: "ทำเลที่ตั้ง/แผนที่", match: (path: string) => /(location|map)/i.test(path) },
-  ].map(({ label, match }) => ({ label, value: pageViews.filter((page) => match(page.path)).length }));
+  const sectionLabels = [
+    { id: "project-top", label: "ภาพรวมโครงการ" },
+    { id: "house-types", label: "ข้อมูลแบบบ้าน" },
+    { id: "facilities", label: "สิ่งอำนวยความสะดวก" },
+    { id: "project-promo-news", label: "โปรโมชั่น / ข่าวสาร" },
+    { id: "mida-care", label: "บริการหลังการขาย" },
+  ];
+  const sectionCounts = new Map(sectionLabels.map((section) => [section.id, 0]));
+  for (const activity of sectionLogs) {
+    const sectionId = new URL(activity.path, "https://mida-property.local").searchParams.get("section");
+    if (sectionId && sectionCounts.has(sectionId)) {
+      sectionCounts.set(sectionId, (sectionCounts.get(sectionId) ?? 0) + 1);
+    }
+  }
+  const contentViews = sectionLabels.map((section) => ({
+    label: section.label,
+    value: sectionCounts.get(section.id) ?? 0,
+  }));
+
+  const houseTypeCounts = new Map(houseTypes.map((houseType) => [houseType.id, 0]));
+  for (const activity of houseTypeLogs) {
+    const houseTypeId = new URL(activity.path, "https://mida-property.local").searchParams.get("houseType");
+    if (houseTypeId && houseTypeCounts.has(houseTypeId)) {
+      houseTypeCounts.set(houseTypeId, (houseTypeCounts.get(houseTypeId) ?? 0) + 1);
+    }
+  }
 
   return {
     views,
     leads,
-    averageDuration: Math.round(duration._avg.duration_seconds ?? 0),
-    houseTypes: houseTypes.map((houseType) => ({ label: houseType.name, value: 1 })),
+    averageDuration: Math.round(duration._avg.duration_seconds || sectionDuration._avg.duration_seconds || 0),
+    houseTypeViews: houseTypes.map((houseType) => ({ label: houseType.name, value: houseTypeCounts.get(houseType.id) ?? 0 })),
     contentViews,
     demographics: {
       ages: distribution(demographicLeads.map((lead) => lead.age_range)),

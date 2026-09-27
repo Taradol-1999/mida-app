@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model Project
- * 
+ * ข้อมูลหลักของโครงการอสังหาริมทรัพย์ที่นำไปแสดงทั้งหน้าบ้านและหลังบ้าน
  */
 export type ProjectModel = runtime.Types.Result.DefaultSelection<Prisma.$ProjectPayload>
 
@@ -331,7 +331,7 @@ export type ProjectWhereInput = {
   promotions?: Prisma.PromotionListRelationFilter
   news_items?: Prisma.NewsItemListRelationFilter
   leads?: Prisma.LeadListRelationFilter
-  page_views?: Prisma.PageViewListRelationFilter
+  activity_logs?: Prisma.ActivityLogListRelationFilter
   homepage_slots?: Prisma.HomepageProjectListRelationFilter
 }
 
@@ -361,7 +361,7 @@ export type ProjectOrderByWithRelationInput = {
   promotions?: Prisma.PromotionOrderByRelationAggregateInput
   news_items?: Prisma.NewsItemOrderByRelationAggregateInput
   leads?: Prisma.LeadOrderByRelationAggregateInput
-  page_views?: Prisma.PageViewOrderByRelationAggregateInput
+  activity_logs?: Prisma.ActivityLogOrderByRelationAggregateInput
   homepage_slots?: Prisma.HomepageProjectOrderByRelationAggregateInput
   _relevance?: Prisma.ProjectOrderByRelevanceInput
 }
@@ -395,7 +395,7 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   promotions?: Prisma.PromotionListRelationFilter
   news_items?: Prisma.NewsItemListRelationFilter
   leads?: Prisma.LeadListRelationFilter
-  page_views?: Prisma.PageViewListRelationFilter
+  activity_logs?: Prisma.ActivityLogListRelationFilter
   homepage_slots?: Prisma.HomepageProjectListRelationFilter
 }, "id" | "slug">
 
@@ -475,7 +475,7 @@ export type ProjectCreateInput = {
   promotions?: Prisma.PromotionCreateNestedManyWithoutProjectInput
   news_items?: Prisma.NewsItemCreateNestedManyWithoutProjectInput
   leads?: Prisma.LeadCreateNestedManyWithoutProjectInput
-  page_views?: Prisma.PageViewCreateNestedManyWithoutProjectInput
+  activity_logs?: Prisma.ActivityLogCreateNestedManyWithoutProjectInput
   homepage_slots?: Prisma.HomepageProjectCreateNestedManyWithoutProjectInput
 }
 
@@ -505,7 +505,7 @@ export type ProjectUncheckedCreateInput = {
   promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutProjectInput
   news_items?: Prisma.NewsItemUncheckedCreateNestedManyWithoutProjectInput
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutProjectInput
-  page_views?: Prisma.PageViewUncheckedCreateNestedManyWithoutProjectInput
+  activity_logs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutProjectInput
   homepage_slots?: Prisma.HomepageProjectUncheckedCreateNestedManyWithoutProjectInput
 }
 
@@ -535,7 +535,7 @@ export type ProjectUpdateInput = {
   promotions?: Prisma.PromotionUpdateManyWithoutProjectNestedInput
   news_items?: Prisma.NewsItemUpdateManyWithoutProjectNestedInput
   leads?: Prisma.LeadUpdateManyWithoutProjectNestedInput
-  page_views?: Prisma.PageViewUpdateManyWithoutProjectNestedInput
+  activity_logs?: Prisma.ActivityLogUpdateManyWithoutProjectNestedInput
   homepage_slots?: Prisma.HomepageProjectUpdateManyWithoutProjectNestedInput
 }
 
@@ -565,7 +565,7 @@ export type ProjectUncheckedUpdateInput = {
   promotions?: Prisma.PromotionUncheckedUpdateManyWithoutProjectNestedInput
   news_items?: Prisma.NewsItemUncheckedUpdateManyWithoutProjectNestedInput
   leads?: Prisma.LeadUncheckedUpdateManyWithoutProjectNestedInput
-  page_views?: Prisma.PageViewUncheckedUpdateManyWithoutProjectNestedInput
+  activity_logs?: Prisma.ActivityLogUncheckedUpdateManyWithoutProjectNestedInput
   homepage_slots?: Prisma.HomepageProjectUncheckedUpdateManyWithoutProjectNestedInput
 }
 
@@ -845,20 +845,20 @@ export type ProjectUpdateOneWithoutLeadsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutLeadsInput, Prisma.ProjectUpdateWithoutLeadsInput>, Prisma.ProjectUncheckedUpdateWithoutLeadsInput>
 }
 
-export type ProjectCreateNestedOneWithoutPage_viewsInput = {
-  create?: Prisma.XOR<Prisma.ProjectCreateWithoutPage_viewsInput, Prisma.ProjectUncheckedCreateWithoutPage_viewsInput>
-  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutPage_viewsInput
+export type ProjectCreateNestedOneWithoutActivity_logsInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutActivity_logsInput, Prisma.ProjectUncheckedCreateWithoutActivity_logsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutActivity_logsInput
   connect?: Prisma.ProjectWhereUniqueInput
 }
 
-export type ProjectUpdateOneWithoutPage_viewsNestedInput = {
-  create?: Prisma.XOR<Prisma.ProjectCreateWithoutPage_viewsInput, Prisma.ProjectUncheckedCreateWithoutPage_viewsInput>
-  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutPage_viewsInput
-  upsert?: Prisma.ProjectUpsertWithoutPage_viewsInput
+export type ProjectUpdateOneWithoutActivity_logsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutActivity_logsInput, Prisma.ProjectUncheckedCreateWithoutActivity_logsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutActivity_logsInput
+  upsert?: Prisma.ProjectUpsertWithoutActivity_logsInput
   disconnect?: Prisma.ProjectWhereInput | boolean
   delete?: Prisma.ProjectWhereInput | boolean
   connect?: Prisma.ProjectWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutPage_viewsInput, Prisma.ProjectUpdateWithoutPage_viewsInput>, Prisma.ProjectUncheckedUpdateWithoutPage_viewsInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutActivity_logsInput, Prisma.ProjectUpdateWithoutActivity_logsInput>, Prisma.ProjectUncheckedUpdateWithoutActivity_logsInput>
 }
 
 export type ProjectCreateNestedOneWithoutSettingsInput = {
@@ -901,7 +901,7 @@ export type ProjectCreateWithoutHomepage_slotsInput = {
   promotions?: Prisma.PromotionCreateNestedManyWithoutProjectInput
   news_items?: Prisma.NewsItemCreateNestedManyWithoutProjectInput
   leads?: Prisma.LeadCreateNestedManyWithoutProjectInput
-  page_views?: Prisma.PageViewCreateNestedManyWithoutProjectInput
+  activity_logs?: Prisma.ActivityLogCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutHomepage_slotsInput = {
@@ -930,7 +930,7 @@ export type ProjectUncheckedCreateWithoutHomepage_slotsInput = {
   promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutProjectInput
   news_items?: Prisma.NewsItemUncheckedCreateNestedManyWithoutProjectInput
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutProjectInput
-  page_views?: Prisma.PageViewUncheckedCreateNestedManyWithoutProjectInput
+  activity_logs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutHomepage_slotsInput = {
@@ -975,7 +975,7 @@ export type ProjectUpdateWithoutHomepage_slotsInput = {
   promotions?: Prisma.PromotionUpdateManyWithoutProjectNestedInput
   news_items?: Prisma.NewsItemUpdateManyWithoutProjectNestedInput
   leads?: Prisma.LeadUpdateManyWithoutProjectNestedInput
-  page_views?: Prisma.PageViewUpdateManyWithoutProjectNestedInput
+  activity_logs?: Prisma.ActivityLogUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutHomepage_slotsInput = {
@@ -1004,7 +1004,7 @@ export type ProjectUncheckedUpdateWithoutHomepage_slotsInput = {
   promotions?: Prisma.PromotionUncheckedUpdateManyWithoutProjectNestedInput
   news_items?: Prisma.NewsItemUncheckedUpdateManyWithoutProjectNestedInput
   leads?: Prisma.LeadUncheckedUpdateManyWithoutProjectNestedInput
-  page_views?: Prisma.PageViewUncheckedUpdateManyWithoutProjectNestedInput
+  activity_logs?: Prisma.ActivityLogUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutUsersInput = {
@@ -1032,7 +1032,7 @@ export type ProjectCreateWithoutUsersInput = {
   promotions?: Prisma.PromotionCreateNestedManyWithoutProjectInput
   news_items?: Prisma.NewsItemCreateNestedManyWithoutProjectInput
   leads?: Prisma.LeadCreateNestedManyWithoutProjectInput
-  page_views?: Prisma.PageViewCreateNestedManyWithoutProjectInput
+  activity_logs?: Prisma.ActivityLogCreateNestedManyWithoutProjectInput
   homepage_slots?: Prisma.HomepageProjectCreateNestedManyWithoutProjectInput
 }
 
@@ -1061,7 +1061,7 @@ export type ProjectUncheckedCreateWithoutUsersInput = {
   promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutProjectInput
   news_items?: Prisma.NewsItemUncheckedCreateNestedManyWithoutProjectInput
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutProjectInput
-  page_views?: Prisma.PageViewUncheckedCreateNestedManyWithoutProjectInput
+  activity_logs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutProjectInput
   homepage_slots?: Prisma.HomepageProjectUncheckedCreateNestedManyWithoutProjectInput
 }
 
@@ -1106,7 +1106,7 @@ export type ProjectUpdateWithoutUsersInput = {
   promotions?: Prisma.PromotionUpdateManyWithoutProjectNestedInput
   news_items?: Prisma.NewsItemUpdateManyWithoutProjectNestedInput
   leads?: Prisma.LeadUpdateManyWithoutProjectNestedInput
-  page_views?: Prisma.PageViewUpdateManyWithoutProjectNestedInput
+  activity_logs?: Prisma.ActivityLogUpdateManyWithoutProjectNestedInput
   homepage_slots?: Prisma.HomepageProjectUpdateManyWithoutProjectNestedInput
 }
 
@@ -1135,7 +1135,7 @@ export type ProjectUncheckedUpdateWithoutUsersInput = {
   promotions?: Prisma.PromotionUncheckedUpdateManyWithoutProjectNestedInput
   news_items?: Prisma.NewsItemUncheckedUpdateManyWithoutProjectNestedInput
   leads?: Prisma.LeadUncheckedUpdateManyWithoutProjectNestedInput
-  page_views?: Prisma.PageViewUncheckedUpdateManyWithoutProjectNestedInput
+  activity_logs?: Prisma.ActivityLogUncheckedUpdateManyWithoutProjectNestedInput
   homepage_slots?: Prisma.HomepageProjectUncheckedUpdateManyWithoutProjectNestedInput
 }
 
@@ -1164,7 +1164,7 @@ export type ProjectCreateWithoutHouse_typesInput = {
   promotions?: Prisma.PromotionCreateNestedManyWithoutProjectInput
   news_items?: Prisma.NewsItemCreateNestedManyWithoutProjectInput
   leads?: Prisma.LeadCreateNestedManyWithoutProjectInput
-  page_views?: Prisma.PageViewCreateNestedManyWithoutProjectInput
+  activity_logs?: Prisma.ActivityLogCreateNestedManyWithoutProjectInput
   homepage_slots?: Prisma.HomepageProjectCreateNestedManyWithoutProjectInput
 }
 
@@ -1193,7 +1193,7 @@ export type ProjectUncheckedCreateWithoutHouse_typesInput = {
   promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutProjectInput
   news_items?: Prisma.NewsItemUncheckedCreateNestedManyWithoutProjectInput
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutProjectInput
-  page_views?: Prisma.PageViewUncheckedCreateNestedManyWithoutProjectInput
+  activity_logs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutProjectInput
   homepage_slots?: Prisma.HomepageProjectUncheckedCreateNestedManyWithoutProjectInput
 }
 
@@ -1238,7 +1238,7 @@ export type ProjectUpdateWithoutHouse_typesInput = {
   promotions?: Prisma.PromotionUpdateManyWithoutProjectNestedInput
   news_items?: Prisma.NewsItemUpdateManyWithoutProjectNestedInput
   leads?: Prisma.LeadUpdateManyWithoutProjectNestedInput
-  page_views?: Prisma.PageViewUpdateManyWithoutProjectNestedInput
+  activity_logs?: Prisma.ActivityLogUpdateManyWithoutProjectNestedInput
   homepage_slots?: Prisma.HomepageProjectUpdateManyWithoutProjectNestedInput
 }
 
@@ -1267,7 +1267,7 @@ export type ProjectUncheckedUpdateWithoutHouse_typesInput = {
   promotions?: Prisma.PromotionUncheckedUpdateManyWithoutProjectNestedInput
   news_items?: Prisma.NewsItemUncheckedUpdateManyWithoutProjectNestedInput
   leads?: Prisma.LeadUncheckedUpdateManyWithoutProjectNestedInput
-  page_views?: Prisma.PageViewUncheckedUpdateManyWithoutProjectNestedInput
+  activity_logs?: Prisma.ActivityLogUncheckedUpdateManyWithoutProjectNestedInput
   homepage_slots?: Prisma.HomepageProjectUncheckedUpdateManyWithoutProjectNestedInput
 }
 
@@ -1296,7 +1296,7 @@ export type ProjectCreateWithoutFacilitiesInput = {
   promotions?: Prisma.PromotionCreateNestedManyWithoutProjectInput
   news_items?: Prisma.NewsItemCreateNestedManyWithoutProjectInput
   leads?: Prisma.LeadCreateNestedManyWithoutProjectInput
-  page_views?: Prisma.PageViewCreateNestedManyWithoutProjectInput
+  activity_logs?: Prisma.ActivityLogCreateNestedManyWithoutProjectInput
   homepage_slots?: Prisma.HomepageProjectCreateNestedManyWithoutProjectInput
 }
 
@@ -1325,7 +1325,7 @@ export type ProjectUncheckedCreateWithoutFacilitiesInput = {
   promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutProjectInput
   news_items?: Prisma.NewsItemUncheckedCreateNestedManyWithoutProjectInput
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutProjectInput
-  page_views?: Prisma.PageViewUncheckedCreateNestedManyWithoutProjectInput
+  activity_logs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutProjectInput
   homepage_slots?: Prisma.HomepageProjectUncheckedCreateNestedManyWithoutProjectInput
 }
 
@@ -1370,7 +1370,7 @@ export type ProjectUpdateWithoutFacilitiesInput = {
   promotions?: Prisma.PromotionUpdateManyWithoutProjectNestedInput
   news_items?: Prisma.NewsItemUpdateManyWithoutProjectNestedInput
   leads?: Prisma.LeadUpdateManyWithoutProjectNestedInput
-  page_views?: Prisma.PageViewUpdateManyWithoutProjectNestedInput
+  activity_logs?: Prisma.ActivityLogUpdateManyWithoutProjectNestedInput
   homepage_slots?: Prisma.HomepageProjectUpdateManyWithoutProjectNestedInput
 }
 
@@ -1399,7 +1399,7 @@ export type ProjectUncheckedUpdateWithoutFacilitiesInput = {
   promotions?: Prisma.PromotionUncheckedUpdateManyWithoutProjectNestedInput
   news_items?: Prisma.NewsItemUncheckedUpdateManyWithoutProjectNestedInput
   leads?: Prisma.LeadUncheckedUpdateManyWithoutProjectNestedInput
-  page_views?: Prisma.PageViewUncheckedUpdateManyWithoutProjectNestedInput
+  activity_logs?: Prisma.ActivityLogUncheckedUpdateManyWithoutProjectNestedInput
   homepage_slots?: Prisma.HomepageProjectUncheckedUpdateManyWithoutProjectNestedInput
 }
 
@@ -1428,7 +1428,7 @@ export type ProjectCreateWithoutPromotionsInput = {
   facilities?: Prisma.FacilityCreateNestedManyWithoutProjectInput
   news_items?: Prisma.NewsItemCreateNestedManyWithoutProjectInput
   leads?: Prisma.LeadCreateNestedManyWithoutProjectInput
-  page_views?: Prisma.PageViewCreateNestedManyWithoutProjectInput
+  activity_logs?: Prisma.ActivityLogCreateNestedManyWithoutProjectInput
   homepage_slots?: Prisma.HomepageProjectCreateNestedManyWithoutProjectInput
 }
 
@@ -1457,7 +1457,7 @@ export type ProjectUncheckedCreateWithoutPromotionsInput = {
   facilities?: Prisma.FacilityUncheckedCreateNestedManyWithoutProjectInput
   news_items?: Prisma.NewsItemUncheckedCreateNestedManyWithoutProjectInput
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutProjectInput
-  page_views?: Prisma.PageViewUncheckedCreateNestedManyWithoutProjectInput
+  activity_logs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutProjectInput
   homepage_slots?: Prisma.HomepageProjectUncheckedCreateNestedManyWithoutProjectInput
 }
 
@@ -1502,7 +1502,7 @@ export type ProjectUpdateWithoutPromotionsInput = {
   facilities?: Prisma.FacilityUpdateManyWithoutProjectNestedInput
   news_items?: Prisma.NewsItemUpdateManyWithoutProjectNestedInput
   leads?: Prisma.LeadUpdateManyWithoutProjectNestedInput
-  page_views?: Prisma.PageViewUpdateManyWithoutProjectNestedInput
+  activity_logs?: Prisma.ActivityLogUpdateManyWithoutProjectNestedInput
   homepage_slots?: Prisma.HomepageProjectUpdateManyWithoutProjectNestedInput
 }
 
@@ -1531,7 +1531,7 @@ export type ProjectUncheckedUpdateWithoutPromotionsInput = {
   facilities?: Prisma.FacilityUncheckedUpdateManyWithoutProjectNestedInput
   news_items?: Prisma.NewsItemUncheckedUpdateManyWithoutProjectNestedInput
   leads?: Prisma.LeadUncheckedUpdateManyWithoutProjectNestedInput
-  page_views?: Prisma.PageViewUncheckedUpdateManyWithoutProjectNestedInput
+  activity_logs?: Prisma.ActivityLogUncheckedUpdateManyWithoutProjectNestedInput
   homepage_slots?: Prisma.HomepageProjectUncheckedUpdateManyWithoutProjectNestedInput
 }
 
@@ -1560,7 +1560,7 @@ export type ProjectCreateWithoutNews_itemsInput = {
   facilities?: Prisma.FacilityCreateNestedManyWithoutProjectInput
   promotions?: Prisma.PromotionCreateNestedManyWithoutProjectInput
   leads?: Prisma.LeadCreateNestedManyWithoutProjectInput
-  page_views?: Prisma.PageViewCreateNestedManyWithoutProjectInput
+  activity_logs?: Prisma.ActivityLogCreateNestedManyWithoutProjectInput
   homepage_slots?: Prisma.HomepageProjectCreateNestedManyWithoutProjectInput
 }
 
@@ -1589,7 +1589,7 @@ export type ProjectUncheckedCreateWithoutNews_itemsInput = {
   facilities?: Prisma.FacilityUncheckedCreateNestedManyWithoutProjectInput
   promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutProjectInput
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutProjectInput
-  page_views?: Prisma.PageViewUncheckedCreateNestedManyWithoutProjectInput
+  activity_logs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutProjectInput
   homepage_slots?: Prisma.HomepageProjectUncheckedCreateNestedManyWithoutProjectInput
 }
 
@@ -1634,7 +1634,7 @@ export type ProjectUpdateWithoutNews_itemsInput = {
   facilities?: Prisma.FacilityUpdateManyWithoutProjectNestedInput
   promotions?: Prisma.PromotionUpdateManyWithoutProjectNestedInput
   leads?: Prisma.LeadUpdateManyWithoutProjectNestedInput
-  page_views?: Prisma.PageViewUpdateManyWithoutProjectNestedInput
+  activity_logs?: Prisma.ActivityLogUpdateManyWithoutProjectNestedInput
   homepage_slots?: Prisma.HomepageProjectUpdateManyWithoutProjectNestedInput
 }
 
@@ -1663,7 +1663,7 @@ export type ProjectUncheckedUpdateWithoutNews_itemsInput = {
   facilities?: Prisma.FacilityUncheckedUpdateManyWithoutProjectNestedInput
   promotions?: Prisma.PromotionUncheckedUpdateManyWithoutProjectNestedInput
   leads?: Prisma.LeadUncheckedUpdateManyWithoutProjectNestedInput
-  page_views?: Prisma.PageViewUncheckedUpdateManyWithoutProjectNestedInput
+  activity_logs?: Prisma.ActivityLogUncheckedUpdateManyWithoutProjectNestedInput
   homepage_slots?: Prisma.HomepageProjectUncheckedUpdateManyWithoutProjectNestedInput
 }
 
@@ -1692,7 +1692,7 @@ export type ProjectCreateWithoutLeadsInput = {
   facilities?: Prisma.FacilityCreateNestedManyWithoutProjectInput
   promotions?: Prisma.PromotionCreateNestedManyWithoutProjectInput
   news_items?: Prisma.NewsItemCreateNestedManyWithoutProjectInput
-  page_views?: Prisma.PageViewCreateNestedManyWithoutProjectInput
+  activity_logs?: Prisma.ActivityLogCreateNestedManyWithoutProjectInput
   homepage_slots?: Prisma.HomepageProjectCreateNestedManyWithoutProjectInput
 }
 
@@ -1721,7 +1721,7 @@ export type ProjectUncheckedCreateWithoutLeadsInput = {
   facilities?: Prisma.FacilityUncheckedCreateNestedManyWithoutProjectInput
   promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutProjectInput
   news_items?: Prisma.NewsItemUncheckedCreateNestedManyWithoutProjectInput
-  page_views?: Prisma.PageViewUncheckedCreateNestedManyWithoutProjectInput
+  activity_logs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutProjectInput
   homepage_slots?: Prisma.HomepageProjectUncheckedCreateNestedManyWithoutProjectInput
 }
 
@@ -1766,7 +1766,7 @@ export type ProjectUpdateWithoutLeadsInput = {
   facilities?: Prisma.FacilityUpdateManyWithoutProjectNestedInput
   promotions?: Prisma.PromotionUpdateManyWithoutProjectNestedInput
   news_items?: Prisma.NewsItemUpdateManyWithoutProjectNestedInput
-  page_views?: Prisma.PageViewUpdateManyWithoutProjectNestedInput
+  activity_logs?: Prisma.ActivityLogUpdateManyWithoutProjectNestedInput
   homepage_slots?: Prisma.HomepageProjectUpdateManyWithoutProjectNestedInput
 }
 
@@ -1795,11 +1795,11 @@ export type ProjectUncheckedUpdateWithoutLeadsInput = {
   facilities?: Prisma.FacilityUncheckedUpdateManyWithoutProjectNestedInput
   promotions?: Prisma.PromotionUncheckedUpdateManyWithoutProjectNestedInput
   news_items?: Prisma.NewsItemUncheckedUpdateManyWithoutProjectNestedInput
-  page_views?: Prisma.PageViewUncheckedUpdateManyWithoutProjectNestedInput
+  activity_logs?: Prisma.ActivityLogUncheckedUpdateManyWithoutProjectNestedInput
   homepage_slots?: Prisma.HomepageProjectUncheckedUpdateManyWithoutProjectNestedInput
 }
 
-export type ProjectCreateWithoutPage_viewsInput = {
+export type ProjectCreateWithoutActivity_logsInput = {
   id?: string
   slug: string
   name_th: string
@@ -1828,7 +1828,7 @@ export type ProjectCreateWithoutPage_viewsInput = {
   homepage_slots?: Prisma.HomepageProjectCreateNestedManyWithoutProjectInput
 }
 
-export type ProjectUncheckedCreateWithoutPage_viewsInput = {
+export type ProjectUncheckedCreateWithoutActivity_logsInput = {
   id?: string
   slug: string
   name_th: string
@@ -1857,23 +1857,23 @@ export type ProjectUncheckedCreateWithoutPage_viewsInput = {
   homepage_slots?: Prisma.HomepageProjectUncheckedCreateNestedManyWithoutProjectInput
 }
 
-export type ProjectCreateOrConnectWithoutPage_viewsInput = {
+export type ProjectCreateOrConnectWithoutActivity_logsInput = {
   where: Prisma.ProjectWhereUniqueInput
-  create: Prisma.XOR<Prisma.ProjectCreateWithoutPage_viewsInput, Prisma.ProjectUncheckedCreateWithoutPage_viewsInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutActivity_logsInput, Prisma.ProjectUncheckedCreateWithoutActivity_logsInput>
 }
 
-export type ProjectUpsertWithoutPage_viewsInput = {
-  update: Prisma.XOR<Prisma.ProjectUpdateWithoutPage_viewsInput, Prisma.ProjectUncheckedUpdateWithoutPage_viewsInput>
-  create: Prisma.XOR<Prisma.ProjectCreateWithoutPage_viewsInput, Prisma.ProjectUncheckedCreateWithoutPage_viewsInput>
+export type ProjectUpsertWithoutActivity_logsInput = {
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutActivity_logsInput, Prisma.ProjectUncheckedUpdateWithoutActivity_logsInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutActivity_logsInput, Prisma.ProjectUncheckedCreateWithoutActivity_logsInput>
   where?: Prisma.ProjectWhereInput
 }
 
-export type ProjectUpdateToOneWithWhereWithoutPage_viewsInput = {
+export type ProjectUpdateToOneWithWhereWithoutActivity_logsInput = {
   where?: Prisma.ProjectWhereInput
-  data: Prisma.XOR<Prisma.ProjectUpdateWithoutPage_viewsInput, Prisma.ProjectUncheckedUpdateWithoutPage_viewsInput>
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutActivity_logsInput, Prisma.ProjectUncheckedUpdateWithoutActivity_logsInput>
 }
 
-export type ProjectUpdateWithoutPage_viewsInput = {
+export type ProjectUpdateWithoutActivity_logsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name_th?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1902,7 +1902,7 @@ export type ProjectUpdateWithoutPage_viewsInput = {
   homepage_slots?: Prisma.HomepageProjectUpdateManyWithoutProjectNestedInput
 }
 
-export type ProjectUncheckedUpdateWithoutPage_viewsInput = {
+export type ProjectUncheckedUpdateWithoutActivity_logsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name_th?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1956,7 +1956,7 @@ export type ProjectCreateWithoutSettingsInput = {
   promotions?: Prisma.PromotionCreateNestedManyWithoutProjectInput
   news_items?: Prisma.NewsItemCreateNestedManyWithoutProjectInput
   leads?: Prisma.LeadCreateNestedManyWithoutProjectInput
-  page_views?: Prisma.PageViewCreateNestedManyWithoutProjectInput
+  activity_logs?: Prisma.ActivityLogCreateNestedManyWithoutProjectInput
   homepage_slots?: Prisma.HomepageProjectCreateNestedManyWithoutProjectInput
 }
 
@@ -1985,7 +1985,7 @@ export type ProjectUncheckedCreateWithoutSettingsInput = {
   promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutProjectInput
   news_items?: Prisma.NewsItemUncheckedCreateNestedManyWithoutProjectInput
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutProjectInput
-  page_views?: Prisma.PageViewUncheckedCreateNestedManyWithoutProjectInput
+  activity_logs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutProjectInput
   homepage_slots?: Prisma.HomepageProjectUncheckedCreateNestedManyWithoutProjectInput
 }
 
@@ -2030,7 +2030,7 @@ export type ProjectUpdateWithoutSettingsInput = {
   promotions?: Prisma.PromotionUpdateManyWithoutProjectNestedInput
   news_items?: Prisma.NewsItemUpdateManyWithoutProjectNestedInput
   leads?: Prisma.LeadUpdateManyWithoutProjectNestedInput
-  page_views?: Prisma.PageViewUpdateManyWithoutProjectNestedInput
+  activity_logs?: Prisma.ActivityLogUpdateManyWithoutProjectNestedInput
   homepage_slots?: Prisma.HomepageProjectUpdateManyWithoutProjectNestedInput
 }
 
@@ -2059,7 +2059,7 @@ export type ProjectUncheckedUpdateWithoutSettingsInput = {
   promotions?: Prisma.PromotionUncheckedUpdateManyWithoutProjectNestedInput
   news_items?: Prisma.NewsItemUncheckedUpdateManyWithoutProjectNestedInput
   leads?: Prisma.LeadUncheckedUpdateManyWithoutProjectNestedInput
-  page_views?: Prisma.PageViewUncheckedUpdateManyWithoutProjectNestedInput
+  activity_logs?: Prisma.ActivityLogUncheckedUpdateManyWithoutProjectNestedInput
   homepage_slots?: Prisma.HomepageProjectUncheckedUpdateManyWithoutProjectNestedInput
 }
 
@@ -2075,7 +2075,7 @@ export type ProjectCountOutputType = {
   promotions: number
   news_items: number
   leads: number
-  page_views: number
+  activity_logs: number
   homepage_slots: number
 }
 
@@ -2086,7 +2086,7 @@ export type ProjectCountOutputTypeSelect<ExtArgs extends runtime.Types.Extension
   promotions?: boolean | ProjectCountOutputTypeCountPromotionsArgs
   news_items?: boolean | ProjectCountOutputTypeCountNews_itemsArgs
   leads?: boolean | ProjectCountOutputTypeCountLeadsArgs
-  page_views?: boolean | ProjectCountOutputTypeCountPage_viewsArgs
+  activity_logs?: boolean | ProjectCountOutputTypeCountActivity_logsArgs
   homepage_slots?: boolean | ProjectCountOutputTypeCountHomepage_slotsArgs
 }
 
@@ -2145,8 +2145,8 @@ export type ProjectCountOutputTypeCountLeadsArgs<ExtArgs extends runtime.Types.E
 /**
  * ProjectCountOutputType without action
  */
-export type ProjectCountOutputTypeCountPage_viewsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.PageViewWhereInput
+export type ProjectCountOutputTypeCountActivity_logsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ActivityLogWhereInput
 }
 
 /**
@@ -2183,7 +2183,7 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   promotions?: boolean | Prisma.Project$promotionsArgs<ExtArgs>
   news_items?: boolean | Prisma.Project$news_itemsArgs<ExtArgs>
   leads?: boolean | Prisma.Project$leadsArgs<ExtArgs>
-  page_views?: boolean | Prisma.Project$page_viewsArgs<ExtArgs>
+  activity_logs?: boolean | Prisma.Project$activity_logsArgs<ExtArgs>
   homepage_slots?: boolean | Prisma.Project$homepage_slotsArgs<ExtArgs>
   _count?: boolean | Prisma.ProjectCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["project"]>
@@ -2220,7 +2220,7 @@ export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   promotions?: boolean | Prisma.Project$promotionsArgs<ExtArgs>
   news_items?: boolean | Prisma.Project$news_itemsArgs<ExtArgs>
   leads?: boolean | Prisma.Project$leadsArgs<ExtArgs>
-  page_views?: boolean | Prisma.Project$page_viewsArgs<ExtArgs>
+  activity_logs?: boolean | Prisma.Project$activity_logsArgs<ExtArgs>
   homepage_slots?: boolean | Prisma.Project$homepage_slotsArgs<ExtArgs>
   _count?: boolean | Prisma.ProjectCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -2235,7 +2235,7 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     promotions: Prisma.$PromotionPayload<ExtArgs>[]
     news_items: Prisma.$NewsItemPayload<ExtArgs>[]
     leads: Prisma.$LeadPayload<ExtArgs>[]
-    page_views: Prisma.$PageViewPayload<ExtArgs>[]
+    activity_logs: Prisma.$ActivityLogPayload<ExtArgs>[]
     homepage_slots: Prisma.$HomepageProjectPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -2604,7 +2604,7 @@ export interface Prisma__ProjectClient<T, Null = never, ExtArgs extends runtime.
   promotions<T extends Prisma.Project$promotionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$promotionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PromotionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   news_items<T extends Prisma.Project$news_itemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$news_itemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NewsItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   leads<T extends Prisma.Project$leadsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$leadsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LeadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  page_views<T extends Prisma.Project$page_viewsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$page_viewsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PageViewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  activity_logs<T extends Prisma.Project$activity_logsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$activity_logsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   homepage_slots<T extends Prisma.Project$homepage_slotsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$homepage_slotsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$HomepageProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -3164,27 +3164,27 @@ export type Project$leadsArgs<ExtArgs extends runtime.Types.Extensions.InternalA
 }
 
 /**
- * Project.page_views
+ * Project.activity_logs
  */
-export type Project$page_viewsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Project$activity_logsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the PageView
+   * Select specific fields to fetch from the ActivityLog
    */
-  select?: Prisma.PageViewSelect<ExtArgs> | null
+  select?: Prisma.ActivityLogSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the PageView
+   * Omit specific fields from the ActivityLog
    */
-  omit?: Prisma.PageViewOmit<ExtArgs> | null
+  omit?: Prisma.ActivityLogOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.PageViewInclude<ExtArgs> | null
-  where?: Prisma.PageViewWhereInput
-  orderBy?: Prisma.PageViewOrderByWithRelationInput | Prisma.PageViewOrderByWithRelationInput[]
-  cursor?: Prisma.PageViewWhereUniqueInput
+  include?: Prisma.ActivityLogInclude<ExtArgs> | null
+  where?: Prisma.ActivityLogWhereInput
+  orderBy?: Prisma.ActivityLogOrderByWithRelationInput | Prisma.ActivityLogOrderByWithRelationInput[]
+  cursor?: Prisma.ActivityLogWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.PageViewScalarFieldEnum | Prisma.PageViewScalarFieldEnum[]
+  distinct?: Prisma.ActivityLogScalarFieldEnum | Prisma.ActivityLogScalarFieldEnum[]
 }
 
 /**

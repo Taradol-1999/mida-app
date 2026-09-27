@@ -11,34 +11,43 @@ type Metric = { label: string; value: string; note: string; tone: string };
 async function dashboardData(startDate: Date, endDate: Date) {
   try {
     const periodWhere = { created_at: { gte: startDate, lt: endDate } };
-    const [leads, views, average, leadHistory, viewGroups, residenceGroups, demographicLeads] = await Promise.all([
-      prisma.lead.count({ where: periodWhere }),
-      prisma.pageView.count({ where: periodWhere }),
-      prisma.pageView.aggregate({
-        _avg: { duration_seconds: true },
-        where: { ...periodWhere, duration_seconds: { not: null } },
-      }),
-      prisma.lead.findMany({ where: periodWhere, select: { created_at: true } }),
-      prisma.pageView.groupBy({
-        by: ["project_id"],
-        _count: { id: true },
-        _avg: { duration_seconds: true },
-        where: periodWhere,
-        orderBy: { _count: { id: "desc" } },
-        take: 5,
-      }),
-      prisma.lead.groupBy({
-        by: ["residence_type"],
-        _count: { id: true },
-        where: { ...periodWhere, residence_type: { not: null } },
-        orderBy: { _count: { id: "desc" } },
-      }),
-      prisma.lead.findMany({ where: periodWhere, select: { age_range: true, occupation: true, budget: true } }),
-    ]);
+    const publicVisitWhere = { ...periodWhere, area: "PUBLIC", action: "PAGE_VISIT" };
+    const publicDurationWhere = { ...periodWhere, area: "PUBLIC", action: "PAGE_DURATION" };
+    const [leads, views, average, leadHistory, viewGroups, durationGroups, residenceGroups, demographicLeads] =
+      await Promise.all([
+        prisma.lead.count({ where: periodWhere }),
+        prisma.activityLog.count({ where: publicVisitWhere }),
+        prisma.activityLog.aggregate({
+          _avg: { duration_seconds: true },
+          where: { ...publicDurationWhere, duration_seconds: { gt: 0 } },
+        }),
+        prisma.lead.findMany({ where: periodWhere, select: { created_at: true } }),
+        prisma.activityLog.groupBy({
+          by: ["project_id"],
+          _count: { id: true },
+          where: publicVisitWhere,
+          orderBy: { _count: { id: "desc" } },
+          take: 5,
+        }),
+        prisma.activityLog.groupBy({
+          by: ["project_id"],
+          _avg: { duration_seconds: true },
+          where: { ...publicDurationWhere, duration_seconds: { gt: 0 } },
+          orderBy: { _avg: { duration_seconds: "desc" } },
+          take: 5,
+        }),
+        prisma.lead.groupBy({
+          by: ["residence_type"],
+          _count: { id: true },
+          where: { ...periodWhere, residence_type: { not: null } },
+          orderBy: { _count: { id: "desc" } },
+        }),
+        prisma.lead.findMany({ where: periodWhere, select: { age_range: true, occupation: true, budget: true } }),
+      ]);
     const projectNames = await prisma.project.findMany({
       where: {
         id: {
-          in: viewGroups.flatMap((group) => (group.project_id ? [group.project_id] : [])),
+          in: [...viewGroups, ...durationGroups].flatMap((group) => (group.project_id ? [group.project_id] : [])),
         },
       },
       select: { id: true, name_th: true },
@@ -73,7 +82,7 @@ async function dashboardData(startDate: Date, endDate: Date) {
       seconds: Math.round(average._avg.duration_seconds ?? 0),
       weeklyLeads,
       viewsByProject: viewGroups.map((group) => ({ name: compactName(group.project_id), total: group._count.id })),
-      durationByProject: viewGroups.map((group) => ({
+      durationByProject: durationGroups.map((group) => ({
         name: compactName(group.project_id),
         seconds: Math.round(group._avg.duration_seconds ?? 0),
       })),
@@ -165,7 +174,7 @@ export default async function AdminPage({
   const years = Array.from({ length: 4 }, (_, index) => now.getFullYear() - index);
   const metrics: Metric[] = [
     { label: "จำนวนการเข้าชมเว็บรวม", value: formatNumber(data.views), note: "ครั้ง", tone: "text-brand-primary" },
-    { label: "ข้อมูลเฉลี่ยเวลาเข้าชม", value: duration(data.seconds), note: "นาที", tone: "text-brand-primary" },
+    { label: "ข้อมูลเฉลี่ยเวลาเข้าชม", value: duration(data.seconds), note: "นาที:วินาที", tone: "text-brand-primary" },
     { label: "จำนวนผู้ลงทะเบียน", value: formatNumber(data.leads), note: "รายชื่อ", tone: "text-emerald-700" },
   ];
   const demographicPanels: Array<{

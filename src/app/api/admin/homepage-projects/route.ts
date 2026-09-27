@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { recordAdminActivity } from "@/lib/admin-activity";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -36,11 +37,22 @@ export async function PUT(request: Request) {
   const count = await prisma.project.count({ where: { id: { in: projectIds }, status: { not: "ARCHIVED" } } });
   if (count !== projectIds.length)
     return NextResponse.json({ message: "พบโครงการที่ไม่สามารถนำมาแสดงได้" }, { status: 400 });
+  const previousProjectIds = (
+    await prisma.homepageProject.findMany({ select: { project_id: true }, orderBy: { sort_order: "asc" } })
+  ).map((item) => item.project_id);
   await prisma.$transaction([
     prisma.homepageProject.deleteMany(),
     prisma.homepageProject.createMany({
       data: projectIds.map((project_id, sort_order) => ({ project_id, sort_order })),
     }),
   ]);
+  await recordAdminActivity({
+    request,
+    user: access.user,
+    action: "ADMIN_UPDATE",
+    detail: `ปรับรายการโครงการหน้าแรก (${projectIds.length} โครงการ)`,
+    oldPayload: { project_ids: previousProjectIds },
+    newPayload: { project_ids: projectIds },
+  });
   return NextResponse.json({ ok: true });
 }

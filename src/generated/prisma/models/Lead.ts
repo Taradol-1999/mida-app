@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model Lead
- * 
+ * ข้อมูลผู้สนใจที่ส่งมาจากแบบฟอร์มรับข้อเสนอพิเศษ เพื่อติดตามงานฝ่ายขาย
  */
 export type LeadModel = runtime.Types.Result.DefaultSelection<Prisma.$LeadPayload>
 

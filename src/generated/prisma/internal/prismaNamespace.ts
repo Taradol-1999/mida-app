@@ -406,7 +406,7 @@ export const ModelName = {
   Promotion: 'Promotion',
   NewsItem: 'NewsItem',
   Lead: 'Lead',
-  PageView: 'PageView',
+  ActivityLog: 'ActivityLog',
   SiteContent: 'SiteContent',
   MediaAsset: 'MediaAsset',
   ProjectSetting: 'ProjectSetting'
@@ -425,7 +425,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "project" | "homepageProject" | "userProject" | "houseType" | "facility" | "promotion" | "newsItem" | "lead" | "pageView" | "siteContent" | "mediaAsset" | "projectSetting"
+    modelProps: "user" | "project" | "homepageProject" | "userProject" | "houseType" | "facility" | "promotion" | "newsItem" | "lead" | "activityLog" | "siteContent" | "mediaAsset" | "projectSetting"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1023,69 +1023,69 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    PageView: {
-      payload: Prisma.$PageViewPayload<ExtArgs>
-      fields: Prisma.PageViewFieldRefs
+    ActivityLog: {
+      payload: Prisma.$ActivityLogPayload<ExtArgs>
+      fields: Prisma.ActivityLogFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.PageViewFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PageViewPayload> | null
+          args: Prisma.ActivityLogFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ActivityLogPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.PageViewFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PageViewPayload>
+          args: Prisma.ActivityLogFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ActivityLogPayload>
         }
         findFirst: {
-          args: Prisma.PageViewFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PageViewPayload> | null
+          args: Prisma.ActivityLogFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ActivityLogPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.PageViewFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PageViewPayload>
+          args: Prisma.ActivityLogFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ActivityLogPayload>
         }
         findMany: {
-          args: Prisma.PageViewFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PageViewPayload>[]
+          args: Prisma.ActivityLogFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ActivityLogPayload>[]
         }
         create: {
-          args: Prisma.PageViewCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PageViewPayload>
+          args: Prisma.ActivityLogCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ActivityLogPayload>
         }
         createMany: {
-          args: Prisma.PageViewCreateManyArgs<ExtArgs>
+          args: Prisma.ActivityLogCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         delete: {
-          args: Prisma.PageViewDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PageViewPayload>
+          args: Prisma.ActivityLogDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ActivityLogPayload>
         }
         update: {
-          args: Prisma.PageViewUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PageViewPayload>
+          args: Prisma.ActivityLogUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ActivityLogPayload>
         }
         deleteMany: {
-          args: Prisma.PageViewDeleteManyArgs<ExtArgs>
+          args: Prisma.ActivityLogDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.PageViewUpdateManyArgs<ExtArgs>
+          args: Prisma.ActivityLogUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         upsert: {
-          args: Prisma.PageViewUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PageViewPayload>
+          args: Prisma.ActivityLogUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ActivityLogPayload>
         }
         aggregate: {
-          args: Prisma.PageViewAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregatePageView>
+          args: Prisma.ActivityLogAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateActivityLog>
         }
         groupBy: {
-          args: Prisma.PageViewGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.PageViewGroupByOutputType>[]
+          args: Prisma.ActivityLogGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ActivityLogGroupByOutputType>[]
         }
         count: {
-          args: Prisma.PageViewCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.PageViewCountAggregateOutputType> | number
+          args: Prisma.ActivityLogCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ActivityLogCountAggregateOutputType> | number
         }
       }
     }
@@ -1467,16 +1467,23 @@ export const LeadScalarFieldEnum = {
 export type LeadScalarFieldEnum = (typeof LeadScalarFieldEnum)[keyof typeof LeadScalarFieldEnum]
 
 
-export const PageViewScalarFieldEnum = {
+export const ActivityLogScalarFieldEnum = {
   id: 'id',
-  project_id: 'project_id',
+  area: 'area',
+  action: 'action',
   path: 'path',
+  user_id: 'user_id',
+  project_id: 'project_id',
   session_key: 'session_key',
+  ip_address: 'ip_address',
   duration_seconds: 'duration_seconds',
+  detail: 'detail',
+  old_payload: 'old_payload',
+  new_payload: 'new_payload',
   created_at: 'created_at'
 } as const
 
-export type PageViewScalarFieldEnum = (typeof PageViewScalarFieldEnum)[keyof typeof PageViewScalarFieldEnum]
+export type ActivityLogScalarFieldEnum = (typeof ActivityLogScalarFieldEnum)[keyof typeof ActivityLogScalarFieldEnum]
 
 
 export const SiteContentScalarFieldEnum = {
@@ -1680,13 +1687,18 @@ export const LeadOrderByRelevanceFieldEnum = {
 export type LeadOrderByRelevanceFieldEnum = (typeof LeadOrderByRelevanceFieldEnum)[keyof typeof LeadOrderByRelevanceFieldEnum]
 
 
-export const PageViewOrderByRelevanceFieldEnum = {
-  project_id: 'project_id',
+export const ActivityLogOrderByRelevanceFieldEnum = {
+  area: 'area',
+  action: 'action',
   path: 'path',
-  session_key: 'session_key'
+  user_id: 'user_id',
+  project_id: 'project_id',
+  session_key: 'session_key',
+  ip_address: 'ip_address',
+  detail: 'detail'
 } as const
 
-export type PageViewOrderByRelevanceFieldEnum = (typeof PageViewOrderByRelevanceFieldEnum)[keyof typeof PageViewOrderByRelevanceFieldEnum]
+export type ActivityLogOrderByRelevanceFieldEnum = (typeof ActivityLogOrderByRelevanceFieldEnum)[keyof typeof ActivityLogOrderByRelevanceFieldEnum]
 
 
 export const SiteContentOrderByRelevanceFieldEnum = {
@@ -1999,7 +2011,7 @@ export type GlobalOmitConfig = {
   promotion?: Prisma.PromotionOmit
   newsItem?: Prisma.NewsItemOmit
   lead?: Prisma.LeadOmit
-  pageView?: Prisma.PageViewOmit
+  activityLog?: Prisma.ActivityLogOmit
   siteContent?: Prisma.SiteContentOmit
   mediaAsset?: Prisma.MediaAssetOmit
   projectSetting?: Prisma.ProjectSettingOmit

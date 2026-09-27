@@ -19,66 +19,66 @@ export * as $Enums from './enums'
 export * from './enums';
 /**
  * Model User
- * 
+ * บัญชีผู้ดูแลระบบสำหรับการเข้าสู่ระบบ กำหนดบทบาท และสิทธิ์เข้าถึงโครงการ
  */
 export type User = Prisma.UserModel
 /**
  * Model Project
- * 
+ * ข้อมูลหลักของโครงการอสังหาริมทรัพย์ที่นำไปแสดงทั้งหน้าบ้านและหลังบ้าน
  */
 export type Project = Prisma.ProjectModel
 /**
  * Model HomepageProject
- * 
+ * รายการโครงการที่เลือกมาแสดงหน้าแรก พร้อมลำดับการแสดงผล
  */
 export type HomepageProject = Prisma.HomepageProjectModel
 /**
  * Model UserProject
- * 
+ * ความสัมพันธ์ระหว่างผู้ใช้ Marketing กับโครงการที่ได้รับมอบหมายให้ดูแล
  */
 export type UserProject = Prisma.UserProjectModel
 /**
  * Model HouseType
- * 
+ * แบบบ้านของแต่ละโครงการ เช่น รายละเอียด จำนวนห้อง พื้นที่ใช้สอย และราคาเริ่มต้น
  */
 export type HouseType = Prisma.HouseTypeModel
 /**
  * Model Facility
- * 
+ * สิ่งอำนวยความสะดวกของโครงการ พร้อมคำอธิบายและลำดับการแสดงผล
  */
 export type Facility = Prisma.FacilityModel
 /**
  * Model Promotion
- * 
+ * ข้อเสนอหรือแคมเปญส่งเสริมการขายของโครงการ หรือของ MIDA ส่วนกลาง
  */
 export type Promotion = Prisma.PromotionModel
 /**
  * Model NewsItem
- * 
+ * ข่าวสารและกิจกรรมพิเศษของโครงการ หรือของ MIDA ส่วนกลาง
  */
 export type NewsItem = Prisma.NewsItemModel
 /**
  * Model Lead
- * 
+ * ข้อมูลผู้สนใจที่ส่งมาจากแบบฟอร์มรับข้อเสนอพิเศษ เพื่อติดตามงานฝ่ายขาย
  */
 export type Lead = Prisma.LeadModel
 /**
- * Model PageView
- * 
+ * Model ActivityLog
+ * บันทึกกิจกรรมการเข้าใช้งานหน้าบ้านและหลังบ้าน เพื่อใช้สร้างสถิติการใช้งาน
  */
-export type PageView = Prisma.PageViewModel
+export type ActivityLog = Prisma.ActivityLogModel
 /**
  * Model SiteContent
- * 
+ * เนื้อหาส่วนกลางของเว็บไซต์ MIDA ที่ไม่ผูกกับโครงการใดโครงการหนึ่ง
  */
 export type SiteContent = Prisma.SiteContentModel
 /**
  * Model MediaAsset
- * 
+ * เมทาดาทาของไฟล์รูปภาพ วิดีโอ และเอกสารที่อัปโหลด พร้อมความสัมพันธ์กับข้อมูลต้นทาง
  */
 export type MediaAsset = Prisma.MediaAssetModel
 /**
  * Model ProjectSetting
- * 
+ * การตั้งค่าหน้าโครงการ เช่น Hero ติดต่อ แผนที่ สถานที่ใกล้เคียง และบริการหลังการขาย
  */
 export type ProjectSetting = Prisma.ProjectSettingModel

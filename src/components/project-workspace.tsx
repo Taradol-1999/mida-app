@@ -32,7 +32,7 @@ type ProjectDashboard = {
   views: number;
   leads: number;
   averageDuration: number;
-  houseTypes: Array<{ label: string; value: number }>;
+  houseTypeViews: Array<{ label: string; value: number }>;
   contentViews: Array<{ label: string; value: number }>;
   demographics: {
     ages: Array<{ label: string; value: number; percent: number }>;
@@ -535,7 +535,7 @@ export function ProjectWorkspace({
       views: 0,
       leads: 0,
       averageDuration: 0,
-      houseTypes: [],
+      houseTypeViews: [],
       contentViews: [],
       demographics: { ages: [], occupations: [], budgets: [] },
     };
@@ -566,13 +566,7 @@ export function ProjectWorkspace({
         <div className="mt-6 grid gap-6 xl:grid-cols-[18rem_1fr]">
           <aside className="grid gap-4 sm:grid-cols-3 xl:grid-cols-1">
             {[
-              [
-                "จำนวนการเข้าชมเว็บไซต์",
-                summary.views.toLocaleString("th-TH"),
-                "ครั้ง",
-                "fa-chart-line",
-                "text-brand-primary",
-              ],
+              ["จำนวนการเข้าชม", summary.views.toLocaleString("th-TH"), "ครั้ง", "fa-chart-line", "text-brand-primary"],
               [
                 "จำนวนการลงทะเบียน",
                 summary.leads.toLocaleString("th-TH"),
@@ -580,7 +574,7 @@ export function ProjectWorkspace({
                 "fa-user-pen",
                 "text-emerald-700",
               ],
-              ["ข้อมูลเฉลี่ยเวลาเข้าชม", duration, "นาที", "fa-clock", "text-brand-primary"],
+              ["ข้อมูลเฉลี่ยเวลาเข้าชม", duration, "นาที:วินาที", "fa-clock", "text-brand-primary"],
             ].map(([label, value, unit, icon, tone]) => (
               <section
                 key={label}
@@ -601,16 +595,16 @@ export function ProjectWorkspace({
           <div className="grid gap-6 md:grid-cols-2">
             <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_28px_rgba(0,45,98,0.06)]">
               <h2 className="flex items-center gap-2 text-sm font-extrabold text-brand-primary">
-                <i className="fa-solid fa-house text-brand-accent" /> ข้อมูล Type บ้าน (รูปแบบกราฟ)
+                <i className="fa-solid fa-house text-brand-accent" /> จำนวนการเข้าชมแบบบ้าน
               </h2>
               <div className="mt-4 rounded-xl bg-brand-muted p-3">
                 <DashboardBarChart
-                  labels={summary.houseTypes.map((item) => item.label)}
-                  values={summary.houseTypes.map((item) => item.value)}
-                  label="จำนวนแบบบ้าน"
+                  labels={summary.houseTypeViews.map((item) => item.label)}
+                  values={summary.houseTypeViews.map((item) => item.value)}
+                  label="จำนวนการเข้าชม"
                 />
               </div>
-              <p className="mt-3 text-xs text-slate-500">จำนวนแบบบ้านที่ตั้งค่าไว้ในโครงการ</p>
+              <p className="mt-3 text-xs text-slate-500">นับเมื่อผู้ใช้เปิดดูแบบบ้านในหน้าโครงการ</p>
             </section>
 
             <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_28px_rgba(0,45,98,0.06)]">

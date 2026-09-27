@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model HouseType
- * 
+ * แบบบ้านของแต่ละโครงการ เช่น รายละเอียด จำนวนห้อง พื้นที่ใช้สอย และราคาเริ่มต้น
  */
 export type HouseTypeModel = runtime.Types.Result.DefaultSelection<Prisma.$HouseTypePayload>
 

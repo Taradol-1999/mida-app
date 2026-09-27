@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { useTranslation } from "@/components/language-provider";
 
 export type HouseTypeItem = {
@@ -20,8 +21,24 @@ export type HouseTypeItem = {
 export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
   const [active, setActive] = useState(0);
   const { language, t } = useTranslation();
+  const pathname = usePathname();
   const dragStartX = useRef<number | null>(null);
   const didDrag = useRef(false);
+  const activeHouseId = items[active]?.id;
+
+  useEffect(() => {
+    if (!activeHouseId) return;
+    const sessionKey = window.sessionStorage.getItem("mida_activity_session") ?? undefined;
+    void fetch("/api/activity", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "HOUSE_TYPE_VIEW",
+        path: `${pathname}?houseType=${encodeURIComponent(activeHouseId)}`,
+        session_key: sessionKey,
+      }),
+    });
+  }, [activeHouseId, pathname]);
 
   function move(direction: -1 | 1) {
     setActive((value) => (value + direction + items.length) % items.length);
