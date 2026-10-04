@@ -788,7 +788,7 @@ export function ProjectWorkspace({
         {message && <p className="mt-5 rounded-lg bg-brand-soft px-4 py-3 text-sm text-brand-primary">{message}</p>}
         <section className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="overflow-x-auto">
-            <table className="min-w-[1180px] w-full text-left text-sm">
+            <table className="min-w-295 w-full text-left text-sm">
               <thead className="bg-slate-50 text-xs font-bold uppercase tracking-wide text-slate-600">
                 <tr>
                   <th className="px-4 py-4">วันที่/เวลา</th>
