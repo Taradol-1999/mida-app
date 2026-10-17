@@ -22,7 +22,7 @@ export function NewsPromotionSlider({
   variant = "default",
 }: {
   items: NewsPromotionItem[];
-  variant?: "default" | "project";
+  variant?: "default" | "project" | "home";
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const trackSwipeStartX = useRef<number | null>(null);
@@ -30,6 +30,7 @@ export function NewsPromotionSlider({
   const [selected, setSelected] = useState<{ itemIndex: number; imageIndex: number } | null>(null);
   const [detailIndex, setDetailIndex] = useState<number | null>(null);
   const projectStyle = variant === "project";
+  const homeStyle = variant === "home";
   const { t } = useTranslation();
   const selectedItem = selected === null ? null : items[selected.itemIndex];
   const selectedImage = selectedItem && selected ? selectedItem.images?.[selected.imageIndex] : null;
@@ -118,7 +119,7 @@ export function NewsPromotionSlider({
   return (
     <>
       <div className="mt-0">
-        <div className="mb-4 flex justify-end gap-2">
+        <div className={`mb-4 flex justify-end gap-2 ${homeStyle ? "-mt-2" : ""}`}>
           <button
             type="button"
             onClick={() => move(-1)}
@@ -180,17 +181,23 @@ export function NewsPromotionSlider({
                   <p className="inline-flex rounded-full bg-brand-accent-soft px-3 py-1 text-xs font-extrabold text-brand-primary">
                     {item.tag}
                   </p>
-                  <h3 className="mt-3 text-xl font-extrabold text-brand-primary">{t({ th: item.title, en: item.titleEn ?? "" })}</h3>
-                  <p className={`mt-3 text-sm leading-7 line-clamp-2 text-slate-500`}>{t({ th: item.detail, en: item.detailEn ?? "" })}</p>
+                  <h3 className="mt-3 text-xl font-extrabold text-brand-primary">
+                    {t({ th: item.title, en: item.titleEn ?? "" })}
+                  </h3>
+                  <p className={`mt-3 text-sm leading-7 line-clamp-2 text-slate-500`}>
+                    {t({ th: item.detail, en: item.detailEn ?? "" })}
+                  </p>
                 </div>
                 {item.href && (
                   <span className="mt-auto inline-flex items-center gap-2 pt-5 text-sm font-bold text-brand-primary">
-                    {t({ th: "ดูข้อมูลโครงการ", en: "View project" })} <i className="fa-solid fa-arrow-right" aria-hidden="true" />
+                    {t({ th: "ดูข้อมูลโครงการ", en: "View project" })}{" "}
+                    <i className="fa-solid fa-arrow-right" aria-hidden="true" />
                   </span>
                 )}
                 {projectStyle && (
                   <span className="mt-auto inline-flex items-center gap-2 pt-5 text-sm font-bold text-brand-primary">
-                    {t({ th: "ดูรายละเอียด", en: "View details" })} <i className="fa-solid fa-arrow-right" aria-hidden="true" />
+                    {t({ th: "ดูรายละเอียด", en: "View details" })}{" "}
+                    <i className="fa-solid fa-arrow-right" aria-hidden="true" />
                   </span>
                 )}
               </>
@@ -220,13 +227,16 @@ export function NewsPromotionSlider({
             return (
               <article
                 key={`${item.id}-${loopIndex}`}
-                className={`flex min-w-[92%] flex-col snap-start overflow-hidden rounded-2xl bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg sm:min-w-[calc(50%-0.625rem)] ${projectStyle ? "border border-brand-primary/15 lg:min-w-[calc(50%-0.625rem)]" : "border border-slate-200 lg:min-w-[calc(33.333%-0.875rem)]"}`}
+                className={`flex min-w-[92%] flex-col snap-start overflow-hidden rounded-2xl bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg sm:min-w-[calc(50%-0.625rem)] ${projectStyle ? "border border-brand-primary/15 lg:min-w-[calc(50%-0.625rem)]" : homeStyle ? "border border-white/20 lg:min-w-[calc(50%-0.625rem)]" : "border border-slate-200 lg:min-w-[calc(33.333%-0.875rem)]"}`}
               >
                 {firstImage && item.href && !projectStyle ? (
                   <Link
                     href={item.href}
                     className="group relative block aspect-16/8 w-full overflow-hidden bg-brand-muted text-left"
-                    aria-label={t({ th: `ดูข้อมูลโครงการ ${item.title}`, en: `View project ${item.titleEn || item.title}` })}
+                    aria-label={t({
+                      th: `ดูข้อมูลโครงการ ${item.title}`,
+                      en: `View project ${item.titleEn || item.title}`,
+                    })}
                   >
                     {mediaPreview}
                   </Link>
@@ -235,7 +245,10 @@ export function NewsPromotionSlider({
                     type="button"
                     onClick={() => setSelected({ itemIndex: index, imageIndex: 0 })}
                     className="group relative block aspect-16/8 w-full overflow-hidden bg-brand-muted text-left"
-                    aria-label={t({ th: `ดูรูปภาพ ${item.title} ทั้งหมด ${item.images?.length ?? 0} รูป`, en: `View all ${item.images?.length ?? 0} images for ${item.titleEn || item.title}` })}
+                    aria-label={t({
+                      th: `ดูรูปภาพ ${item.title} ทั้งหมด ${item.images?.length ?? 0} รูป`,
+                      en: `View all ${item.images?.length ?? 0} images for ${item.titleEn || item.title}`,
+                    })}
                   >
                     {mediaPreview}
                   </button>
@@ -243,7 +256,10 @@ export function NewsPromotionSlider({
                   <Link
                     href={item.href}
                     className="group relative block aspect-16/8 w-full overflow-hidden text-left"
-                    aria-label={t({ th: `ดูข้อมูลโครงการ ${item.title}`, en: `View project ${item.titleEn || item.title}` })}
+                    aria-label={t({
+                      th: `ดูข้อมูลโครงการ ${item.title}`,
+                      en: `View project ${item.titleEn || item.title}`,
+                    })}
                   >
                     {emptyMediaPreview}
                   </Link>
@@ -252,7 +268,10 @@ export function NewsPromotionSlider({
                     type="button"
                     onClick={() => setDetailIndex(index)}
                     className="group relative block aspect-16/8 w-full overflow-hidden text-left"
-                    aria-label={t({ th: `ดูรายละเอียด ${item.title}`, en: `View details for ${item.titleEn || item.title}` })}
+                    aria-label={t({
+                      th: `ดูรายละเอียด ${item.title}`,
+                      en: `View details for ${item.titleEn || item.title}`,
+                    })}
                   >
                     {emptyMediaPreview}
                   </button>
@@ -269,7 +288,10 @@ export function NewsPromotionSlider({
                     type="button"
                     onClick={() => setDetailIndex(index)}
                     className="flex min-h-48 w-full flex-1 flex-col p-5 text-left transition hover:bg-brand-soft/30 sm:p-6"
-                    aria-label={t({ th: `ดูรายละเอียด ${item.title}`, en: `View details for ${item.titleEn || item.title}` })}
+                    aria-label={t({
+                      th: `ดูรายละเอียด ${item.title}`,
+                      en: `View details for ${item.titleEn || item.title}`,
+                    })}
                   >
                     {body}
                   </button>
@@ -286,7 +308,10 @@ export function NewsPromotionSlider({
         <div
           role="dialog"
           aria-modal="true"
-          aria-label={t({ th: `รูปภาพ ${selectedItem.title}`, en: `Images for ${selectedItem.titleEn || selectedItem.title}` })}
+          aria-label={t({
+            th: `รูปภาพ ${selectedItem.title}`,
+            en: `Images for ${selectedItem.titleEn || selectedItem.title}`,
+          })}
           className="fixed inset-0 z-60 grid place-items-center bg-black/90 p-3 backdrop-blur-sm sm:p-6"
           onClick={() => setSelected(null)}
         >
@@ -371,7 +396,10 @@ export function NewsPromotionSlider({
         <div
           role="dialog"
           aria-modal="true"
-          aria-label={t({ th: `รายละเอียด ${detailItem.title}`, en: `Details for ${detailItem.titleEn || detailItem.title}` })}
+          aria-label={t({
+            th: `รายละเอียด ${detailItem.title}`,
+            en: `Details for ${detailItem.titleEn || detailItem.title}`,
+          })}
           className="fixed inset-0 z-50 grid place-items-center bg-brand-overlay/70 p-3 backdrop-blur-sm sm:p-6"
           onClick={() => setDetailIndex(null)}
         >
@@ -384,7 +412,9 @@ export function NewsPromotionSlider({
                 <p className="inline-flex rounded-full bg-brand-accent-soft px-3 py-1 text-xs font-extrabold text-brand-primary">
                   {detailItem.tag}
                 </p>
-                <h3 className="mt-3 text-xl font-extrabold text-brand-primary sm:text-2xl">{t({ th: detailItem.title, en: detailItem.titleEn ?? "" })}</h3>
+                <h3 className="mt-3 text-xl font-extrabold text-brand-primary sm:text-2xl">
+                  {t({ th: detailItem.title, en: detailItem.titleEn ?? "" })}
+                </h3>
               </div>
               <button
                 type="button"
@@ -397,13 +427,19 @@ export function NewsPromotionSlider({
             </header>
             <div className="px-5 py-6 sm:px-7">
               <p className="whitespace-pre-line text-sm leading-7 text-slate-600">
-                {t({ th: detailItem.detail || "ยังไม่มีรายละเอียดเพิ่มเติม", en: detailItem.detailEn || "No additional details are available." })}
+                {t({
+                  th: detailItem.detail || "ยังไม่มีรายละเอียดเพิ่มเติม",
+                  en: detailItem.detailEn || "No additional details are available.",
+                })}
               </p>
               {(detailItem.images?.length ?? 0) > 0 && (
                 <section className="mt-7 border-t border-slate-100 pt-6">
                   <h4 className="text-sm font-bold text-brand-primary">
                     <i className="fa-regular fa-images mr-2" />
-                    {t({ th: `อัลบั้มรูปภาพ (${detailItem.images?.length} รูป)`, en: `Image gallery (${detailItem.images?.length} images)` })}
+                    {t({
+                      th: `อัลบั้มรูปภาพ (${detailItem.images?.length} รูป)`,
+                      en: `Image gallery (${detailItem.images?.length} images)`,
+                    })}
                   </h4>
                   <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
                     {detailItem.images?.map((image, imageIndex) => (

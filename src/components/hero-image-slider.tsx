@@ -41,6 +41,7 @@ export function HeroImageSlider({
   actionHref,
   actionLabel,
   actionLabelEn,
+  variant = "default",
 }: {
   images: HeroMedia[];
   title: string;
@@ -52,12 +53,14 @@ export function HeroImageSlider({
   actionHref?: string | null;
   actionLabel?: string;
   actionLabelEn?: string;
+  variant?: "default" | "home";
 }) {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
   const swipeStartX = useRef<number | null>(null);
   const { t } = useTranslation();
   const hasImages = images.length > 0;
+  const homeStyle = variant === "home";
   const activeMedia = images[active];
 
   useEffect(() => {
@@ -81,7 +84,7 @@ export function HeroImageSlider({
 
   return (
     <section
-      className="relative min-h-112 overflow-hidden bg-brand-primary sm:min-h-120"
+      className={`relative overflow-hidden bg-brand-primary ${homeStyle ? "min-h-[560px] sm:min-h-[640px] lg:min-h-[720px]" : "min-h-112 sm:min-h-120"}`}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}
@@ -129,12 +132,16 @@ export function HeroImageSlider({
         </div>
       ))}
       <div
-        className={`absolute inset-0 ${hasImages ? "bg-linear-to-r from-brand-primary/90 via-brand-primary/55 to-transparent" : "hero-shade"}`}
+        className={`absolute inset-0 ${hasImages ? (homeStyle ? "bg-linear-to-r from-brand-primary/75 via-brand-primary/25 to-transparent" : "bg-linear-to-r from-brand-primary/90 via-brand-primary/55 to-transparent") : "hero-shade"}`}
       />
 
-      <div className="container-page relative flex min-h-112 items-center py-16 text-white sm:min-h-120 sm:py-24">
-        <div className="w-full max-w-5xl">
-          <h1 className="text-3xl leading-tight font-extrabold drop-shadow-md sm:text-4xl md:text-6xl">
+      <div
+        className={`container-page relative flex items-center text-white ${homeStyle ? "min-h-[560px] pb-28 pt-28 sm:min-h-[640px] sm:pb-36 lg:min-h-[720px]" : "min-h-112 py-16 sm:min-h-120 sm:py-24"}`}
+      >
+        <div className={homeStyle ? "w-full max-w-2xl" : "w-full max-w-5xl"}>
+          <h1
+            className={`${homeStyle ? "text-4xl sm:text-5xl lg:text-7xl" : "text-3xl sm:text-4xl md:text-6xl"} leading-tight font-extrabold drop-shadow-md`}
+          >
             {t({ th: title, en: titleEn ?? "" })}
           </h1>
           <p className="mt-4 max-w-3xl text-base leading-7 text-slate-100 drop-shadow sm:mt-6 sm:text-lg sm:leading-8">
@@ -164,7 +171,7 @@ export function HeroImageSlider({
             type="button"
             onClick={() => move(-1)}
             aria-label={t({ th: "แบนเนอร์ก่อนหน้า", en: "Previous banner" })}
-            className="absolute left-4 top-1/2 hidden size-11 -translate-y-1/2 place-items-center rounded-full bg-white/85 text-brand-primary shadow-lg transition hover:bg-white md:grid"
+            className={`absolute left-4 top-1/2 size-9 -translate-y-1/2 place-items-center rounded-full bg-white/85 text-brand-primary shadow-lg transition hover:bg-white md:size-11 ${homeStyle ? "grid" : "hidden md:grid"}`}
           >
             <i className="fa-solid fa-chevron-left" aria-hidden="true" />
           </button>
@@ -172,7 +179,7 @@ export function HeroImageSlider({
             type="button"
             onClick={() => move(1)}
             aria-label={t({ th: "แบนเนอร์ถัดไป", en: "Next banner" })}
-            className="absolute right-4 top-1/2 hidden size-11 -translate-y-1/2 place-items-center rounded-full bg-white/85 text-brand-primary shadow-lg transition hover:bg-white md:grid"
+            className={`absolute right-4 top-1/2 size-9 -translate-y-1/2 place-items-center rounded-full bg-white/85 text-brand-primary shadow-lg transition hover:bg-white md:size-11 ${homeStyle ? "grid" : "hidden md:grid"}`}
           >
             <i className="fa-solid fa-chevron-right" aria-hidden="true" />
           </button>

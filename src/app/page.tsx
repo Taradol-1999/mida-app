@@ -1,20 +1,23 @@
 import Link from "next/link";
-import { HeaderNav } from "@/components/header-nav";
+import Image from "next/image";
 import { MobileHeaderMenu } from "@/components/mobile-header-menu";
 import { HeroImageSlider } from "@/components/hero-image-slider";
 import { ProjectLocationMap } from "@/components/project-location-map";
+import { MidaLivingShowcase } from "@/components/mida-living-showcase";
 import { SiteFooter } from "@/components/site-footer";
-import { LanguageToggle, T } from "@/components/language-provider";
+import { T } from "@/components/language-provider";
 import { NewsPromotionSlider, type NewsPromotionItem } from "@/components/news-promotion-slider";
 import { ProjectFilter } from "@/components/project-filter";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import type { MapProject } from "@/lib/project-map";
+import midaLogo from "@/assets/logos/png/01-mida-property.png";
 
 export const dynamic = "force-dynamic";
 
 const nav = [
   { href: "#projects", label: { th: "โครงการ", en: "Projects" } },
+  { href: "#living", label: { th: "เครือไมด้า", en: "MIDA Group" } },
   { href: "#promotion", label: { th: "ข่าวสารและโปรโมชั่น", en: "News & Promotions" } },
   { href: "#location", label: { th: "ทำเลที่ตั้ง", en: "Locations" } },
 ];
@@ -206,44 +209,71 @@ export default async function HomePage() {
   ]);
   return (
     <main>
-      <header className="site-header sticky top-0 z-20">
-        <div className="container-page flex h-16 items-center justify-between gap-3 sm:h-18">
-          <Link href="/" className="site-header-brand flex items-center gap-2 font-extrabold tracking-tight text-white">
-            <span className="grid size-8 place-items-center rounded bg-brand-accent text-xs text-brand-primary sm:size-9 sm:text-sm">
-              M
-            </span>
-            <span className="text-sm sm:text-base">
-              MIDA <span className="hidden sm:inline">PROPERTY</span>
-            </span>
+      <header className="absolute inset-x-0 top-0 z-[80] px-3 pt-3 sm:px-6 sm:pt-5">
+        <div className="mx-auto grid h-14 w-full max-w-6xl grid-cols-[1fr_auto_1fr] items-center rounded-full border border-white/70 bg-white/94 px-3 shadow-[0_14px_45px_rgba(0,28,66,0.18)] backdrop-blur-xl sm:h-16 sm:px-5">
+          <MobileHeaderMenu
+            items={nav}
+            showAdmin={Boolean(session)}
+            label={{ th: "เมนูหลัก", en: "Main menu" }}
+            desktopBreakpoint="always"
+            homeStyle
+          />
+          <Link
+            href="/"
+            aria-label="MIDA Property"
+            className="inline-flex items-center justify-center focus-visible:rounded-md focus-visible:outline-2 focus-visible:outline-brand-primary"
+          >
+            <Image src={midaLogo} alt="MIDA Property" className="h-11 w-auto object-contain sm:h-12" priority />
           </Link>
-          <nav className="hidden items-center gap-5 text-sm font-semibold lg:flex xl:gap-7">
-            <HeaderNav items={nav} />
-            <a href="#projects" className="site-header-action">
-              <T th="ค้นหาโครงการ" en="Find a project" />
-            </a>
-            <LanguageToggle />
-          </nav>
-          <MobileHeaderMenu items={nav} showAdmin={Boolean(session)} label={{ th: "เมนูหลัก", en: "Main menu" }} />
+          <a
+            href="#projects"
+            aria-label="ค้นหาโครงการ"
+            className="ml-auto grid size-10 place-items-center rounded-full text-brand-primary transition hover:bg-brand-soft focus-visible:outline-2 focus-visible:outline-brand-primary"
+          >
+            <i className="fa-solid fa-magnifying-glass" aria-hidden="true" />
+          </a>
         </div>
       </header>
       <HeroImageSlider
+        variant="home"
         images={heroImages}
         title={content.home_hero?.title ?? ""}
         titleEn={content.home_hero?.title_en}
         description={content.home_hero?.body ?? ""}
         descriptionEn={content.home_hero?.body_en}
       />
-      <ProjectFilter projectIds={homepageProjectIds} allProjectsHref="/projects" />
-      <section id="promotion" className="bg-white py-12 sm:py-16">
-        <div className="container-page">
-          <div className="gold-rule" />
-          <h2 className="section-title">
-            <T th="ข่าวสารและโปรโมชั่น" en="News & Promotions" />
-          </h2>
-          <NewsPromotionSlider items={updates} />
+      <div className="bg-[#eaf4fb]">
+        <ProjectFilter projectIds={homepageProjectIds} allProjectsHref="/projects" />
+        <MidaLivingShowcase />
+      </div>
+      <section id="promotion" className="relative overflow-hidden bg-[#003b73] py-16 text-white sm:py-24">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_90%_10%,rgba(255,255,255,.1),transparent_35%),linear-gradient(160deg,#063b71,#002d62)]" />
+        <div className="container-page relative grid items-center gap-8 lg:grid-cols-[minmax(220px,0.32fr)_minmax(0,0.68fr)] lg:gap-12">
+          <div>
+            <p className="text-xs font-extrabold tracking-[0.2em] text-brand-accent">MIDA STORIES</p>
+            <h2 className="mt-3 text-3xl font-extrabold sm:text-4xl">
+              <T th="เรื่องราวที่น่าสนใจ" en="Stories worth exploring" />
+            </h2>
+            <p className="mt-4 max-w-md text-sm leading-7 text-blue-100">
+              <T
+                th="รวมบทความ ข่าวสาร และไลฟ์สไตล์ของครอบครัว MIDA"
+                en="News, ideas, and stories from the MIDA community."
+              />
+            </p>
+            <a
+              href="#promotion-news"
+              className="mt-6 inline-flex min-h-11 items-center gap-3 rounded-full bg-brand-accent px-5 text-sm font-bold text-brand-primary transition hover:bg-white"
+            >
+              <T th="ติดตามความเคลื่อนไหว" en="Explore the latest" />
+              <i className="fa-solid fa-arrow-right" aria-hidden="true" />
+            </a>
+          </div>
+          <div id="promotion-news" className="min-w-0">
+            <NewsPromotionSlider items={updates} variant="home" />
+          </div>
         </div>
       </section>
-      <section id="location" className="bg-brand-muted py-12 sm:py-16">
+      <section id="location" className="bg-[#eaf4fb] py-14 sm:py-18">
         <div className="container-page">
           <div className="mb-7 max-w-2xl">
             <div className="gold-rule" />

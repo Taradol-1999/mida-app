@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useTranslation } from "@/components/language-provider";
+import midaLogo from "@/assets/logos/png/01-mida-property.png";
 
 const socialLinks = [
   {
@@ -45,21 +47,29 @@ export function SiteFooter({
   ];
 
   return (
-    <footer className="border-t-4 border-brand-accent bg-brand-primary text-white">
+    <footer className="bg-[#06264d] text-white">
       <div className="container-page grid gap-9 py-10 sm:py-12 lg:grid-cols-[1.3fr_0.8fr_1fr] lg:gap-12">
         <div>
           <Link href="/" className="inline-flex items-center gap-3 font-extrabold tracking-tight">
-            <span className="grid size-11 place-items-center rounded-xl bg-brand-accent text-base text-brand-primary shadow-lg">
-              M
+            <span className="grid size-11 place-items-center rounded-lg bg-white p-1 shadow-lg">
+              <Image src={midaLogo} alt="" className="max-h-9 w-auto object-contain" />
             </span>
             <span className="text-lg">MIDA PROPERTY</span>
           </Link>
           <p className="mt-4 max-w-md text-sm leading-7 text-blue-100">
             {projectName
-              ? t({ th: `ข้อมูลและข้อเสนอพิเศษจากโครงการ ${projectName}`, en: `Project information and special offers from ${projectName}` })
-              : t({ th: "พื้นที่ตอบทุกนิยามของคำว่าบ้าน ค้นหาโครงการ MIDA ที่เหมาะกับทุกจังหวะชีวิต", en: "A place that answers every definition of home. Discover MIDA projects for every stage of life." })}
+              ? t({
+                  th: `ข้อมูลและข้อเสนอพิเศษจากโครงการ ${projectName}`,
+                  en: `Project information and special offers from ${projectName}`,
+                })
+              : t({
+                  th: "พื้นที่ตอบทุกนิยามของคำว่าบ้าน ค้นหาโครงการ MIDA ที่เหมาะกับทุกจังหวะชีวิต",
+                  en: "A place that answers every definition of home. Discover MIDA projects for every stage of life.",
+                })}
           </p>
-          {contact && <p className="mt-3 text-sm font-semibold text-brand-accent">{t({ th: contact, en: contactEn ?? "" })}</p>}
+          {contact && (
+            <p className="mt-3 text-sm font-semibold text-brand-accent">{t({ th: contact, en: contactEn ?? "" })}</p>
+          )}
         </div>
 
         <div>
@@ -82,7 +92,12 @@ export function SiteFooter({
 
         <div>
           <p className="text-xs font-extrabold tracking-[0.18em] text-brand-accent">FOLLOW MIDA PROPERTY</p>
-          <p className="mt-4 text-sm leading-6 text-blue-100">{t({ th: "ติดตามข่าวสาร โครงการใหม่ และกิจกรรมพิเศษของเรา", en: "Follow our news, new projects, and special events." })}</p>
+          <p className="mt-4 text-sm leading-6 text-blue-100">
+            {t({
+              th: "ติดตามข่าวสาร โครงการใหม่ และกิจกรรมพิเศษของเรา",
+              en: "Follow our news, new projects, and special events.",
+            })}
+          </p>
           <div className="mt-5 flex gap-3">
             {socials.map((social) => (
               <a
@@ -90,7 +105,10 @@ export function SiteFooter({
                 href={social.href}
                 target="_blank"
                 rel="noreferrer"
-                aria-label={t({ th: `ติดตาม MIDA Property บน ${social.label}`, en: `Follow MIDA Property on ${social.label}` })}
+                aria-label={t({
+                  th: `ติดตาม MIDA Property บน ${social.label}`,
+                  en: `Follow MIDA Property on ${social.label}`,
+                })}
                 className="grid size-11 place-items-center rounded-xl border border-white/20 bg-white/10 text-lg transition hover:-translate-y-0.5 hover:border-brand-accent hover:bg-brand-accent hover:text-brand-primary"
               >
                 <i className={`fa-brands ${social.icon}`} aria-hidden="true" />
@@ -101,7 +119,10 @@ export function SiteFooter({
       </div>
       <div className="border-t border-white/15">
         <div className="container-page flex flex-col gap-2 py-4 text-xs text-blue-200 sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} {t({ th: "บริษัท ไมด้า เอเจนซี่ แอนด์ ดีเวลลอปเม้นท์ จำกัด.", en: "MIDA Agency & Development Co., Ltd." })}</p>
+          <p>
+            © {new Date().getFullYear()}{" "}
+            {t({ th: "บริษัท ไมด้า เอเจนซี่ แอนด์ ดีเวลลอปเม้นท์ จำกัด.", en: "MIDA Agency & Development Co., Ltd." })}
+          </p>
           <Link href="/login" className="transition hover:text-brand-accent">
             <i className="fa-solid fa-lock mr-1.5" aria-hidden="true" />
             {t({ th: "สำหรับผู้ดูแลระบบ", en: "For administrators" })}

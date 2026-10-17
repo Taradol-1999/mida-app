@@ -4,7 +4,7 @@ import { Input, Select } from "@/components/ui/form-controls";
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
-import { type ReactNode, useCallback, useEffect, useMemo, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { projects, type Project } from "@/data/projects";
 import { useTranslation } from "@/components/language-provider";
 
@@ -73,20 +73,29 @@ export function ProjectFilter({
   projectIds,
   allProjectsHref,
   standalone = false,
+  initialType,
 }: {
   projectIds?: string[];
   allProjectsHref?: string;
   standalone?: boolean;
+  initialType?: string;
 }) {
   const { language, t } = useTranslation();
   const [catalogue, setCatalogue] = useState<Project[]>(projects);
   const [hasLoadedCatalogue, setHasLoadedCatalogue] = useState(false);
   const [keyword, setKeyword] = useState("");
   const [address, setAddress] = useState("all");
-  const [type, setType] = useState("ทั้งหมด");
+  const [type, setType] = useState(typeOptions.some(([value]) => value === initialType) ? initialType! : "ทั้งหมด");
   const [priceRange, setPriceRange] = useState("all");
   const [status, setStatus] = useState("ทั้งหมด");
   const [tag, setTag] = useState("all");
+  const cardsRef = useRef<HTMLDivElement>(null);
+  const moveCards = (direction: -1 | 1) => {
+    const track = cardsRef.current;
+    if (!track) return;
+    const card = track.firstElementChild as HTMLElement | null;
+    track.scrollBy({ left: direction * ((card?.offsetWidth ?? track.clientWidth) + 20), behavior: "smooth" });
+  };
   useEffect(() => {
     fetch("/api/projects")
       .then((response) => (response.ok ? response.json() : []))
@@ -161,7 +170,9 @@ export function ProjectFilter({
     [addressMatches, catalogue, hasLoadedCatalogue, keyword, priceRange, projectIds, status, tag, type],
   );
   const filterBox = (icon: string, label: string, child: ReactNode) => (
-    <label className="flex min-h-18 flex-col justify-center rounded-lg border border-slate-200 bg-slate-50 p-3">
+    <label
+      className={`flex min-h-18 flex-col justify-center rounded-lg border border-slate-200 p-3 ${standalone ? "bg-slate-50" : "bg-[#eef5fb]"}`}
+    >
       <span className="mb-1 text-xs font-bold text-slate-700">
         <i className={`fa-solid ${icon} mr-1.5 text-brand-primary`} />
         {label}
@@ -176,19 +187,29 @@ export function ProjectFilter({
   return (
     <section
       id="projects"
-      className={`container-page relative z-10 ${standalone ? "py-12 sm:py-16" : "-mt-10 pb-12 sm:-mt-14 sm:pb-18"}`}
+      className={`container-page relative z-10 ${standalone ? "py-12 sm:py-16" : "-mt-10 pb-12 sm:-mt-16 sm:pb-18"}`}
     >
-      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xl shadow-slate-900/10 sm:p-5 md:p-6">
-        <p className="mb-4 text-sm font-bold text-brand-primary">
-          <i className="fa-solid fa-magnifying-glass mr-2" />
-          {t({ th: "ค้นหาโครงการ", en: "Find a project" })}
-        </p>
-        <Input
-          value={keyword}
-          onChange={(event) => setKeyword(event.target.value)}
-          placeholder={t({ th: "ค้นหาชื่อโครงการหรือทำเล", en: "Search by project or location" })}
-          className="mb-3 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-brand-primary"
-        />
+      <div
+        className={`rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_18px_45px_rgba(0,45,98,.16)] sm:p-5 md:p-6 ${standalone ? "" : "mx-auto max-w-6xl"}`}
+      >
+        {standalone && (
+          <p className="mb-4 text-sm font-bold text-brand-primary">
+            <i className="fa-solid fa-magnifying-glass mr-2" />
+            {t({ th: "ค้นหาโครงการ", en: "Find a project" })}
+          </p>
+        )}
+        <div className="relative mb-3">
+          <i
+            className="fa-solid fa-magnifying-glass pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-brand-primary"
+            aria-hidden="true"
+          />
+          <Input
+            value={keyword}
+            onChange={(event) => setKeyword(event.target.value)}
+            placeholder={t({ th: "ค้นหาชื่อโครงการหรือทำเล", en: "Search by project or location" })}
+            className="w-full rounded-lg border border-slate-200 bg-[#eef5fb] py-3 pl-11 pr-4 text-sm outline-none focus:border-brand-primary"
+          />
+        </div>
 
         <div className="grid gap-3 sm:grid-cols-4">
           {filterBox(
@@ -206,7 +227,7 @@ export function ProjectFilter({
                   {option.label}
                 </option>
               ))}
-            </Select>
+            </Select>,
           )}
           {filterBox(
             "fa-house",
@@ -258,19 +279,22 @@ export function ProjectFilter({
           )}
         </div>
       </div>
-      <div className="mt-10 sm:mt-14">
+      <div className="mt-12 sm:mt-16">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="text-xs font-bold text-brand-primary">
-              <i className="fa-solid fa-city mr-2" />
-              {projectIds
-                ? t({ th: "โครงการคัดสรร", en: "Featured projects" })
-                : t({ th: "โครงการทั้งหมด", en: "All projects" })}
-            </p>
-            <h2 className="mt-2 text-2xl font-black tracking-tight text-slate-800 sm:text-3xl">
+            {standalone && (
+              <p className="text-xs font-bold text-brand-primary">
+                <i className="fa-solid fa-city mr-2" />
+                {projectIds
+                  ? t({ th: "โครงการคัดสรร", en: "Featured projects" })
+                  : t({ th: "โครงการทั้งหมด", en: "All projects" })}
+              </p>
+            )}
+            <h2 className="mt-2 text-2xl font-black tracking-tight text-brand-primary sm:text-3xl lg:text-4xl">
+              {!standalone && <i className="fa-solid fa-house mr-3 text-[#0875ad]" aria-hidden="true" />}
               {t({ th: "เลือกบ้านที่ใช่สำหรับคุณ", en: "Find the home that fits you" })}
             </h2>
-            <p className="mt-2 text-sm text-slate-400">
+            <p className="mt-2 text-sm text-slate-500">
               {t({
                 th: "เลือกสไตล์ฟิลเตอร์เพื่อรับชมกลุ่มโครงการที่แมตช์กับไลฟ์สไตล์คุณ",
                 en: "Filter projects to match your lifestyle.",
@@ -281,134 +305,170 @@ export function ProjectFilter({
             {allProjectsHref && (
               <Link
                 href={allProjectsHref}
-                className="inline-flex items-center gap-2 rounded-full border border-brand-primary px-4 py-2 text-xs font-bold text-brand-primary transition hover:bg-brand-primary hover:text-white"
+                className="inline-flex min-h-11 items-center gap-4 rounded-full bg-[#19a9dc] py-1.5 pl-5 pr-1.5 text-xs font-bold text-white shadow-[0_8px_18px_rgba(16,144,194,.25)] transition hover:bg-brand-primary"
               >
-                {t({ th: "ดูโครงการทั้งหมด", en: "View all projects" })} <i className="fa-solid fa-arrow-right" />
+                {t({ th: "ดูโครงการทั้งหมด", en: "View all projects" })}{" "}
+                <span className="grid size-8 place-items-center rounded-full bg-white text-[#078fc6]">
+                  <i className="fa-solid fa-arrow-right" />
+                </span>
               </Link>
             )}
           </div>
         </div>
-        <div className="mt-4 flex gap-2 overflow-x-auto pb-3 pt-2">
-          {tagOptions.map((label) => (
-            <button
-              key={label}
-              type="button"
-              onClick={() => setTag((current) => (current === label ? "all" : label))}
-              aria-pressed={tag === label}
-              className={`inline-flex shrink-0 items-center gap-2 rounded-full px-5 py-2.5 text-xs font-bold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent ${tag === label ? "bg-brand-primary text-white shadow-sm ring-2 ring-brand-accent" : "border border-slate-200 bg-white text-slate-600 hover:border-brand-accent"}`}
+        {standalone && (
+          <div className="mt-4 flex gap-2 overflow-x-auto pb-3 pt-2">
+            {tagOptions.map((label) => (
+              <button
+                key={label}
+                type="button"
+                onClick={() => setTag((current) => (current === label ? "all" : label))}
+                aria-pressed={tag === label}
+                className={`inline-flex shrink-0 items-center gap-2 rounded-full px-5 py-2.5 text-xs font-bold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent ${tag === label ? "bg-brand-primary text-white shadow-sm ring-2 ring-brand-accent" : "border border-slate-200 bg-white text-slate-600 hover:border-brand-accent"}`}
+              >
+                <i
+                  className={`fa-solid ${
+                    label === "โครงการแนะนำ" ? "fa-star" : label === "โครงการล่าสุด" ? "fa-calendar-plus" : "fa-key"
+                  } text-brand-accent`}
+                  aria-hidden="true"
+                />
+                {t(tagLabels[label] ?? { th: label, en: label })}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+      <div className="relative mt-4">
+        <div
+          ref={cardsRef}
+          className={
+            standalone
+              ? "grid items-stretch gap-6 md:grid-cols-2 xl:grid-cols-3"
+              : "flex snap-x snap-mandatory items-stretch gap-5 overflow-x-auto pb-5 scrollbar-none sm:gap-6 [&::-webkit-scrollbar]:hidden"
+          }
+        >
+          {visible.map((project, index) => (
+            <article
+              key={project.slug}
+              className={`group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_12px_35px_rgba(0,45,98,0.08)] transition duration-300 hover:-translate-y-1.5 hover:border-brand-accent hover:shadow-[0_20px_45px_rgba(0,45,98,0.14)] ${standalone ? (index === 0 ? "xl:col-span-2" : "") : "min-w-[86%] snap-start p-1.5 sm:min-w-[47%] lg:min-w-[calc(33.333%-1rem)]"}`}
             >
-              <i
-                className={`fa-solid ${
-                  label === "โครงการแนะนำ" ? "fa-star" : label === "โครงการล่าสุด" ? "fa-calendar-plus" : "fa-key"
-                } text-brand-accent`}
-                aria-hidden="true"
-              />
-              {t(tagLabels[label] ?? { th: label, en: label })}
-            </button>
+              <div
+                className={`project-card-cool relative overflow-hidden ${standalone ? "h-52 sm:h-60" : "h-56 rounded-xl sm:h-64 lg:h-72"}`}
+              >
+                {project.has_cover && project.id ? (
+                  <img
+                    src={`/api/admin/media?entityType=projects&entityId=${project.id}`}
+                    alt={`${t({ th: "ภาพ", en: "Image" })} ${projectText(project, "name")}`}
+                    className="size-full object-cover transition duration-700 group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="grid size-full place-items-center text-center text-white/85">
+                    <div>
+                      <span className="mx-auto grid size-16 place-items-center rounded-full border border-white/30 bg-white/15 backdrop-blur-sm">
+                        <i className="fa-solid fa-house-chimney text-2xl" />
+                      </span>
+                      <p className="mt-3 text-xs font-bold">{t({ th: "ภาพโครงการ", en: "Project image" })}</p>
+                    </div>
+                  </div>
+                )}
+                <div className="absolute left-4 top-4 flex max-w-[calc(100%-2rem)] flex-wrap gap-2">
+                  {tagsOf(project).map((projectTag, tagIndex) => (
+                    <span
+                      key={projectTag}
+                      className={`rounded-full px-3 py-1.5 text-[10px] font-black shadow-md backdrop-blur-sm ${standalone && tagIndex % 2 === 0 ? "bg-brand-primary/95 text-white" : "bg-brand-accent text-brand-primary"}`}
+                    >
+                      {t(tagLabels[projectTag] ?? { th: projectTag, en: projectTag })}
+                    </span>
+                  ))}
+                </div>
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-brand-overlay/65 to-transparent" />
+                <span className="absolute bottom-4 left-4 rounded-full border border-white/30 bg-brand-overlay/65 px-3 py-1.5 text-[11px] font-bold text-white backdrop-blur-sm">
+                  <i className="fa-solid fa-location-dot mr-1.5 text-brand-accent" />
+                  {projectText(project, "location")}
+                </span>
+              </div>
+              <div className={`flex flex-1 flex-col ${standalone ? "p-5 sm:p-6" : "p-4 sm:p-5"}`}>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="inline-flex rounded-full bg-brand-soft px-3 py-1.5 text-[10px] font-bold text-brand-primary">
+                    <i className="fa-solid fa-house-chimney mr-1.5" />
+                    {t(propertyTypeLabels[project.type])}
+                  </span>
+                  <span
+                    className={`inline-flex items-center text-[11px] font-semibold ${project.status === "พร้อมอยู่" ? "text-emerald-700" : "text-amber-700"}`}
+                  >
+                    <i
+                      className={`fa-solid ${project.status === "พร้อมอยู่" ? "fa-circle-check" : "fa-helmet-safety"} mr-1.5`}
+                    />
+                    {t(statusLabels[project.status])}
+                  </span>
+                </div>
+                <div className="mt-4 h-0.5 w-12 rounded-full bg-brand-accent" />
+                <div className="flex-1">
+                  <h3 className="mt-4 line-clamp-2 text-[1.35rem] leading-tight font-black tracking-tight text-brand-primary">
+                    {projectText(project, "name")}
+                  </h3>
+                  <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-500">
+                    {projectText(project, "description")}
+                  </p>
+                </div>
+                <div className={`mt-5 rounded-xl bg-brand-muted ${standalone ? "p-4" : "p-3"}`}>
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">
+                        {t({ th: "ราคาเริ่มต้น", en: "Starting price" })}
+                      </p>
+                      <p className="mt-1 text-xl font-black text-brand-primary">
+                        {language === "en"
+                          ? `THB ${(Number(project.startingPrice) / 1_000_000).toLocaleString("en-US", { maximumFractionDigits: 3 })} million`
+                          : project.price}
+                      </p>
+                    </div>
+                    {project.has_brochure && project.id ? (
+                      <a
+                        href={`/api/admin/media?entityType=projects&entityId=${project.id}&mediaKind=brochure`}
+                        download
+                        className="inline-flex items-center rounded-lg border border-brand-primary/20 bg-white px-3 py-2 text-xs font-bold text-brand-primary transition hover:border-brand-accent hover:bg-brand-accent-soft"
+                      >
+                        <i className="fa-solid fa-file-arrow-down mr-2" />
+                        {t({ th: "โบรชัวร์", en: "Brochure" })}
+                      </a>
+                    ) : null}
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <Link
+                    href={`/projects/${project.slug}`}
+                    className="inline-flex min-h-12 w-full items-center justify-between rounded-xl bg-brand-primary px-5 py-3 text-center text-xs font-bold text-white transition hover:bg-brand-overlay"
+                  >
+                    <span>{t({ th: "ดูข้อมูลโครงการ", en: "View project" })}</span>
+                    <span className="grid size-7 place-items-center rounded-full bg-white/10">
+                      <i className="fa-solid fa-arrow-right transition group-hover:translate-x-0.5" />
+                    </span>
+                  </Link>
+                </div>
+              </div>
+            </article>
           ))}
         </div>
-      </div>
-      <div className="mt-4 grid items-stretch gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {visible.map((project, index) => (
-          <article
-            key={project.slug}
-            className={`group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_12px_35px_rgba(0,45,98,0.08)] transition duration-300 hover:-translate-y-1.5 hover:border-brand-accent hover:shadow-[0_20px_45px_rgba(0,45,98,0.14)] ${index === 0 ? "xl:col-span-2" : ""}`}
-          >
-            <div className="project-card-cool relative h-52 overflow-hidden sm:h-60">
-              {project.has_cover && project.id ? (
-                <img
-                  src={`/api/admin/media?entityType=projects&entityId=${project.id}`}
-                  alt={`${t({ th: "ภาพ", en: "Image" })} ${projectText(project, "name")}`}
-                  className="size-full object-cover transition duration-700 group-hover:scale-105"
-                />
-              ) : (
-                <div className="grid size-full place-items-center text-center text-white/85">
-                  <div>
-                    <span className="mx-auto grid size-16 place-items-center rounded-full border border-white/30 bg-white/15 backdrop-blur-sm">
-                      <i className="fa-solid fa-house-chimney text-2xl" />
-                    </span>
-                    <p className="mt-3 text-xs font-bold">{t({ th: "ภาพโครงการ", en: "Project image" })}</p>
-                  </div>
-                </div>
-              )}
-              <div className="absolute left-4 top-4 flex max-w-[calc(100%-2rem)] flex-wrap gap-2">
-                {tagsOf(project).map((projectTag, tagIndex) => (
-                  <span
-                    key={projectTag}
-                    className={`rounded-full px-3 py-1.5 text-[10px] font-black shadow-md backdrop-blur-sm ${tagIndex % 2 === 0 ? "bg-brand-primary/95 text-white" : "bg-brand-accent text-brand-primary"}`}
-                  >
-                    {t(tagLabels[projectTag] ?? { th: projectTag, en: projectTag })}
-                  </span>
-                ))}
-              </div>
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-brand-overlay/65 to-transparent" />
-              <span className="absolute bottom-4 left-4 rounded-full border border-white/30 bg-brand-overlay/65 px-3 py-1.5 text-[11px] font-bold text-white backdrop-blur-sm">
-                <i className="fa-solid fa-location-dot mr-1.5 text-brand-accent" />
-                {projectText(project, "location")}
-              </span>
-            </div>
-            <div className="flex flex-1 flex-col p-5 sm:p-6">
-              <div className="flex items-center justify-between gap-3">
-                <span className="inline-flex rounded-full bg-brand-soft px-3 py-1.5 text-[10px] font-bold text-brand-primary">
-                  <i className="fa-solid fa-house-chimney mr-1.5" />
-                  {t(propertyTypeLabels[project.type])}
-                </span>
-                <span
-                  className={`inline-flex items-center text-[11px] font-semibold ${project.status === "พร้อมอยู่" ? "text-emerald-700" : "text-amber-700"}`}
-                >
-                  <i
-                    className={`fa-solid ${project.status === "พร้อมอยู่" ? "fa-circle-check" : "fa-helmet-safety"} mr-1.5`}
-                  />
-                  {t(statusLabels[project.status])}
-                </span>
-              </div>
-              <div className="mt-4 h-0.5 w-12 rounded-full bg-brand-accent" />
-              <div className="flex-1">
-                <h3 className="mt-4 line-clamp-2 text-[1.35rem] leading-tight font-black tracking-tight text-slate-800">
-                  {projectText(project, "name")}
-                </h3>
-                <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-500">
-                  {projectText(project, "description")}
-                </p>
-              </div>
-              <div className="mt-5 rounded-xl bg-brand-muted p-4">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">
-                      {t({ th: "ราคาเริ่มต้น", en: "Starting price" })}
-                    </p>
-                    <p className="mt-1 text-xl font-black text-brand-primary">
-                      {language === "en"
-                        ? `THB ${(Number(project.startingPrice) / 1_000_000).toLocaleString("en-US", { maximumFractionDigits: 3 })} million`
-                        : project.price}
-                    </p>
-                  </div>
-                  {project.has_brochure && project.id ? (
-                    <a
-                      href={`/api/admin/media?entityType=projects&entityId=${project.id}&mediaKind=brochure`}
-                      download
-                      className="inline-flex items-center rounded-lg border border-brand-primary/20 bg-white px-3 py-2 text-xs font-bold text-brand-primary transition hover:border-brand-accent hover:bg-brand-accent-soft"
-                    >
-                      <i className="fa-solid fa-file-arrow-down mr-2" />
-                      {t({ th: "โบรชัวร์", en: "Brochure" })}
-                    </a>
-                  ) : null}
-                </div>
-              </div>
-              <div className="mt-4">
-                <Link
-                  href={`/projects/${project.slug}`}
-                  className="inline-flex min-h-12 w-full items-center justify-between rounded-xl bg-brand-primary px-5 py-3 text-center text-xs font-bold text-white transition hover:bg-brand-overlay"
-                >
-                  <span>{t({ th: "ดูข้อมูลโครงการ", en: "View project" })}</span>
-                  <span className="grid size-7 place-items-center rounded-full bg-white/10">
-                    <i className="fa-solid fa-arrow-right transition group-hover:translate-x-0.5" />
-                  </span>
-                </Link>
-              </div>
-            </div>
-          </article>
-        ))}
+        {!standalone && visible.length > 1 && (
+          <div className="pointer-events-none absolute inset-x-0 top-24 flex justify-between sm:top-28 lg:top-32">
+            <button
+              type="button"
+              onClick={() => moveCards(-1)}
+              aria-label={t({ th: "โครงการก่อนหน้า", en: "Previous project" })}
+              className="pointer-events-auto -ml-2 grid size-11 place-items-center rounded-full bg-white text-brand-primary shadow-lg transition hover:bg-brand-primary hover:text-white sm:-ml-5"
+            >
+              <i className="fa-solid fa-chevron-left" aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              onClick={() => moveCards(1)}
+              aria-label={t({ th: "โครงการถัดไป", en: "Next project" })}
+              className="pointer-events-auto -mr-2 grid size-11 place-items-center rounded-full bg-brand-primary text-white shadow-lg transition hover:bg-white hover:text-brand-primary sm:-mr-5"
+            >
+              <i className="fa-solid fa-chevron-right" aria-hidden="true" />
+            </button>
+          </div>
+        )}
       </div>
       {!visible.length && (
         <p className="mt-7 rounded-xl bg-white p-5 text-center text-slate-500">
