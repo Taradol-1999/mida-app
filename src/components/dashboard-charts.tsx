@@ -24,9 +24,11 @@ const colors = {
   grid: "#dbe4ef",
 };
 
-const legend = { labels: { boxWidth: 12, boxHeight: 12, color: "#4a4a4a", font: { family: "IBM Plex Sans Thai" } } };
+// Canvas needs the resolved font family, not the CSS variable used by next/font.
+const chartFont = typeof document === "undefined" ? "sans-serif" : getComputedStyle(document.body).fontFamily;
+const legend = { labels: { boxWidth: 12, boxHeight: 12, color: "#4a4a4a", font: { family: chartFont } } };
 const scale = {
-  ticks: { color: "#64748b", font: { family: "IBM Plex Sans Thai", size: 11 } },
+  ticks: { color: "#64748b", font: { family: chartFont, size: 11 } },
   grid: { color: colors.grid },
   border: { display: false },
 };

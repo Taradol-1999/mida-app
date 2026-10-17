@@ -17,7 +17,7 @@ Thai-first property website and project CMS. Use Next.js App Router, TypeScript,
 - All application and maintenance-script database access uses Prisma models in `prisma/schema.prisma`. Runtime client: `src/lib/prisma.ts`; script client: `scripts/prisma.ts`. Regenerate the client after schema changes; do not edit generated files.
 - CMS changes must work end to end: saved values reload in edit forms and appear on the relevant public project page. Preserve existing records and uploaded media.
 - Settings are shared between homepage and contact menus. Update only submitted fields so saving one menu cannot clear another.
-- Use shared theme tokens from `src/app/globals.css`, IBM Plex Sans Thai and Font Awesome `<i>` icons. Preserve Thai labels, English content where provided, and responsive layouts.
+- Use shared theme tokens from `src/app/globals.css`, Noto Sans Thai and Font Awesome `<i>` icons. Preserve Thai labels, English content where provided, and responsive layouts.
 - Upload files into `UPLOADS_DIRECTORY`; store metadata in MySQL. Keep file and metadata changes consistent.
 - Enforce admin roles and input validation on the server. Never expose secrets or absolute upload paths.
 

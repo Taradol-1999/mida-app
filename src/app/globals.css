@@ -40,7 +40,7 @@ body {
   overflow-x: clip;
   background: var(--mida-mist);
   color: var(--mida-ink);
-  font-family: var(--font-ibm-plex-sans-thai), Arial, "Noto Sans Thai", sans-serif;
+  font-family: var(--font-noto-sans-thai), Arial, sans-serif;
 }
 
 @keyframes header-menu-drop {
@@ -268,7 +268,7 @@ body {
   min-width: 180px;
   gap: 4px;
   color: var(--mida-ink);
-  font-family: var(--font-ibm-plex-sans-thai), sans-serif;
+  font-family: var(--font-noto-sans-thai), sans-serif;
 }
 
 .mida-map-popup strong,

@@ -94,7 +94,7 @@ Uploaded images and videos are files on the local machine, not remote URLs and n
 ## Public UI and design rules
 
 - Primary language is Thai; keep labels understandable and preserve supplied English subtitles where the Web Frame uses them.
-- Primary font: IBM Plex Sans Thai via `next/font/google`.
+- Primary font: Noto Sans Thai via `next/font/google`.
 - Brand colors are declared in `src/app/globals.css`: MIDA blue, navy, gold, ink, and mist.
 - Icons must use Font Awesome `<i>` tags and the stylesheet already loaded in `src/app/layout.tsx`.
 - Do not introduce a second icon system without explicit approval.

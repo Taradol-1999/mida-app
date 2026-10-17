@@ -1,20 +1,22 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Sans_Thai } from "next/font/google";
+import { Noto_Sans_Thai } from "next/font/google";
 import "leaflet/dist/leaflet.css";
 import "./globals.css";
 import { LanguageProvider } from "@/components/language-provider";
 import { UsageTracker } from "@/components/usage-tracker";
+import midaLogo from "@/assets/logos/svg/01-mida-property.svg";
 
-const ibmPlexSansThai = IBM_Plex_Sans_Thai({
-  variable: "--font-ibm-plex-sans-thai",
+const notoSansThai = Noto_Sans_Thai({
+  variable: "--font-noto-sans-thai",
   subsets: ["latin", "thai"],
-  weight: ["400", "500", "600", "700"],
+  weight: "variable",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "MIDA Property | Find your home",
+  title: "MIDA Property",
   description: "เว็บไซต์อสังหาริมทรัพย์และระบบจัดการโครงการ MIDA",
+  icons: { icon: { url: midaLogo.src, type: "image/svg+xml" } },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -27,7 +29,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           referrerPolicy="no-referrer"
         />
       </head>
-      <body className={ibmPlexSansThai.variable} suppressHydrationWarning>
+      <body className={notoSansThai.variable} suppressHydrationWarning>
         <LanguageProvider>
           <UsageTracker />
           {children}
