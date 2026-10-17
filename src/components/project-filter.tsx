@@ -305,8 +305,8 @@ export function ProjectFilter({
             )}
           </div>
         </div>
-        {standalone && (
-          <div className="mt-4 flex gap-2 overflow-x-auto pb-3 pt-2">
+        {tagOptions.length > 0 && (
+          <div className="mt-4 flex gap-2 overflow-x-auto pt-2 pb-2">
             {tagOptions.map((label) => (
               <button
                 key={label}
@@ -327,7 +327,7 @@ export function ProjectFilter({
           </div>
         )}
       </div>
-      <div className="relative mt-4">
+      <div className="relative">
         <div
           ref={cardsRef}
           className={
@@ -339,7 +339,7 @@ export function ProjectFilter({
           {visible.map((project, index) => (
             <article
               key={project.slug}
-              className={`group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_12px_35px_rgba(0,45,98,0.08)] transition duration-300 hover:-translate-y-1.5 hover:border-brand-accent hover:shadow-[0_20px_45px_rgba(0,45,98,0.14)] ${standalone ? (index === 0 ? "xl:col-span-2" : "") : "min-w-[86%] snap-start p-1.5 sm:min-w-[47%] lg:min-w-[calc(33.333%-1rem)]"}`}
+              className={`group flex mt-5 bg-white h-full flex-col overflow-hidden rounded-2xl border border-slate-200  shadow-[0_12px_35px_rgba(0,45,98,0.08)] transition duration-300 hover:-translate-y-1.5 hover:border-brand-accent hover:shadow-[0_20px_45px_rgba(0,45,98,0.14)] ${standalone ? (index === 0 ? "xl:col-span-2" : "") : "min-w-[86%] snap-start p-1.5 sm:min-w-[47%] lg:min-w-[calc(33.333%-1rem)]"}`}
             >
               <div
                 className={`project-card-cool relative overflow-hidden ${standalone ? "h-52 sm:h-60" : "h-56 rounded-xl sm:h-64 lg:h-72"}`}
@@ -364,7 +364,7 @@ export function ProjectFilter({
                   {tagsOf(project).map((projectTag, tagIndex) => (
                     <span
                       key={projectTag}
-                      className={`rounded-full px-3 py-1.5 text-[10px] font-black shadow-md backdrop-blur-sm ${standalone && tagIndex % 2 === 0 ? "bg-brand-primary/95 text-white" : "bg-brand-accent text-brand-primary"}`}
+                      className={`rounded-full px-3 py-1.5 text-[10px] font-normal shadow-md backdrop-blur-sm ${standalone && tagIndex % 2 === 0 ? "bg-brand-primary/95 text-white" : "bg-brand-accent text-white"}`}
                     >
                       {t(tagLabels[projectTag] ?? { th: projectTag, en: projectTag })}
                     </span>
@@ -377,26 +377,11 @@ export function ProjectFilter({
                 </span>
               </div>
               <div className={`flex flex-1 flex-col ${standalone ? "p-5 sm:p-6" : "p-4 sm:p-5"}`}>
-                <div className="flex items-center justify-between gap-3">
-                  <span className="inline-flex rounded-full bg-brand-soft px-3 py-1.5 text-[10px] font-bold text-brand-primary">
-                    <i className="fa-solid fa-house-chimney mr-1.5" />
-                    {t(propertyTypeLabels[project.type])}
-                  </span>
-                  <span
-                    className={`inline-flex items-center text-[11px] font-semibold ${project.status === "พร้อมอยู่" ? "text-emerald-700" : "text-amber-700"}`}
-                  >
-                    <i
-                      className={`fa-solid ${project.status === "พร้อมอยู่" ? "fa-circle-check" : "fa-helmet-safety"} mr-1.5`}
-                    />
-                    {t(statusLabels[project.status])}
-                  </span>
-                </div>
-                <div className="mt-4 h-0.5 w-12 rounded-full bg-brand-accent" />
                 <div className="flex-1">
                   <h3 className="mt-4 line-clamp-2 text-[1.35rem] leading-tight font-black tracking-tight text-brand-primary">
                     {projectText(project, "name")}
                   </h3>
-                  <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-500">
+                  <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-500">
                     {projectText(project, "description")}
                   </p>
                 </div>

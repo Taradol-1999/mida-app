@@ -84,7 +84,7 @@ export function HeroImageSlider({
 
   return (
     <section
-      className={`relative overflow-hidden bg-brand-primary ${homeStyle ? "min-h-[560px] sm:min-h-[640px] lg:min-h-[720px]" : "min-h-112 sm:min-h-120"}`}
+      className={`relative overflow-hidden bg-brand-primary ${homeStyle ? "min-h-[560px] sm:min-h-[640px] lg:min-h-[100svh]" : "min-h-112 sm:min-h-120"}`}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}
@@ -136,7 +136,7 @@ export function HeroImageSlider({
       />
 
       <div
-        className={`container-page relative flex items-center text-white ${homeStyle ? "min-h-[560px] pb-28 pt-28 sm:min-h-[640px] sm:pb-36 lg:min-h-[720px]" : "min-h-112 py-16 sm:min-h-120 sm:py-24"}`}
+        className={`container-page relative flex items-center text-white ${homeStyle ? "min-h-[560px] pb-28 pt-28 sm:min-h-[640px] sm:pb-36 lg:min-h-[100svh]" : "min-h-112 py-16 sm:min-h-120 sm:py-24"}`}
       >
         <div className={homeStyle ? "w-full max-w-2xl" : "w-full max-w-5xl"}>
           <h1
