@@ -14,7 +14,16 @@ export function Input({
   ...props
 }: ComponentPropsWithRef<"input"> & VariantProps) {
   const nativeControl = ["checkbox", "radio", "file", "hidden", "range", "color"].includes(type);
-  return <input {...props} type={type} className={controlClass(nativeControl ? "plain" : variant, className)} />;
+  // Some browser extensions annotate form elements before React hydrates.
+  // Ignore only that external markup difference; the controlled values still hydrate normally.
+  return (
+    <input
+      {...props}
+      suppressHydrationWarning
+      type={type}
+      className={controlClass(nativeControl ? "plain" : variant, className)}
+    />
+  );
 }
 
 export function Textarea({
@@ -22,9 +31,9 @@ export function Textarea({
   variant = "default",
   ...props
 }: ComponentPropsWithRef<"textarea"> & VariantProps) {
-  return <textarea {...props} className={controlClass(variant, className)} />;
+  return <textarea {...props} suppressHydrationWarning className={controlClass(variant, className)} />;
 }
 
 export function Select({ className, variant = "default", ...props }: ComponentPropsWithRef<"select"> & VariantProps) {
-  return <select {...props} className={controlClass(variant, className)} />;
+  return <select {...props} suppressHydrationWarning className={controlClass(variant, className)} />;
 }

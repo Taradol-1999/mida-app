@@ -5,7 +5,15 @@ import { type BilingualText, useTranslation } from "@/components/language-provid
 
 type NavItem = { href: string; label: string | BilingualText };
 
-export function HeaderNav({ items }: { items: NavItem[] }) {
+export function HeaderNav({
+  items,
+  variant = "desktop",
+  onNavigate,
+}: {
+  items: NavItem[];
+  variant?: "desktop" | "mobile";
+  onNavigate?: () => void;
+}) {
   const [activeHref, setActiveHref] = useState("");
   const sectionKeys = items.map((item) => item.href).join("|");
   const { t } = useTranslation();
@@ -55,12 +63,11 @@ export function HeaderNav({ items }: { items: NavItem[] }) {
       onClick={(event) => {
         setActiveHref(item.href);
         event.currentTarget.closest("details")?.removeAttribute("open");
+        onNavigate?.();
       }}
       aria-current={activeHref === item.href ? "location" : undefined}
-      className={`border-b-2 pb-1 transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-primary ${
-        activeHref === item.href
-          ? "border-brand-accent text-brand-primary"
-          : "border-transparent hover:border-brand-accent hover:text-brand-primary"
+      className={`header-nav-link ${variant === "mobile" ? "header-nav-link-mobile" : "header-nav-link-desktop"} ${
+        activeHref === item.href ? "is-active" : ""
       }`}
     >
       {typeof item.label === "string" ? item.label : t(item.label)}

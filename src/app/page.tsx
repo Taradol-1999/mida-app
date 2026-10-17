@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { HeaderNav } from "@/components/header-nav";
+import { MobileHeaderMenu } from "@/components/mobile-header-menu";
 import { HeroImageSlider } from "@/components/hero-image-slider";
 import { ProjectLocationMap } from "@/components/project-location-map";
 import { SiteFooter } from "@/components/site-footer";
@@ -205,41 +206,24 @@ export default async function HomePage() {
   ]);
   return (
     <main>
-      <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur">
-        <div className="container-page flex h-16 items-center justify-between gap-4 sm:h-18">
-          <Link href="/" className="flex items-center gap-2 font-extrabold tracking-tight text-brand-primary">
-            <span className="grid size-9 place-items-center rounded bg-brand-accent text-sm text-brand-primary">M</span>
-            <span>
+      <header className="site-header sticky top-0 z-20">
+        <div className="container-page flex h-16 items-center justify-between gap-3 sm:h-18">
+          <Link href="/" className="site-header-brand flex items-center gap-2 font-extrabold tracking-tight text-white">
+            <span className="grid size-8 place-items-center rounded bg-brand-accent text-xs text-brand-primary sm:size-9 sm:text-sm">
+              M
+            </span>
+            <span className="text-sm sm:text-base">
               MIDA <span className="hidden sm:inline">PROPERTY</span>
             </span>
           </Link>
-          <nav className="hidden items-center gap-7 text-sm font-semibold text-slate-600 md:flex">
+          <nav className="hidden items-center gap-5 text-sm font-semibold lg:flex xl:gap-7">
             <HeaderNav items={nav} />
-            <a href="#projects" aria-label="ค้นหาโครงการ" className="hover:text-brand-primary">
-              <i className="fa-solid fa-magnifying-glass" />
+            <a href="#projects" className="site-header-action">
+              <T th="ค้นหาโครงการ" en="Find a project" />
             </a>
             <LanguageToggle />
           </nav>
-          <details className="group relative md:hidden">
-            <summary className="grid size-10 cursor-pointer list-none place-items-center rounded-lg border border-slate-200 text-brand-primary [&::-webkit-details-marker]:hidden">
-              <i className="fa-solid fa-bars" aria-hidden="true" />
-              <span className="sr-only">
-                <T th="เปิดเมนู" en="Open menu" />
-              </span>
-            </summary>
-            <nav className="absolute right-0 top-12 flex w-64 flex-col gap-1 rounded-xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-600 shadow-xl">
-              <HeaderNav items={nav} />
-              {session && (
-                <Link href="/admin" className="mt-1 rounded-lg bg-brand-soft px-3 py-2.5 text-brand-primary">
-                  <i className="fa-solid fa-user-shield mr-2" />
-                  <T th="ผู้ดูแลระบบ" en="Admin" />
-                </Link>
-              )}
-              <div className="mt-2 px-2">
-                <LanguageToggle />
-              </div>
-            </nav>
-          </details>
+          <MobileHeaderMenu items={nav} showAdmin={Boolean(session)} label={{ th: "เมนูหลัก", en: "Main menu" }} />
         </div>
       </header>
       <HeroImageSlider

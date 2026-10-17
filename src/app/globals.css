@@ -43,6 +43,91 @@ body {
   font-family: var(--font-ibm-plex-sans-thai), Arial, "Noto Sans Thai", sans-serif;
 }
 
+@keyframes header-menu-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-1.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@layer components {
+  .site-header {
+    @apply border-b border-white/10 bg-brand-primary/95 text-white shadow-[0_8px_24px_rgba(0,45,98,0.13)] backdrop-blur-xl;
+  }
+
+  .site-header-brand {
+    @apply transition duration-200 hover:-translate-y-px hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-primary;
+  }
+
+  .site-header-icon-link {
+    @apply grid size-9 place-items-center rounded-full text-white/80 transition duration-200 hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent;
+  }
+
+  .site-header-action {
+    @apply inline-flex h-9 items-center justify-center gap-2 rounded-md border border-brand-accent bg-brand-accent px-3.5 text-xs font-extrabold text-brand-primary shadow-sm transition duration-200 hover:-translate-y-px hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent;
+  }
+
+  .header-nav-link {
+    @apply relative whitespace-nowrap font-semibold outline-none transition duration-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-primary;
+  }
+
+  .header-nav-link-desktop {
+    @apply py-2 text-white/75 hover:text-white;
+  }
+
+  .header-nav-link-desktop::after {
+    content: "";
+    @apply absolute inset-x-0 -bottom-px h-0.5 origin-left scale-x-0 rounded-full bg-brand-accent transition-transform duration-300 ease-out;
+  }
+
+  .header-nav-link-desktop:hover::after,
+  .header-nav-link-desktop.is-active::after {
+    @apply scale-x-100;
+  }
+
+  .header-nav-link-desktop.is-active {
+    @apply text-white;
+  }
+
+  .site-header-menu-trigger {
+    @apply grid size-11 shrink-0 cursor-pointer list-none place-items-center rounded-xl border border-slate-200 bg-white text-brand-primary shadow-sm transition duration-200 hover:border-brand-primary hover:bg-brand-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary sm:size-10;
+  }
+
+  .mobile-navigation-layer {
+    @apply fixed inset-x-0 bottom-0 top-16 z-[70] overflow-y-auto bg-white sm:top-[4.5rem];
+  }
+
+  .mobile-navigation-panel {
+    @apply min-h-full w-full bg-white;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    animation: header-menu-drop 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .header-nav-link-mobile {
+    @apply flex min-h-12 items-center rounded-xl px-3.5 py-2.5 text-slate-600 transition duration-200 hover:bg-brand-soft hover:text-brand-primary;
+  }
+
+  .header-nav-link-mobile.is-active {
+    @apply bg-brand-primary text-white shadow-sm;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* Keep taps responsive in Safari and iOS in-app browsers. */
 @media (pointer: coarse) {
   button,

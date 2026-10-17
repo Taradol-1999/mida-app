@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { HeaderNav } from "@/components/header-nav";
+import { MobileHeaderMenu } from "@/components/mobile-header-menu";
 import { notFound } from "next/navigation";
 import { HeroImageSlider } from "@/components/hero-image-slider";
 import { ProjectLocationMap } from "@/components/project-location-map";
@@ -253,32 +254,27 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   ];
   return (
     <main id="project-top" className="bg-white">
-      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
-        <div className="project-container flex min-h-16 items-center justify-between gap-3 sm:min-h-18">
+      <header className="site-header sticky top-0 z-30 shadow-sm">
+        <div className="project-container flex min-h-16 items-center justify-between gap-3 sm:min-h-[4.5rem]">
           <Link
             href="/"
             aria-label={`MIDA home — ${project.name_en || project.name}`}
-            className="flex min-w-0 items-center gap-2 font-extrabold text-brand-primary"
+            className="site-header-brand flex min-w-0 items-center gap-2 font-extrabold text-white"
           >
             <span className="grid size-8 shrink-0 place-items-center rounded-full bg-brand-accent text-xs text-brand-primary">
               {String(project.name).charAt(0).toUpperCase()}
             </span>
             <span className="truncate text-sm sm:text-base"><T th={project.name} en={project.name_en ?? ""} /></span>
           </Link>
-          <nav className="hidden items-center gap-5 text-xs font-semibold text-slate-600 lg:flex">
+          <nav className="hidden items-center gap-5 text-xs font-semibold xl:flex">
             <HeaderNav items={projectNavigation} />
             <LanguageToggle />
           </nav>
-          <details className="group relative lg:hidden">
-            <summary className="grid size-10 cursor-pointer list-none place-items-center rounded-lg border border-slate-200 text-brand-primary [&::-webkit-details-marker]:hidden">
-              <i className="fa-solid fa-bars" aria-hidden="true" />
-              <span className="sr-only"><T th="เปิดเมนูโครงการ" en="Open project menu" /></span>
-            </summary>
-            <nav className="absolute right-0 top-12 flex w-64 flex-col gap-1 rounded-xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-600 shadow-xl">
-              <HeaderNav items={projectNavigation} />
-              <div className="mt-2 px-2"><LanguageToggle /></div>
-            </nav>
-          </details>
+          <MobileHeaderMenu
+            items={projectNavigation}
+            label={{ th: "เมนูโครงการ", en: "Project menu" }}
+            desktopBreakpoint="xl"
+          />
         </div>
       </header>
       <ProjectSectionTracker sectionIds={projectNavigation.map((item) => item.href.slice(1))} />
