@@ -10,7 +10,6 @@ const nav = [
   { href: "#projects", label: { th: "โครงการ", en: "Projects" } },
   { href: "#living", label: { th: "เครือไมด้า", en: "MIDA Group" } },
   { href: "#promotion", label: { th: "ข่าวสารและโปรโมชั่น", en: "News & Promotions" } },
-  { href: "#location", label: { th: "ทำเลที่ตั้ง", en: "Locations" } },
 ];
 
 export function HomeHeader({ showAdmin }: { showAdmin: boolean }) {

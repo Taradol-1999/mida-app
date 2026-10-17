@@ -4,6 +4,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "@/components/language-provider";
+import { Swiper, SwiperSlide } from "swiper/react";
+import type { Swiper as SwiperInstance } from "swiper/types";
+import "swiper/css";
 
 export type NewsPromotionImage = { src: string; alt: string; type: "image" | "video" };
 export type NewsPromotionItem = {
@@ -17,7 +20,116 @@ export type NewsPromotionItem = {
   images?: NewsPromotionImage[];
 };
 
+function HomeNewsSlider({ items }: { items: NewsPromotionItem[] }) {
+  const { t } = useTranslation();
+  const swiperRef = useRef<SwiperInstance | null>(null);
+
+  if (!items.length) return null;
+
+  const slides = items.length === 2 ? [...items, ...items] : items;
+
+  function media(item: NewsPromotionItem, featured: boolean) {
+    const image = item.images?.[0];
+    const content = (
+      <div
+        className={`group relative h-60 overflow-hidden bg-white shadow-[0_18px_45px_rgba(0,20,55,.26)] min-[480px]:h-72 sm:h-88 ${featured ? "w-full" : "w-full"}`}
+      >
+        {image?.type === "video" ? (
+          <video src={image.src} muted playsInline preload="metadata" className="size-full object-cover" />
+        ) : image ? (
+          <Image
+            src={image.src}
+            alt={image.alt}
+            fill
+            unoptimized
+            sizes={featured ? "(min-width: 1024px) 42vw, 92vw" : "(min-width: 1024px) 18vw, 40vw"}
+            className="object-cover transition duration-700 group-hover:scale-[1.025]"
+          />
+        ) : (
+          <div className="absolute inset-0 grid place-items-center bg-[radial-gradient(circle_at_80%_15%,rgba(252,176,64,.85),transparent_32%),linear-gradient(135deg,#f8fbff,#d9e9f5)] p-6 text-center text-brand-primary">
+            <div>
+              <i className="fa-solid fa-house-chimney-window text-5xl text-brand-primary/25" aria-hidden="true" />
+              <p className="mt-4 text-lg font-black leading-snug">{t({ th: item.title, en: item.titleEn ?? "" })}</p>
+            </div>
+          </div>
+        )}
+        <span className="absolute inset-x-0 top-0 h-24 bg-linear-to-b from-brand-overlay/20 to-transparent" />
+        <span className="absolute top-4 left-4 rounded-full bg-white/92 px-3 py-1 text-[10px] font-extrabold tracking-[0.12em] text-brand-primary shadow-sm backdrop-blur">
+          {item.tag}
+        </span>
+      </div>
+    );
+
+    return item.href ? (
+      <Link href={item.href} aria-label={t({ th: item.title, en: item.titleEn ?? item.title })}>
+        {content}
+      </Link>
+    ) : (
+      content
+    );
+  }
+
+  return (
+    <div className="relative min-w-0 px-5 select-none sm:px-0">
+      <Swiper
+        onSwiper={(swiper) => {
+          swiperRef.current = swiper;
+        }}
+        slidesPerView={1}
+        breakpoints={{ 640: { slidesPerView: 1.42 }, 1024: { slidesPerView: 1.35 } }}
+        spaceBetween={12}
+        loop={items.length > 1}
+        speed={550}
+        grabCursor
+      >
+        {slides.map((item, index) => (
+          <SwiperSlide key={`${item.id}-${index}`}>
+            <article className="min-w-0">
+              {media(item, true)}
+              {/* <p className="mt-3 line-clamp-1 px-1 text-xs font-medium text-blue-100">
+                {t({ th: item.title, en: item.titleEn ?? item.title })}
+              </p> */}
+            </article>
+          </SwiperSlide>
+        ))}
+      </Swiper>
+
+      {items.length > 1 && (
+        <>
+          <button
+            type="button"
+            onClick={() => swiperRef.current?.slidePrev()}
+            aria-label={t({ th: "ข่าวก่อนหน้า", en: "Previous story" })}
+            className="absolute top-1/2 left-0 z-10 grid size-9 -translate-y-1/2 place-items-center rounded-full bg-[#0065a7] text-sm text-white shadow-lg transition hover:scale-105 hover:bg-brand-accent hover:text-brand-primary sm:-left-5 sm:size-11"
+          >
+            <i className="fa-solid fa-chevron-left" aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            onClick={() => swiperRef.current?.slideNext()}
+            aria-label={t({ th: "ข่าวถัดไป", en: "Next story" })}
+            className="absolute top-1/2 right-0 z-10 grid size-9 -translate-y-1/2 place-items-center rounded-full bg-white text-sm text-brand-primary shadow-lg transition hover:scale-105 hover:bg-brand-accent sm:-right-5 sm:size-11"
+          >
+            <i className="fa-solid fa-chevron-right" aria-hidden="true" />
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
+
 export function NewsPromotionSlider({
+  items,
+  variant = "default",
+}: {
+  items: NewsPromotionItem[];
+  variant?: "default" | "project" | "home";
+}) {
+  if (variant === "home") return <HomeNewsSlider items={items} />;
+  return <NewsPromotionCards items={items} variant={variant} />;
+}
+
+function NewsPromotionCards({
   items,
   variant = "default",
 }: {

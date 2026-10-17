@@ -1,6 +1,5 @@
 import { HomeHeader } from "@/components/home-header";
 import { HeroImageSlider } from "@/components/hero-image-slider";
-import { ProjectLocationMap } from "@/components/project-location-map";
 import { MidaLivingShowcase } from "@/components/mida-living-showcase";
 import { SiteFooter } from "@/components/site-footer";
 import { T } from "@/components/language-provider";
@@ -8,7 +7,6 @@ import { NewsPromotionSlider, type NewsPromotionItem } from "@/components/news-p
 import { ProjectFilter } from "@/components/project-filter";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import type { MapProject } from "@/lib/project-map";
 
 export const dynamic = "force-dynamic";
 
@@ -41,7 +39,7 @@ const defaultUpdates: NewsPromotionItem[] = [
 
 async function homeData() {
   try {
-    const [contentRows, promotions, news, projectRows] = await Promise.all([
+    const [contentRows, promotions, news] = await Promise.all([
       prisma.siteContent.findMany({
         select: { id: true, content_key: true, title: true, title_en: true, body: true, body_en: true },
       }),
@@ -56,21 +54,6 @@ async function homeData() {
         include: { project: { select: { slug: true } } },
         orderBy: { published_at: "desc" },
         take: 12,
-      }),
-      prisma.project.findMany({
-        where: { status: { not: "ARCHIVED" } },
-        select: {
-          id: true,
-          slug: true,
-          name_th: true,
-          name_en: true,
-          location: true,
-          location_en: true,
-          latitude: true,
-          longitude: true,
-          settings: true,
-        },
-        orderBy: { name_th: "asc" },
       }),
     ]);
     // Keep the essential homepage content available while a running dev server
@@ -168,17 +151,6 @@ async function homeData() {
         alt: String(row.original_name || "แบนเนอร์ MIDA Property"),
         type: String(row.mime_type).startsWith("video/") ? ("video" as const) : ("image" as const),
       })),
-      mapProjects: projectRows.map((row): MapProject => ({
-        id: row.id,
-        slug: row.slug,
-        name: row.name_th,
-        nameEn: row.name_en,
-        location: row.location,
-        locationEn: row.location_en,
-        latitude: row.latitude === null ? null : Number(row.latitude),
-        longitude: row.longitude === null ? null : Number(row.longitude),
-        mapUrl: row.settings?.map_url ?? null,
-      })),
       homepageProjectIds: homepageRows?.map((row) => row.project_id),
     };
   } catch {
@@ -186,17 +158,13 @@ async function homeData() {
       content: {},
       updates: defaultUpdates,
       heroImages: [],
-      mapProjects: [] as MapProject[],
       homepageProjectIds: undefined as string[] | undefined,
     };
   }
 }
 
 export default async function HomePage() {
-  const [{ content, updates, heroImages, mapProjects, homepageProjectIds }, session] = await Promise.all([
-    homeData(),
-    getSession(),
-  ]);
+  const [{ content, updates, heroImages, homepageProjectIds }, session] = await Promise.all([homeData(), getSession()]);
   return (
     <main>
       <HomeHeader showAdmin={Boolean(session)} />
@@ -212,59 +180,42 @@ export default async function HomePage() {
         <ProjectFilter projectIds={homepageProjectIds} allProjectsHref="/projects" />
         <MidaLivingShowcase />
       </div>
-      <section id="promotion" className="relative overflow-hidden bg-[#003b73] py-16 text-white sm:py-24">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_90%_10%,rgba(255,255,255,.1),transparent_35%),linear-gradient(160deg,#063b71,#002d62)]" />
-        <div className="container-page relative grid items-center gap-8 lg:grid-cols-[minmax(220px,0.32fr)_minmax(0,0.68fr)] lg:gap-12">
-          <div>
-            <p className="text-xs font-extrabold tracking-[0.2em] text-brand-accent">MIDA STORIES</p>
-            <h2 className="mt-3 text-3xl font-extrabold sm:text-4xl">
-              <T th="เรื่องราวที่น่าสนใจ" en="Stories worth exploring" />
+      <section id="promotion" className="relative overflow-hidden bg-[#003f7d] py-14 text-white sm:py-18 lg:py-20">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_22%_15%,rgba(0,111,181,.48),transparent_35%),linear-gradient(120deg,#003b73,#004d91_62%,#003668)]" />
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 flex h-36 items-end justify-around overflow-hidden text-[7rem] leading-none text-[#0780c4]/12 sm:h-48 sm:text-[11rem]"
+          aria-hidden="true"
+        >
+          <i className="fa-solid fa-building" />
+          <i className="fa-solid fa-city" />
+          <i className="fa-solid fa-building-columns" />
+          <i className="fa-solid fa-hotel" />
+          <i className="fa-solid fa-building" />
+        </div>
+        <div className="container-page relative grid items-center gap-10 lg:grid-cols-[minmax(250px,0.34fr)_minmax(0,0.66fr)] lg:gap-16">
+          <div className="max-w-lg lg:pb-8">
+            <h2 className="text-3xl font-extrabold leading-tight sm:text-4xl">
+              <T th="Blog เรื่องราวที่น่าสนใจ" en="Blog — Stories worth exploring" />
             </h2>
-            <p className="mt-4 max-w-md text-sm leading-7 text-blue-100">
+            <p className="mt-3 max-w-md text-sm leading-7 text-blue-100">
               <T
-                th="รวมบทความ ข่าวสาร และไลฟ์สไตล์ของครอบครัว MIDA"
-                en="News, ideas, and stories from the MIDA community."
+                th="รวบรวมทุกบทความ ข่าวสาร ไลฟ์สไตล์ของธุรกิจเครือไมด้า"
+                en="Articles, news, and lifestyle stories from the MIDA group."
               />
             </p>
             <a
               href="#promotion-news"
-              className="mt-6 inline-flex min-h-11 items-center gap-3 rounded-full bg-brand-accent px-5 text-sm font-bold text-brand-primary transition hover:bg-white"
+              className="mt-6 inline-flex min-h-11 items-center gap-4 rounded-full bg-brand-accent py-1.5 pr-1.5 pl-5 text-sm font-bold text-white shadow-lg shadow-black/10 transition hover:-translate-y-0.5 hover:bg-white hover:text-brand-primary"
             >
-              <T th="ติดตามความเคลื่อนไหว" en="Explore the latest" />
-              <i className="fa-solid fa-arrow-right" aria-hidden="true" />
+              <T th="คลิกดูบทความทั้งหมด" en="Explore all stories" />
+              <span className="grid size-9 place-items-center rounded-full bg-white text-brand-primary">
+                <i className="fa-solid fa-arrow-right" aria-hidden="true" />
+              </span>
             </a>
           </div>
           <div id="promotion-news" className="min-w-0">
             <NewsPromotionSlider items={updates} variant="home" />
           </div>
-        </div>
-      </section>
-      <section id="location" className="bg-[#eaf4fb] py-14 sm:py-18">
-        <div className="container-page">
-          <div className="mb-7 max-w-2xl">
-            <div className="gold-rule" />
-            <p className="mt-4 text-sm font-bold tracking-widest text-brand-text">MIDA LOCATION</p>
-            <h2 className="section-title mt-2">
-              <T th="ทำเลโครงการ MIDA PROPERTY" en="MIDA PROPERTY Locations" />
-            </h2>
-            <p className="mt-3 leading-7 text-brand-text">
-              <T
-                th="ดูตำแหน่งโครงการทั้งหมด และกดเลือกโครงการเพื่อเปิดเส้นทางใน Google Maps"
-                en="View every project location and select a project for directions in Google Maps."
-              />
-            </p>
-          </div>
-          <ProjectLocationMap
-            projects={mapProjects}
-            center={{
-              name: "MIDA PROPERTY",
-              nameEn: "MIDA PROPERTY",
-              address: "267 ถนนจรัญสนิทวงศ์ แขวงบางอ้อ เขตบางพลัด กรุงเทพมหานคร 10700",
-              addressEn: "267 Charansanitwong Road, Bang O, Bang Phlat, Bangkok 10700, Thailand",
-              latitude: 13.8040816,
-              longitude: 100.5121667,
-            }}
-          />
         </div>
       </section>
       <SiteFooter contact={content.contact?.body} contactEn={content.contact?.body_en} />

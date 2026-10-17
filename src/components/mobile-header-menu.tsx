@@ -134,18 +134,13 @@ export function MobileHeaderMenu({
 
                   <div className="border-b border-slate-100 px-6 py-6 sm:px-8">
                     <p className="mb-3 text-[11px] font-extrabold tracking-[0.16em] text-[#168cc5]">
-                      {t({ th: "ไมด้า", en: "MIDA" })}
+                      {t({ th: "เมนู", en: "MENU" })}
                     </p>
                     <nav aria-label={t(label)} className="grid gap-1">
                       <HeaderNav items={items} variant="mobile" onNavigate={closeMenu} />
                       <Link href="/projects" onClick={closeMenu} className="header-nav-link header-nav-link-mobile">
                         {t({ th: "โครงการทั้งหมด", en: "All projects" })}
                       </Link>
-                      {showAdmin && (
-                        <Link href="/admin" onClick={closeMenu} className="header-nav-link header-nav-link-mobile">
-                          {t({ th: "ผู้ดูแลระบบ", en: "Admin" })}
-                        </Link>
-                      )}
                     </nav>
                   </div>
                   <div className="px-6 pb-7 pt-7 sm:px-8">
