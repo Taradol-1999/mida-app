@@ -1,6 +1,4 @@
-import Link from "next/link";
-import Image from "next/image";
-import { MobileHeaderMenu } from "@/components/mobile-header-menu";
+import { HomeHeader } from "@/components/home-header";
 import { HeroImageSlider } from "@/components/hero-image-slider";
 import { ProjectLocationMap } from "@/components/project-location-map";
 import { MidaLivingShowcase } from "@/components/mida-living-showcase";
@@ -11,16 +9,8 @@ import { ProjectFilter } from "@/components/project-filter";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import type { MapProject } from "@/lib/project-map";
-import midaLogo from "@/assets/logos/png/01-mida-property.png";
 
 export const dynamic = "force-dynamic";
-
-const nav = [
-  { href: "#projects", label: { th: "โครงการ", en: "Projects" } },
-  { href: "#living", label: { th: "เครือไมด้า", en: "MIDA Group" } },
-  { href: "#promotion", label: { th: "ข่าวสารและโปรโมชั่น", en: "News & Promotions" } },
-  { href: "#location", label: { th: "ทำเลที่ตั้ง", en: "Locations" } },
-];
 
 const defaultUpdates: NewsPromotionItem[] = [
   {
@@ -209,31 +199,7 @@ export default async function HomePage() {
   ]);
   return (
     <main>
-      <header className="absolute inset-x-0 top-0 z-[80] px-3 pt-3 sm:px-6 sm:pt-5">
-        <div className="mx-auto grid h-14 w-full max-w-6xl grid-cols-[1fr_auto_1fr] items-center rounded-full border border-white/70 bg-white/94 px-3 shadow-[0_14px_45px_rgba(0,28,66,0.18)] backdrop-blur-xl sm:h-16 sm:px-5">
-          <MobileHeaderMenu
-            items={nav}
-            showAdmin={Boolean(session)}
-            label={{ th: "เมนูหลัก", en: "Main menu" }}
-            desktopBreakpoint="always"
-            homeStyle
-          />
-          <Link
-            href="/"
-            aria-label="MIDA Property"
-            className="inline-flex items-center justify-center focus-visible:rounded-md focus-visible:outline-2 focus-visible:outline-brand-primary"
-          >
-            <Image src={midaLogo} alt="MIDA Property" className="h-11 w-auto object-contain sm:h-12" priority />
-          </Link>
-          <a
-            href="#projects"
-            aria-label="ค้นหาโครงการ"
-            className="ml-auto grid size-10 place-items-center rounded-full text-brand-primary transition hover:bg-brand-soft focus-visible:outline-2 focus-visible:outline-brand-primary"
-          >
-            <i className="fa-solid fa-magnifying-glass" aria-hidden="true" />
-          </a>
-        </div>
-      </header>
+      <HomeHeader showAdmin={Boolean(session)} />
       <HeroImageSlider
         variant="home"
         images={heroImages}
