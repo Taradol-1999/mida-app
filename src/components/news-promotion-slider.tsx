@@ -7,6 +7,7 @@ import { useTranslation } from "@/components/language-provider";
 import { Swiper, SwiperSlide } from "swiper/react";
 import type { Swiper as SwiperInstance } from "swiper/types";
 import "swiper/css";
+import { Autoplay } from "swiper/modules";
 
 export type NewsPromotionImage = { src: string; alt: string; type: "image" | "video" };
 export type NewsPromotionItem = {
@@ -72,6 +73,7 @@ function HomeNewsSlider({ items }: { items: NewsPromotionItem[] }) {
   return (
     <div className="relative min-w-0 px-5 select-none sm:px-0">
       <Swiper
+        modules={[Autoplay]}
         onSwiper={(swiper) => {
           swiperRef.current = swiper;
         }}
@@ -81,6 +83,11 @@ function HomeNewsSlider({ items }: { items: NewsPromotionItem[] }) {
         loop={items.length > 1}
         speed={550}
         grabCursor
+        autoplay={{
+          delay: 4500, // Time between slide transitions (in ms)
+          disableOnInteraction: false, // Prevents autoplay from stopping on user drag/click
+          pauseOnMouseEnter: true, // Pauses autoplay when hovering over the swiper
+        }}
       >
         {slides.map((item, index) => (
           <SwiperSlide key={`${item.id}-${index}`}>

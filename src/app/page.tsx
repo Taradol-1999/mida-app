@@ -152,7 +152,7 @@ export default async function HomePage() {
 
         <div className="container-page relative z-10 grid items-center gap-10 lg:grid-cols-[minmax(250px,0.34fr)_minmax(0,0.66fr)] lg:gap-16">
           <div className="max-w-lg lg:pb-8">
-            <h2 className="text-3xl font-extrabold leading-tight sm:text-4xl">
+            <h2 className="text-2xl font-extrabold leading-snug sm:text-4xl sm:leading-tight">
               <T th="Blog เรื่องราวที่น่าสนใจ" en="Blog — Stories worth exploring" />
             </h2>
             <p className="mt-3 max-w-md text-sm leading-7 text-blue-100">

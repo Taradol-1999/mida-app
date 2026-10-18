@@ -28,7 +28,7 @@ const priceOptions = [
   ["4m-5m", { th: "4–5 ล้านบาท", en: "THB 4–5 million" }],
   ["over-5m", { th: "ตั้งแต่ 5 ล้านบาทขึ้นไป", en: "THB 5 million and above" }],
 ] as const;
-const selectStyle = "w-full bg-transparent text-xs text-slate-600 outline-none";
+const selectStyle = "w-full bg-transparent text-base text-slate-600 outline-none sm:text-sm";
 
 function matchesPrice(startingPrice: number, range: string) {
   if (range === "under-2m") return startingPrice < 2_000_000;
@@ -189,7 +189,7 @@ export function ProjectFilter({
             value={keyword}
             onChange={(event) => setKeyword(event.target.value)}
             placeholder={t({ th: "ค้นหาชื่อโครงการหรือทำเล", en: "Search by project or location" })}
-            className="w-full rounded-lg border border-slate-200 bg-[#eef5fb] py-3 pl-11 pr-4 text-sm outline-none focus:border-brand-primary"
+            className="w-full rounded-lg border border-slate-200 bg-[#eef5fb] py-3 pl-11 pr-4 text-base outline-none focus:border-brand-primary sm:text-sm"
           />
         </div>
 
@@ -368,7 +368,7 @@ export function ProjectFilter({
               </div>
               <div className="flex flex-1 flex-col p-4 sm:p-5">
                 <div className="flex-1">
-                  <h3 className="mt-4 line-clamp-2 text-[1.35rem] leading-tight font-black tracking-tight text-brand-primary">
+                  <h3 className="mt-3 line-clamp-2 break-words text-lg leading-snug font-black tracking-tight text-brand-primary sm:mt-4 sm:text-[1.35rem]">
                     {projectText(project, "name")}
                   </h3>
                   <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-500">

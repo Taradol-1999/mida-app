@@ -34,9 +34,9 @@ export default async function BlogPage({ params }: { params: Promise<{ id: strin
                 alt: image.original_name || article.name_th,
               }))}
             />
-            <div className="p-6 sm:p-10 lg:p-12">
+            <div className="p-5 sm:p-10 lg:p-12">
               <p className="text-xs font-bold tracking-[0.2em] text-brand-accent">MIDA PROPERTY · BLOG</p>
-              <h1 className="mt-3 text-2xl font-extrabold leading-snug text-brand-primary sm:text-4xl">
+              <h1 className="mt-3 break-words text-xl font-extrabold leading-snug text-brand-primary sm:text-4xl">
                 <T th={article.name_th} en={article.name_en || article.name_th} />
               </h1>
               {(article.description_th || article.description_en) && (

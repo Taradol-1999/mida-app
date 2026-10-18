@@ -12,7 +12,7 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
       <section className="pb-2 pt-28 sm:pt-32">
         <div className="container-page">
           <p className="text-xs font-bold tracking-[0.2em] text-brand-accent">MIDA PROPERTY</p>
-          <h1 className="mt-3 text-3xl font-extrabold text-brand-primary sm:text-4xl">
+          <h1 className="mt-3 text-2xl font-extrabold leading-snug text-brand-primary sm:text-4xl">
             <T th="โครงการทั้งหมด" en="All Projects" />
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-500 sm:text-base">

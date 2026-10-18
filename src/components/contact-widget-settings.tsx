@@ -12,12 +12,15 @@ export function ContactWidgetSettings({
   onChange: (value: ContactWidgetValues) => void;
 }) {
   return (
-    <fieldset className="rounded-xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
-      <legend className="font-bold text-slate-800">
-        <i className="fa-solid fa-comments mr-2 text-brand-primary" />
-        ช่องทางติดต่อ
-      </legend>
-      <p className="mt-1 text-xs text-slate-500">ตั้งค่า LINE, Messenger เบอร์โทร และอีเมลที่แสดงบนเว็บไซต์ส่วนกลาง</p>
+    <fieldset className="min-w-0 rounded-2xl border border-slate-200 bg-slate-50/70 p-4 sm:p-5">
+      <legend className="sr-only">ช่องทางติดต่อ</legend>
+      <div className="flex items-start gap-3">
+        <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-white text-brand-primary shadow-sm"><i className="fa-solid fa-comments" aria-hidden="true" /></span>
+        <div>
+          <h2 className="font-bold text-brand-primary">ช่องทางติดต่อ</h2>
+          <p className="mt-1 text-xs leading-5 text-slate-500">ตั้งค่า LINE, Messenger เบอร์โทร และอีเมลที่แสดงบนเว็บไซต์ส่วนกลาง ช่องทางที่ไม่ระบุจะไม่แสดงบนเว็บไซต์</p>
+        </div>
+      </div>
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <label className="text-sm font-semibold text-slate-700">
           ลิงก์ LINE

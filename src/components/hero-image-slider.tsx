@@ -140,11 +140,11 @@ export function HeroImageSlider({
       >
         <div className={homeStyle ? "w-full max-w-2xl" : "w-full max-w-5xl"}>
           <h1
-            className={`${homeStyle ? "text-4xl sm:text-5xl lg:text-7xl" : "text-3xl sm:text-4xl md:text-6xl"} leading-tight font-extrabold drop-shadow-md`}
+            className={`${homeStyle ? "text-[clamp(1.75rem,8vw,2.25rem)] sm:text-5xl lg:text-7xl" : "text-3xl sm:text-4xl md:text-6xl"} leading-tight font-extrabold drop-shadow-md`}
           >
             {t({ th: title, en: titleEn ?? "" })}
           </h1>
-          <p className="mt-4 max-w-3xl text-base leading-7 text-slate-100 drop-shadow sm:mt-6 sm:text-lg sm:leading-8">
+          <p className="mt-4 max-w-3xl text-sm leading-6 text-slate-100 drop-shadow sm:mt-6 sm:text-lg sm:leading-8">
             {t({ th: description, en: descriptionEn ?? "" })}
           </p>
           {meta && (

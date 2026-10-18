@@ -141,17 +141,24 @@ export function MidaFrontendManager() {
   }
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <header className="border-b border-slate-100 pb-4">
-        <h1 className="text-base font-bold text-slate-800">
-          <i className="fa-solid fa-display mr-2 text-brand-primary" />
-          Mida Property (ส่วนกลาง)
-        </h1>
-        <p className="mt-1 text-xs text-slate-400">
-          ส่วนควบคุมและแก้ไขข้อมูลหน้าแรก สไลเดอร์หลัก และเนื้อหาของหน้าเว็บใหญ่ (Corporate Website)
-        </p>
+    <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6 lg:p-8">
+      <header className="flex items-start gap-4 border-b border-slate-100 pb-6">
+        <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-brand-accent-soft text-xl text-brand-primary">
+          <i className="fa-solid fa-display" aria-hidden="true" />
+        </span>
+        <div>
+          <h1 className="text-xl font-bold text-brand-primary">Mida Property (ส่วนกลาง)</h1>
+          <p className="mt-1 text-sm leading-6 text-slate-500">
+            จัดการข้อมูลหน้าแรก แบนเนอร์ โครงการแนะนำ และช่องทางติดต่อของเว็บไซต์ส่วนกลาง
+          </p>
+        </div>
       </header>
-      <form onSubmit={save} className="mt-6 space-y-5 text-sm">
+      <form onSubmit={save} className="mt-6 space-y-6 text-sm">
+        <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 sm:p-5">
+        <div className="mb-5 flex items-start gap-3">
+          <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-white text-brand-primary shadow-sm"><i className="fa-solid fa-pen-to-square" aria-hidden="true" /></span>
+          <div><h2 className="font-bold text-brand-primary">ข้อมูลหน้าแรก</h2><p className="mt-1 text-xs leading-5 text-slate-500">ข้อความที่แสดงบนแบนเนอร์หลัก รองรับภาษาไทยและภาษาอังกฤษ</p></div>
+        </div>
         <div className="grid gap-5 md:grid-cols-2">
         <label className="block font-semibold text-slate-700">
           คำพาดหัวหลัก (TH)
@@ -187,7 +194,8 @@ export function MidaFrontendManager() {
           />
         </label>
         </div>
-        <div className="mt-6">
+        </div>
+        <div className="rounded-2xl border border-slate-200 p-4 sm:p-5">
           <BannerMediaUpload
             title="รูปภาพและวิดีโอแบนเนอร์สไลด์หลักหน้าแรกส่วนกลาง"
             media={images}
@@ -198,7 +206,7 @@ export function MidaFrontendManager() {
           />
         </div>
 
-        <fieldset className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+        <fieldset className="min-w-0 rounded-2xl border border-slate-200 bg-slate-50/70 p-4 sm:p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <legend className="font-bold text-slate-800">
@@ -254,13 +262,16 @@ export function MidaFrontendManager() {
         </fieldset>
 
         <ContactWidgetSettings value={contact} onChange={setContact} />
-        {message && <p className="rounded-lg bg-brand-soft px-4 py-3 text-brand-primary">{message}</p>}
+        {message && <p role="status" className="rounded-xl bg-brand-soft px-4 py-3 text-brand-primary">{message}</p>}
+        <div className="flex justify-end border-t border-slate-100 pt-5">
         <button
           disabled={busy || !contactReady}
-          className="rounded-lg bg-brand-primary px-5 py-2.5 font-medium text-white shadow-sm disabled:opacity-50"
+          className="min-h-11 w-full rounded-xl bg-brand-primary px-6 py-3 font-bold text-white shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
         >
+          <i className="fa-solid fa-floppy-disk mr-2" aria-hidden="true" />
           {busy ? "กำลังบันทึก..." : "บันทึกข้อมูลเว็บไซต์ส่วนกลาง"}
         </button>
+        </div>
       </form>
     </section>
   );

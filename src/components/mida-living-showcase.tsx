@@ -50,10 +50,10 @@ export function MidaLivingShowcase({ items = [] }: { items?: MidaLivingItem[] })
     <section id="living" className="relative overflow-hidden bg-[#eaf4fb] pb-12 pt-10 sm:pb-20 sm:pt-16 lg:pb-28">
       <div className="container-page text-center">
         <p className="text-xs font-extrabold tracking-[0.22em] text-[#168cc5]">THE MIDA FAMILY</p>
-        <h2 className="mt-3 text-3xl font-black tracking-tight text-brand-primary sm:text-4xl">
+        <h2 className="mt-3 text-2xl font-black leading-snug tracking-tight text-brand-primary sm:text-4xl">
           {t({ th: "เริ่มที่เรา เริ่มที่ไมด้า", en: "It starts with us. It starts with MIDA." })}
         </h2>
-        <p className="mt-3 text-sm text-slate-500 sm:text-base">
+        <p className="mt-3 text-sm leading-6 text-slate-500 sm:text-base">
           {t({ th: "หลากหลายธุรกิจเพื่อทุกจังหวะของการใช้ชีวิต", en: "Businesses for every moment of life." })}
         </p>
       </div>
@@ -126,14 +126,14 @@ export function MidaLivingShowcase({ items = [] }: { items?: MidaLivingItem[] })
                 )}
                 <span className="absolute inset-0 bg-linear-to-t from-black/80 via-black/5 to-white/10" />
                 <span className="absolute inset-x-2 bottom-3 z-10 text-white drop-shadow-md sm:inset-x-5 sm:bottom-5">
-                  <strong className="block text-sm font-black tracking-wide sm:text-base">{name}</strong>
+                  <strong className="block break-words text-xs font-black leading-snug sm:text-base">{name}</strong>
                   {description && (
-                    <span className="mt-1 line-clamp-2 block text-xs leading-5 text-white/85 sm:text-sm">
+                    <span className="mt-1 line-clamp-2 block break-words text-[11px] leading-4 text-white/85 sm:text-sm sm:leading-5">
                       {description}
                     </span>
                   )}
                   {"websiteUrl" in brand && brand.websiteUrl && (
-                    <span className="mt-3 inline-flex items-center gap-2 text-xs font-bold text-brand-accent">
+                    <span className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold leading-4 text-brand-accent sm:mt-3 sm:gap-2 sm:text-xs">
                       เยี่ยมชมเว็บไซต์ <i className="fa-solid fa-arrow-up-right-from-square" />
                     </span>
                   )}

@@ -25,7 +25,7 @@ export default async function BlogListPage() {
       <section className="min-h-[65vh] bg-[#eaf4fb] pb-16 pt-28 sm:pb-24 sm:pt-32">
         <div className="container-page">
           <p className="text-xs font-bold tracking-[0.2em] text-brand-accent">MIDA PROPERTY · BLOG</p>
-          <h1 className="mt-3 text-3xl font-extrabold text-brand-primary sm:text-4xl">
+          <h1 className="mt-3 text-2xl font-extrabold leading-snug text-brand-primary sm:text-4xl">
             <T th="เรื่องราวที่น่าสนใจ" en="Stories worth exploring" />
           </h1>
           <p className="mt-3 text-sm leading-7 text-slate-500 sm:text-base">
