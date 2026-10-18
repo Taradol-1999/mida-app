@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { MobileHeaderMenu } from "@/components/mobile-header-menu";
 import midaLogo from "@/assets/logos/png/01-mida-property.png";
@@ -12,8 +13,10 @@ const nav = [
   { href: "#promotion", label: { th: "ข่าวสารและโปรโมชั่น", en: "News & Promotions" } },
 ];
 
-export function HomeHeader({ showAdmin }: { showAdmin: boolean }) {
+export function HomeHeader({ showAdmin, innerPage = false }: { showAdmin: boolean; innerPage?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
+  const items = pathname === "/" ? nav : nav.map((item) => ({ ...item, href: `/${item.href}` }));
 
   useEffect(() => {
     const updateScrollState = () => setScrolled(window.scrollY > 40);
@@ -23,10 +26,10 @@ export function HomeHeader({ showAdmin }: { showAdmin: boolean }) {
   }, []);
 
   return (
-    <header className={`home-page-header fixed inset-x-0 top-0 z-80 ${scrolled ? "is-scrolled" : ""}`}>
+    <header className={`home-page-header fixed inset-x-0 top-0 z-80 ${scrolled || innerPage ? "is-scrolled" : ""}`}>
       <div className="home-page-header-bar mx-auto grid h-12 grid-cols-[1fr_auto_1fr] items-center px-3 sm:h-14 sm:px-5">
         <MobileHeaderMenu
-          items={nav}
+          items={items}
           showAdmin={showAdmin}
           label={{ th: "เมนูหลัก", en: "Main menu" }}
           desktopBreakpoint="always"
@@ -40,7 +43,7 @@ export function HomeHeader({ showAdmin }: { showAdmin: boolean }) {
           <Image src={midaLogo} alt="MIDA Property" className="h-9 w-auto object-contain sm:h-10" priority />
         </Link>
         <a
-          href="#projects"
+          href={pathname === "/" ? "#projects" : "/#projects"}
           aria-label="ค้นหาโครงการ"
           className="ml-auto grid size-10 place-items-center rounded-full text-brand-primary transition hover:bg-brand-soft focus-visible:outline-2 focus-visible:outline-brand-primary"
         >

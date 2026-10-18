@@ -104,6 +104,10 @@ export function AdminSidebar({ user, projects }: { user: SessionUser; projects: 
                   <i className="fa-solid fa-people-roof w-4" />
                   เริ่มที่เรา เริ่มที่ไมด้า
                 </Link>
+                <Link href="/admin/mida-blog" className={menuClass("/admin/mida-blog")}>
+                  <i className="fa-solid fa-newspaper w-4" />
+                  Blog เรื่องราวที่น่าสนใจ
+                </Link>
                 {user.role === "SUPER_ADMIN" && (
                   <Link href="/admin/users" className={menuClass("/admin/users")}>
                     <i className="fa-solid fa-users-gear w-4" />

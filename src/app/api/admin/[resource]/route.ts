@@ -69,8 +69,8 @@ function dateValue(body: Record<string, unknown>, key: string) {
 function projectAddress(body: Record<string, unknown>) {
   const province = value(body, "province");
   const district = value(body, "district");
-  const subdistrict = value(body, "subdistrict");
-  return province && district && subdistrict ? { province, district, subdistrict } : null;
+  const subdistrict = "subdistrict" in body ? value(body, "subdistrict") || null : undefined;
+  return province && district ? { province, district, subdistrict } : null;
 }
 
 function auditDetail(resource: Resource, verb: string, body: Record<string, unknown>, id: string) {
@@ -385,7 +385,7 @@ export async function POST(request: Request, context: RouteContext) {
     return apiError("ไม่มีสิทธิ์จัดการโครงการนี้", 403);
   const address = access.resource === "projects" ? projectAddress(body) : null;
   if (access.resource === "projects" && !address)
-    return apiError("กรุณากรอกจังหวัด เขต / อำเภอ และแขวง / ตำบลของโครงการให้ครบ", 400);
+    return apiError("กรุณากรอกจังหวัดและเขต / อำเภอของโครงการให้ครบ", 400);
   try {
     let createdId: string | undefined;
     switch (access.resource) {
@@ -544,7 +544,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     return apiError("ไม่มีสิทธิ์จัดการโครงการนี้", 403);
   const address = access.resource === "projects" ? projectAddress(body) : null;
   if (access.resource === "projects" && !address)
-    return apiError("กรุณากรอกจังหวัด เขต / อำเภอ และแขวง / ตำบลของโครงการให้ครบ", 400);
+    return apiError("กรุณากรอกจังหวัดและเขต / อำเภอของโครงการให้ครบ", 400);
   const oldPayload = await auditPayload(access.resource, id);
   try {
     switch (access.resource) {

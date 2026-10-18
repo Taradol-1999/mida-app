@@ -10,7 +10,7 @@ import { prisma } from "@/lib/prisma";
 
 export const runtime = "nodejs";
 const idSchema = z.string().uuid();
-const entityTypes = ["projects", "house-types", "promotions", "news", "site-content", "mida-living"] as const;
+const entityTypes = ["projects", "house-types", "promotions", "news", "site-content", "mida-living", "mida-blog"] as const;
 type EntityType = (typeof entityTypes)[number];
 const mimeExtensions: Record<string, string> = {
   "image/jpeg": "jpg",
@@ -49,6 +49,7 @@ async function mediaProjectId(entityType: EntityType, entityId: string) {
       );
     case "site-content":
     case "mida-living":
+    case "mida-blog":
       return null;
   }
 }
@@ -78,6 +79,8 @@ export async function GET(request: Request) {
       ? true
       : entityType === "site-content" && mediaKind === "hero" && !list;
   const publicMidaLivingMedia = entityType === "mida-living" && mediaKind === "portrait" && !list;
+  const publicBlogMedia = entityType === "mida-blog" && (mediaKind === "cover" || mediaKind === "gallery") && !list &&
+    (await prisma.midaBlogItem.findUnique({ where: { id: entityId }, select: { is_active: true } }))?.is_active === true;
   const publishedContentMedia =
     !list && mediaKind === "gallery" && entityType === "promotions"
       ? (await prisma.promotion.findUnique({ where: { id: entityId }, select: { is_published: true } }))
@@ -86,7 +89,7 @@ export async function GET(request: Request) {
         ? (await prisma.newsItem.findUnique({ where: { id: entityId }, select: { is_published: true } }))
             ?.is_published === true
         : false;
-  const isPublicMedia = publicProjectMedia || publicMidaLivingMedia || publishedContentMedia;
+  const isPublicMedia = publicProjectMedia || publicMidaLivingMedia || publicBlogMedia || publishedContentMedia;
   if (!isPublicMedia) {
     const user = await authorise();
     if (!user) return NextResponse.json({ message: "กรุณาเข้าสู่ระบบด้วยสิทธิ์ผู้ดูแล" }, { status: 401 });
@@ -163,7 +166,9 @@ export async function POST(request: Request) {
             ? await prisma.newsItem.findUnique({ where: { id: entityId }, select: { id: true } })
             : entityType === "site-content"
               ? await prisma.siteContent.findUnique({ where: { id: entityId }, select: { id: true } })
-              : await prisma.midaLivingItem.findUnique({ where: { id: entityId }, select: { id: true } });
+              : entityType === "mida-blog"
+                ? await prisma.midaBlogItem.findUnique({ where: { id: entityId }, select: { id: true } })
+                : await prisma.midaLivingItem.findUnique({ where: { id: entityId }, select: { id: true } });
   if (!entityExists) return NextResponse.json({ message: "ไม่พบข้อมูลที่ต้องการผูกรูปภาพ" }, { status: 404 });
   const storageKey = `uploads/${randomUUID()}.${extension}`;
   try {
@@ -227,7 +232,7 @@ export async function DELETE(request: Request) {
     !isEntityType(entityType) ||
     !idSchema.safeParse(entityId).success ||
     !idSchema.safeParse(mediaId).success ||
-    (mediaKind !== "hero" && mediaKind !== "gallery" && mediaKind !== "portrait")
+    (mediaKind !== "hero" && mediaKind !== "gallery" && mediaKind !== "portrait" && !(entityType === "mida-blog" && mediaKind === "cover"))
   )
     return NextResponse.json({ message: "คำขอลบรูปภาพไม่ถูกต้อง" }, { status: 400 });
   if (!(await canAccessRecord(user, entityType, entityId)))

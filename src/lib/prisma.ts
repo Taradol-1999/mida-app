@@ -20,6 +20,9 @@ function createPrismaClient() {
   return new PrismaClient({ adapter });
 }
 
-export const prisma = globalForPrisma.midaPrisma ?? createPrismaClient();
+// A running development server may retain a client generated before new models
+// were added. Replace that stale client after regenerating the Prisma schema.
+const cachedPrisma = globalForPrisma.midaPrisma;
+export const prisma = cachedPrisma && cachedPrisma.midaBlogItem ? cachedPrisma : createPrismaClient();
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.midaPrisma = prisma;

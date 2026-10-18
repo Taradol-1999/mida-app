@@ -78,6 +78,11 @@ export type SiteContent = Prisma.SiteContentModel
  */
 export type MidaLivingItem = Prisma.MidaLivingItemModel
 /**
+ * Model MidaBlogItem
+ * บทความส่วนกลางสำหรับแสดงใน Blog หน้าแรก แยกจากข่าวของแต่ละโครงการ
+ */
+export type MidaBlogItem = Prisma.MidaBlogItemModel
+/**
  * Model MediaAsset
  * เมทาดาทาของไฟล์รูปภาพ วิดีโอ และเอกสารที่อัปโหลด พร้อมความสัมพันธ์กับข้อมูลต้นทาง
  */

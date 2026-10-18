@@ -41,7 +41,6 @@ const configs: Record<AdminResource, Config> = {
       { name: "slug", label: "Slug สำหรับ URL", hint: "เช่น grand-village-petchkasem", required: true },
       { name: "province", label: "จังหวัด", required: true },
       { name: "district", label: "เขต / อำเภอ", required: true },
-      { name: "subdistrict", label: "แขวง / ตำบล", required: true },
       {
         name: "property_type",
         label: "ประเภทโครงการหลัก",

@@ -409,6 +409,7 @@ export const ModelName = {
   ActivityLog: 'ActivityLog',
   SiteContent: 'SiteContent',
   MidaLivingItem: 'MidaLivingItem',
+  MidaBlogItem: 'MidaBlogItem',
   MediaAsset: 'MediaAsset',
   ProjectSetting: 'ProjectSetting'
 } as const
@@ -426,7 +427,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "project" | "homepageProject" | "userProject" | "houseType" | "facility" | "promotion" | "newsItem" | "lead" | "activityLog" | "siteContent" | "midaLivingItem" | "mediaAsset" | "projectSetting"
+    modelProps: "user" | "project" | "homepageProject" | "userProject" | "houseType" | "facility" | "promotion" | "newsItem" | "lead" | "activityLog" | "siteContent" | "midaLivingItem" | "midaBlogItem" | "mediaAsset" | "projectSetting"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1222,6 +1223,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    MidaBlogItem: {
+      payload: Prisma.$MidaBlogItemPayload<ExtArgs>
+      fields: Prisma.MidaBlogItemFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MidaBlogItemFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MidaBlogItemPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MidaBlogItemFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MidaBlogItemPayload>
+        }
+        findFirst: {
+          args: Prisma.MidaBlogItemFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MidaBlogItemPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MidaBlogItemFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MidaBlogItemPayload>
+        }
+        findMany: {
+          args: Prisma.MidaBlogItemFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MidaBlogItemPayload>[]
+        }
+        create: {
+          args: Prisma.MidaBlogItemCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MidaBlogItemPayload>
+        }
+        createMany: {
+          args: Prisma.MidaBlogItemCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.MidaBlogItemDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MidaBlogItemPayload>
+        }
+        update: {
+          args: Prisma.MidaBlogItemUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MidaBlogItemPayload>
+        }
+        deleteMany: {
+          args: Prisma.MidaBlogItemDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MidaBlogItemUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.MidaBlogItemUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MidaBlogItemPayload>
+        }
+        aggregate: {
+          args: Prisma.MidaBlogItemAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMidaBlogItem>
+        }
+        groupBy: {
+          args: Prisma.MidaBlogItemGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MidaBlogItemGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MidaBlogItemCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MidaBlogItemCountAggregateOutputType> | number
+        }
+      }
+    }
     MediaAsset: {
       payload: Prisma.$MediaAssetPayload<ExtArgs>
       fields: Prisma.MediaAssetFieldRefs
@@ -1585,6 +1652,22 @@ export const MidaLivingItemScalarFieldEnum = {
 export type MidaLivingItemScalarFieldEnum = (typeof MidaLivingItemScalarFieldEnum)[keyof typeof MidaLivingItemScalarFieldEnum]
 
 
+export const MidaBlogItemScalarFieldEnum = {
+  id: 'id',
+  name_th: 'name_th',
+  name_en: 'name_en',
+  description_th: 'description_th',
+  description_en: 'description_en',
+  website_url: 'website_url',
+  sort_order: 'sort_order',
+  is_active: 'is_active',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type MidaBlogItemScalarFieldEnum = (typeof MidaBlogItemScalarFieldEnum)[keyof typeof MidaBlogItemScalarFieldEnum]
+
+
 export const MediaAssetScalarFieldEnum = {
   id: 'id',
   entity_type: 'entity_type',
@@ -1812,6 +1895,18 @@ export const MidaLivingItemOrderByRelevanceFieldEnum = {
 } as const
 
 export type MidaLivingItemOrderByRelevanceFieldEnum = (typeof MidaLivingItemOrderByRelevanceFieldEnum)[keyof typeof MidaLivingItemOrderByRelevanceFieldEnum]
+
+
+export const MidaBlogItemOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name_th: 'name_th',
+  name_en: 'name_en',
+  description_th: 'description_th',
+  description_en: 'description_en',
+  website_url: 'website_url'
+} as const
+
+export type MidaBlogItemOrderByRelevanceFieldEnum = (typeof MidaBlogItemOrderByRelevanceFieldEnum)[keyof typeof MidaBlogItemOrderByRelevanceFieldEnum]
 
 
 export const MediaAssetOrderByRelevanceFieldEnum = {
@@ -2115,6 +2210,7 @@ export type GlobalOmitConfig = {
   activityLog?: Prisma.ActivityLogOmit
   siteContent?: Prisma.SiteContentOmit
   midaLivingItem?: Prisma.MidaLivingItemOmit
+  midaBlogItem?: Prisma.MidaBlogItemOmit
   mediaAsset?: Prisma.MediaAssetOmit
   projectSetting?: Prisma.ProjectSettingOmit
 }

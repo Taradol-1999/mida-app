@@ -63,6 +63,7 @@ export const ModelName = {
   ActivityLog: 'ActivityLog',
   SiteContent: 'SiteContent',
   MidaLivingItem: 'MidaLivingItem',
+  MidaBlogItem: 'MidaBlogItem',
   MediaAsset: 'MediaAsset',
   ProjectSetting: 'ProjectSetting'
 } as const
@@ -273,6 +274,22 @@ export const MidaLivingItemScalarFieldEnum = {
 } as const
 
 export type MidaLivingItemScalarFieldEnum = (typeof MidaLivingItemScalarFieldEnum)[keyof typeof MidaLivingItemScalarFieldEnum]
+
+
+export const MidaBlogItemScalarFieldEnum = {
+  id: 'id',
+  name_th: 'name_th',
+  name_en: 'name_en',
+  description_th: 'description_th',
+  description_en: 'description_en',
+  website_url: 'website_url',
+  sort_order: 'sort_order',
+  is_active: 'is_active',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type MidaBlogItemScalarFieldEnum = (typeof MidaBlogItemScalarFieldEnum)[keyof typeof MidaBlogItemScalarFieldEnum]
 
 
 export const MediaAssetScalarFieldEnum = {
@@ -502,6 +519,18 @@ export const MidaLivingItemOrderByRelevanceFieldEnum = {
 } as const
 
 export type MidaLivingItemOrderByRelevanceFieldEnum = (typeof MidaLivingItemOrderByRelevanceFieldEnum)[keyof typeof MidaLivingItemOrderByRelevanceFieldEnum]
+
+
+export const MidaBlogItemOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name_th: 'name_th',
+  name_en: 'name_en',
+  description_th: 'description_th',
+  description_en: 'description_en',
+  website_url: 'website_url'
+} as const
+
+export type MidaBlogItemOrderByRelevanceFieldEnum = (typeof MidaBlogItemOrderByRelevanceFieldEnum)[keyof typeof MidaBlogItemOrderByRelevanceFieldEnum]
 
 
 export const MediaAssetOrderByRelevanceFieldEnum = {

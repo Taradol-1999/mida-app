@@ -347,11 +347,11 @@ export function ProjectEditor({
               <span className="ml-1 text-rose-600">*</span>
               <Input required value={form.slug} onChange={(event) => setField("slug", event.target.value)} />
             </label>
-            <fieldset className="md:col-span-2">
+            <fieldset className="rounded-xl border border-slate-200 bg-slate-50 p-4 md:col-span-2 md:p-5">
               <legend className="text-sm font-semibold text-slate-700">
                 ที่อยู่โครงการ <span className="ml-1 text-rose-600">*</span>
               </legend>
-              <div className="mt-2 grid gap-4 md:grid-cols-3">
+              <div className="mt-2 grid gap-4 md:grid-cols-2">
                 <label className="text-sm font-semibold text-slate-700">
                   จังหวัด <span className="ml-1 text-rose-600">*</span>
                   <Input required value={form.province ?? ""} onChange={(event) => setField("province", event.target.value)} />
@@ -359,10 +359,6 @@ export function ProjectEditor({
                 <label className="text-sm font-semibold text-slate-700">
                   เขต / อำเภอ <span className="ml-1 text-rose-600">*</span>
                   <Input required value={form.district ?? ""} onChange={(event) => setField("district", event.target.value)} />
-                </label>
-                <label className="text-sm font-semibold text-slate-700">
-                  แขวง / ตำบล <span className="ml-1 text-rose-600">*</span>
-                  <Input required value={form.subdistrict ?? ""} onChange={(event) => setField("subdistrict", event.target.value)} />
                 </label>
               </div>
             </fieldset>

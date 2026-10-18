@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Input, Textarea } from "@/components/ui/form-controls";
+import { BannerMediaUpload } from "@/components/banner-media-upload";
 /* eslint-disable react-hooks/set-state-in-effect */
 
 type LivingRow = {
@@ -18,13 +19,14 @@ type LivingRow = {
   imageUrl: string | null;
 };
 
-type FormState = Omit<LivingRow, "id" | "imageId" | "imageUrl" | "sort_order" | "is_active">;
+type FormState = Omit<LivingRow, "id" | "imageId" | "imageUrl" | "sort_order">;
 const emptyForm: FormState = {
   name_th: "",
   name_en: "",
   description_th: "",
   description_en: "",
   website_url: "",
+  is_active: true,
 };
 
 function PortraitUpload({
@@ -32,11 +34,13 @@ function PortraitUpload({
   imageUrl,
   onChange,
   disabled,
+  blog,
 }: {
   file: File | null;
   imageUrl: string | null;
   onChange: (file: File | null) => void;
   disabled: boolean;
+  blog: boolean;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState("");
@@ -97,7 +101,7 @@ function PortraitUpload({
           <i className="fa-solid fa-cloud-arrow-up mb-3 text-2xl text-slate-500" aria-hidden="true" />
         )}
         <p className="text-sm font-semibold text-slate-700">เลือกรูปภาพ หรือลากและวางที่นี่</p>
-        <p className="mt-1 text-xs text-slate-400">JPG, PNG, WEBP · ไม่เกิน 5 MB · แนะนำ 3:4 หรือ 4:5</p>
+        <p className="mt-1 text-xs text-slate-400">JPG, PNG, WEBP · ไม่เกิน 5 MB · {blog ? "แนะนำรูปแนวนอน" : "แนะนำ 3:4 หรือ 4:5"}</p>
         <input
           ref={inputRef}
           type="file"
@@ -144,12 +148,16 @@ async function responseJson<T>(response: Response): Promise<T> {
   }
 }
 
-export function MidaLivingManager() {
+export function MidaLivingManager({ blog = false }: { blog?: boolean }) {
+  const endpoint = blog ? "/api/admin/mida-blog" : "/api/admin/mida-living";
+  const entityType = blog ? "mida-blog" : "mida-living";
   const [rows, setRows] = useState<LivingRow[]>([]);
   const [editing, setEditing] = useState<LivingRow | null>(null);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [file, setFile] = useState<File | null>(null);
+  const [blogFiles, setBlogFiles] = useState<File[]>([]);
+  const [blogMedia, setBlogMedia] = useState<{ id: string; name: string; mimeType: string; url: string; kind: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -157,7 +165,7 @@ export function MidaLivingManager() {
 
   const load = useCallback(async () => {
     try {
-      const response = await fetch("/api/admin/mida-living", { cache: "no-store" });
+      const response = await fetch(endpoint, { cache: "no-store" });
       const data = await responseJson<{ rows?: LivingRow[]; message?: string }>(response);
       if (response.ok) setRows(data.rows ?? []);
       else setError(data.message ?? "โหลดข้อมูลไม่สำเร็จ กรุณาลองรีเฟรชหน้าอีกครั้ง");
@@ -166,7 +174,7 @@ export function MidaLivingManager() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [endpoint]);
 
   useEffect(() => void load(), [load]);
 
@@ -175,11 +183,15 @@ export function MidaLivingManager() {
     setEditing(null);
     setForm(emptyForm);
     setFile(null);
+    setBlogFiles([]);
+    setBlogMedia([]);
     setError("");
     setMessage("");
   }
 
-  function startEdit(row: LivingRow) {
+  async function startEdit(row: LivingRow) {
+    setBlogFiles([]);
+    setBlogMedia([]);
     setEditing(row);
     setForm({
       name_th: row.name_th,
@@ -187,11 +199,34 @@ export function MidaLivingManager() {
       description_th: row.description_th ?? "",
       description_en: row.description_en ?? "",
       website_url: row.website_url ?? "",
+      is_active: row.is_active,
     });
     setFile(null);
     setError("");
     setMessage("");
     setOpen(true);
+    if (blog) {
+      try {
+        const kinds = ["cover", "gallery"];
+        const results = await Promise.all(kinds.map(async (kind) => {
+          const response = await fetch(`/api/admin/media?entityType=mida-blog&entityId=${row.id}&mediaKind=${kind}&list=1`);
+          if (!response.ok) throw new Error("โหลดรูปภาพไม่สำเร็จ");
+          const data = await response.json();
+          return (data.rows as { id: string; name: string; mimeType: string; url: string }[]).map((item) => ({ ...item, kind }));
+        }));
+        setBlogMedia(results.flat());
+      } catch {
+        setError("โหลดรูปภาพไม่สำเร็จ กรุณาลองอีกครั้ง");
+      }
+    }
+  }
+
+  async function removeBlogMedia(id: string) {
+    const item = blogMedia.find((media) => media.id === id);
+    if (!editing || !item || !window.confirm("ต้องการลบรูปภาพนี้หรือไม่?")) return;
+    const response = await fetch(`/api/admin/media?entityType=mida-blog&entityId=${editing.id}&mediaKind=${item.kind}&mediaId=${id}`, { method: "DELETE" });
+    if (response.ok) setBlogMedia((items) => items.filter((media) => media.id !== id));
+    else setError("ลบรูปภาพไม่สำเร็จ");
   }
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
@@ -199,7 +234,7 @@ export function MidaLivingManager() {
     setSaving(true);
     setError("");
     setMessage("");
-    const response = await fetch("/api/admin/mida-living", {
+    const response = await fetch(endpoint, {
       method: editing ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(editing ? { id: editing.id, ...form } : form),
@@ -210,11 +245,30 @@ export function MidaLivingManager() {
       setSaving(false);
       return;
     }
+    if (blog && blogFiles.length) {
+      for (const [index, selected] of blogFiles.entries()) {
+        const upload = new FormData();
+        upload.set("entityType", "mida-blog");
+        upload.set("entityId", data.row.id);
+        upload.set("mediaKind", "gallery");
+        upload.set("file", selected);
+        const uploadResponse = await fetch("/api/admin/media", { method: "POST", body: upload });
+        if (!uploadResponse.ok) {
+          const uploadData = await responseJson<{ message?: string }>(uploadResponse);
+          setError(`บันทึกบทความแล้ว แต่อัปโหลดรูปภาพไม่สำเร็จ: ${uploadData.message ?? "กรุณาลองใหม่"}`);
+          setBlogFiles(blogFiles.slice(index));
+          setEditing(data.row);
+          setSaving(false);
+          await load();
+          return;
+        }
+      }
+    }
     if (file) {
       const upload = new FormData();
-      upload.set("entityType", "mida-living");
+      upload.set("entityType", entityType);
       upload.set("entityId", data.row.id);
-      upload.set("mediaKind", "portrait");
+      upload.set("mediaKind", blog ? "cover" : "portrait");
       upload.set("file", file);
       const uploadResponse = await fetch("/api/admin/media", { method: "POST", body: upload });
       if (!uploadResponse.ok) {
@@ -231,13 +285,15 @@ export function MidaLivingManager() {
     setOpen(false);
     setForm(emptyForm);
     setFile(null);
+    setBlogFiles([]);
+    setBlogMedia([]);
     setSaving(false);
     await load();
   }
 
   async function remove(row: LivingRow) {
     if (!window.confirm(`ยืนยันลบ “${row.name_th}” หรือไม่`)) return;
-    const response = await fetch(`/api/admin/mida-living?id=${row.id}`, { method: "DELETE" });
+    const response = await fetch(`${endpoint}?id=${row.id}`, { method: "DELETE" });
     const data = await responseJson<{ message?: string }>(response);
     if (!response.ok) return setError(data.message ?? "ลบข้อมูลไม่สำเร็จ");
     if (editing?.id === row.id) reset();
@@ -249,8 +305,8 @@ export function MidaLivingManager() {
     <div className="space-y-6">
       <div>
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-accent">MIDA PROPERTY · ส่วนกลาง</p>
-        <h1 className="mt-1 text-2xl font-black text-brand-primary md:text-3xl">เริ่มที่เรา เริ่มที่ไมด้า</h1>
-        <p className="mt-2 text-sm text-slate-500">จัดการการ์ดธุรกิจที่แสดงบนหน้าแรก พร้อมรูปแนวตั้งและลิงก์เว็บไซต์</p>
+        <h1 className="mt-1 text-2xl font-black text-brand-primary md:text-3xl">{blog ? "Blog เรื่องราวที่น่าสนใจ" : "เริ่มที่เรา เริ่มที่ไมด้า"}</h1>
+        <p className="mt-2 text-sm text-slate-500">{blog ? "จัดการบทความส่วนกลางที่แสดงบนหน้าแรก พร้อมรูปภาพประกอบ" : "จัดการการ์ดธุรกิจที่แสดงบนหน้าแรก พร้อมรูปแนวตั้งและลิงก์เว็บไซต์"}</p>
       </div>
 
       {open && (
@@ -269,7 +325,7 @@ export function MidaLivingManager() {
           >
             <div className="mb-5 flex items-center justify-between gap-3 border-b border-slate-100 pb-4">
               <h2 className="font-bold text-brand-primary">
-                {editing ? `แก้ไข: ${editing.name_th}` : "เพิ่มรายการใหม่"}
+                {editing ? `แก้ไข: ${editing.name_th}` : blog ? "เพิ่มบทความ Blog" : "เพิ่มรายการใหม่"}
               </h2>
               <button
                 type="button"
@@ -282,11 +338,11 @@ export function MidaLivingManager() {
             </div>
             <div className="grid gap-5 md:grid-cols-2">
               <label className="space-y-2 text-sm font-semibold text-slate-700">
-                ชื่อ (TH) <span className="text-rose-500">*</span>
+                {blog ? "หัวข้อบทความ (TH)" : "ชื่อ (TH)"} <span className="text-rose-500">*</span>
                 <Input required value={form.name_th} onChange={(e) => setForm({ ...form, name_th: e.target.value })} />
               </label>
               <label className="space-y-2 text-sm font-semibold text-slate-700">
-                ชื่อ (EN)
+                {blog ? "หัวข้อบทความ (EN)" : "ชื่อ (EN)"}
                 <Input value={form.name_en ?? ""} onChange={(e) => setForm({ ...form, name_en: e.target.value })} />
               </label>
               <label className="space-y-2 text-sm font-semibold text-slate-700">
@@ -305,7 +361,7 @@ export function MidaLivingManager() {
                   onChange={(e) => setForm({ ...form, description_en: e.target.value })}
                 />
               </label>
-              <label className="space-y-2 text-sm font-semibold text-slate-700 md:col-span-2">
+              {!blog && <label className="space-y-2 text-sm font-semibold text-slate-700 md:col-span-2">
                 ลิงก์เว็บไซต์
                 <Input
                   type="url"
@@ -313,10 +369,16 @@ export function MidaLivingManager() {
                   value={form.website_url ?? ""}
                   onChange={(e) => setForm({ ...form, website_url: e.target.value })}
                 />
-              </label>
+              </label>}
               <div className="md:col-span-2">
-                <PortraitUpload file={file} imageUrl={editing?.imageUrl ?? null} onChange={setFile} disabled={saving} />
+                {blog ? <BannerMediaUpload title="รูปภาพประกอบบทความ" allowVideo={false} media={blogMedia} files={blogFiles} onFilesChange={setBlogFiles} onRemove={removeBlogMedia} disabled={saving} /> : <PortraitUpload file={file} imageUrl={editing?.imageUrl ?? null} onChange={setFile} disabled={saving} blog={false} />}
               </div>
+              {blog && (
+                <label className="flex items-center gap-3 rounded-xl bg-slate-50 p-4 text-sm font-semibold text-slate-700 md:col-span-2">
+                  <input type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} className="size-4 accent-brand-primary" />
+                  เผยแพร่บทความนี้บนหน้าแรก
+                </label>
+              )}
             </div>
             {(message || error) && (
               <p
@@ -369,9 +431,10 @@ export function MidaLivingManager() {
               <thead className="bg-slate-50 text-slate-500">
                 <tr>
                   <th className="p-3">รูปภาพ</th>
-                  <th className="p-3">ชื่อ</th>
+                  <th className="p-3">{blog ? "หัวข้อบทความ" : "ชื่อ"}</th>
                   <th className="p-3">คำอธิบาย</th>
-                  <th className="p-3">เว็บไซต์</th>
+                  {!blog && <th className="p-3">เว็บไซต์</th>}
+                  {blog && <th className="p-3">สถานะ</th>}
                   <th className="p-3 text-right">จัดการ</th>
                 </tr>
               </thead>
@@ -391,7 +454,7 @@ export function MidaLivingManager() {
                         ) : (
                           <span className="absolute inset-0 grid place-items-center text-center text-sm text-slate-400">
                             <i className="fa-regular fa-image mb-2 block text-3xl" />
-                            ยังไม่มีรูปแนวตั้ง
+                            ยังไม่มีรูปภาพ
                           </span>
                         )}
                       </div>
@@ -403,7 +466,7 @@ export function MidaLivingManager() {
                     <td className="max-w-xs p-3 text-slate-500">
                       <p className="line-clamp-2">{row.description_th || "—"}</p>
                     </td>
-                    <td className="p-3">
+                    {!blog && <td className="p-3">
                       {row.website_url && (
                         <a
                           href={row.website_url}
@@ -415,12 +478,13 @@ export function MidaLivingManager() {
                           <i className="fa-solid fa-arrow-up-right-from-square text-xs" />
                         </a>
                       )}
-                    </td>
+                    </td>}
+                    {blog && <td className="p-3"><span className={`rounded-full px-3 py-1 text-xs font-semibold ${row.is_active ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600"}`}>{row.is_active ? "เผยแพร่" : "ฉบับร่าง"}</span></td>}
                     <td className="p-3">
                       <div className="flex justify-end gap-2">
                         <button
                           type="button"
-                          onClick={() => startEdit(row)}
+                          onClick={() => void startEdit(row)}
                           className="rounded-lg bg-blue-50 px-3 py-2 text-sm font-bold text-brand-primary hover:bg-blue-100"
                         >
                           แก้ไข

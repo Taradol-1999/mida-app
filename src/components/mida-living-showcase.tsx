@@ -3,16 +3,11 @@
 import Image from "next/image";
 import { useRef } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { EffectCoverflow } from "swiper/modules";
+import { EffectCoverflow, Autoplay } from "swiper/modules";
 import type { Swiper as SwiperInstance } from "swiper/types";
 import "swiper/css";
 import "swiper/css/effect-coverflow";
 import { useTranslation } from "@/components/language-provider";
-import agencyLogo from "@/assets/logos/png/03-mida-agency-development.png";
-import matrixLogo from "@/assets/logos/png/05-the-matrix-ratchamankha.png";
-import propertyLogo from "@/assets/logos/png/01-mida-property.png";
-import matrixByMidaLogo from "@/assets/logos/png/06-the-matrix-by-mida.png";
-import constructionLogo from "@/assets/logos/png/04-interexpert-construction.png";
 
 export type MidaLivingItem = {
   id: string;
@@ -24,28 +19,10 @@ export type MidaLivingItem = {
   imageUrl?: string | null;
 };
 
-const brands = [
-  { id: "agency", nameTh: "MIDA AGENCY", logo: agencyLogo, color: "from-[#b9d7e9] via-[#dfeaf2] to-[#789eb7]" },
-  { id: "matrix", nameTh: "THE MATRIX", logo: matrixLogo, color: "from-[#c8d3d4] via-[#f0e9df] to-[#9babb2]" },
-  { id: "property", nameTh: "MIDA PROPERTY", logo: propertyLogo, color: "from-[#dbe8ed] via-[#fffaf3] to-[#c4d5dc]" },
-  {
-    id: "matrix-mida",
-    nameTh: "THE MATRIX BY MIDA",
-    logo: matrixByMidaLogo,
-    color: "from-[#b9d9d2] via-[#e8f1ec] to-[#739d9a]",
-  },
-  {
-    id: "construction",
-    nameTh: "INTEREXPERT",
-    logo: constructionLogo,
-    color: "from-[#c3d3e4] via-[#e7edf3] to-[#7892ad]",
-  },
-];
-
 export function MidaLivingShowcase({ items = [] }: { items?: MidaLivingItem[] }) {
   const { t } = useTranslation();
   const swiperRef = useRef<SwiperInstance | null>(null);
-  const source = items.length ? items : brands;
+  const source = items;
   const canLoop = source.length >= 5;
   // Five or more items use neighboring copies for a smooth loop. Smaller CMS sets display once without duplicates.
   const carouselItems = canLoop ? [...source, ...source, ...source] : source;
@@ -56,13 +33,21 @@ export function MidaLivingShowcase({ items = [] }: { items?: MidaLivingItem[] })
     swiper.slides.forEach((slide) => {
       // Fade an arriving card in before it reaches the visible five-card set.
       const distance = Math.abs(slide.progress ?? 0);
-      slide.style.opacity = String(Math.max(0, Math.min(1, radius + 0.5 - distance)));
+      slide.style.opacity = String(Math.max(0, Math.min(1, radius + 1 - distance)));
+      const edgeFade = radius > 0 ? Math.max(0, Math.min(1, distance - (radius - 1))) : 0;
+      const fadeSize = Math.round(edgeFade * 25);
+      const direction = (slide.progress ?? 0) > 0 ? "right" : "left";
+      const mask = fadeSize > 0 ? `linear-gradient(to ${direction}, transparent, black ${fadeSize}%)` : "none";
+      slide.style.maskImage = mask;
+      slide.style.webkitMaskImage = mask;
       slide.style.pointerEvents = distance <= radius + 0.5 ? "auto" : "none";
     });
   }
 
+  if (!source.length) return null;
+
   return (
-    <section id="living" className="relative overflow-hidden bg-[#eaf4fb] pb-20 pt-10 sm:pb-28 sm:pt-16">
+    <section id="living" className="relative overflow-hidden bg-[#eaf4fb] pb-12 pt-10 sm:pb-20 sm:pt-16 lg:pb-28">
       <div className="container-page text-center">
         <p className="text-xs font-extrabold tracking-[0.22em] text-[#168cc5]">THE MIDA FAMILY</p>
         <h2 className="mt-3 text-3xl font-black tracking-tight text-brand-primary sm:text-4xl">
@@ -72,10 +57,9 @@ export function MidaLivingShowcase({ items = [] }: { items?: MidaLivingItem[] })
           {t({ th: "หลากหลายธุรกิจเพื่อทุกจังหวะของการใช้ชีวิต", en: "Businesses for every moment of life." })}
         </p>
       </div>
-
-      <div className="relative mx-auto mt-5 w-full px-2 sm:px-8">
+      <div className="relative mx-auto mt-1 sm:mt-5 w-full px-3 sm:max-w-none">
         <Swiper
-          modules={[EffectCoverflow]}
+          modules={[EffectCoverflow, Autoplay]}
           effect="coverflow"
           centeredSlides
           loop={canLoop}
@@ -84,13 +68,33 @@ export function MidaLivingShowcase({ items = [] }: { items?: MidaLivingItem[] })
           grabCursor
           initialSlide={canLoop ? source.length + Math.floor(source.length / 2) : Math.floor(source.length / 2)}
           slidesPerView={1}
+          autoplay={
+            canLoop
+              ? {
+                  delay: 4500, // ระยะเวลาหยุดค้างในแต่ละสไลด์ (มิลลิวินาที)
+                  disableOnInteraction: false, // เล่น auto loop ต่อแม้ว่าจะมีการคลิกหรือลากสไลด์
+                  pauseOnMouseEnter: true, // (Option) เลื่อนเมาส์มาชี้แล้วหยุดชั่วคราว
+                }
+              : false
+          }
           breakpoints={{
-            640: { slidesPerView: Math.min(3, source.length) },
+            // 0: {
+            //   slidesPerView: Math.min(3, source.length),
+            //   coverflowEffect: { rotate: 0, stretch: 20, depth: 260, modifier: 1.35, slideShadows: false },
+            // },
+            0: {
+              slidesPerView: Math.min(3, source.length),
+              coverflowEffect: { rotate: 0, stretch: -10, depth: 260, modifier: 0.75, slideShadows: false },
+            },
+            640: {
+              slidesPerView: Math.min(3, source.length),
+              coverflowEffect: { rotate: 0, stretch: -28, depth: 180, modifier: 1.35, slideShadows: false },
+            },
             1024: { slidesPerView: Math.min(5, source.length) },
           }}
           speed={700}
           coverflowEffect={{ rotate: 0, stretch: -28, depth: 180, modifier: 1.35, slideShadows: false }}
-          className="overflow-hidden! py-8! sm:py-12!"
+          className="overflow-hidden! py-5! sm:py-10! lg:py-12!"
           aria-label={t({ th: "เริ่มที่เรา เริ่มที่ไมด้า", en: "It starts with us. It starts with MIDA." })}
           onSwiper={(swiper) => {
             swiperRef.current = swiper;
@@ -106,33 +110,22 @@ export function MidaLivingShowcase({ items = [] }: { items?: MidaLivingItem[] })
                 ? t({ th: brand.descriptionTh ?? "", en: brand.descriptionEn ?? brand.descriptionTh ?? "" })
                 : "";
             const card = (
-              <div
-                className={`relative size-full overflow-hidden rounded-[inherit] ${"color" in brand ? `bg-linear-to-br ${brand.color}` : "bg-slate-200"} text-left shadow-[0_18px_35px_rgba(0,45,98,.2)] ring-1 ring-white/70`}
-              >
+              <div className="relative size-full overflow-hidden rounded-[inherit] bg-slate-200 text-left shadow-[0_18px_35px_rgba(0,45,98,.2)] ring-1 ring-white/70">
                 {"imageUrl" in brand && brand.imageUrl ? (
                   <Image
                     src={brand.imageUrl}
                     alt={name}
                     fill
                     className="object-cover"
-                    sizes="(min-width: 1024px) 20vw, (min-width: 640px) 34vw, 82vw"
+                    sizes="(min-width: 1024px) 20vw, (min-width: 640px) 94vw, 82vw"
                   />
-                ) : "logo" in brand ? (
-                  <span className="relative flex size-full items-center justify-center p-5 text-center">
-                    <Image
-                      src={brand.logo}
-                      alt={name}
-                      className="size-full object-contain drop-shadow-xl"
-                      sizes="(min-width: 640px) 304px, 78vw"
-                    />
-                  </span>
                 ) : (
                   <span className="absolute inset-0 grid place-items-center text-slate-400">
                     <i className="fa-regular fa-image text-5xl" />
                   </span>
                 )}
                 <span className="absolute inset-0 bg-linear-to-t from-black/80 via-black/5 to-white/10" />
-                <span className="absolute inset-x-5 bottom-5 z-10 text-white drop-shadow-md">
+                <span className="absolute inset-x-2 bottom-3 z-10 text-white drop-shadow-md sm:inset-x-5 sm:bottom-5">
                   <strong className="block text-sm font-black tracking-wide sm:text-base">{name}</strong>
                   {description && (
                     <span className="mt-1 line-clamp-2 block text-xs leading-5 text-white/85 sm:text-sm">
@@ -147,10 +140,12 @@ export function MidaLivingShowcase({ items = [] }: { items?: MidaLivingItem[] })
                 </span>
               </div>
             );
+
             return (
               <SwiperSlide
                 key={`${brand.id}-${index}`}
-                className="h-100! overflow-hidden rounded-2xl sm:h-140! sm:rounded-3xl"
+                // className="h-[min(50vw,360px)]! overflow-hidden rounded-xl sm:h-105! sm:rounded-3xl lg:h-140!"
+                className="h-[min(52vw,340px)]! overflow-hidden rounded-xl sm:h-105! sm:rounded-3xl lg:h-140!"
               >
                 {"websiteUrl" in brand && brand.websiteUrl ? (
                   <a
@@ -169,22 +164,26 @@ export function MidaLivingShowcase({ items = [] }: { items?: MidaLivingItem[] })
             );
           })}
         </Swiper>
-        {/* <button
-          type="button"
-          aria-label={t({ th: "ก่อนหน้า", en: "Previous" })}
-          onClick={() => swiperRef.current?.slidePrev()}
-          className="absolute left-3 top-1/2 z-20 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-white text-brand-primary shadow-lg transition hover:bg-brand-primary hover:text-white sm:left-[calc(50%-12rem)]"
-        >
-          <i className="fa-solid fa-chevron-left" aria-hidden="true" />
-        </button>
-        <button
-          type="button"
-          aria-label={t({ th: "ถัดไป", en: "Next" })}
-          onClick={() => swiperRef.current?.slideNext()}
-          className="absolute right-3 top-1/2 z-20 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-brand-primary text-white shadow-lg transition hover:bg-white hover:text-brand-primary sm:right-[calc(50%-12rem)]"
-        >
-          <i className="fa-solid fa-chevron-right" aria-hidden="true" />
-        </button> */}
+        {/* {source.length > 1 && (
+          <>
+            <button
+              type="button"
+              aria-label={t({ th: "ก่อนหน้า", en: "Previous" })}
+              onClick={() => swiperRef.current?.slidePrev()}
+              className="absolute left-3 top-1/2 z-20 grid size-8 -translate-y-1/2 place-items-center rounded-full bg-white text-xs text-brand-primary shadow-lg transition hover:bg-brand-primary hover:text-white sm:left-[calc(50%-12rem)] sm:size-11 sm:text-sm"
+            >
+              <i className="fa-solid fa-chevron-left" aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              aria-label={t({ th: "ถัดไป", en: "Next" })}
+              onClick={() => swiperRef.current?.slideNext()}
+              className="absolute right-3 top-1/2 z-20 grid size-8 -translate-y-1/2 place-items-center rounded-full bg-brand-primary text-xs text-white shadow-lg transition hover:bg-white hover:text-brand-primary sm:right-[calc(50%-12rem)] sm:size-11 sm:text-sm"
+            >
+              <i className="fa-solid fa-chevron-right" aria-hidden="true" />
+            </button>
+          </>
+        )} */}
       </div>
     </section>
   );
