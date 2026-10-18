@@ -86,11 +86,11 @@ export function MidaLivingShowcase({ items = [] }: { items?: MidaLivingItem[] })
               slidesPerView: Math.min(3, source.length),
               coverflowEffect: { rotate: 0, stretch: -10, depth: 260, modifier: 0.75, slideShadows: false },
             },
-            640: {
+            1024: {
               slidesPerView: Math.min(3, source.length),
-              coverflowEffect: { rotate: 0, stretch: -28, depth: 180, modifier: 1.35, slideShadows: false },
+              coverflowEffect: { rotate: 0, stretch: -15, depth: 180, modifier: 1.35, slideShadows: false },
             },
-            1024: { slidesPerView: Math.min(5, source.length) },
+            1280: { slidesPerView: Math.min(5, source.length) },
           }}
           speed={700}
           coverflowEffect={{ rotate: 0, stretch: -28, depth: 180, modifier: 1.35, slideShadows: false }}
