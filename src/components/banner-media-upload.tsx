@@ -87,7 +87,7 @@ export function BannerMediaUpload({
 
   return (
     <fieldset disabled={disabled} className="min-w-0">
-      <legend className="text-sm font-bold text-brand-text">{title}</legend>
+      {title && <legend className="text-sm font-bold text-brand-text">{title}</legend>}
       <div className="mt-2 overflow-hidden rounded-2xl border-2 border-dashed border-brand-primary/25 bg-brand-muted p-4 sm:p-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex min-w-0 items-center gap-3">

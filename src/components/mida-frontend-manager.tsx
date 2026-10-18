@@ -195,9 +195,9 @@ export function MidaFrontendManager() {
         </label>
         </div>
         </div>
-        <div className="rounded-2xl border border-slate-200 p-4 sm:p-5">
+        <div>
           <BannerMediaUpload
-            title="รูปภาพและวิดีโอแบนเนอร์สไลด์หลักหน้าแรกส่วนกลาง"
+            title=""
             media={images}
             files={files}
             onFilesChange={setFiles}
