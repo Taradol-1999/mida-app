@@ -15,6 +15,8 @@ type Props = {
   onFilesChange: (files: File[]) => void;
   onRemove: (id: string) => void | Promise<void>;
   disabled?: boolean;
+  single?: boolean;
+  allowRemoveSaved?: boolean;
 };
 
 // One source size is used for every hero banner. The live site uses a
@@ -62,6 +64,8 @@ export function BannerMediaUpload({
   onFilesChange,
   onRemove,
   disabled = false,
+  single = false,
+  allowRemoveSaved = true,
 }: Props) {
   const id = useId();
   const [error, setError] = useState("");
@@ -78,7 +82,7 @@ export function BannerMediaUpload({
       return;
     }
     setError("");
-    onFilesChange([...files, ...selected]);
+    onFilesChange(single ? selected.slice(-1) : [...files, ...selected]);
   }
 
   return (
@@ -95,7 +99,7 @@ export function BannerMediaUpload({
                 {allowVideo ? "แบนเนอร์รูปภาพและวิดีโอ" : "รูปภาพประกอบ"}
               </p>
               <p className="mt-1 text-xs text-brand-text/75">
-                จัดลำดับไฟล์ได้หลายรายการ และสไลด์จะแสดงตามลำดับที่เพิ่ม
+                {single ? "เลือกรูปภาพ 1 รูปสำหรับแสดงบนหน้าเว็บไซต์" : "จัดลำดับไฟล์ได้หลายรายการ และสไลด์จะแสดงตามลำดับที่เพิ่ม"}
               </p>
             </div>
           </div>
@@ -108,7 +112,7 @@ export function BannerMediaUpload({
               type="file"
               aria-label={title}
               aria-describedby={`${id}-hint`}
-              multiple
+              multiple={!single}
               accept={
                 allowVideo ? "image/jpeg,image/png,image/webp,video/mp4,video/webm" : "image/jpeg,image/png,image/webp"
               }
@@ -155,7 +159,7 @@ export function BannerMediaUpload({
                   <p title={item.name} className="min-w-0 flex-1 truncate text-xs text-brand-text">
                     {item.name}
                   </p>
-                  <button
+                  {allowRemoveSaved && <button
                     type="button"
                     disabled={disabled}
                     onClick={() => void onRemove(item.id)}
@@ -163,7 +167,7 @@ export function BannerMediaUpload({
                     className="rounded-md px-2 py-1 text-rose-600 hover:bg-rose-50 disabled:opacity-50"
                   >
                     <i className="fa-solid fa-trash-can" aria-hidden="true" />
-                  </button>
+                  </button>}
                 </div>
               </div>
             ))}

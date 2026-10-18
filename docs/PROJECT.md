@@ -26,6 +26,7 @@ The MySQL database name defaults to `mida_app`. Important tables:
 - `news_items`: news/events and publication state.
 - `leads`: registrations and follow-up status.
 - `site_content`: editable global website copy.
+- `mida_living_items`: central “เริ่มที่เรา เริ่มที่ไมด้า” cards, bilingual copy, website URL, visibility, and display order.
 - `media_assets`: file metadata, entity ownership, media kind, and sort order.
 - `activity_logs`: anonymous public page visits/durations and authenticated admin usage records.
 
@@ -73,6 +74,7 @@ Uploaded images and videos are files on the local machine, not remote URLs and n
 - Hero media supports multiple items. Image slides advance automatically; video slides advance only after the video ends.
 - Published news and promotions support multiple local gallery images. Their first image is the card cover on the MIDA homepage; all images remain available in the lightbox on the linked project page.
 - Cover media is single-value and replacing it must remove the old metadata and file.
+- MIDA Living portrait media is single-value (`entity_type=mida-living`, `media_kind=portrait`) and is served publicly when its card renders on the homepage.
 - Before deleting or moving stored media, resolve exact targets and keep the filesystem and `media_assets` consistent.
 
 ## Admin behavior
@@ -80,6 +82,7 @@ Uploaded images and videos are files on the local machine, not remote URLs and n
 - `/admin` is the global dashboard.
 - `/admin/project/[id]/[section]` is the project-scoped workspace.
 - `/admin/projects` creates new projects only. Existing project catalogue details are edited in the project-scoped `project-info` section.
+- `/admin/mida-living` lets Super Admin manage the central “เริ่มที่เรา เริ่มที่ไมด้า” cards, including one portrait image, bilingual name/description, external link, display order, and visibility.
 - Project information and homepage management share one form on the `project-info` page; it contains catalogue fields, cover media, Hero copy/media, and the brochure with one save action. Latitude and longitude are managed only from the contact/map section.
 - Project-scoped house types, facilities, promotions, and news use summary tables. Creating and editing records happens in a modal so existing records remain easy to scan.
 - News and promotion edit modals can upload, review, and remove multiple JPG, PNG, or WEBP images. The table displays the saved image count.
@@ -124,6 +127,7 @@ Banner upload panels use `BannerMediaUpload` from `src/components/banner-media-u
 ## API routes
 
 - Admin CRUD: `/api/admin/[resource]`.
+- MIDA Living CRUD: `/api/admin/mida-living`.
 - Project settings: `/api/admin/project-settings`.
 - Media: `/api/admin/media`.
 - Authentication: `/api/auth/login` and `/api/auth/logout`.

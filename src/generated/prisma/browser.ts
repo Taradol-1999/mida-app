@@ -73,6 +73,11 @@ export type ActivityLog = Prisma.ActivityLogModel
  */
 export type SiteContent = Prisma.SiteContentModel
 /**
+ * Model MidaLivingItem
+ * รายการธุรกิจในส่วน “เริ่มที่เรา เริ่มที่ไมด้า” บนหน้าแรก พร้อมข้อมูลสองภาษาและลิงก์เว็บไซต์
+ */
+export type MidaLivingItem = Prisma.MidaLivingItemModel
+/**
  * Model MediaAsset
  * เมทาดาทาของไฟล์รูปภาพ วิดีโอ และเอกสารที่อัปโหลด พร้อมความสัมพันธ์กับข้อมูลต้นทาง
  */

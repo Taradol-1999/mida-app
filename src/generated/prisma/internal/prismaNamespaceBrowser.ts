@@ -62,6 +62,7 @@ export const ModelName = {
   Lead: 'Lead',
   ActivityLog: 'ActivityLog',
   SiteContent: 'SiteContent',
+  MidaLivingItem: 'MidaLivingItem',
   MediaAsset: 'MediaAsset',
   ProjectSetting: 'ProjectSetting'
 } as const
@@ -256,6 +257,22 @@ export const SiteContentScalarFieldEnum = {
 } as const
 
 export type SiteContentScalarFieldEnum = (typeof SiteContentScalarFieldEnum)[keyof typeof SiteContentScalarFieldEnum]
+
+
+export const MidaLivingItemScalarFieldEnum = {
+  id: 'id',
+  name_th: 'name_th',
+  name_en: 'name_en',
+  description_th: 'description_th',
+  description_en: 'description_en',
+  website_url: 'website_url',
+  sort_order: 'sort_order',
+  is_active: 'is_active',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type MidaLivingItemScalarFieldEnum = (typeof MidaLivingItemScalarFieldEnum)[keyof typeof MidaLivingItemScalarFieldEnum]
 
 
 export const MediaAssetScalarFieldEnum = {
@@ -473,6 +490,18 @@ export const SiteContentOrderByRelevanceFieldEnum = {
 } as const
 
 export type SiteContentOrderByRelevanceFieldEnum = (typeof SiteContentOrderByRelevanceFieldEnum)[keyof typeof SiteContentOrderByRelevanceFieldEnum]
+
+
+export const MidaLivingItemOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name_th: 'name_th',
+  name_en: 'name_en',
+  description_th: 'description_th',
+  description_en: 'description_en',
+  website_url: 'website_url'
+} as const
+
+export type MidaLivingItemOrderByRelevanceFieldEnum = (typeof MidaLivingItemOrderByRelevanceFieldEnum)[keyof typeof MidaLivingItemOrderByRelevanceFieldEnum]
 
 
 export const MediaAssetOrderByRelevanceFieldEnum = {

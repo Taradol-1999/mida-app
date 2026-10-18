@@ -1,6 +1,6 @@
 import { HomeHeader } from "@/components/home-header";
 import { HeroImageSlider } from "@/components/hero-image-slider";
-import { MidaLivingShowcase } from "@/components/mida-living-showcase";
+import { MidaLivingShowcase, type MidaLivingItem } from "@/components/mida-living-showcase";
 import { SiteFooter } from "@/components/site-footer";
 import { T } from "@/components/language-provider";
 import { NewsPromotionSlider, type NewsPromotionItem } from "@/components/news-promotion-slider";
@@ -39,7 +39,7 @@ const defaultUpdates: NewsPromotionItem[] = [
 
 async function homeData() {
   try {
-    const [contentRows, promotions, news] = await Promise.all([
+    const [contentRows, promotions, news, livingRows] = await Promise.all([
       prisma.siteContent.findMany({
         select: { id: true, content_key: true, title: true, title_en: true, body: true, body_en: true },
       }),
@@ -54,6 +54,10 @@ async function homeData() {
         include: { project: { select: { slug: true } } },
         orderBy: { published_at: "desc" },
         take: 12,
+      }),
+      prisma.midaLivingItem.findMany({
+        where: { is_active: true },
+        orderBy: [{ sort_order: "asc" }, { created_at: "asc" }],
       }),
     ]);
     // Keep the essential homepage content available while a running dev server
@@ -118,6 +122,17 @@ async function homeData() {
       },
       orderBy: [{ sort_order: "asc" }, { created_at: "asc" }],
     });
+    const livingMedia = await prisma.mediaAsset.findMany({
+      where: {
+        entity_type: "mida-living",
+        entity_id: { in: livingRows.map((row) => row.id) },
+        media_kind: "portrait",
+      },
+      orderBy: [{ sort_order: "asc" }, { created_at: "asc" }],
+    });
+    const livingImageById = new Map<string, (typeof livingMedia)[number]>();
+    for (const image of livingMedia)
+      if (!livingImageById.has(image.entity_id)) livingImageById.set(image.entity_id, image);
     const mediaByItem = new Map<string, typeof updateMedia>();
     for (const item of updateMedia) {
       const key = `${item.entity_type}:${item.entity_id}`;
@@ -152,6 +167,20 @@ async function homeData() {
         type: String(row.mime_type).startsWith("video/") ? ("video" as const) : ("image" as const),
       })),
       homepageProjectIds: homepageRows?.map((row) => row.project_id),
+      livingItems: livingRows.map((row): MidaLivingItem => {
+        const image = livingImageById.get(row.id);
+        return {
+          id: row.id,
+          nameTh: row.name_th,
+          nameEn: row.name_en,
+          descriptionTh: row.description_th,
+          descriptionEn: row.description_en,
+          websiteUrl: row.website_url,
+          imageUrl: image
+            ? `/api/admin/media?entityType=mida-living&entityId=${row.id}&mediaKind=portrait&mediaId=${image.id}`
+            : null,
+        };
+      }),
     };
   } catch {
     return {
@@ -159,12 +188,16 @@ async function homeData() {
       updates: defaultUpdates,
       heroImages: [],
       homepageProjectIds: undefined as string[] | undefined,
+      livingItems: [] as MidaLivingItem[],
     };
   }
 }
 
 export default async function HomePage() {
-  const [{ content, updates, heroImages, homepageProjectIds }, session] = await Promise.all([homeData(), getSession()]);
+  const [{ content, updates, heroImages, homepageProjectIds, livingItems }, session] = await Promise.all([
+    homeData(),
+    getSession(),
+  ]);
   return (
     <main>
       <HomeHeader showAdmin={Boolean(session)} />
@@ -178,7 +211,7 @@ export default async function HomePage() {
       />
       <div className="bg-[#eaf4fb]">
         <ProjectFilter projectIds={homepageProjectIds} allProjectsHref="/projects" />
-        <MidaLivingShowcase />
+        <MidaLivingShowcase items={livingItems} />
       </div>
       <section id="promotion" className="relative overflow-hidden bg-[#003f7d] py-14 text-white sm:py-18 lg:py-20">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_22%_15%,rgba(0,111,181,.48),transparent_35%),linear-gradient(120deg,#003b73,#004d91_62%,#003668)]" />

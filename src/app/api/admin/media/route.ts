@@ -10,7 +10,7 @@ import { prisma } from "@/lib/prisma";
 
 export const runtime = "nodejs";
 const idSchema = z.string().uuid();
-const entityTypes = ["projects", "house-types", "promotions", "news", "site-content"] as const;
+const entityTypes = ["projects", "house-types", "promotions", "news", "site-content", "mida-living"] as const;
 type EntityType = (typeof entityTypes)[number];
 const mimeExtensions: Record<string, string> = {
   "image/jpeg": "jpg",
@@ -26,19 +26,29 @@ function isEntityType(value: string): value is EntityType {
   return entityTypes.includes(value as EntityType);
 }
 function isKind(value: string) {
-  return value === "cover" || value === "hero" || value === "gallery" || value === "brochure";
+  return ["cover", "hero", "gallery", "brochure", "portrait"].includes(value);
 }
 async function mediaProjectId(entityType: EntityType, entityId: string) {
   switch (entityType) {
     case "projects":
       return entityId;
     case "house-types":
-      return (await prisma.houseType.findUnique({ where: { id: entityId }, select: { project_id: true } }))?.project_id ?? null;
+      return (
+        (await prisma.houseType.findUnique({ where: { id: entityId }, select: { project_id: true } }))?.project_id ??
+        null
+      );
     case "promotions":
-      return (await prisma.promotion.findUnique({ where: { id: entityId }, select: { project_id: true } }))?.project_id ?? null;
+      return (
+        (await prisma.promotion.findUnique({ where: { id: entityId }, select: { project_id: true } }))?.project_id ??
+        null
+      );
     case "news":
-      return (await prisma.newsItem.findUnique({ where: { id: entityId }, select: { project_id: true } }))?.project_id ?? null;
+      return (
+        (await prisma.newsItem.findUnique({ where: { id: entityId }, select: { project_id: true } }))?.project_id ??
+        null
+      );
     case "site-content":
+    case "mida-living":
       return null;
   }
 }
@@ -67,6 +77,7 @@ export async function GET(request: Request) {
     (entityType === "projects" || entityType === "house-types") && !list
       ? true
       : entityType === "site-content" && mediaKind === "hero" && !list;
+  const publicMidaLivingMedia = entityType === "mida-living" && mediaKind === "portrait" && !list;
   const publishedContentMedia =
     !list && mediaKind === "gallery" && entityType === "promotions"
       ? (await prisma.promotion.findUnique({ where: { id: entityId }, select: { is_published: true } }))
@@ -75,7 +86,7 @@ export async function GET(request: Request) {
         ? (await prisma.newsItem.findUnique({ where: { id: entityId }, select: { is_published: true } }))
             ?.is_published === true
         : false;
-  const isPublicMedia = publicProjectMedia || publishedContentMedia;
+  const isPublicMedia = publicProjectMedia || publicMidaLivingMedia || publishedContentMedia;
   if (!isPublicMedia) {
     const user = await authorise();
     if (!user) return NextResponse.json({ message: "กรุณาเข้าสู่ระบบด้วยสิทธิ์ผู้ดูแล" }, { status: 401 });
@@ -150,13 +161,15 @@ export async function POST(request: Request) {
           ? await prisma.promotion.findUnique({ where: { id: entityId }, select: { id: true } })
           : entityType === "news"
             ? await prisma.newsItem.findUnique({ where: { id: entityId }, select: { id: true } })
-            : await prisma.siteContent.findUnique({ where: { id: entityId }, select: { id: true } });
+            : entityType === "site-content"
+              ? await prisma.siteContent.findUnique({ where: { id: entityId }, select: { id: true } })
+              : await prisma.midaLivingItem.findUnique({ where: { id: entityId }, select: { id: true } });
   if (!entityExists) return NextResponse.json({ message: "ไม่พบข้อมูลที่ต้องการผูกรูปภาพ" }, { status: 404 });
   const storageKey = `uploads/${randomUUID()}.${extension}`;
   try {
     await mkdir(uploadsDirectory, { recursive: true });
     await writeFile(storedFilePath(storageKey), Buffer.from(await file.arrayBuffer()));
-    if (mediaKind === "cover" || mediaKind === "brochure") {
+    if (mediaKind === "cover" || mediaKind === "brochure" || mediaKind === "portrait") {
       const oldRows = await prisma.mediaAsset.findMany({
         where: { entity_type: entityType, entity_id: entityId, media_kind: mediaKind },
         select: { storage_key: true },
@@ -214,7 +227,7 @@ export async function DELETE(request: Request) {
     !isEntityType(entityType) ||
     !idSchema.safeParse(entityId).success ||
     !idSchema.safeParse(mediaId).success ||
-    (mediaKind !== "hero" && mediaKind !== "gallery")
+    (mediaKind !== "hero" && mediaKind !== "gallery" && mediaKind !== "portrait")
   )
     return NextResponse.json({ message: "คำขอลบรูปภาพไม่ถูกต้อง" }, { status: 400 });
   if (!(await canAccessRecord(user, entityType, entityId)))

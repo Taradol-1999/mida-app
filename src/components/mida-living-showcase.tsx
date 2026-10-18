@@ -14,20 +14,41 @@ import propertyLogo from "@/assets/logos/png/01-mida-property.png";
 import matrixByMidaLogo from "@/assets/logos/png/06-the-matrix-by-mida.png";
 import constructionLogo from "@/assets/logos/png/04-interexpert-construction.png";
 
+export type MidaLivingItem = {
+  id: string;
+  nameTh: string;
+  nameEn?: string | null;
+  descriptionTh?: string | null;
+  descriptionEn?: string | null;
+  websiteUrl?: string | null;
+  imageUrl?: string | null;
+};
+
 const brands = [
-  { name: "MIDA AGENCY", logo: agencyLogo, color: "from-[#b9d7e9] via-[#dfeaf2] to-[#789eb7]" },
-  { name: "THE MATRIX", logo: matrixLogo, color: "from-[#c8d3d4] via-[#f0e9df] to-[#9babb2]" },
-  { name: "MIDA PROPERTY", logo: propertyLogo, color: "from-[#dbe8ed] via-[#fffaf3] to-[#c4d5dc]" },
-  { name: "THE MATRIX BY MIDA", logo: matrixByMidaLogo, color: "from-[#b9d9d2] via-[#e8f1ec] to-[#739d9a]" },
-  { name: "INTEREXPERT", logo: constructionLogo, color: "from-[#c3d3e4] via-[#e7edf3] to-[#7892ad]" },
+  { id: "agency", nameTh: "MIDA AGENCY", logo: agencyLogo, color: "from-[#b9d7e9] via-[#dfeaf2] to-[#789eb7]" },
+  { id: "matrix", nameTh: "THE MATRIX", logo: matrixLogo, color: "from-[#c8d3d4] via-[#f0e9df] to-[#9babb2]" },
+  { id: "property", nameTh: "MIDA PROPERTY", logo: propertyLogo, color: "from-[#dbe8ed] via-[#fffaf3] to-[#c4d5dc]" },
+  {
+    id: "matrix-mida",
+    nameTh: "THE MATRIX BY MIDA",
+    logo: matrixByMidaLogo,
+    color: "from-[#b9d9d2] via-[#e8f1ec] to-[#739d9a]",
+  },
+  {
+    id: "construction",
+    nameTh: "INTEREXPERT",
+    logo: constructionLogo,
+    color: "from-[#c3d3e4] via-[#e7edf3] to-[#7892ad]",
+  },
 ];
 
-// Swiper needs neighboring copies to keep a five-card coverflow looping smoothly.
-const carouselBrands = [...brands, ...brands, ...brands];
-
-export function MidaLivingShowcase() {
+export function MidaLivingShowcase({ items = [] }: { items?: MidaLivingItem[] }) {
   const { t } = useTranslation();
   const swiperRef = useRef<SwiperInstance | null>(null);
+  const source = items.length ? items : brands;
+  const canLoop = source.length >= 5;
+  // Five or more items use neighboring copies for a smooth loop. Smaller CMS sets display once without duplicates.
+  const carouselItems = canLoop ? [...source, ...source, ...source] : source;
 
   function updateVisibleSlides(swiper: SwiperInstance) {
     const count = swiper.params.slidesPerView;
@@ -57,15 +78,15 @@ export function MidaLivingShowcase() {
           modules={[EffectCoverflow]}
           effect="coverflow"
           centeredSlides
-          loop
-          loopAdditionalSlides={brands.length}
+          loop={canLoop}
+          loopAdditionalSlides={canLoop ? source.length : 0}
           watchSlidesProgress
           grabCursor
-          initialSlide={brands.length + 2}
+          initialSlide={canLoop ? source.length + Math.floor(source.length / 2) : Math.floor(source.length / 2)}
           slidesPerView={1}
           breakpoints={{
-            640: { slidesPerView: 3 },
-            1024: { slidesPerView: 5 },
+            640: { slidesPerView: Math.min(3, source.length) },
+            1024: { slidesPerView: Math.min(5, source.length) },
           }}
           speed={700}
           coverflowEffect={{ rotate: 0, stretch: -28, depth: 180, modifier: 1.35, slideShadows: false }}
@@ -78,30 +99,75 @@ export function MidaLivingShowcase() {
           onBreakpoint={updateVisibleSlides}
           onProgress={updateVisibleSlides}
         >
-          {carouselBrands.map((brand, index) => (
-            <SwiperSlide
-              key={`${brand.name}-${index}`}
-              className="h-100! overflow-hidden rounded-2xl sm:h-140! sm:rounded-3xl"
-            >
+          {carouselItems.map((brand, index) => {
+            const name = t({ th: brand.nameTh, en: "nameEn" in brand && brand.nameEn ? brand.nameEn : brand.nameTh });
+            const description =
+              "descriptionTh" in brand
+                ? t({ th: brand.descriptionTh ?? "", en: brand.descriptionEn ?? brand.descriptionTh ?? "" })
+                : "";
+            const card = (
               <div
-                className={`relative size-full overflow-hidden rounded-[inherit] bg-linear-to-br ${brand.color} text-left shadow-[0_18px_35px_rgba(0,45,98,.2)] ring-1 ring-white/70`}
+                className={`relative size-full overflow-hidden rounded-[inherit] ${"color" in brand ? `bg-linear-to-br ${brand.color}` : "bg-slate-200"} text-left shadow-[0_18px_35px_rgba(0,45,98,.2)] ring-1 ring-white/70`}
               >
-                <span className="absolute inset-0 bg-linear-to-t from-black/65 via-black/5 to-white/10" />
-                <span className="absolute -right-14 -top-14 size-44 rounded-full border-24 border-white/25" />
-                <span className="relative flex size-full items-center justify-center p-5 text-center">
+                {"imageUrl" in brand && brand.imageUrl ? (
                   <Image
-                    src={brand.logo}
-                    alt={brand.name}
-                    className="size-full object-contain drop-shadow-xl"
-                    sizes="(min-width: 640px) 304px, 78vw"
+                    src={brand.imageUrl}
+                    alt={name}
+                    fill
+                    className="object-cover"
+                    sizes="(min-width: 1024px) 20vw, (min-width: 640px) 34vw, 82vw"
                   />
-                  <span className="absolute inset-x-4 bottom-5 text-sm font-black tracking-wide text-white drop-shadow-md sm:text-base">
-                    {brand.name}
+                ) : "logo" in brand ? (
+                  <span className="relative flex size-full items-center justify-center p-5 text-center">
+                    <Image
+                      src={brand.logo}
+                      alt={name}
+                      className="size-full object-contain drop-shadow-xl"
+                      sizes="(min-width: 640px) 304px, 78vw"
+                    />
                   </span>
+                ) : (
+                  <span className="absolute inset-0 grid place-items-center text-slate-400">
+                    <i className="fa-regular fa-image text-5xl" />
+                  </span>
+                )}
+                <span className="absolute inset-0 bg-linear-to-t from-black/80 via-black/5 to-white/10" />
+                <span className="absolute inset-x-5 bottom-5 z-10 text-white drop-shadow-md">
+                  <strong className="block text-sm font-black tracking-wide sm:text-base">{name}</strong>
+                  {description && (
+                    <span className="mt-1 line-clamp-2 block text-xs leading-5 text-white/85 sm:text-sm">
+                      {description}
+                    </span>
+                  )}
+                  {"websiteUrl" in brand && brand.websiteUrl && (
+                    <span className="mt-3 inline-flex items-center gap-2 text-xs font-bold text-brand-accent">
+                      เยี่ยมชมเว็บไซต์ <i className="fa-solid fa-arrow-up-right-from-square" />
+                    </span>
+                  )}
                 </span>
               </div>
-            </SwiperSlide>
-          ))}
+            );
+            return (
+              <SwiperSlide
+                key={`${brand.id}-${index}`}
+                className="h-100! overflow-hidden rounded-2xl sm:h-140! sm:rounded-3xl"
+              >
+                {"websiteUrl" in brand && brand.websiteUrl ? (
+                  <a
+                    href={brand.websiteUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block size-full"
+                    aria-label={`${name} — เปิดเว็บไซต์`}
+                  >
+                    {card}
+                  </a>
+                ) : (
+                  card
+                )}
+              </SwiperSlide>
+            );
+          })}
         </Swiper>
         {/* <button
           type="button"
