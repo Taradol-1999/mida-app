@@ -72,6 +72,7 @@ export function HeroImageSlider({
   }, [activeMedia?.type, images.length, paused]);
 
   function move(direction: -1 | 1) {
+    if (images.length < 2) return;
     setActive((current) => (current + direction + images.length) % images.length);
   }
 
@@ -84,7 +85,7 @@ export function HeroImageSlider({
 
   return (
     <section
-      className={`relative overflow-hidden bg-brand-primary ${homeStyle ? "min-h-[560px] sm:min-h-[640px] lg:min-h-[100svh]" : "min-h-112 sm:min-h-120"}`}
+      className={`relative overflow-hidden bg-brand-primary ${homeStyle ? "min-h-140 sm:min-h-160 lg:min-h-svh" : "min-h-112 sm:min-h-120"}`}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}
@@ -100,6 +101,18 @@ export function HeroImageSlider({
       onTouchCancel={() => {
         swipeStartX.current = null;
         setPaused(false);
+      }}
+      onPointerDown={(event) => {
+        if (event.pointerType !== "mouse" || event.button !== 0 || (event.target as HTMLElement).closest("a, button"))
+          return;
+        swipeStartX.current = event.clientX;
+        event.currentTarget.setPointerCapture(event.pointerId);
+      }}
+      onPointerUp={(event) => {
+        if (event.pointerType === "mouse") endSwipe(event.clientX);
+      }}
+      onPointerCancel={() => {
+        swipeStartX.current = null;
       }}
       style={{ touchAction: "pan-y" }}
       aria-roledescription="carousel"
@@ -125,6 +138,7 @@ export function HeroImageSlider({
               fill
               unoptimized={image.src.includes("?")}
               priority={index === 0}
+              draggable={false}
               sizes="100vw"
               className="object-cover"
             />
@@ -136,7 +150,7 @@ export function HeroImageSlider({
       />
 
       <div
-        className={`container-page relative flex items-center text-white ${homeStyle ? "min-h-[560px] pb-28 pt-28 sm:min-h-[640px] sm:pb-36 lg:min-h-[100svh]" : "min-h-112 py-16 sm:min-h-120 sm:py-24"}`}
+        className={`container-page relative flex items-center text-white ${homeStyle ? "min-h-140 pb-28 pt-28 sm:min-h-160 sm:pb-36 lg:min-h-svh" : "min-h-112 py-16 sm:min-h-120 sm:py-24"}`}
       >
         <div className={homeStyle ? "w-full max-w-2xl" : "w-full max-w-5xl"}>
           <h1
@@ -171,18 +185,14 @@ export function HeroImageSlider({
             type="button"
             onClick={() => move(-1)}
             aria-label={t({ th: "แบนเนอร์ก่อนหน้า", en: "Previous banner" })}
-            className={`absolute left-4 top-1/2 size-9 -translate-y-1/2 place-items-center rounded-full bg-white/85 text-brand-primary shadow-lg transition hover:bg-white md:size-11 ${homeStyle ? "grid" : "hidden md:grid"}`}
-          >
-            <i className="fa-solid fa-chevron-left" aria-hidden="true" />
-          </button>
+            className="absolute inset-y-0 left-0 w-10 cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-white sm:w-16"
+          />
           <button
             type="button"
             onClick={() => move(1)}
             aria-label={t({ th: "แบนเนอร์ถัดไป", en: "Next banner" })}
-            className={`absolute right-4 top-1/2 size-9 -translate-y-1/2 place-items-center rounded-full bg-white/85 text-brand-primary shadow-lg transition hover:bg-white md:size-11 ${homeStyle ? "grid" : "hidden md:grid"}`}
-          >
-            <i className="fa-solid fa-chevron-right" aria-hidden="true" />
-          </button>
+            className="absolute inset-y-0 right-0 w-10 cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-white sm:w-16"
+          />
           <div className="absolute inset-x-0 bottom-6 flex justify-center gap-2">
             {images.map((image, index) => (
               <button
