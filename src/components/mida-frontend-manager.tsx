@@ -1,6 +1,7 @@
 "use client";
 
 import { BannerMediaUpload } from "@/components/banner-media-upload";
+import { ContactWidgetSettings, type ContactWidgetValues } from "@/components/contact-widget-settings";
 
 import { Input, Textarea } from "@/components/ui/form-controls";
 /* eslint-disable react-hooks/set-state-in-effect */
@@ -22,6 +23,8 @@ export function MidaFrontendManager() {
   const [selectedProjectIds, setSelectedProjectIds] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const [contact, setContact] = useState<ContactWidgetValues>({ line: "", messenger: "", phone: "02 885 5558", email: "" });
+  const [contactReady, setContactReady] = useState(false);
 
   const loadImages = useCallback(async (id: string) => {
     if (!id) return setImages([]);
@@ -31,11 +34,15 @@ export function MidaFrontendManager() {
   }, []);
 
   const load = useCallback(async () => {
-    const [response, projectResponse] = await Promise.all([
+    const [response, projectResponse, contactResponse] = await Promise.all([
       fetch("/api/admin/content"),
       fetch("/api/admin/homepage-projects"),
+      fetch("/api/admin/contact-widget"),
     ]);
     if (!response.ok) return setMessage("ไม่สามารถโหลดข้อมูลเว็บไซต์ส่วนกลางได้");
+    if (!contactResponse.ok) return setMessage("ไม่สามารถโหลดช่องทางติดต่อได้ กรุณารีเฟรชหน้าอีกครั้ง");
+    setContact(await contactResponse.json());
+    setContactReady(true);
     const data = await response.json();
     if (projectResponse.ok) {
       const projectData = await projectResponse.json();
@@ -104,6 +111,17 @@ export function MidaFrontendManager() {
     });
     if (!selectionResponse.ok) {
       setMessage("บันทึกข้อความแล้ว แต่ไม่สามารถบันทึกรายการโครงการหน้าแรกได้");
+      setBusy(false);
+      return;
+    }
+    const contactResponse = await fetch("/api/admin/contact-widget", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(contact),
+    });
+    if (!contactResponse.ok) {
+      const result = await contactResponse.json();
+      setMessage(`บันทึกข้อมูลเว็บไซต์แล้ว แต่ช่องทางติดต่อไม่สำเร็จ: ${result.message ?? "กรุณาลองใหม่"}`);
       setBusy(false);
       return;
     }
@@ -235,9 +253,10 @@ export function MidaFrontendManager() {
           {!projects.length && <p className="mt-3 text-xs text-slate-500">ยังไม่มีโครงการสำหรับเลือก</p>}
         </fieldset>
 
+        <ContactWidgetSettings value={contact} onChange={setContact} />
         {message && <p className="rounded-lg bg-brand-soft px-4 py-3 text-brand-primary">{message}</p>}
         <button
-          disabled={busy}
+          disabled={busy || !contactReady}
           className="rounded-lg bg-brand-primary px-5 py-2.5 font-medium text-white shadow-sm disabled:opacity-50"
         >
           {busy ? "กำลังบันทึก..." : "บันทึกข้อมูลเว็บไซต์ส่วนกลาง"}
