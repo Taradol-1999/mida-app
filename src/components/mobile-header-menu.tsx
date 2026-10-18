@@ -169,26 +169,6 @@ export function MobileHeaderMenu({
                       <span className="text-xs font-semibold text-slate-500">{t({ th: "ภาษา", en: "Language" })}</span>
                       <LanguageToggle />
                     </div>
-                    <div className="mt-5 flex gap-3">
-                      <a
-                        href="https://www.facebook.com/midapropertycompany/"
-                        target="_blank"
-                        rel="noreferrer"
-                        aria-label="Facebook"
-                        className="home-sidebar-social"
-                      >
-                        <i className="fa-brands fa-facebook-f" aria-hidden="true" />
-                      </a>
-                      <a
-                        href="https://www.youtube.com/channel/UCB7h58xbypfs8dIs7WBFWRw"
-                        target="_blank"
-                        rel="noreferrer"
-                        aria-label="YouTube"
-                        className="home-sidebar-social"
-                      >
-                        <i className="fa-brands fa-youtube" aria-hidden="true" />
-                      </a>
-                    </div>
                   </div>
                 </div>
               </aside>

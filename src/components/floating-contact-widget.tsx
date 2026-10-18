@@ -116,7 +116,7 @@ export function FloatingContactWidget({
             : t({ th: "ช่องทางติดต่อ", en: "Contact us" })
         }
         onClick={() => setOpen((value) => !value)}
-        className="grid size-14 cursor-pointer place-items-center rounded-full border-2 border-white bg-brand-primary text-white shadow-[0_8px_24px_rgba(0,31,70,.35)] transition duration-300 hover:scale-105 hover:bg-[#ffc25c] active:scale-95 motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
+        className="grid size-14 cursor-pointer place-items-center rounded-full border-2 border-white bg-brand-primary text-white shadow-[0_8px_24px_rgba(0,31,70,.35)] transition duration-300 hover:scale-105 hover:bg-brand-accent active:scale-95 motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
       >
         <i
           className={`fa-solid ${open ? "fa-xmark rotate-90" : "fa-comments rotate-0"} text-xl transition-transform duration-300 motion-reduce:transition-none `}

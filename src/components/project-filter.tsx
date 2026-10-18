@@ -162,9 +162,7 @@ export function ProjectFilter({
     [addressMatches, catalogue, hasLoadedCatalogue, keyword, priceRange, projectIds, status, tag, type],
   );
   const filterBox = (icon: string, label: string, child: ReactNode) => (
-    <label
-      className={`flex min-h-18 flex-col justify-center rounded-lg border border-slate-200 p-3 ${standalone ? "bg-slate-50" : "bg-[#eef5fb]"}`}
-    >
+    <label className="flex min-h-18 flex-col justify-center rounded-lg border border-slate-200 bg-[#eef5fb] p-3">
       <span className="mb-1 text-xs font-bold text-slate-700">
         <i className={`fa-solid ${icon} mr-1.5 text-brand-primary`} />
         {label}
@@ -179,15 +177,9 @@ export function ProjectFilter({
   return (
     <section
       id="projects"
-      className={`container-page relative z-10 ${standalone ? "py-12 sm:py-16" : "-mt-10 pb-12 sm:-mt-16 sm:pb-18"}`}
+      className={`container-page relative z-10 ${standalone ? "pb-12 pt-6 sm:pb-16 sm:pt-8" : "-mt-10 pb-12 sm:-mt-16 sm:pb-18"}`}
     >
       <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_18px_45px_rgba(0,45,98,.16)] sm:p-5 md:p-6">
-        {standalone && (
-          <p className="mb-4 text-sm font-bold text-brand-primary">
-            <i className="fa-solid fa-magnifying-glass mr-2" />
-            {t({ th: "ค้นหาโครงการ", en: "Find a project" })}
-          </p>
-        )}
         <div className="relative mb-3">
           <i
             className="fa-solid fa-magnifying-glass pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-brand-primary"
@@ -336,14 +328,12 @@ export function ProjectFilter({
               : "flex snap-x snap-mandatory items-stretch gap-5 overflow-x-auto pb-5 scrollbar-none sm:gap-6 [&::-webkit-scrollbar]:hidden"
           }
         >
-          {visible.map((project, index) => (
+          {visible.map((project) => (
             <article
               key={project.slug}
-              className={`group flex mt-5 bg-white h-full flex-col overflow-hidden rounded-2xl border border-slate-200  shadow-[0_12px_35px_rgba(0,45,98,0.08)] transition duration-300 hover:-translate-y-1.5 hover:border-brand-accent hover:shadow-[0_20px_45px_rgba(0,45,98,0.14)] ${standalone ? (index === 0 ? "xl:col-span-2" : "") : "min-w-[86%] snap-start p-1.5 sm:min-w-[47%] lg:min-w-[calc(33.333%-1rem)]"}`}
+              className={`group mt-5 flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white p-1.5 shadow-[0_12px_35px_rgba(0,45,98,0.08)] transition duration-300 hover:-translate-y-1.5 hover:border-brand-accent hover:shadow-[0_20px_45px_rgba(0,45,98,0.14)] ${standalone ? "" : "min-w-[86%] snap-start sm:min-w-[47%] lg:min-w-[calc(33.333%-1rem)]"}`}
             >
-              <div
-                className={`project-card-cool relative overflow-hidden ${standalone ? "h-52 sm:h-60" : "h-56 rounded-xl sm:h-64 lg:h-72"}`}
-              >
+              <div className="project-card-cool relative h-56 overflow-hidden rounded-xl sm:h-64 lg:h-72">
                 {project.has_cover && project.id ? (
                   <img
                     src={`/api/admin/media?entityType=projects&entityId=${project.id}`}
@@ -361,10 +351,10 @@ export function ProjectFilter({
                   </div>
                 )}
                 <div className="absolute left-4 top-4 flex max-w-[calc(100%-2rem)] flex-wrap gap-2">
-                  {tagsOf(project).map((projectTag, tagIndex) => (
+                  {tagsOf(project).map((projectTag) => (
                     <span
                       key={projectTag}
-                      className={`rounded-full px-3 py-1.5 text-[10px] font-normal shadow-md backdrop-blur-sm ${standalone && tagIndex % 2 === 0 ? "bg-brand-primary/95 text-white" : "bg-brand-accent text-white"}`}
+                      className="rounded-full bg-brand-accent px-3 py-1.5 text-[10px] font-normal text-white shadow-md backdrop-blur-sm"
                     >
                       {t(tagLabels[projectTag] ?? { th: projectTag, en: projectTag })}
                     </span>
@@ -376,7 +366,7 @@ export function ProjectFilter({
                   {projectText(project, "location")}
                 </span>
               </div>
-              <div className={`flex flex-1 flex-col ${standalone ? "p-5 sm:p-6" : "p-4 sm:p-5"}`}>
+              <div className="flex flex-1 flex-col p-4 sm:p-5">
                 <div className="flex-1">
                   <h3 className="mt-4 line-clamp-2 text-[1.35rem] leading-tight font-black tracking-tight text-brand-primary">
                     {projectText(project, "name")}
@@ -385,7 +375,7 @@ export function ProjectFilter({
                     {projectText(project, "description")}
                   </p>
                 </div>
-                <div className={`mt-5 rounded-xl bg-brand-muted ${standalone ? "p-4" : "p-3"}`}>
+                <div className="mt-5 rounded-xl bg-brand-muted p-3">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
                       <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">
