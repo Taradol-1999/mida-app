@@ -385,8 +385,15 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
       {showcase && showcase.items.length > 0 && (
         <ProjectNearbyShowcase
           title={showcase.title}
+          titleEn={showcase.titleEn}
           description={showcase.description}
-          places={showcase.items.map((item) => ({ th: item.name, description: item.description }))}
+          descriptionEn={showcase.descriptionEn}
+          places={showcase.items.map((item) => ({
+            th: item.name,
+            en: item.nameEn,
+            description: item.description,
+            descriptionEn: item.descriptionEn,
+          }))}
           media={showcase.items.map((item) => ({
             src: `/api/admin/media?entityType=projects&entityId=${project.id}&mediaKind=nearby&mediaId=${item.mediaId}`,
             alt: item.name,

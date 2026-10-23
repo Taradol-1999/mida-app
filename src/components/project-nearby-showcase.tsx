@@ -16,6 +16,7 @@ type NearbyPlace = {
   th: string;
   en?: string;
   description?: string;
+  descriptionEn?: string;
 };
 
 type Props = {
@@ -23,10 +24,12 @@ type Props = {
   media: ProjectGalleryItem[];
   location: string;
   title?: string;
+  titleEn?: string;
   description?: string;
+  descriptionEn?: string;
 };
 
-export function ProjectNearbyShowcase({ places, media, location, title, description }: Props) {
+export function ProjectNearbyShowcase({ places, media, location, title, titleEn, description, descriptionEn }: Props) {
   const { t } = useTranslation();
 
   const swiperRef = useRef<SwiperType | null>(null);
@@ -66,7 +69,7 @@ export function ProjectNearbyShowcase({ places, media, location, title, descript
             <h2 className="whitespace-pre-line text-3xl font-black leading-[1.16] tracking-tight text-brand-primary sm:text-4xl">
               {t({
                 th: title ?? `ตอบทุกโจทย์\nความต้องการบ้านใหม่ทุกทำเล\n${location || "ในทำเลที่ใช่"}`,
-                en: title ?? "Everything you need, close to home",
+                en: titleEn || title || "Everything you need, close to home",
               })}
             </h2>
 
@@ -75,7 +78,10 @@ export function ProjectNearbyShowcase({ places, media, location, title, descript
                 th:
                   description ??
                   "เพราะชีวิตที่ดีเริ่มจากทำเลที่เชื่อมต่อทุกความสะดวก ทั้งการเดินทาง แหล่งไลฟ์สไตล์ และบริการสำคัญรอบโครงการ",
-                en: description ?? "A connected location puts everyday conveniences, lifestyle destinations, and essential services within easy reach.",
+                en:
+                  descriptionEn ||
+                  description ||
+                  "A connected location puts everyday conveniences, lifestyle destinations, and essential services within easy reach.",
               })}
             </p>
           </div>
@@ -165,7 +171,7 @@ export function ProjectNearbyShowcase({ places, media, location, title, descript
                               </h3>
                               {place.description && (
                                 <p className="mt-1 line-clamp-2 text-[11px] leading-4 text-white/85">
-                                  {place.description}
+                                  {t({ th: place.description, en: place.descriptionEn ?? "" })}
                                 </p>
                               )}
                             </div>
