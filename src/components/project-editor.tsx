@@ -192,7 +192,10 @@ export function ProjectEditor({
       body: JSON.stringify(
         isEditMode
           ? { ...form, id: editingId }
-          : { ...form, location: form.location || [form.subdistrict, form.district, form.province].filter(Boolean).join(" ") },
+          : {
+              ...form,
+              location: form.location || [form.subdistrict, form.district, form.province].filter(Boolean).join(" "),
+            },
       ),
     });
     const result = await response.json();
@@ -288,10 +291,6 @@ export function ProjectEditor({
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-primary">MIDA PROPERTY</p>
           <h1 className="mt-1 text-xl font-bold text-slate-800">{isEditMode ? "ข้อมูลโครงการ" : "เพิ่มโครงการใหม่"}</h1>
         </div>
-        <span className="rounded-lg bg-brand-soft px-3 py-2 text-xs font-semibold text-brand-primary">
-          <i className={`fa-solid ${isEditMode ? "fa-pen-to-square" : "fa-circle-plus"} mr-2`} />
-          {isEditMode ? "แก้ไขรายโครงการ" : "สร้างใหม่เท่านั้น"}
-        </span>
       </header>
       <div className="mt-6">
         <form onSubmit={submit} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
@@ -300,11 +299,6 @@ export function ProjectEditor({
               <h2 className="text-base font-bold text-slate-800">
                 {isEditMode ? `แก้ไข ${form.name_th || "ข้อมูลโครงการ"}` : "สร้างโครงการใหม่"}
               </h2>
-              <p className="mt-1 text-xs text-slate-400">
-                {isEditMode
-                  ? "ข้อมูลส่วนนี้ใช้กับ Card โครงการ การค้นหา และหน้ารายละเอียดโครงการ"
-                  : "หน้านี้ใช้สำหรับเพิ่มโครงการใหม่เท่านั้น การแก้ไขให้เลือกจากเมนูโครงการด้านซ้าย"}
-              </p>
             </div>
           </div>
           {isEditMode && editingId && (
@@ -332,6 +326,7 @@ export function ProjectEditor({
               </div>
             </div>
           )}
+
           <div className="grid gap-4 md:grid-cols-2">
             <label className="text-sm font-semibold text-slate-700">
               ชื่อโครงการ (TH)
@@ -347,21 +342,7 @@ export function ProjectEditor({
               <span className="ml-1 text-rose-600">*</span>
               <Input required value={form.slug} onChange={(event) => setField("slug", event.target.value)} />
             </label>
-            <fieldset className="rounded-xl border border-slate-200 bg-slate-50 p-4 md:col-span-2 md:p-5">
-              <legend className="text-sm font-semibold text-slate-700">
-                ที่อยู่โครงการ <span className="ml-1 text-rose-600">*</span>
-              </legend>
-              <div className="mt-2 grid gap-4 md:grid-cols-2">
-                <label className="text-sm font-semibold text-slate-700">
-                  จังหวัด <span className="ml-1 text-rose-600">*</span>
-                  <Input required value={form.province ?? ""} onChange={(event) => setField("province", event.target.value)} />
-                </label>
-                <label className="text-sm font-semibold text-slate-700">
-                  เขต / อำเภอ <span className="ml-1 text-rose-600">*</span>
-                  <Input required value={form.district ?? ""} onChange={(event) => setField("district", event.target.value)} />
-                </label>
-              </div>
-            </fieldset>
+
             <label className="text-sm font-semibold text-slate-700">
               ประเภทโครงการ
               <Select value={form.property_type} onChange={(event) => setField("property_type", event.target.value)}>
@@ -386,6 +367,22 @@ export function ProjectEditor({
                 <option value="CONSTRUCTION">กำลังก่อสร้าง</option>
                 <option value="ARCHIVED">เก็บถาวร / ซ่อน</option>
               </Select>
+            </label>
+            <label className="text-sm font-semibold text-slate-700">
+              จังหวัด <span className="ml-1 text-rose-600">*</span>
+              <Input
+                required
+                value={form.province ?? ""}
+                onChange={(event) => setField("province", event.target.value)}
+              />
+            </label>
+            <label className="text-sm font-semibold text-slate-700">
+              เขต / อำเภอ <span className="ml-1 text-rose-600">*</span>
+              <Input
+                required
+                value={form.district ?? ""}
+                onChange={(event) => setField("district", event.target.value)}
+              />
             </label>
             <fieldset className="md:col-span-2">
               <legend className="text-sm font-semibold text-slate-700">Tag โครงการ</legend>
@@ -417,7 +414,7 @@ export function ProjectEditor({
                 เลือกได้เฉพาะ 3 Tag ที่กำหนด และเลือกได้มากกว่า 1 รายการ
               </p>
             </fieldset>
-            <label className="md:col-span-2 text-sm font-semibold text-slate-700">
+            <label className="text-sm font-semibold text-slate-700">
               รายละเอียดโครงการ (TH)
               <Textarea
                 value={form.description ?? ""}
@@ -425,7 +422,7 @@ export function ProjectEditor({
                 className="min-h-28"
               />
             </label>
-            <label className="md:col-span-2 text-sm font-semibold text-slate-700">
+            <label className="text-sm font-semibold text-slate-700">
               รายละเอียดโครงการ (EN)
               <Textarea
                 value={form.description_en ?? ""}
@@ -439,25 +436,28 @@ export function ProjectEditor({
               <div className="mb-5">
                 <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-primary">PROJECT HOMEPAGE</p>
                 <h2 className="mt-1 text-lg font-bold text-slate-800">ข้อมูลหน้าหลักโครงการ</h2>
-                <p className="mt-1 text-xs text-slate-400">ข้อความ Hero รูปภาพ/วิดีโอสไลด์ และโบรชัวร์</p>
+                <p className="mt-1 text-xs text-slate-400">
+                  ข้อความ Hero รูปภาพ/วิดีโอสไลด์ และโบรชัวร์ โดยรูปสไลด์จะแสดงบนหน้ารายละเอียดโครงการ
+                </p>
               </div>
+
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="text-sm font-semibold text-slate-700">
-                  คำพาดหัวหลัก - ภาษาไทย
+                  คำพาดหัวหลัก (TH)
                   <Input
                     value={homepage.hero_title_th}
                     onChange={(event) => setHomepageField("hero_title_th", event.target.value)}
                   />
                 </label>
                 <label className="text-sm font-semibold text-slate-700">
-                  Main Headline - English
+                  คำพาดหัวหลัก (EN)
                   <Input
                     value={homepage.hero_title_en}
                     onChange={(event) => setHomepageField("hero_title_en", event.target.value)}
                   />
                 </label>
                 <label className="text-sm font-semibold text-slate-700">
-                  คำอธิบายเพิ่มเติม - ภาษาไทย
+                  คำอธิบาย (TH)
                   <Textarea
                     value={homepage.hero_subtitle_th}
                     onChange={(event) => setHomepageField("hero_subtitle_th", event.target.value)}
@@ -465,7 +465,7 @@ export function ProjectEditor({
                   />
                 </label>
                 <label className="text-sm font-semibold text-slate-700">
-                  Sub-headline - English
+                  คำอธิบาย (EN)
                   <Textarea
                     value={homepage.hero_subtitle_en}
                     onChange={(event) => setHomepageField("hero_subtitle_en", event.target.value)}
@@ -473,10 +473,9 @@ export function ProjectEditor({
                   />
                 </label>
               </div>
-
               <div className="mt-6">
                 <BannerMediaUpload
-                  title="รูปภาพหรือวิดีโอสไลด์แบนเนอร์หลัก"
+                  title="รูปภาพ/วิดีโอ banner หน้าโครงการ"
                   media={heroImages}
                   files={heroFiles}
                   onFilesChange={setHeroFiles}
@@ -484,7 +483,6 @@ export function ProjectEditor({
                   disabled={busy}
                 />
               </div>
-
               <div className="mt-6 rounded-xl border border-brand-primary/10 bg-brand-soft/50 p-4">
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <div className="flex min-w-0 items-center gap-3">

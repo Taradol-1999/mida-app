@@ -5,18 +5,34 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { MobileHeaderMenu } from "@/components/mobile-header-menu";
+import { type BilingualText } from "@/components/language-provider";
 import midaLogo from "@/assets/logos/png/01-mida-property.png";
 
-const nav = [
+type HeaderItem = { href: string; label: BilingualText };
+
+const nav: HeaderItem[] = [
   { href: "#projects", label: { th: "โครงการ", en: "Projects" } },
   { href: "#living", label: { th: "เครือไมด้า", en: "MIDA Group" } },
   { href: "#promotion", label: { th: "ข่าวสารและโปรโมชั่น", en: "News & Promotions" } },
 ];
 
-export function HomeHeader({ showAdmin, innerPage = false }: { showAdmin: boolean; innerPage?: boolean }) {
+export function HomeHeader({
+  showAdmin,
+  innerPage = false,
+  items: customItems,
+  menuLabel = { th: "เมนูหลัก", en: "Main menu" },
+  searchHref,
+}: {
+  showAdmin: boolean;
+  innerPage?: boolean;
+  items?: HeaderItem[];
+  menuLabel?: BilingualText;
+  searchHref?: string;
+}) {
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
-  const items = pathname === "/" ? nav : nav.map((item) => ({ ...item, href: `/${item.href}` }));
+  const items = customItems ?? (pathname === "/" ? nav : nav.map((item) => ({ ...item, href: `/${item.href}` })));
+  const projectSearchHref = searchHref ?? (pathname === "/" ? "#projects" : "/#projects");
 
   useEffect(() => {
     const updateScrollState = () => setScrolled(window.scrollY > 40);
@@ -31,7 +47,7 @@ export function HomeHeader({ showAdmin, innerPage = false }: { showAdmin: boolea
         <MobileHeaderMenu
           items={items}
           showAdmin={showAdmin}
-          label={{ th: "เมนูหลัก", en: "Main menu" }}
+          label={menuLabel}
           desktopBreakpoint="always"
           homeStyle
         />
@@ -43,7 +59,7 @@ export function HomeHeader({ showAdmin, innerPage = false }: { showAdmin: boolea
           <Image src={midaLogo} alt="MIDA Property" className="h-9 w-auto object-contain sm:h-10" priority />
         </Link>
         <a
-          href={pathname === "/" ? "#projects" : "/#projects"}
+          href={projectSearchHref}
           aria-label="ค้นหาโครงการ"
           className="ml-auto grid size-10 place-items-center rounded-full text-brand-primary transition hover:bg-brand-soft focus-visible:outline-2 focus-visible:outline-brand-primary"
         >

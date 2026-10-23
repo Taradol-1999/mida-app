@@ -19,28 +19,16 @@ type Props = {
   allowRemoveSaved?: boolean;
 };
 
-// One source size is used for every hero banner. The live site uses a
-// responsive cover crop, so keeping key subjects inside the centre safe area
-// preserves them on both wide desktop and taller mobile screens.
-const heroBannerSpecification = "1920 × 1080 px (16:9)";
-
-function Preview({ url, name, mimeType }: Omit<BannerMedia, "id">) {
+function Preview({ url, name, mimeType, compact = false }: Omit<BannerMedia, "id"> & { compact?: boolean }) {
+  const className = compact ? "size-full object-cover" : "aspect-video w-full bg-brand-muted object-contain";
   return mimeType.startsWith("video/") ? (
-    <video
-      src={url}
-      aria-label={name}
-      controls
-      muted
-      playsInline
-      preload="metadata"
-      className="aspect-video w-full bg-brand-overlay object-contain"
-    />
+    <video src={url} aria-label={name} controls muted playsInline preload="metadata" className={className} />
   ) : (
-    <img src={url} alt={name} className="aspect-video w-full bg-brand-muted object-contain" />
+    <img src={url} alt={name} className={className} />
   );
 }
 
-function SelectedPreview({ file }: { file: File }) {
+function SelectedPreview({ file, compact = false }: { file: File; compact?: boolean }) {
   const [url, setUrl] = useState("");
   useEffect(() => {
     const objectUrl = URL.createObjectURL(file);
@@ -50,14 +38,14 @@ function SelectedPreview({ file }: { file: File }) {
     return () => URL.revokeObjectURL(objectUrl);
   }, [file]);
   return url ? (
-    <Preview url={url} name={file.name} mimeType={file.type} />
+    <Preview url={url} name={file.name} mimeType={file.type} compact={compact} />
   ) : (
-    <div className="aspect-video bg-brand-muted" />
+    <div className={compact ? "size-full bg-brand-muted" : "aspect-video bg-brand-muted"} />
   );
 }
 
 export function BannerMediaUpload({
-  title = "รูปภาพหรือวิดีโอสไลด์แบนเนอร์หลัก",
+  title = "",
   allowVideo = true,
   media,
   files,
@@ -86,28 +74,25 @@ export function BannerMediaUpload({
   }
 
   return (
-    <fieldset disabled={disabled} className="min-w-0">
-      {title && <legend className="text-sm font-bold text-brand-text">{title}</legend>}
-      <div className="mt-2 overflow-hidden rounded-2xl border-2 border-dashed border-brand-primary/25 bg-brand-muted p-4 sm:p-5">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex min-w-0 items-center gap-3">
-            <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-brand-accent-soft text-brand-primary shadow-sm">
-              <i className="fa-solid fa-photo-film text-xl" aria-hidden="true" />
+    <fieldset disabled={disabled} className="min-w-0 mb-4">
+      <div className={`rounded-xl  bg-white`}>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-brand-soft text-brand-primary">
+              <i className="fa-solid fa-photo-film text-sm" aria-hidden="true" />
             </span>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-brand-primary">
-                {allowVideo ? "แบนเนอร์รูปภาพและวิดีโอ" : "รูปภาพประกอบ"}
-              </p>
-              <p className="mt-1 text-xs text-brand-text/75">
-                {single ? "เลือกรูปภาพ 1 รูปสำหรับแสดงบนหน้าเว็บไซต์" : "จัดลำดับไฟล์ได้หลายรายการ และสไลด์จะแสดงตามลำดับที่เพิ่ม"}
+              <p className="text-sm font-semibold text-slate-700">{title}</p>
+              <p id={`${id}-hint`} className="mt-0.5 text-xs text-slate-500">
+                {allowVideo ? "JPG, PNG, WEBP ≤ 5 MB · MP4, WEBM ≤ 50 MB" : "JPG, PNG, WEBP · สูงสุด 5 MB"}
               </p>
             </div>
           </div>
           <label
-            className={`relative rounded-lg bg-brand-primary px-4 py-2.5 text-sm font-semibold text-brand-surface focus-within:ring-2 focus-within:ring-brand-accent focus-within:ring-offset-2 ${disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}
+            className={`relative rounded-lg bg-brand-primary px-3 py-2 text-xs font-bold text-white transition hover:bg-brand-text focus-within:ring-2 focus-within:ring-brand-accent focus-within:ring-offset-2 ${disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}
           >
             <i className="fa-solid fa-plus mr-2" aria-hidden="true" />
-            {allowVideo ? "เพิ่มรูปภาพ / วิดีโอ" : "เพิ่มรูปภาพ"}
+            {allowVideo ? "เพิ่มไฟล์" : "เพิ่มรูปภาพ"}
             <Input
               type="file"
               aria-label={title}
@@ -124,109 +109,72 @@ export function BannerMediaUpload({
             />
           </label>
         </div>
-        <div id={`${id}-hint`} className={`mt-5 grid gap-2 ${allowVideo ? "sm:grid-cols-2 xl:grid-cols-4" : "sm:grid-cols-2"}`}>
-          {allowVideo && (
-            <InfoChip icon="fa-expand" title="ขนาดมาตรฐาน" detail={heroBannerSpecification} accent />
-          )}
-          <InfoChip icon="fa-image" title="รูปภาพ" detail="JPG, PNG, WEBP · ไม่เกิน 5 MB" />
-          {allowVideo && <InfoChip icon="fa-film" title="วิดีโอ" detail="MP4, WEBM · ไม่เกิน 50 MB" />}
-          <InfoChip
-            icon="fa-layer-group"
-            title="จำนวนไฟล์"
-            detail={`บันทึกแล้ว ${media.length} · รอบันทึก ${files.length}`}
-          />
-        </div>
-        {allowVideo && (
-          <div className="mt-3 flex gap-2 rounded-xl border border-brand-accent/30 bg-brand-accent-soft/65 px-3 py-2.5 text-xs leading-5 text-brand-text">
-            <i className="fa-solid fa-lightbulb mt-0.5 text-brand-primary" aria-hidden="true" />
-            <p>วางโลโก้หรือข้อความสำคัญไว้บริเวณกึ่งกลางภาพ เพื่อให้ไม่ถูกตัดบนหน้าจอมือถือ</p>
-          </div>
-        )}
         {error && (
-          <p role="alert" className="mt-2 text-sm text-rose-600">
+          <p role="alert" className="mt-3 text-xs font-medium text-rose-600">
             {error}
           </p>
         )}
         {media.length + files.length > 0 ? (
-          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <ul className="mt-3 grid gap-2 sm:grid-cols-3">
             {media.map((item) => (
-              <div
+              <li
                 key={item.id}
-                className="min-w-0 overflow-hidden rounded-xl border border-brand-primary/15 bg-brand-surface"
+                className="flex min-w-0 items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-2"
               >
-                <Preview {...item} />
-                <div className="flex items-center gap-2 p-3">
-                  <p title={item.name} className="min-w-0 flex-1 truncate text-xs text-brand-text">
+                <div className="h-14 w-20 shrink-0 overflow-hidden rounded-md bg-brand-muted">
+                  <Preview {...item} compact />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p title={item.name} className="truncate text-xs font-medium text-slate-700">
                     {item.name}
                   </p>
-                  {allowRemoveSaved && <button
+                  <p className="mt-0.5 text-[0.68rem] text-slate-400">บันทึกแล้ว</p>
+                </div>
+                {allowRemoveSaved && (
+                  <button
                     type="button"
                     disabled={disabled}
                     onClick={() => void onRemove(item.id)}
                     aria-label={`ลบ ${item.name}`}
-                    className="rounded-md px-2 py-1 text-rose-600 hover:bg-rose-50 disabled:opacity-50"
+                    className="grid size-8 shrink-0 place-items-center rounded-md text-rose-600 hover:bg-rose-50 disabled:opacity-50"
                   >
-                    <i className="fa-solid fa-trash-can" aria-hidden="true" />
-                  </button>}
-                </div>
-              </div>
+                    <i className="fa-solid fa-trash-can text-xs" aria-hidden="true" />
+                  </button>
+                )}
+              </li>
             ))}
             {files.map((file, index) => (
-              <div
+              <li
                 key={`${file.name}-${file.lastModified}-${index}`}
-                className="min-w-0 overflow-hidden rounded-xl border border-brand-accent bg-brand-surface"
+                className="flex min-w-0 items-center gap-3 rounded-lg border border-brand-accent/40 bg-brand-accent-soft/35 p-2"
               >
-                <SelectedPreview file={file} />
-                <div className="flex items-center gap-2 p-3">
-                  <div className="min-w-0 flex-1">
-                    <p title={file.name} className="truncate text-xs text-brand-text">
-                      {file.name}
-                    </p>
-                    <p className="mt-1 text-xs font-semibold text-brand-primary">รอบันทึก</p>
-                  </div>
-                  <button
-                    type="button"
-                    disabled={disabled}
-                    onClick={() => onFilesChange(files.filter((_, position) => position !== index))}
-                    aria-label={`ยกเลิก ${file.name}`}
-                    className="rounded-md px-2 py-1 text-rose-600 hover:bg-rose-50 disabled:opacity-50"
-                  >
-                    <i className="fa-solid fa-xmark" aria-hidden="true" />
-                  </button>
+                <div className="h-14 w-20 shrink-0 overflow-hidden rounded-md bg-brand-muted">
+                  <SelectedPreview file={file} compact />
                 </div>
-              </div>
+                <div className="min-w-0 flex-1">
+                  <p title={file.name} className="truncate text-xs font-medium text-slate-700">
+                    {file.name}
+                  </p>
+                  <p className="mt-0.5 text-[0.68rem] font-semibold text-brand-primary">รอบันทึก</p>
+                </div>
+                <button
+                  type="button"
+                  disabled={disabled}
+                  onClick={() => onFilesChange(files.filter((_, position) => position !== index))}
+                  aria-label={`ยกเลิก ${file.name}`}
+                  className="grid size-8 shrink-0 place-items-center rounded-md text-rose-600 hover:bg-rose-50 disabled:opacity-50"
+                >
+                  <i className="fa-solid fa-xmark text-xs" aria-hidden="true" />
+                </button>
+              </li>
             ))}
-          </div>
+          </ul>
         ) : (
-          <p className="mt-4 rounded-xl bg-brand-surface p-8 text-center text-sm text-brand-text">
-            {allowVideo ? "ยังไม่มีแบนเนอร์ เพิ่มรูปภาพหรือวิดีโอเพื่อแสดงตัวอย่างที่นี่" : "ยังไม่มีรูปภาพประกอบ"}
+          <p className="mt-3 rounded-lg border border-dashed border-slate-200 px-3 py-5 text-center text-xs text-slate-400">
+            {single ? "ยังไม่มีไฟล์ที่เลือก" : "ยังไม่มีไฟล์"}
           </p>
         )}
       </div>
     </fieldset>
-  );
-}
-
-function InfoChip({
-  icon,
-  title,
-  detail,
-  accent = false,
-}: {
-  icon: string;
-  title: string;
-  detail: string;
-  accent?: boolean;
-}) {
-  return (
-    <div className={`flex min-w-0 items-center gap-2.5 rounded-xl border px-3 py-2.5 ${accent ? "border-brand-accent/45 bg-brand-accent-soft" : "border-slate-200 bg-white/80"}`}>
-      <span className={`grid size-7 shrink-0 place-items-center rounded-lg text-xs ${accent ? "bg-brand-accent text-brand-primary" : "bg-brand-soft text-brand-primary"}`}>
-        <i className={`fa-solid ${icon}`} aria-hidden="true" />
-      </span>
-      <span className="min-w-0">
-        <span className="block text-[0.65rem] font-bold tracking-wide text-slate-500">{title}</span>
-        <span className="block truncate text-xs font-semibold text-brand-text">{detail}</span>
-      </span>
-    </div>
   );
 }

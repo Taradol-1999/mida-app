@@ -41,6 +41,8 @@ export function HeroImageSlider({
   actionHref,
   actionLabel,
   actionLabelEn,
+  ariaLabelTh,
+  ariaLabelEn,
   variant = "default",
 }: {
   images: HeroMedia[];
@@ -53,6 +55,8 @@ export function HeroImageSlider({
   actionHref?: string | null;
   actionLabel?: string;
   actionLabelEn?: string;
+  ariaLabelTh?: string;
+  ariaLabelEn?: string;
   variant?: "default" | "home";
 }) {
   const [active, setActive] = useState(0);
@@ -85,7 +89,7 @@ export function HeroImageSlider({
 
   return (
     <section
-      className={`relative overflow-hidden bg-brand-primary ${homeStyle ? "min-h-140 sm:min-h-160 lg:min-h-svh" : "min-h-112 sm:min-h-120"}`}
+      className={`relative overflow-hidden bg-brand-primary ${homeStyle ? "min-h-140 sm:min-h-160 lg:min-h-svh" : "min-h-112 sm:min-h-120 lg:min-h-svh"}`}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}
@@ -116,7 +120,10 @@ export function HeroImageSlider({
       }}
       style={{ touchAction: "pan-y" }}
       aria-roledescription="carousel"
-      aria-label={t({ th: "แบนเนอร์หน้าแรก MIDA Property", en: "MIDA Property hero banner" })}
+      aria-label={t({
+        th: ariaLabelTh ?? "แบนเนอร์หน้าแรก MIDA Property",
+        en: ariaLabelEn ?? "MIDA Property hero banner",
+      })}
     >
       {images.map((image, index) => (
         <div
@@ -150,7 +157,7 @@ export function HeroImageSlider({
       />
 
       <div
-        className={`container-page relative flex items-center text-white ${homeStyle ? "min-h-140 pb-28 pt-28 sm:min-h-160 sm:pb-36 lg:min-h-svh" : "min-h-112 py-16 sm:min-h-120 sm:py-24"}`}
+        className={`container-page relative flex items-center text-white ${homeStyle ? "min-h-140 pb-28 pt-28 sm:min-h-160 sm:pb-36 lg:min-h-svh" : "min-h-112 py-16 sm:min-h-120 sm:py-24 lg:min-h-svh"}`}
       >
         <div className={homeStyle ? "w-full max-w-2xl" : "w-full max-w-5xl"}>
           <h1

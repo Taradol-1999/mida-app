@@ -7,11 +7,10 @@ import { Input, Textarea, Select } from "@/components/ui/form-controls";
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable react-hooks/set-state-in-effect */
 
-import { ChangeEvent, FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { coordinatesFromGoogleMaps } from "@/lib/map-coordinates";
 
-type Section =
-  "dashboard" | "homepage" | "house-types" | "facilities" | "promotions" | "news" | "contact" | "after-sales" | "leads";
+type Section = "dashboard" | "house-types" | "facilities" | "promotions" | "news" | "contact" | "after-sales" | "leads";
 type Field = {
   key: string;
   label: string;
@@ -27,7 +26,6 @@ type DataConfig = {
   columns?: [string, string][];
   readOnlyCreate?: boolean;
 };
-type Brochure = { id: string; name: string; url: string };
 type ProjectDashboard = {
   views: number;
   leads: number;
@@ -152,13 +150,7 @@ const configs: Partial<Record<Section, DataConfig>> = {
     readOnlyCreate: true,
   },
 };
-const settingFields: Record<"homepage" | "contact" | "after-sales", Field[]> = {
-  homepage: [
-    { key: "hero_title_th", label: "คำพาดหัวหลัก - ภาษาไทย" },
-    { key: "hero_title_en", label: "คำพาดหัวหลัก - ภาษาอังกฤษ" },
-    { key: "hero_subtitle_th", label: "คำอธิบายเพิ่มเติม - ภาษาไทย", type: "textarea" },
-    { key: "hero_subtitle_en", label: "คำอธิบายเพิ่มเติม - ภาษาอังกฤษ", type: "textarea" },
-  ],
+const settingFields: Record<"contact" | "after-sales", Field[]> = {
   contact: [
     { key: "phone", label: "เบอร์โทรศัพท์โครงการ" },
     { key: "email", label: "อีเมลโครงการ" },
@@ -232,7 +224,7 @@ export function ProjectWorkspace({
   dashboard?: ProjectDashboard;
 }) {
   const dataConfig = configs[section];
-  const settingMode = section === "homepage" || section === "contact" || section === "after-sales";
+  const settingMode = section === "contact" || section === "after-sales";
   const fields = useMemo(
     () => (settingMode ? settingFields[section] : (dataConfig?.fields ?? [])),
     [dataConfig, section, settingMode],
@@ -243,10 +235,6 @@ export function ProjectWorkspace({
   const [editorOpen, setEditorOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
-  const [heroFiles, setHeroFiles] = useState<File[]>([]);
-  const [heroImages, setHeroImages] = useState<{ id: string; name: string; mimeType: string; url: string }[]>([]);
-  const [brochure, setBrochure] = useState<Brochure | null>(null);
-  const [brochureBusy, setBrochureBusy] = useState(false);
   const [houseTypeImage, setHouseTypeImage] = useState<File | null>(null);
   const [existingHouseTypeImage, setExistingHouseTypeImage] = useState<string | null>(null);
   const [contentMediaFiles, setContentMediaFiles] = useState<File[]>([]);
@@ -269,19 +257,6 @@ export function ProjectWorkspace({
   useEffect(() => {
     void load();
   }, [load]);
-  // Existing banner images are loaded so an admin can review and remove them during editing.
-  useEffect(() => {
-    if (section === "homepage") {
-      fetch(`/api/admin/media?entityType=projects&entityId=${projectId}&mediaKind=hero&list=1`)
-        .then((response) => (response.ok ? response.json() : { rows: [] }))
-        .then((data) => setHeroImages(data.rows ?? []))
-        .catch(() => undefined);
-      fetch(`/api/admin/media?entityType=projects&entityId=${projectId}&mediaKind=brochure&list=1`)
-        .then((response) => (response.ok ? response.json() : { rows: [] }))
-        .then((data) => setBrochure(data.rows?.[0] ?? null))
-        .catch(() => undefined);
-    }
-  }, [projectId, section]);
   const setField = (key: string, value: unknown) => setForm((current) => ({ ...current, [key]: value }));
   const setMapUrl = (value: string) => {
     const coordinates = coordinatesFromGoogleMaps(value);
@@ -308,11 +283,7 @@ export function ProjectWorkspace({
           return;
         }
         setMessage(
-          section === "after-sales"
-            ? "บันทึกข้อมูลบริการหลังการขายเรียบร้อย"
-            : section === "homepage"
-              ? "บันทึกข้อมูลหน้าหลักโครงการเรียบร้อย"
-              : "บันทึกข้อมูลติดต่อและแผนที่เรียบร้อย",
+          section === "after-sales" ? "บันทึกข้อมูลบริการหลังการขายเรียบร้อย" : "บันทึกข้อมูลติดต่อและแผนที่เรียบร้อย",
         );
         await load();
       } catch {
@@ -379,76 +350,6 @@ export function ProjectWorkspace({
       setEditorOpen(false);
     }
     await load();
-  };
-  const saveHomepage = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setBusy(true);
-    const settingsResponse = await fetch("/api/admin/project-settings", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...form, project_id: projectId }),
-    });
-    if (!settingsResponse.ok) {
-      const result = await settingsResponse.json();
-      setMessage(result.message ?? "บันทึกไม่สำเร็จ");
-      setBusy(false);
-      return;
-    }
-    for (const heroFile of heroFiles) {
-      const upload = new FormData();
-      upload.set("entityType", "projects");
-      upload.set("entityId", projectId);
-      upload.set("mediaKind", "hero");
-      upload.set("file", heroFile);
-      const imageResponse = await fetch("/api/admin/media", { method: "POST", body: upload });
-      if (!imageResponse.ok) {
-        const result = await imageResponse.json();
-        setMessage(result.message ?? "บันทึกข้อความแล้ว แต่ยังอัปโหลดไฟล์ Hero ไม่สำเร็จ");
-        setBusy(false);
-        return;
-      }
-    }
-    setHeroFiles([]);
-    setMessage("บันทึกข้อมูลหน้าหลักเรียบร้อย");
-    setBusy(false);
-    await load();
-    const images = await fetch(`/api/admin/media?entityType=projects&entityId=${projectId}&mediaKind=hero&list=1`).then(
-      (response) => response.json(),
-    );
-    setHeroImages(images.rows ?? []);
-  };
-  const removeHero = async (id: string) => {
-    if (!confirm("ต้องการลบไฟล์ Hero นี้ใช่หรือไม่")) return;
-    const response = await fetch(
-      `/api/admin/media?entityType=projects&entityId=${projectId}&mediaKind=hero&mediaId=${id}`,
-      { method: "DELETE" },
-    );
-    if (response.ok) setHeroImages((items) => items.filter((item) => item.id !== id));
-  };
-  const uploadBrochure = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    setBrochureBusy(true);
-    setMessage("");
-    const upload = new FormData();
-    upload.set("entityType", "projects");
-    upload.set("entityId", projectId);
-    upload.set("mediaKind", "brochure");
-    upload.set("file", file);
-    const response = await fetch("/api/admin/media", { method: "POST", body: upload });
-    const result = await response.json();
-    setBrochureBusy(false);
-    event.target.value = "";
-    if (!response.ok) {
-      setMessage(result.message ?? "อัปโหลดโบรชัวร์ไม่สำเร็จ");
-      return;
-    }
-    const brochureResponse = await fetch(
-      `/api/admin/media?entityType=projects&entityId=${projectId}&mediaKind=brochure&list=1`,
-    );
-    const brochureData = brochureResponse.ok ? await brochureResponse.json() : { rows: [] };
-    setBrochure(brochureData.rows?.[0] ?? null);
-    setMessage("อัปโหลดโบรชัวร์เรียบร้อย");
   };
   const edit = async (row: Record<string, unknown>) => {
     setEditingId(String(row.id));
@@ -663,99 +564,6 @@ export function ProjectWorkspace({
       </>
     );
   }
-  if (section === "homepage")
-    return (
-      <section id="homepage-content" className={embedded ? "mt-8 border-t border-slate-200 pt-8" : ""}>
-        <header className="border-b border-slate-200 pb-5">
-          {embedded ? (
-            <>
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-primary">PROJECT HOMEPAGE</p>
-              <h2 className="mt-1 text-xl font-bold text-slate-800">จัดการข้อมูลหน้าหลักโครงการ</h2>
-              <p className="mt-1 text-sm text-slate-500">ข้อความ Hero สไลด์รูปภาพ/วิดีโอ และโบรชัวร์ของโครงการนี้</p>
-            </>
-          ) : (
-            <h1 className="text-xl font-bold text-slate-800">จัดการข้อมูลหน้าหลักโครงการ (Manage Homepage Details)</h1>
-          )}
-        </header>
-        <form onSubmit={saveHomepage} className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="grid gap-5 md:grid-cols-2">
-            {fields.map((field) => (
-              <label key={field.key} className="text-sm font-bold text-slate-700">
-                {field.label} ({field.key.includes("title") ? "Main Headline" : "Sub-headline"} -{" "}
-                {field.key.endsWith("th") ? "TH" : "EN"})
-                {field.type === "textarea" ? (
-                  <Textarea
-                    value={String(form[field.key] ?? "")}
-                    onChange={(event) => setField(field.key, event.target.value)}
-                    className="min-h-20"
-                  />
-                ) : (
-                  <Input
-                    value={String(form[field.key] ?? "")}
-                    onChange={(event) => setField(field.key, event.target.value)}
-                  />
-                )}
-              </label>
-            ))}
-          </div>
-          <div className="mt-6">
-            <BannerMediaUpload
-              title="รูปภาพหรือวิดีโอสไลด์แบนเนอร์หลัก"
-              media={heroImages}
-              files={heroFiles}
-              onFilesChange={setHeroFiles}
-              onRemove={removeHero}
-              disabled={busy}
-            />
-          </div>
-
-          <div className="mt-6 rounded-xl border border-brand-primary/10 bg-brand-soft/50 p-4">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div className="flex min-w-0 items-center gap-3">
-                <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-rose-100 text-rose-600">
-                  <i className="fa-solid fa-file-pdf" />
-                </span>
-                <div className="min-w-0">
-                  <p className="text-sm font-bold text-slate-700">โบรชัวร์โครงการ</p>
-                  {brochure ? (
-                    <a
-                      href={brochure.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="mt-1 block truncate text-xs font-semibold text-brand-primary hover:underline"
-                    >
-                      <i className="fa-solid fa-arrow-up-right-from-square mr-1" />
-                      {brochure.name}
-                    </a>
-                  ) : (
-                    <p className="mt-1 text-xs text-slate-500">ยังไม่มีไฟล์โบรชัวร์</p>
-                  )}
-                </div>
-              </div>
-              <label className="cursor-pointer rounded-lg bg-brand-primary px-4 py-2.5 text-sm font-bold text-white transition hover:bg-brand-text">
-                <i className="fa-solid fa-cloud-arrow-up mr-2" />
-                {brochureBusy ? "กำลังอัปโหลด..." : brochure ? "เปลี่ยนโบรชัวร์" : "อัปโหลดโบรชัวร์"}
-                <Input
-                  type="file"
-                  accept="application/pdf,.pdf"
-                  className="hidden"
-                  disabled={brochureBusy}
-                  onChange={(event) => void uploadBrochure(event)}
-                />
-              </label>
-            </div>
-            <p className="mt-3 text-xs text-slate-500">รองรับไฟล์ PDF ขนาดไม่เกิน 20 MB</p>
-          </div>
-          {message && <p className="mt-4 rounded-lg bg-brand-soft px-3 py-2 text-sm text-brand-primary">{message}</p>}
-          <button
-            disabled={busy}
-            className="mt-5 rounded-lg bg-brand-primary px-5 py-3 text-sm font-bold text-white disabled:opacity-50"
-          >
-            {busy ? "กำลังบันทึก..." : "บันทึกข้อมูลหน้าหลักโครงการ"}
-          </button>
-        </form>
-      </section>
-    );
   const title =
     section === "after-sales"
       ? "บริการหลังการขาย (Mida Care)"

@@ -1,6 +1,3 @@
-import Link from "next/link";
-import { HeaderNav } from "@/components/header-nav";
-import { MobileHeaderMenu } from "@/components/mobile-header-menu";
 import { notFound } from "next/navigation";
 import { HeroImageSlider } from "@/components/hero-image-slider";
 import { ProjectLocationMap } from "@/components/project-location-map";
@@ -8,16 +5,19 @@ import { ProjectSectionTracker } from "@/components/project-section-tracker";
 import { HouseTypeCarousel, type HouseTypeItem } from "@/components/house-type-carousel";
 import { LeadModal } from "@/components/lead-modal";
 import { LeadOpenButton } from "@/components/lead-open-button";
-import { LanguageToggle, T } from "@/components/language-provider";
+import { T } from "@/components/language-provider";
+import { HomeHeader } from "@/components/home-header";
 import {
   NewsPromotionSlider,
   type NewsPromotionImage,
   type NewsPromotionItem,
 } from "@/components/news-promotion-slider";
-import { ProjectGallery, type ProjectGalleryItem } from "@/components/project-gallery";
+import { type ProjectGalleryItem } from "@/components/project-gallery";
+import { ProjectNearbyShowcase } from "@/components/project-nearby-showcase";
 import { findProject } from "@/data/projects";
 import { prisma } from "@/lib/prisma";
 import { directionsUrl, type MapProject } from "@/lib/project-map";
+import { FacilityCategory, ProjectFacilitiesShowcase } from "@/components/project-facilities-showcase";
 
 export const dynamic = "force-dynamic";
 const emptySettings = {
@@ -59,6 +59,83 @@ function updateImages(value: unknown): NewsPromotionImage[] {
       (item.type === "image" || item.type === "video"),
   );
 }
+
+const createImages = (category: string, photoIds: string[]) =>
+  photoIds.map((photoId, index) => ({
+    id: `${category}-${index + 1}`,
+    url: `https://images.unsplash.com/${photoId}?w=1000&q=85`,
+    alt: `${category} ${index + 1}`,
+  }));
+
+const facilities: FacilityCategory[] = [
+  {
+    id: "lobby",
+    name: "LOBBY",
+    description: "พื้นที่ต้อนรับและพักผ่อนที่ออกแบบอย่างหรูหรา พร้อมบรรยากาศอบอุ่น สะดวกสบาย และเป็นส่วนตัว",
+    images: createImages("lobby", [
+      "photo-1600210492486-724fe5c67fb0",
+      "photo-1600607687920-4e2a09cf159d",
+      "photo-1600566753190-17f0baa2a6c3",
+      "photo-1600607687939-ce8a6c25118c",
+      "photo-1600566753086-00f18fb6b3ea",
+      "photo-1600607688969-a5bfcd646154",
+      "photo-1600573472591-ee6b68d14c68",
+      "photo-1600573472592-401b489a3cdc",
+      "photo-1600566752355-35792bedcfea",
+      "photo-1600585154340-be6161a56a0c",
+    ]),
+  },
+  {
+    id: "park",
+    name: "PARK",
+    description: "สวนส่วนกลางและพื้นที่สีเขียว ให้คุณได้ใกล้ชิดธรรมชาติ พร้อมพื้นที่พักผ่อนสำหรับทุกคนในครอบครัว",
+    images: createImages("park", [
+      "photo-1472396961693-142e6e269027",
+      "photo-1441974231531-c6227db76b6e",
+      "photo-1500534623283-312aade485b7",
+      "photo-1470770841072-f978cf4d019e",
+      "photo-1448375240586-882707db888b",
+      "photo-1501785888041-af3ef285b470",
+      "photo-1470252649378-9c29740c9fa8",
+      "photo-1511497584788-876760111969",
+      "photo-1447752875215-b2761acb3c5d",
+      "photo-1426604966848-d7adac402bff",
+    ]),
+  },
+  {
+    id: "coworking",
+    name: "CO-WORKSPACE",
+    description:
+      "พื้นที่ทำงานร่วมกันที่ตอบโจทย์ไลฟ์สไตล์ยุคใหม่ พร้อมมุมสร้างสรรค์ไอเดียและบรรยากาศที่ช่วยเพิ่มแรงบันดาลใจ",
+    images: createImages("coworking", [
+      "photo-1497366754035-f200968a6e72",
+      "photo-1497366811353-6870744d04b2",
+      "photo-1497366858526-0766cadbe8fa",
+      "photo-1497366216548-37526070297c",
+      "photo-1524758631624-e2822e304c36",
+      "photo-1497366412874-3415097a27e7",
+      "photo-1504384308090-c894fdcc538d",
+      "photo-1521737711867-e3b97375f902",
+    ]),
+  },
+  {
+    id: "entertainment",
+    name: "ENTERTAINMENT",
+    description: "เติมเต็มทุกช่วงเวลาแห่งความสุขด้วยพื้นที่กิจกรรม สระว่ายน้ำ ห้องออกกำลังกาย และพื้นที่สันทนาการ",
+    images: createImages("entertainment", [
+      "photo-1576013551627-0cc20b96c2a7",
+      "photo-1572331165267-854da2b10ccc",
+      "photo-1534438327276-14e5300c3a48",
+      "photo-1540497077202-7c8a3999166f",
+      "photo-1566073771259-6a8506099945",
+      "photo-1571019613454-1cb2f99b2d8b",
+      "photo-1571019614242-c5c5dee9f50b",
+      "photo-1574629810360-7efbbe195018",
+      "photo-1558618666-fcd25c85cd64",
+      "photo-1517836357463-d25dfeac3438",
+    ]),
+  },
+];
 
 async function getProject(slug: string) {
   const fallback = findProject(slug);
@@ -222,8 +299,8 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
       ? `/api/admin/media?entityType=house-types&entityId=${house.id}&mediaKind=cover&mediaId=${house.image_id}`
       : null,
   }));
-  const projectAddress = [project.province, project.district, project.subdistrict].filter(
-    (value): value is string => Boolean(value),
+  const projectAddress = [project.province, project.district, project.subdistrict].filter((value): value is string =>
+    Boolean(value),
   );
   const projectAddressText = projectAddress.join(" · ");
   const mapProject: MapProject = {
@@ -238,9 +315,21 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
     mapUrl: project.settings.map_url,
   };
   const careItems = [
-    { title: { th: "การรับประกันหลังขาย", en: "After-sales Warranty" }, detail: project.settings.care_warranty, icon: "fa-shield-heart" },
-    { title: { th: "คู่มือการอยู่อาศัย", en: "Living Guide" }, detail: project.settings.care_maintenance, icon: "fa-book-open" },
-    { title: { th: "นิติบุคคล & พื้นที่ส่วนกลาง", en: "Juristic Office & Common Areas" }, detail: project.settings.care_common_area, icon: "fa-people-roof" },
+    {
+      title: { th: "การรับประกันหลังขาย", en: "After-sales Warranty" },
+      detail: project.settings.care_warranty,
+      icon: "fa-shield-heart",
+    },
+    {
+      title: { th: "คู่มือการอยู่อาศัย", en: "Living Guide" },
+      detail: project.settings.care_maintenance,
+      icon: "fa-book-open",
+    },
+    {
+      title: { th: "นิติบุคคล & พื้นที่ส่วนกลาง", en: "Juristic Office & Common Areas" },
+      detail: project.settings.care_common_area,
+      icon: "fa-people-roof",
+    },
   ];
   const projectNavigation = [
     { href: "#project-top", label: { th: "ภาพรวมโครงการ", en: "Overview" } },
@@ -254,29 +343,12 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   ];
   return (
     <main id="project-top" className="bg-white">
-      <header className="site-header sticky top-0 z-30 shadow-sm">
-        <div className="project-container flex min-h-16 items-center justify-between gap-3 sm:min-h-[4.5rem]">
-          <Link
-            href="/"
-            aria-label={`MIDA home — ${project.name_en || project.name}`}
-            className="site-header-brand flex min-w-0 items-center gap-2 font-extrabold text-white"
-          >
-            <span className="grid size-8 shrink-0 place-items-center rounded-full bg-brand-accent text-xs text-brand-primary">
-              {String(project.name).charAt(0).toUpperCase()}
-            </span>
-            <span className="truncate text-sm sm:text-base"><T th={project.name} en={project.name_en ?? ""} /></span>
-          </Link>
-          <nav className="hidden items-center gap-5 text-xs font-semibold xl:flex">
-            <HeaderNav items={projectNavigation} />
-            <LanguageToggle />
-          </nav>
-          <MobileHeaderMenu
-            items={projectNavigation}
-            label={{ th: "เมนูโครงการ", en: "Project menu" }}
-            desktopBreakpoint="xl"
-          />
-        </div>
-      </header>
+      <HomeHeader
+        showAdmin={false}
+        items={projectNavigation}
+        menuLabel={{ th: "เมนูโครงการ", en: "Project menu" }}
+        searchHref="/#projects"
+      />
       <ProjectSectionTracker sectionIds={projectNavigation.map((item) => item.href.slice(1))} />
       <HeroImageSlider
         images={project.heroMedia}
@@ -289,58 +361,50 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         actionHref={project.brochureUrl}
         actionLabel="โหลดโบรชัวร์โครงการ"
         actionLabelEn="Download project brochure"
+        ariaLabelTh={`สไลด์รูปภาพโครงการ ${project.name}`}
+        ariaLabelEn={`Image slider for ${project.name_en || project.name}`}
       />
-      <section id="overview" className="border-b border-slate-100 bg-white py-12 sm:py-16 md:py-20">
-        <div className="project-container">
-          <ProjectGallery items={project.galleryMedia} />
-        </div>
-      </section>
+      <ProjectNearbyShowcase
+        places={landmarks.map((landmark, index) => ({ th: landmark, en: landmarksEn[index] }))}
+        media={project.galleryMedia}
+        location={projectAddressText || project.location}
+      />
       {project.houseTypes.length > 0 && (
-        <section id="house-types" className="overflow-hidden bg-brand-muted py-12 sm:py-16 md:py-20">
+        <section id="house-types" className="overflow-hidden bg-brand-muted pt-12 sm:pt-16 md:pt-20">
           <div className="project-container relative z-10">
             <div className="gold-rule mb-3" />
-            <h2 className="section-title"><T th="รูปแบบบ้านและราคาเริ่มต้น (House Types)" en="House Types & Starting Prices" /></h2>
+            <h2 className="section-title">
+              <T th="รูปแบบบ้านและราคาเริ่มต้น (House Types)" en="House Types & Starting Prices" />
+            </h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-              <T th="สำรวจพื้นที่ใช้สอย ฟังก์ชัน และราคาเริ่มต้นของแบบบ้านในโครงการนี้" en="Explore layouts, features, and starting prices for every home type in this project." />
+              <T
+                th="สำรวจพื้นที่ใช้สอย ฟังก์ชัน และราคาเริ่มต้นของแบบบ้านในโครงการนี้"
+                en="Explore layouts, features, and starting prices for every home type in this project."
+              />
             </p>
             <HouseTypeCarousel items={houseTypeItems} />
           </div>
         </section>
       )}
-
-      {project.facilities.length > 0 && (
-        <section id="facilities" className="border-b border-slate-100 bg-white py-12 md:py-20">
-          <div className="project-container">
-            <div>
-              <p className="mb-3 text-xs font-bold tracking-[0.18em] text-brand-accent">MIDA LIVING</p>
-              <h2 className="text-2xl font-extrabold text-brand-primary md:text-3xl"><T th="สิ่งอำนวยความสะดวกในโครงการ" en="Project Facilities" /></h2>
-              <p className="max-w-lg text-sm leading-6 text-slate-500">
-                <T th="พื้นที่และบริการที่ออกแบบมาเพื่อเติมเต็มทุกช่วงเวลาของการอยู่อาศัย" en="Spaces and services designed to enhance every moment of living." />
-              </p>
-            </div>
-            <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {project.facilities.map((item) => (
-                <div
-                  key={typeof item === "string" ? item : item.th}
-                  className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 text-sm font-semibold text-brand-text shadow-sm transition duration-300 hover:-translate-y-1 hover:border-brand-primary/30 hover:shadow-lg"
-                >
-                  <span className="grid size-9 shrink-0 place-items-center rounded-full bg-brand-primary text-white">
-                    <i className="fa-solid fa-check" />
-                  </span>
-                  {typeof item === "string" ? <T th={item} en="Project facility" /> : <T th={item.th} en={item.en} />}
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+      <div className="bg">
+        <ProjectFacilitiesShowcase
+          facilities={facilities}
+          title="สิ่งอำนวยความสะดวก"
+          description="Enjoy your Space เพราะความสุขมีได้ไม่รู้จบ"
+        />
+      </div>
       {projectUpdates.length > 0 && (
         <section id="project-promo-news" className="bg-brand-muted py-12 sm:py-16 md:py-20">
           <div className="project-container">
             <div className="gold-rule mb-3" />
-            <h2 className="section-title"><T th="โปรโมชั่น ข่าวสาร & กิจกรรมพิเศษ" en="Promotions, News & Special Events" /></h2>
+            <h2 className="section-title">
+              <T th="โปรโมชั่น ข่าวสาร & กิจกรรมพิเศษ" en="Promotions, News & Special Events" />
+            </h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-              <T th="อัปเดตข้อเสนอ ข่าวสาร และกิจกรรมล่าสุดสำหรับโครงการนี้" en="Discover the latest offers, news, and events for this project." />
+              <T
+                th="อัปเดตข้อเสนอ ข่าวสาร และกิจกรรมล่าสุดสำหรับโครงการนี้"
+                en="Discover the latest offers, news, and events for this project."
+              />
             </p>
             <NewsPromotionSlider items={projectUpdates} variant="project" />
           </div>
@@ -352,10 +416,15 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <div className="gold-rule mb-3" />
-              <h2 className="section-title"><T th="แผนที่และสถานที่ใกล้เคียง" en="Map & Nearby Places" /></h2>
+              <h2 className="section-title">
+                <T th="แผนที่และสถานที่ใกล้เคียง" en="Map & Nearby Places" />
+              </h2>
             </div>
             <p className="max-w-md text-sm leading-6 text-slate-500">
-              <T th="ค้นพบความสะดวกสบายรอบโครงการ และวางแผนการเดินทางได้ทันที" en="Discover nearby conveniences and plan your journey with ease." />
+              <T
+                th="ค้นพบความสะดวกสบายรอบโครงการ และวางแผนการเดินทางได้ทันที"
+                en="Discover nearby conveniences and plan your journey with ease."
+              />
             </p>
           </div>
           <div className="mt-7">
@@ -392,12 +461,17 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                 </span>
                 <div>
                   <p className="text-[10px] font-extrabold tracking-[0.13em] text-brand-accent">MIDA LOCATION</p>
-                  <h3 className="mt-0.5 font-extrabold text-brand-primary"><T th="สถานที่ใกล้เคียง" en="Nearby Places" /></h3>
+                  <h3 className="mt-0.5 font-extrabold text-brand-primary">
+                    <T th="สถานที่ใกล้เคียง" en="Nearby Places" />
+                  </h3>
                 </div>
               </div>
               <ul className="mt-5 grid gap-x-6 sm:grid-cols-2">
                 {landmarks.map((landmark, index) => (
-                  <li key={landmark} className="flex min-w-0 items-center gap-3 border-b border-slate-100 py-3 last:border-0">
+                  <li
+                    key={landmark}
+                    className="flex min-w-0 items-center gap-3 border-b border-slate-100 py-3 last:border-0"
+                  >
                     <span className="grid size-7 shrink-0 place-items-center rounded-full bg-brand-soft text-[0.65rem] font-extrabold text-brand-primary">
                       {String(index + 1).padStart(2, "0")}
                     </span>
@@ -437,24 +511,27 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         <div className="project-container">
           <div className="text-center">
             <p className="text-sm font-bold tracking-widest text-brand-text">MIDA CARE</p>
-            <h2 className="section-title mt-2"><T th="บริการหลังการขาย" en="After-sales Service" /></h2>
+            <h2 className="section-title mt-2">
+              <T th="บริการหลังการขาย" en="After-sales Service" />
+            </h2>
           </div>
           <div className="mt-8 grid gap-4 md:grid-cols-3">
             {careItems.map(({ title, detail, icon }) => (
-              <details
-                open
-                key={title.th}
-                className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
-              >
+              <details open key={title.th} className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                 <summary className="flex cursor-pointer list-none items-center gap-3 font-bold text-brand-primary">
                   <span className="grid size-10 place-items-center rounded-full bg-blue-50">
                     <i className={`fa-solid ${icon}`} />
                   </span>
-                  <span className="flex-1"><T th={title.th} en={title.en} /></span>
+                  <span className="flex-1">
+                    <T th={title.th} en={title.en} />
+                  </span>
                   <i className="fa-solid fa-chevron-down text-xs transition group-open:rotate-180" />
                 </summary>
                 <p className="mt-4 border-t border-slate-100 pt-4 text-sm leading-7 text-brand-text">
-                  <T th={String(detail || "สอบถามรายละเอียดบริการได้จากเจ้าหน้าที่โครงการ")} en="Please contact the project team for service details." />
+                  <T
+                    th={String(detail || "สอบถามรายละเอียดบริการได้จากเจ้าหน้าที่โครงการ")}
+                    en="Please contact the project team for service details."
+                  />
                 </p>
               </details>
             ))}
@@ -471,12 +548,18 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         />
         <div className="project-container relative">
           <p className="text-xs font-bold tracking-[0.2em] text-brand-accent">MAKE YOUR MOVE</p>
-          <h2 className="mt-2 text-3xl font-extrabold sm:text-4xl"><T th="รับข้อเสนอพิเศษ" en="Receive a Special Offer" /></h2>
+          <h2 className="mt-2 text-3xl font-extrabold sm:text-4xl">
+            <T th="รับข้อเสนอพิเศษ" en="Receive a Special Offer" />
+          </h2>
           <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-blue-100">
-            <T th="ลงทะเบียนเพื่อรับข้อมูลโครงการ รับข้อเสนอ และนัดหมายเข้าชมกับเจ้าหน้าที่" en="Register to receive project information, exclusive offers, and support from our sales team." />
+            <T
+              th="ลงทะเบียนเพื่อรับข้อมูลโครงการ รับข้อเสนอ และนัดหมายเข้าชมกับเจ้าหน้าที่"
+              en="Register to receive project information, exclusive offers, and support from our sales team."
+            />
           </p>
           <LeadOpenButton className="mt-7 rounded-full bg-brand-accent px-8 py-3.5 text-sm font-bold text-brand-primary shadow-xl transition hover:-translate-y-0.5 hover:bg-white">
-            <T th="ลงทะเบียนรับข้อเสนอพิเศษ" en="Register for a Special Offer" /> <i className="fa-solid fa-arrow-right ml-1" />
+            <T th="ลงทะเบียนรับข้อเสนอพิเศษ" en="Register for a Special Offer" />{" "}
+            <i className="fa-solid fa-arrow-right ml-1" />
           </LeadOpenButton>
           <div className="mx-auto mt-7 flex max-w-xl flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-blue-100">
             {project.settings.phone && (

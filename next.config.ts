@@ -8,6 +8,12 @@ const nextConfig: NextConfig = {
       { pathname: "/api/admin/media" },
       { pathname: "**", search: "" },
     ],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+    ],
   },
   // Allow phones on the same Wi‑Fi to use the development server without
   // Next.js blocking client assets or interactive requests by origin.
