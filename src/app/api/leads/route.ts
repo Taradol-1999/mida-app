@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getClientIp } from "@/lib/client-ip";
 import { prisma } from "@/lib/prisma";
+import { leadAgeRanges, leadOccupations } from "@/lib/lead-options";
 
 const leadSchema = z.object({
   firstName: z.string().min(1).max(80),
@@ -9,6 +10,8 @@ const leadSchema = z.object({
   phone: z.string().min(8).max(30),
   email: z.string().email(),
   familyMembers: z.coerce.number().int().min(1).max(99),
+  ageRange: z.enum(leadAgeRanges).optional(),
+  occupation: z.enum(leadOccupations).optional(),
   province: z.string().min(1).max(120),
   district: z.string().min(1).max(120),
   subdistrict: z.string().min(1).max(120),
@@ -34,6 +37,8 @@ export async function POST(request: Request) {
       phone: value.phone,
       email: value.email,
       family_members: value.familyMembers,
+      age_range: value.ageRange ?? null,
+      occupation: value.occupation ?? null,
       province: value.province,
       district: value.district,
       subdistrict: value.subdistrict,

@@ -1,6 +1,11 @@
 @import "tailwindcss";
 
 @layer components {
+  .lead-registration-form input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+  .lead-registration-form select {
+    @apply min-h-12 rounded-xl border-slate-200 bg-slate-50/70 text-base shadow-none transition focus:bg-white focus:ring-2 focus:ring-brand-primary/10 sm:text-sm;
+  }
+
   .form-control {
     @apply mt-1.5 w-full rounded-lg border border-slate-300 bg-brand-surface px-3 py-2.5 text-sm font-normal text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-brand-primary focus:ring-2 focus:ring-brand-soft disabled:cursor-not-allowed disabled:opacity-60;
   }

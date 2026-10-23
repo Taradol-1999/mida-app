@@ -1,0 +1,38 @@
+export const leadAgeRanges = [
+  "20 - 25",
+  "26 - 30",
+  "31 - 35",
+  "36 - 40",
+  "41 - 45",
+  "46 - 50",
+  "51 - 55",
+  "56 - 60",
+  "มากกว่า 60",
+  "ไม่ระบุ",
+] as const;
+export const leadOccupations = [
+  "พนักงานเอกชน",
+  "ธุรกิจส่วนตัว (ไม่จด)",
+  "ข้าราชการ",
+  "รัฐวิสาหกิจ",
+  "ธุรกิจส่วนตัว (จด)",
+  "อาชีพอิสระ",
+  "อื่นๆ",
+  "เกษียณ",
+  "ผู้เชี่ยวชาญเฉพาะด้าน",
+  "ค้าขาย",
+  "ไม่ให้ข้อมูล",
+] as const;
+export const occupationEnglish: Record<(typeof leadOccupations)[number], string> = {
+  พนักงานเอกชน: "Private company employee",
+  "ธุรกิจส่วนตัว (ไม่จด)": "Business owner (unregistered)",
+  ข้าราชการ: "Government employee",
+  รัฐวิสาหกิจ: "State enterprise employee",
+  "ธุรกิจส่วนตัว (จด)": "Business owner (registered)",
+  อาชีพอิสระ: "Freelancer",
+  อื่นๆ: "Other",
+  เกษียณ: "Retired",
+  ผู้เชี่ยวชาญเฉพาะด้าน: "Specialist",
+  ค้าขาย: "Trader / Merchant",
+  ไม่ให้ข้อมูล: "Prefer not to disclose",
+};

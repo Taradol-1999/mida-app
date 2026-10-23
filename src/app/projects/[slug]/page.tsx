@@ -4,8 +4,9 @@ import { projectLocationKey, projectLocationSchema } from "@/lib/project-locatio
 import { HeroImageSlider } from "@/components/hero-image-slider";
 import { ProjectSectionTracker } from "@/components/project-section-tracker";
 import { HouseTypeCarousel, type HouseTypeItem } from "@/components/house-type-carousel";
-import { LeadModal } from "@/components/lead-modal";
-import { LeadOpenButton } from "@/components/lead-open-button";
+import { LeadRegistrationForm } from "@/components/lead-registration-form";
+import { Input, Select } from "@/components/ui/form-controls";
+import { leadAgeRanges, leadOccupations, occupationEnglish } from "@/lib/lead-options";
 import { T } from "@/components/language-provider";
 import { HomeHeader } from "@/components/home-header";
 import { type NewsPromotionImage, type NewsPromotionItem } from "@/components/news-promotion-slider";
@@ -513,72 +514,219 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         </div>
       </section>
 
-      <section
-        id="register"
-        className="relative overflow-hidden bg-brand-primary py-14 text-center text-white sm:py-20"
-      >
+      <section id="register" className="relative overflow-hidden bg-brand-primary py-12 text-white sm:py-16 lg:py-20">
         <span
           className="absolute -right-20 -bottom-28 size-96 rounded-full bg-brand-accent/15 blur-3xl"
           aria-hidden="true"
         />
         <div className="project-container relative">
-          <p className="text-xs font-bold tracking-[0.2em] text-brand-accent">MAKE YOUR MOVE</p>
-          <h2 className="mt-2 text-3xl font-extrabold sm:text-4xl">
-            <T th="รับข้อเสนอพิเศษ" en="Receive a Special Offer" />
-          </h2>
-          <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-blue-100">
-            <T
-              th="ลงทะเบียนเพื่อรับข้อมูลโครงการ รับข้อเสนอ และนัดหมายเข้าชมกับเจ้าหน้าที่"
-              en="Register to receive project information, exclusive offers, and support from our sales team."
-            />
-          </p>
-          <LeadOpenButton className="mt-7 rounded-full bg-brand-accent px-8 py-3.5 text-sm font-bold text-brand-primary shadow-xl transition hover:-translate-y-0.5 hover:bg-white">
-            <T th="ลงทะเบียนรับข้อเสนอพิเศษ" en="Register for a Special Offer" />{" "}
-            <i className="fa-solid fa-arrow-right ml-1" />
-          </LeadOpenButton>
-          <div className="mx-auto mt-7 flex max-w-xl flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-blue-100">
-            {project.settings.phone && (
-              <p>
-                <i className="fa-solid fa-phone mr-2 text-brand-accent" />
-                {project.settings.phone}
+          <div className="mb-7 flex flex-col gap-5 lg:mb-9 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
+            <div className="max-w-3xl">
+              <p className="mb-3 text-[11px] font-bold tracking-[0.2em] text-brand-accent">YOUR NEXT CHAPTER</p>
+              <h2 className="text-2xl font-extrabold leading-snug tracking-tight sm:text-3xl lg:text-4xl">
+                <T th="บ้านที่ใช่ เริ่มต้นได้ที่นี่" en="Your next chapter starts here" />
+              </h2>
+              <p className="mt-3 text-sm font-medium text-white/80 sm:text-base">
+                <T th={project.name} en={project.name_en ?? ""} />
               </p>
-            )}
-            {project.settings.email && (
-              <p>
-                <i className="fa-solid fa-envelope mr-2 text-brand-accent" />
-                {project.settings.email}
-              </p>
-            )}
-          </div>
-          {(project.settings.facebook_url || project.settings.line_url) && (
-            <div className="mt-5 flex flex-wrap justify-center gap-3">
-              {project.settings.facebook_url && (
-                <a
-                  href={project.settings.facebook_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-2.5 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:border-brand-accent hover:bg-brand-accent hover:text-brand-primary"
-                >
-                  <i className="fa-brands fa-facebook-f" aria-hidden="true" />
-                  Facebook
-                </a>
-              )}
-              {project.settings.line_url && (
-                <a
-                  href={project.settings.line_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-2.5 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:border-brand-accent hover:bg-brand-accent hover:text-brand-primary"
-                >
-                  <i className="fa-brands fa-line" aria-hidden="true" />
-                  LINE
-                </a>
-              )}
             </div>
-          )}
+            <p className="max-w-lg text-sm leading-7 text-white/80">
+              <T
+                th="ลงทะเบียนรับข้อเสนอพิเศษ พร้อมให้ทีมงานแนะนำบ้านและข้อมูลโครงการที่เหมาะกับคุณ"
+                en="Register for exclusive offers and let our team help you find the right home."
+              />
+            </p>
+          </div>
+          <div className="w-full rounded-2xl border border-white/30 bg-white p-5 text-left text-slate-700 shadow-[0_20px_70px_rgba(0,28,66,.16)] sm:p-7 lg:p-9">
+            <LeadRegistrationForm>
+              {project.id && <Input type="hidden" name="projectId" value={project.id} />}
+              <section className="border-b border-slate-100 pb-6">
+                <h3 className="mb-5 flex items-center gap-3 font-bold text-brand-primary">
+                  <span className="grid size-8 place-items-center rounded-xl bg-brand-accent-soft text-xs">01</span>
+                  <T th="ข้อมูลส่วนตัว" en="Personal information" />
+                </h3>
+                <div className="grid gap-x-5 gap-y-4 sm:grid-cols-2 xl:grid-cols-4">
+                  <RegistrationField name="firstName" th="ชื่อ" en="First name" autoComplete="given-name" />
+                  <RegistrationField name="lastName" th="นามสกุล" en="Last name" autoComplete="family-name" />
+                  <RegistrationField name="email" type="email" th="อีเมล" en="Email" autoComplete="email" />
+                  <RegistrationField name="phone" type="tel" th="เบอร์โทรศัพท์" en="Phone" autoComplete="tel" />
+                  <RegistrationField
+                    name="familyMembers"
+                    type="number"
+                    th="จำนวนสมาชิกในครอบครัว"
+                    en="Number of family members"
+                  />
+                  <label className="text-sm font-semibold">
+                    <T th="ช่วงอายุ" en="Age range" /> <span className="text-red-500">*</span>
+                    <Select name="ageRange" required defaultValue="">
+                      <option value="" disabled>
+                        —
+                      </option>
+                      {leadAgeRanges.map((age) => (
+                        <option key={age} value={age}>
+                          <T
+                            th={age === "ไม่ระบุ" || age === "มากกว่า 60" ? age : `ช่วงอายุ ${age}`}
+                            en={age === "มากกว่า 60" ? "Over 60" : age === "ไม่ระบุ" ? "Prefer not to disclose" : age}
+                          />
+                        </option>
+                      ))}
+                    </Select>
+                  </label>
+                  <label className="text-sm font-semibold sm:col-span-2">
+                    <T th="อาชีพ" en="Occupation" /> <span className="text-red-500">*</span>
+                    <Select name="occupation" required defaultValue="">
+                      <option value="" disabled>
+                        —
+                      </option>
+                      {leadOccupations.map((occupation) => (
+                        <option key={occupation} value={occupation}>
+                          <T th={occupation} en={occupationEnglish[occupation]} />
+                        </option>
+                      ))}
+                    </Select>
+                  </label>
+                </div>
+              </section>
+              <section className="border-b border-slate-100 pb-6">
+                <h3 className="mb-5 flex items-center gap-3 font-bold text-brand-primary">
+                  <span className="grid size-8 place-items-center rounded-xl bg-brand-accent-soft text-xs">02</span>
+                  <T th="ที่อยู่ปัจจุบัน" en="Current address" />
+                </h3>
+                <div className="grid gap-5 md:grid-cols-3">
+                  <RegistrationField name="province" th="จังหวัด" en="Province" autoComplete="address-level1" />
+                  <RegistrationField name="district" th="เขต / อำเภอ" en="District" autoComplete="address-level2" />
+                  <RegistrationField
+                    name="subdistrict"
+                    th="ตำบล / แขวง"
+                    en="Subdistrict"
+                    autoComplete="address-level3"
+                  />
+                </div>
+              </section>
+              <div className="grid gap-6 md:grid-cols-2">
+                <fieldset className="rounded-2xl border border-slate-100 p-4 sm:p-5">
+                  <legend className="px-1 text-sm font-semibold">
+                    <T th="ประเภทที่อยู่อาศัยปัจจุบัน" en="Current residence type" />{" "}
+                    <span className="text-red-500">*</span>
+                  </legend>
+                  <div className="mt-3 grid gap-3 lg:grid-cols-3">
+                    {[
+                      { value: "HOUSE", th: "บ้าน", en: "House" },
+                      { value: "CONDO", th: "คอนโดมิเนียม", en: "Condominium" },
+                      { value: "DORMITORY", th: "อพาร์ทเม้น", en: "Apartment" },
+                    ].map((item) => (
+                      <label
+                        key={item.value}
+                        className="flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm transition hover:border-brand-primary/40 has-checked:border-brand-primary has-checked:bg-brand-soft has-checked:text-brand-primary"
+                      >
+                        <Input
+                          type="radio"
+                          name="residenceType"
+                          value={item.value}
+                          required
+                          className="accent-brand-primary"
+                        />
+                        <T th={item.th} en={item.en} />
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+                <div className="space-y-5 rounded-2xl border border-slate-100 p-4 sm:p-5">
+                  <label className="block text-sm font-semibold">
+                    <T th="งบประมาณ" en="Budget" /> <span className="text-red-500">*</span>
+                    <Select name="budget" required defaultValue="">
+                      <option value="" disabled>
+                        —
+                      </option>
+                      {[
+                        { th: "1-2 ล้านบาท", en: "THB 1–2 million" },
+                        { th: "2-3 ล้านบาท", en: "THB 2–3 million" },
+                        { th: "3-5 ล้านบาท", en: "THB 3–5 million" },
+                        { th: "มากกว่า 5 ล้านบาท", en: "More than THB 5 million" },
+                      ].map((item) => (
+                        <option key={item.th} value={item.th}>
+                          <T {...item} />
+                        </option>
+                      ))}
+                    </Select>
+                  </label>
+                  <div className="grid gap-5 sm:grid-cols-2">
+                    <RegistrationField
+                      name="preferredContactDate"
+                      type="date"
+                      th="วันที่สะดวกให้ติดต่อกลับ"
+                      en="Preferred contact date"
+                    />
+                    <RegistrationField
+                      name="preferredContactTime"
+                      type="time"
+                      th="ช่วงเวลาที่สะดวก"
+                      en="Preferred contact time"
+                    />
+                  </div>
+                </div>
+              </div>
+              <fieldset className="rounded-2xl border border-brand-primary/10 bg-brand-soft/40 p-4 sm:p-5">
+                <legend className="px-1 text-sm font-semibold">
+                  <T th="การรับข่าวสาร" en="News updates" />
+                </legend>
+                <div className="space-y-3 text-sm text-slate-600">
+                  <label className="flex items-start gap-2">
+                    <Input type="checkbox" name="consentNews" value="true" className="mt-1 accent-brand-primary" />
+                    <T
+                      th="ท่านต้องการรับข่าวสารจาก Mida Property"
+                      en="I would like to receive news from MIDA Property."
+                    />
+                  </label>
+                  <label className="flex items-start gap-2">
+                    <Input
+                      type="checkbox"
+                      name="consentContact"
+                      value="true"
+                      required
+                      className="mt-1 accent-brand-primary"
+                    />
+                    <T
+                      th="ท่านยินยอมให้เจ้าหน้าที่ติดต่อกลับในช่วงเวลาที่ท่านกำหนด"
+                      en="I consent to being contacted during my preferred time."
+                    />
+                    <span className="text-red-500">*</span>
+                  </label>
+                </div>
+              </fieldset>
+            </LeadRegistrationForm>
+          </div>
         </div>
       </section>
-      <LeadModal projectId={project.id} projectName={project.name} projectNameEn={project.name_en} />
     </main>
+  );
+}
+
+function RegistrationField({
+  name,
+  th,
+  en,
+  type = "text",
+  autoComplete,
+}: {
+  name: string;
+  th: string;
+  en: string;
+  type?: string;
+  autoComplete?: string;
+}) {
+  return (
+    <label className="text-sm font-semibold">
+      <T th={th} en={en} /> <span className="text-red-500">*</span>
+      <Input
+        name={name}
+        type={type}
+        autoComplete={autoComplete}
+        required
+        min={type === "number" ? 1 : undefined}
+        max={type === "number" ? 99 : undefined}
+        className="mt-1.5 w-full rounded-xl border border-slate-200 p-3 outline-none focus:border-brand-primary"
+      />
+    </label>
   );
 }
