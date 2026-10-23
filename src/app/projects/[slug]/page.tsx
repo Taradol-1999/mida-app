@@ -61,83 +61,6 @@ function updateImages(value: unknown): NewsPromotionImage[] {
   );
 }
 
-const createImages = (category: string, photoIds: string[]) =>
-  photoIds.map((photoId, index) => ({
-    id: `${category}-${index + 1}`,
-    url: `https://images.unsplash.com/${photoId}?w=1000&q=85`,
-    alt: `${category} ${index + 1}`,
-  }));
-
-const facilities: FacilityCategory[] = [
-  {
-    id: "lobby",
-    name: "LOBBY",
-    description: "พื้นที่ต้อนรับและพักผ่อนที่ออกแบบอย่างหรูหรา พร้อมบรรยากาศอบอุ่น สะดวกสบาย และเป็นส่วนตัว",
-    images: createImages("lobby", [
-      "photo-1600210492486-724fe5c67fb0",
-      "photo-1600607687920-4e2a09cf159d",
-      "photo-1600566753190-17f0baa2a6c3",
-      "photo-1600607687939-ce8a6c25118c",
-      "photo-1600566753086-00f18fb6b3ea",
-      "photo-1600607688969-a5bfcd646154",
-      "photo-1600573472591-ee6b68d14c68",
-      "photo-1600573472592-401b489a3cdc",
-      "photo-1600566752355-35792bedcfea",
-      "photo-1600585154340-be6161a56a0c",
-    ]),
-  },
-  {
-    id: "park",
-    name: "PARK",
-    description: "สวนส่วนกลางและพื้นที่สีเขียว ให้คุณได้ใกล้ชิดธรรมชาติ พร้อมพื้นที่พักผ่อนสำหรับทุกคนในครอบครัว",
-    images: createImages("park", [
-      "photo-1472396961693-142e6e269027",
-      "photo-1441974231531-c6227db76b6e",
-      "photo-1500534623283-312aade485b7",
-      "photo-1470770841072-f978cf4d019e",
-      "photo-1448375240586-882707db888b",
-      "photo-1501785888041-af3ef285b470",
-      "photo-1470252649378-9c29740c9fa8",
-      "photo-1511497584788-876760111969",
-      "photo-1447752875215-b2761acb3c5d",
-      "photo-1426604966848-d7adac402bff",
-    ]),
-  },
-  {
-    id: "coworking",
-    name: "CO-WORKSPACE",
-    description:
-      "พื้นที่ทำงานร่วมกันที่ตอบโจทย์ไลฟ์สไตล์ยุคใหม่ พร้อมมุมสร้างสรรค์ไอเดียและบรรยากาศที่ช่วยเพิ่มแรงบันดาลใจ",
-    images: createImages("coworking", [
-      "photo-1497366754035-f200968a6e72",
-      "photo-1497366811353-6870744d04b2",
-      "photo-1497366858526-0766cadbe8fa",
-      "photo-1497366216548-37526070297c",
-      "photo-1524758631624-e2822e304c36",
-      "photo-1497366412874-3415097a27e7",
-      "photo-1504384308090-c894fdcc538d",
-      "photo-1521737711867-e3b97375f902",
-    ]),
-  },
-  {
-    id: "entertainment",
-    name: "ENTERTAINMENT",
-    description: "เติมเต็มทุกช่วงเวลาแห่งความสุขด้วยพื้นที่กิจกรรม สระว่ายน้ำ ห้องออกกำลังกาย และพื้นที่สันทนาการ",
-    images: createImages("entertainment", [
-      "photo-1576013551627-0cc20b96c2a7",
-      "photo-1572331165267-854da2b10ccc",
-      "photo-1534438327276-14e5300c3a48",
-      "photo-1540497077202-7c8a3999166f",
-      "photo-1566073771259-6a8506099945",
-      "photo-1571019613454-1cb2f99b2d8b",
-      "photo-1571019614242-c5c5dee9f50b",
-      "photo-1574629810360-7efbbe195018",
-      "photo-1558618666-fcd25c85cd64",
-      "photo-1517836357463-d25dfeac3438",
-    ]),
-  },
-];
-
 async function getProject(slug: string) {
   const fallback = findProject(slug);
   const fallbackData = fallback && {
@@ -257,6 +180,33 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   const { slug } = await params;
   const project = await getProject(slug);
   if (!project) notFound();
+  const facilityRows = project.id
+    ? await prisma.facility.findMany({ where: { project_id: project.id }, orderBy: { sort_order: "asc" } })
+    : [];
+  const facilityMedia = facilityRows.length
+    ? await prisma.mediaAsset.findMany({
+        where: {
+          entity_type: "facilities",
+          entity_id: { in: facilityRows.map((item) => item.id) },
+          media_kind: "gallery",
+        },
+        orderBy: [{ sort_order: "asc" }, { created_at: "asc" }],
+      })
+    : [];
+  const facilities: FacilityCategory[] = facilityRows.map((facility) => ({
+    id: facility.id,
+    name: facility.name,
+    nameEn: facility.name_en ?? undefined,
+    description: facility.description ?? undefined,
+    descriptionEn: facility.description_en ?? undefined,
+    images: facilityMedia
+      .filter((image) => image.entity_id === facility.id)
+      .map((image) => ({
+        id: image.id,
+        url: `/api/admin/media?entityType=facilities&entityId=${facility.id}&mediaKind=gallery&mediaId=${image.id}`,
+        alt: facility.name,
+      })),
+  }));
   const showcaseRow = project.id
     ? await prisma.siteContent.findUnique({ where: { content_key: showcaseKey(project.id) } }).catch(() => null)
     : null;
@@ -426,24 +376,6 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           description="Enjoy your Space เพราะความสุขมีได้ไม่รู้จบ"
         />
       </div>
-      {projectUpdates.length > 0 && (
-        <section id="project-promo-news" className="bg-brand-muted py-12 sm:py-16 md:py-20">
-          <div className="project-container">
-            <div className="gold-rule mb-3" />
-            <h2 className="section-title">
-              <T th="โปรโมชั่น ข่าวสาร & กิจกรรมพิเศษ" en="Promotions, News & Special Events" />
-            </h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-              <T
-                th="อัปเดตข้อเสนอ ข่าวสาร และกิจกรรมล่าสุดสำหรับโครงการนี้"
-                en="Discover the latest offers, news, and events for this project."
-              />
-            </p>
-            <NewsPromotionSlider items={projectUpdates} variant="project" />
-          </div>
-        </section>
-      )}
-
       <section id="map" className="border-y border-slate-100 bg-white py-12 sm:py-16 md:py-20">
         <div className="project-container">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -540,6 +472,24 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           )}
         </div>
       </section>
+      {projectUpdates.length > 0 && (
+        <section id="project-promo-news" className="bg-brand-muted py-12 sm:py-16 md:py-20">
+          <div className="project-container">
+            <div className="gold-rule mb-3" />
+            <h2 className="section-title">
+              <T th="โปรโมชั่น ข่าวสาร & กิจกรรมพิเศษ" en="Promotions, News & Special Events" />
+            </h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+              <T
+                th="อัปเดตข้อเสนอ ข่าวสาร และกิจกรรมล่าสุดสำหรับโครงการนี้"
+                en="Discover the latest offers, news, and events for this project."
+              />
+            </p>
+            <NewsPromotionSlider items={projectUpdates} variant="project" />
+          </div>
+        </section>
+      )}
+
       <section id="mida-care" className="bg-brand-muted py-12 sm:py-16 md:py-20">
         <div className="project-container">
           <div className="text-center">

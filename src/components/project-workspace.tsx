@@ -10,8 +10,7 @@ import { Input, Textarea, Select } from "@/components/ui/form-controls";
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { coordinatesFromGoogleMaps } from "@/lib/map-coordinates";
 
-type Section =
-  "dashboard" | "house-types" | "facilities" | "promotions" | "news" | "nearby" | "contact" | "after-sales" | "leads";
+type Section = "dashboard" | "house-types" | "facilities" | "promotions" | "news" | "contact" | "after-sales" | "leads";
 type Field = {
   key: string;
   label: string;
@@ -69,12 +68,10 @@ const configs: Partial<Record<Section, DataConfig>> = {
     fields: [
       { key: "name", label: "ชื่อสิ่งอำนวยความสะดวก (TH)", required: true },
       { key: "name_en", label: "ชื่อสิ่งอำนวยความสะดวก (EN)" },
-      { key: "sort_order", label: "ลำดับ", type: "number" },
       { key: "description", label: "รายละเอียด", type: "textarea" },
       { key: "description_en", label: "รายละเอียด (EN)", type: "textarea" },
     ],
     columns: [
-      ["sort_order", "ลำดับ"],
       ["name", "สิ่งอำนวยความสะดวก"],
       ["description", "รายละเอียด"],
     ],
@@ -151,11 +148,7 @@ const configs: Partial<Record<Section, DataConfig>> = {
     readOnlyCreate: true,
   },
 };
-const settingFields: Record<"nearby" | "contact" | "after-sales", Field[]> = {
-  nearby: [
-    { key: "nearby_places_th", label: "สถานที่ใกล้เคียง - ภาษาไทย", type: "textarea" },
-    { key: "nearby_places_en", label: "Nearby Places - English", type: "textarea" },
-  ],
+const settingFields: Record<"contact" | "after-sales", Field[]> = {
   contact: [
     { key: "phone", label: "เบอร์โทรศัพท์โครงการ" },
     { key: "email", label: "อีเมลโครงการ" },
@@ -227,7 +220,7 @@ export function ProjectWorkspace({
   dashboard?: ProjectDashboard;
 }) {
   const dataConfig = configs[section];
-  const settingMode = section === "nearby" || section === "contact" || section === "after-sales";
+  const settingMode = section === "contact" || section === "after-sales";
   const fields = useMemo(
     () => (settingMode ? settingFields[section] : (dataConfig?.fields ?? [])),
     [dataConfig, section, settingMode],
@@ -242,8 +235,6 @@ export function ProjectWorkspace({
   const [existingHouseTypeImage, setExistingHouseTypeImage] = useState<string | null>(null);
   const [contentMediaFiles, setContentMediaFiles] = useState<File[]>([]);
   const [contentMedia, setContentMedia] = useState<{ id: string; name: string; mimeType: string; url: string }[]>([]);
-  const [nearbyMediaFiles, setNearbyMediaFiles] = useState<File[]>([]);
-  const [nearbyMedia, setNearbyMedia] = useState<{ id: string; name: string; mimeType: string; url: string }[]>([]);
   const load = useCallback(async () => {
     if (section === "dashboard") {
       return;
@@ -252,13 +243,6 @@ export function ProjectWorkspace({
       const response = await fetch(`/api/admin/project-settings?projectId=${projectId}`);
       const data = await response.json();
       setForm(Object.fromEntries(fields.map((field) => [field.key, valueForInput(field, data.settings?.[field.key])])));
-      if (section === "nearby") {
-        const mediaResponse = await fetch(
-          `/api/admin/media?entityType=projects&entityId=${projectId}&mediaKind=nearby&list=1`,
-        );
-        const mediaData = mediaResponse.ok ? await mediaResponse.json() : { rows: [] };
-        setNearbyMedia(mediaData.rows ?? []);
-      }
       return;
     }
     const response = await fetch(`/api/admin/${dataConfig?.resource}`);
@@ -294,28 +278,8 @@ export function ProjectWorkspace({
           setMessage(result.message ?? "บันทึกไม่สำเร็จ");
           return;
         }
-        if (section === "nearby") {
-          for (const file of nearbyMediaFiles) {
-            const upload = new FormData();
-            upload.set("entityType", "projects");
-            upload.set("entityId", projectId);
-            upload.set("mediaKind", "nearby");
-            upload.set("file", file);
-            const mediaResponse = await fetch("/api/admin/media", { method: "POST", body: upload });
-            if (!mediaResponse.ok) {
-              const mediaResult = await mediaResponse.json();
-              setMessage(mediaResult.message ?? "บันทึกสถานที่แล้ว แต่อัปโหลดรูปภาพไม่สำเร็จ");
-              return;
-            }
-          }
-          setNearbyMediaFiles([]);
-        }
         setMessage(
-          section === "after-sales"
-            ? "บันทึกข้อมูลบริการหลังการขายเรียบร้อย"
-            : section === "nearby"
-              ? "บันทึกข้อมูลสถานที่ใกล้เคียงเรียบร้อย"
-              : "บันทึกข้อมูลติดต่อและแผนที่เรียบร้อย",
+          section === "after-sales" ? "บันทึกข้อมูลบริการหลังการขายเรียบร้อย" : "บันทึกข้อมูลติดต่อและแผนที่เรียบร้อย",
         );
         await load();
       } catch {
@@ -354,7 +318,8 @@ export function ProjectWorkspace({
         return;
       }
     }
-    if ((section === "promotions" || section === "news") && savedId) {
+    if ((section === "promotions" || section === "news" || section === "facilities") && savedId) {
+      setEditingId(savedId);
       for (const file of contentMediaFiles) {
         const upload = new FormData();
         upload.set("entityType", section);
@@ -368,6 +333,7 @@ export function ProjectWorkspace({
           setBusy(false);
           return;
         }
+        setContentMediaFiles((files) => files.filter((pending) => pending !== file));
       }
     }
     setMessage("บันทึกข้อมูลเรียบร้อย");
@@ -400,7 +366,7 @@ export function ProjectWorkspace({
       const data = response.ok ? await response.json() : { rows: [] };
       setExistingHouseTypeImage(data.rows?.[0]?.url ?? null);
     }
-    if (section === "promotions" || section === "news") {
+    if (section === "promotions" || section === "news" || section === "facilities") {
       const response = await fetch(
         `/api/admin/media?entityType=${section}&entityId=${row.id}&mediaKind=gallery&list=1`,
       );
@@ -432,7 +398,7 @@ export function ProjectWorkspace({
     setContentMedia([]);
   };
   const removeContentMedia = async (id: string) => {
-    if (!editingId || (section !== "promotions" && section !== "news")) return;
+    if (!editingId || (section !== "promotions" && section !== "news" && section !== "facilities")) return;
     if (!confirm("ต้องการลบรูปภาพนี้ใช่หรือไม่")) return;
     const response = await fetch(
       `/api/admin/media?entityType=${section}&entityId=${editingId}&mediaKind=gallery&mediaId=${id}`,
@@ -441,15 +407,25 @@ export function ProjectWorkspace({
     if (response.ok) setContentMedia((items) => items.filter((item) => item.id !== id));
     else setMessage("ลบรูปภาพไม่สำเร็จ");
   };
-  const removeNearbyMedia = async (id: string) => {
-    if (section !== "nearby") return;
-    if (!confirm("ต้องการลบรูปภาพนี้ใช่หรือไม่")) return;
-    const response = await fetch(
-      `/api/admin/media?entityType=projects&entityId=${projectId}&mediaKind=nearby&mediaId=${id}`,
-      { method: "DELETE" },
-    );
-    if (response.ok) setNearbyMedia((items) => items.filter((item) => item.id !== id));
-    else setMessage("ลบรูปภาพไม่สำเร็จ");
+  const removeFacility = async (row: Record<string, unknown>) => {
+    if (busy || section !== "facilities") return;
+    if (!confirm(`ต้องการลบ “${String(row.name ?? "สิ่งอำนวยความสะดวก")}” พร้อมรูปภาพทั้งหมดใช่หรือไม่?`)) return;
+    setBusy(true);
+    try {
+      const response = await fetch("/api/admin/facilities", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: row.id }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || "ลบไม่สำเร็จ");
+      setRows((items) => items.filter((item) => item.id !== row.id));
+      setMessage("ลบสิ่งอำนวยความสะดวกเรียบร้อยแล้ว");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "ลบไม่สำเร็จ กรุณาลองใหม่");
+    } finally {
+      setBusy(false);
+    }
   };
   const updateLeadStatus = async (id: string, status: string) => {
     setBusy(true);
@@ -609,19 +585,15 @@ export function ProjectWorkspace({
   const title =
     section === "after-sales"
       ? "บริการหลังการขาย (Mida Care)"
-      : section === "nearby"
-        ? "จัดการสถานที่ใกล้เคียง"
-        : settingMode
-          ? "จัดการข้อมูลติดต่อ & แผนที่"
-          : (dataConfig?.title ?? "");
+      : settingMode
+        ? "จัดการข้อมูลติดต่อ & แผนที่"
+        : (dataConfig?.title ?? "");
   const intro =
     section === "after-sales"
       ? "แก้ไขข้อมูลบริการที่จะแสดงเป็นปุ่มบนหน้าโครงการ"
-      : section === "nearby"
-        ? "เพิ่มชื่อสถานที่และรูปภาพเพื่อแสดงใน Project Nearby Showcase"
-        : settingMode
-          ? "ตั้งค่าเบอร์โทร อีเมล และแผนที่ของโครงการ"
-          : (dataConfig?.intro ?? "");
+      : settingMode
+        ? "ตั้งค่าเบอร์โทร อีเมล และแผนที่ของโครงการ"
+        : (dataConfig?.intro ?? "");
   if (section === "leads")
     return (
       <>
@@ -799,6 +771,17 @@ export function ProjectWorkspace({
                         <i className="fa-solid fa-pen-to-square mr-1.5" />
                         แก้ไข
                       </button>
+                      {section === "facilities" && (
+                        <button
+                          type="button"
+                          disabled={busy}
+                          onClick={() => void removeFacility(row)}
+                          className="ml-2 rounded-lg border border-red-200 px-3 py-2 text-xs font-bold text-red-600 transition hover:bg-red-50 disabled:opacity-50"
+                        >
+                          <i className="fa-solid fa-trash mr-1.5" aria-hidden="true" />
+                          ลบ
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -924,10 +907,10 @@ export function ProjectWorkspace({
                     <p className="mt-2 text-xs text-slate-400">รองรับ JPG, PNG และ WEBP ขนาดไม่เกิน 5 MB</p>
                   </div>
                 )}
-                {(section === "promotions" || section === "news") && (
+                {(section === "promotions" || section === "news" || section === "facilities") && (
                   <div className="mt-5">
                     <BannerMediaUpload
-                      title="รูปภาพประกอบข่าวสาร / โปรโมชั่น"
+                      title={section === "facilities" ? "รูปภาพสิ่งอำนวยความสะดวก" : "รูปภาพประกอบข่าวสาร / โปรโมชั่น"}
                       allowVideo={false}
                       media={contentMedia}
                       files={contentMediaFiles}
@@ -936,7 +919,9 @@ export function ProjectWorkspace({
                       disabled={busy}
                     />
                     <p className="mt-2 text-xs text-slate-500">
-                      รูปแรกใช้เป็นภาพหน้าปกในการ์ดหน้าแรก ส่วนรูปทั้งหมดดูได้จากหน้าของโครงการ
+                      {section === "facilities"
+                        ? "เพิ่มได้หลายรูปต่อรายการ รูปทั้งหมดจะแสดงในส่วนสิ่งอำนวยความสะดวกของโครงการ"
+                        : "รูปแรกใช้เป็นภาพหน้าปกในการ์ดหน้าแรก ส่วนรูปทั้งหมดดูได้จากหน้าของโครงการ"}
                     </p>
                   </div>
                 )}
@@ -1044,23 +1029,6 @@ export function ProjectWorkspace({
               วาง Google Maps URL หรือโค้ด Embed แล้วระบบจะเติม Latitude และ Longitude อัตโนมัติ สำหรับลิงก์ย่อ
               maps.app.goo.gl ระบบจะดึงพิกัดเมื่อกดบันทึก
             </p>
-          )}
-          {section === "nearby" && (
-            <div className="mt-5">
-              <BannerMediaUpload
-                title="รูปภาพสถานที่ใกล้เคียง"
-                allowVideo={false}
-                media={nearbyMedia}
-                files={nearbyMediaFiles}
-                onFilesChange={setNearbyMediaFiles}
-                onRemove={removeNearbyMedia}
-                disabled={busy}
-              />
-              <p className="mt-2 text-xs leading-5 text-slate-500">
-                เพิ่มชื่อสถานที่หนึ่งรายการต่อหนึ่งบรรทัด และอัปโหลดรูปภาพตามลำดับเดียวกัน
-                ระบบจะแสดงภาพซ้ำเมื่อมีรูปน้อยกว่ารายการสถานที่
-              </p>
-            </div>
           )}
           {section === "house-types" && (
             <div className="mt-5">

@@ -13,7 +13,6 @@ const sections = [
   "facilities",
   "promotions",
   "news",
-  "nearby",
   "showcase",
   "contact",
   "after-sales",

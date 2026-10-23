@@ -13,6 +13,7 @@ const idSchema = z.string().uuid();
 const entityTypes = [
   "projects",
   "house-types",
+  "facilities",
   "promotions",
   "news",
   "site-content",
@@ -43,6 +44,11 @@ async function mediaProjectId(entityType: EntityType, entityId: string) {
     case "house-types":
       return (
         (await prisma.houseType.findUnique({ where: { id: entityId }, select: { project_id: true } }))?.project_id ??
+        null
+      );
+    case "facilities":
+      return (
+        (await prisma.facility.findUnique({ where: { id: entityId }, select: { project_id: true } }))?.project_id ??
         null
       );
     case "promotions":
@@ -83,7 +89,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ message: "คำขอรูปภาพไม่ถูกต้อง" }, { status: 400 });
   // Published project and homepage hero media remain public; CMS listings and private media enforce project access.
   const publicProjectMedia =
-    (entityType === "projects" || entityType === "house-types") && !list
+    (entityType === "projects" || entityType === "house-types" || entityType === "facilities") && !list
       ? true
       : entityType === "site-content" && mediaKind === "hero" && !list;
   const publicMidaLivingMedia = entityType === "mida-living" && mediaKind === "portrait" && !list;
@@ -168,19 +174,21 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   const entityExists =
-    entityType === "projects"
-      ? await prisma.project.findUnique({ where: { id: entityId }, select: { id: true } })
-      : entityType === "house-types"
-        ? await prisma.houseType.findUnique({ where: { id: entityId }, select: { id: true } })
-        : entityType === "promotions"
-          ? await prisma.promotion.findUnique({ where: { id: entityId }, select: { id: true } })
-          : entityType === "news"
-            ? await prisma.newsItem.findUnique({ where: { id: entityId }, select: { id: true } })
-            : entityType === "site-content"
-              ? await prisma.siteContent.findUnique({ where: { id: entityId }, select: { id: true } })
-              : entityType === "mida-blog"
-                ? await prisma.midaBlogItem.findUnique({ where: { id: entityId }, select: { id: true } })
-                : await prisma.midaLivingItem.findUnique({ where: { id: entityId }, select: { id: true } });
+    entityType === "facilities"
+      ? await prisma.facility.findUnique({ where: { id: entityId }, select: { id: true } })
+      : entityType === "projects"
+        ? await prisma.project.findUnique({ where: { id: entityId }, select: { id: true } })
+        : entityType === "house-types"
+          ? await prisma.houseType.findUnique({ where: { id: entityId }, select: { id: true } })
+          : entityType === "promotions"
+            ? await prisma.promotion.findUnique({ where: { id: entityId }, select: { id: true } })
+            : entityType === "news"
+              ? await prisma.newsItem.findUnique({ where: { id: entityId }, select: { id: true } })
+              : entityType === "site-content"
+                ? await prisma.siteContent.findUnique({ where: { id: entityId }, select: { id: true } })
+                : entityType === "mida-blog"
+                  ? await prisma.midaBlogItem.findUnique({ where: { id: entityId }, select: { id: true } })
+                  : await prisma.midaLivingItem.findUnique({ where: { id: entityId }, select: { id: true } });
   if (!entityExists) return NextResponse.json({ message: "ไม่พบข้อมูลที่ต้องการผูกรูปภาพ" }, { status: 404 });
   const storageKey = `uploads/${randomUUID()}.${extension}`;
   try {

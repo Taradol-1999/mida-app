@@ -6,6 +6,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import type { Swiper as SwiperType } from "swiper";
 
 import "swiper/css";
+import { useTranslation } from "@/components/language-provider";
 
 type FacilityImage = {
   id: string;
@@ -16,7 +17,9 @@ type FacilityImage = {
 export type FacilityCategory = {
   id: string;
   name: string;
+  nameEn?: string;
   description?: string;
+  descriptionEn?: string;
   images: FacilityImage[];
 };
 
@@ -31,6 +34,7 @@ export function ProjectFacilitiesShowcase({
   title = "สิ่งอำนวยความสะดวก",
   description = "เพราะความสุขมีได้ไม่รู้จบ บนพื้นที่ส่วนตัวสำหรับทำกิจกรรมที่ชื่นชอบ ทั้งฟิตเนส สระว่ายน้ำ และสวนส่วนกลาง",
 }: Props) {
+  const { t } = useTranslation();
   const swiperRef = useRef<SwiperType | null>(null);
 
   const [activeCategory, setActiveCategory] = useState(0);
@@ -77,7 +81,7 @@ export function ProjectFacilitiesShowcase({
   if (!facilities.length) return null;
 
   return (
-    <section className="relative overflow-hidden bg-[#4CA1D7] py-14 text-white sm:py-16 lg:py-20">
+    <section id="facilities" className="relative overflow-hidden bg-[#4CA1D7] py-14 text-white sm:py-16 lg:py-20">
       {/* HEADER */}
       <div className="project-container relative z-10">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
@@ -99,7 +103,7 @@ export function ProjectFacilitiesShowcase({
                     ${activeCategory === index ? "text-white opacity-100" : "text-white/60 hover:text-white"}
                   `}
                 >
-                  {item.name}
+                  {t({ th: item.name, en: item.nameEn ?? "" })}
                 </button>
 
                 {index < facilities.length - 1 && <span className="size-1 rounded-full bg-white/80" />}
@@ -238,7 +242,7 @@ export function ProjectFacilitiesShowcase({
       <div className="project-container relative z-10 mt-8 sm:mt-10">
         <div className="mx-auto max-w-3xl text-center">
           <p className="text-sm leading-7 text-white/90 sm:text-base">
-            <span className="font-bold">“Enjoy your Space”</span> {category.description || description}
+            {t({ th: category.description || description, en: category.descriptionEn ?? "" })}
           </p>
 
           {/* IMAGE NAVIGATION */}

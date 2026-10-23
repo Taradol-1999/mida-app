@@ -18,7 +18,7 @@ function CardPreview({ file, src, name }: { file?: File; src?: string; name: str
   }, [file]);
   const url = file ? localUrl : src;
   return (
-    <div className="relative aspect-[16/10] overflow-hidden rounded-xl border border-slate-100 bg-slate-50">
+    <div className="relative aspect-16/10 overflow-hidden rounded-xl border border-slate-100 bg-slate-50">
       {url ? (
         <Image
           src={url}
@@ -199,7 +199,7 @@ export function ProjectShowcaseManager({ projectId }: { projectId: string }) {
                     </button>
                   </div>
                   <div className="mb-3 overflow-hidden rounded-lg border border-slate-100 bg-slate-50">
-                    <div className="aspect-[16/9] w-full overflow-hidden">
+                    <div className="aspect-video w-full overflow-hidden">
                       <CardPreview src={media.find((image) => image.id === item.mediaId)?.url} name={item.name} />
                     </div>
                   </div>
@@ -293,7 +293,7 @@ export function ProjectShowcaseManager({ projectId }: { projectId: string }) {
 
                   {/* Preview */}
                   <div className="mb-3 overflow-hidden rounded-lg border border-slate-100 bg-slate-50">
-                    <div className="aspect-[16/9] w-full overflow-hidden">
+                    <div className="aspect-video w-full overflow-hidden">
                       <CardPreview file={item.file} name={item.file.name} />
                     </div>
                   </div>

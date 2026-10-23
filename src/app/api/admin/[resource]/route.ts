@@ -1,4 +1,6 @@
 import bcrypt from "bcryptjs";
+import { unlink } from "node:fs/promises";
+import path from "node:path";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import type { LeadStatus, NewsCategory, Prisma, ProjectStatus, PropertyType } from "@/generated/prisma/client";
@@ -98,10 +100,25 @@ async function auditPayload(resource: Resource, id: string): Promise<Prisma.Inpu
       row = await prisma.project.findUnique({
         where: { id },
         select: {
-          id: true, slug: true, name_th: true, name_en: true, location: true, location_en: true,
-          province: true, district: true, subdistrict: true,
-          latitude: true, longitude: true, property_type: true, starting_price: true, status: true,
-          is_featured: true, is_new: true, tags: true, description: true, description_en: true,
+          id: true,
+          slug: true,
+          name_th: true,
+          name_en: true,
+          location: true,
+          location_en: true,
+          province: true,
+          district: true,
+          subdistrict: true,
+          latitude: true,
+          longitude: true,
+          property_type: true,
+          starting_price: true,
+          status: true,
+          is_featured: true,
+          is_new: true,
+          tags: true,
+          description: true,
+          description_en: true,
         },
       });
       break;
@@ -109,23 +126,46 @@ async function auditPayload(resource: Resource, id: string): Promise<Prisma.Inpu
       row = await prisma.houseType.findUnique({
         where: { id },
         select: {
-          id: true, project_id: true, name: true, name_en: true, description: true, description_en: true,
-          bedrooms: true, bathrooms: true, usable_area_sqm: true, starting_price: true,
+          id: true,
+          project_id: true,
+          name: true,
+          name_en: true,
+          description: true,
+          description_en: true,
+          bedrooms: true,
+          bathrooms: true,
+          usable_area_sqm: true,
+          starting_price: true,
         },
       });
       break;
     case "facilities":
       row = await prisma.facility.findUnique({
         where: { id },
-        select: { id: true, project_id: true, name: true, name_en: true, description: true, description_en: true, sort_order: true },
+        select: {
+          id: true,
+          project_id: true,
+          name: true,
+          name_en: true,
+          description: true,
+          description_en: true,
+          sort_order: true,
+        },
       });
       break;
     case "promotions":
       row = await prisma.promotion.findUnique({
         where: { id },
         select: {
-          id: true, project_id: true, title: true, title_en: true, body: true, body_en: true,
-          starts_at: true, ends_at: true, is_published: true,
+          id: true,
+          project_id: true,
+          title: true,
+          title_en: true,
+          body: true,
+          body_en: true,
+          starts_at: true,
+          ends_at: true,
+          is_published: true,
         },
       });
       break;
@@ -133,8 +173,15 @@ async function auditPayload(resource: Resource, id: string): Promise<Prisma.Inpu
       row = await prisma.newsItem.findUnique({
         where: { id },
         select: {
-          id: true, project_id: true, category: true, title: true, title_en: true, body: true,
-          body_en: true, published_at: true, is_published: true,
+          id: true,
+          project_id: true,
+          category: true,
+          title: true,
+          title_en: true,
+          body: true,
+          body_en: true,
+          published_at: true,
+          is_published: true,
         },
       });
       break;
@@ -151,7 +198,11 @@ async function auditPayload(resource: Resource, id: string): Promise<Prisma.Inpu
       row = await prisma.user.findUnique({
         where: { id },
         select: {
-          id: true, name: true, email: true, role: true, is_active: true,
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          is_active: true,
           projects: { select: { project_id: true }, orderBy: { project_id: "asc" } },
         },
       });
@@ -395,7 +446,9 @@ export async function POST(request: Request, context: RouteContext) {
             slug: value(body, "slug"),
             name_th: value(body, "name_th"),
             name_en: nullable(body, "name_en"),
-            location: value(body, "location") || [address?.subdistrict, address?.district, address?.province].filter(Boolean).join(" "),
+            location:
+              value(body, "location") ||
+              [address?.subdistrict, address?.district, address?.province].filter(Boolean).join(" "),
             location_en: nullable(body, "location_en"),
             province: address?.province,
             district: address?.district,
@@ -555,7 +608,9 @@ export async function PATCH(request: Request, context: RouteContext) {
             slug: value(body, "slug"),
             name_th: value(body, "name_th"),
             name_en: nullable(body, "name_en"),
-            location: value(body, "location") || [address?.subdistrict, address?.district, address?.province].filter(Boolean).join(" "),
+            location:
+              value(body, "location") ||
+              [address?.subdistrict, address?.district, address?.province].filter(Boolean).join(" "),
             location_en: nullable(body, "location_en"),
             province: address?.province,
             district: address?.district,
@@ -711,9 +766,29 @@ export async function DELETE(request: Request, context: RouteContext) {
       case "house-types":
         await prisma.houseType.delete({ where: { id } });
         break;
-      case "facilities":
-        await prisma.facility.delete({ where: { id } });
+      case "facilities": {
+        const assets = await prisma.$transaction(async (tx) => {
+          const media = await tx.mediaAsset.findMany({
+            where: { entity_type: "facilities", entity_id: id },
+            select: { storage_key: true },
+          });
+          await tx.mediaAsset.deleteMany({ where: { entity_type: "facilities", entity_id: id } });
+          await tx.facility.delete({ where: { id } });
+          return media;
+        });
+        const directory = path.resolve(process.env.UPLOADS_DIRECTORY || path.join(process.cwd(), "public", "uploads"));
+        await Promise.all(
+          assets.map(async (asset) => {
+            try {
+              await unlink(path.join(directory, path.basename(asset.storage_key)));
+            } catch (error) {
+              if ((error as NodeJS.ErrnoException).code !== "ENOENT")
+                console.error("Unable to remove facility upload", { facilityId: id });
+            }
+          }),
+        );
         break;
+      }
       case "promotions":
         await prisma.promotion.delete({ where: { id } });
         break;
