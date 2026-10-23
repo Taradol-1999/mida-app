@@ -15,21 +15,24 @@ import type { ProjectGalleryItem } from "@/components/project-gallery";
 type NearbyPlace = {
   th: string;
   en?: string;
+  description?: string;
 };
 
 type Props = {
   places: NearbyPlace[];
   media: ProjectGalleryItem[];
   location: string;
+  title?: string;
+  description?: string;
 };
 
-export function ProjectNearbyShowcase({ places, media, location }: Props) {
+export function ProjectNearbyShowcase({ places, media, location, title, description }: Props) {
   const { t } = useTranslation();
 
   const swiperRef = useRef<SwiperType | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
-  if (!places.length) return null;
+  if (!places.length && !title) return null;
 
   const total = places.length;
   const canLoop = total > 3;
@@ -62,20 +65,22 @@ export function ProjectNearbyShowcase({ places, media, location }: Props) {
           <div className="relative z-10">
             <h2 className="whitespace-pre-line text-3xl font-black leading-[1.16] tracking-tight text-brand-primary sm:text-4xl">
               {t({
-                th: `ตอบทุกโจทย์\nความต้องการบ้านใหม่ทุกทำเล\n${location || "ในทำเลที่ใช่"}`,
-                en: "Everything you need, close to home",
+                th: title ?? `ตอบทุกโจทย์\nความต้องการบ้านใหม่ทุกทำเล\n${location || "ในทำเลที่ใช่"}`,
+                en: title ?? "Everything you need, close to home",
               })}
             </h2>
 
             <p className="mt-6 text-sm leading-7 text-[#2470a4] sm:text-base">
               {t({
-                th: "เพราะชีวิตที่ดีเริ่มจากทำเลที่เชื่อมต่อทุกความสะดวก ทั้งการเดินทาง แหล่งไลฟ์สไตล์ และบริการสำคัญรอบโครงการ",
-                en: "A connected location puts everyday conveniences, lifestyle destinations, and essential services within easy reach.",
+                th:
+                  description ??
+                  "เพราะชีวิตที่ดีเริ่มจากทำเลที่เชื่อมต่อทุกความสะดวก ทั้งการเดินทาง แหล่งไลฟ์สไตล์ และบริการสำคัญรอบโครงการ",
+                en: description ?? "A connected location puts everyday conveniences, lifestyle destinations, and essential services within easy reach.",
               })}
             </p>
           </div>
           {/* RIGHT SWIPER */}
-          <div className="relative min-w-0">
+          <div className="relative min-w-0" hidden={!total}>
             <div className="relative w-full overflow-hidden">
               <Swiper
                 onSwiper={(swiper) => {
@@ -107,7 +112,7 @@ export function ProjectNearbyShowcase({ places, media, location }: Props) {
 
                   const name = t({
                     th: place.th,
-                    en: place.en ?? "Nearby place",
+                    en: place.en ?? place.th,
                   });
 
                   return (
@@ -158,6 +163,11 @@ export function ProjectNearbyShowcase({ places, media, location }: Props) {
                               <h3 className="line-clamp-2 text-xs font-extrabold leading-snug drop-shadow sm:text-sm">
                                 {name}
                               </h3>
+                              {place.description && (
+                                <p className="mt-1 line-clamp-2 text-[11px] leading-4 text-white/85">
+                                  {place.description}
+                                </p>
+                              )}
                             </div>
                           </article>
                         </div>

@@ -15,6 +15,8 @@ const projectMenus = [
   ["facilities", "จัดการสิ่งอำนวยความสะดวก", "fa-dumbbell"],
   ["promotions", "จัดการข้อมูลโปรโมชั่น", "fa-tags"],
   ["news", "จัดการข้อมูลข่าวสาร", "fa-newspaper"],
+  ["nearby", "สถานที่ใกล้เคียง", "fa-location-dot"],
+  ["showcase", "จุดเด่นทำเลโครงการ", "fa-images"],
   ["contact", "จัดการข้อมูลติดต่อ & แผนที่", "fa-map-location-dot"],
   ["after-sales", "บริการหลังการขาย (Mida Care)", "fa-screwdriver-wrench"],
   ["leads", "รายชื่อผู้ลงทะเบียนรับสิทธิ์", "fa-id-card"],

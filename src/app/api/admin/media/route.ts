@@ -10,7 +10,15 @@ import { prisma } from "@/lib/prisma";
 
 export const runtime = "nodejs";
 const idSchema = z.string().uuid();
-const entityTypes = ["projects", "house-types", "promotions", "news", "site-content", "mida-living", "mida-blog"] as const;
+const entityTypes = [
+  "projects",
+  "house-types",
+  "promotions",
+  "news",
+  "site-content",
+  "mida-living",
+  "mida-blog",
+] as const;
 type EntityType = (typeof entityTypes)[number];
 const mimeExtensions: Record<string, string> = {
   "image/jpeg": "jpg",
@@ -26,7 +34,7 @@ function isEntityType(value: string): value is EntityType {
   return entityTypes.includes(value as EntityType);
 }
 function isKind(value: string) {
-  return ["cover", "hero", "gallery", "brochure", "portrait"].includes(value);
+  return ["cover", "hero", "gallery", "brochure", "portrait", "nearby"].includes(value);
 }
 async function mediaProjectId(entityType: EntityType, entityId: string) {
   switch (entityType) {
@@ -79,8 +87,12 @@ export async function GET(request: Request) {
       ? true
       : entityType === "site-content" && mediaKind === "hero" && !list;
   const publicMidaLivingMedia = entityType === "mida-living" && mediaKind === "portrait" && !list;
-  const publicBlogMedia = entityType === "mida-blog" && (mediaKind === "cover" || mediaKind === "gallery") && !list &&
-    (await prisma.midaBlogItem.findUnique({ where: { id: entityId }, select: { is_active: true } }))?.is_active === true;
+  const publicBlogMedia =
+    entityType === "mida-blog" &&
+    (mediaKind === "cover" || mediaKind === "gallery") &&
+    !list &&
+    (await prisma.midaBlogItem.findUnique({ where: { id: entityId }, select: { is_active: true } }))?.is_active ===
+      true;
   const publishedContentMedia =
     !list && mediaKind === "gallery" && entityType === "promotions"
       ? (await prisma.promotion.findUnique({ where: { id: entityId }, select: { is_published: true } }))
@@ -217,7 +229,7 @@ export async function POST(request: Request) {
         sort_order: createdMedia.sort_order,
       },
     });
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true, id: createdMedia.id });
   } catch {
     return NextResponse.json({ message: "อัปโหลดรูปภาพไม่สำเร็จ" }, { status: 500 });
   }
@@ -232,7 +244,11 @@ export async function DELETE(request: Request) {
     !isEntityType(entityType) ||
     !idSchema.safeParse(entityId).success ||
     !idSchema.safeParse(mediaId).success ||
-    (mediaKind !== "hero" && mediaKind !== "gallery" && mediaKind !== "portrait" && !(entityType === "mida-blog" && mediaKind === "cover"))
+    (mediaKind !== "hero" &&
+      mediaKind !== "gallery" &&
+      mediaKind !== "portrait" &&
+      mediaKind !== "nearby" &&
+      !(entityType === "mida-blog" && mediaKind === "cover"))
   )
     return NextResponse.json({ message: "คำขอลบรูปภาพไม่ถูกต้อง" }, { status: 400 });
   if (!(await canAccessRecord(user, entityType, entityId)))

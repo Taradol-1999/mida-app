@@ -10,7 +10,8 @@ import { Input, Textarea, Select } from "@/components/ui/form-controls";
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { coordinatesFromGoogleMaps } from "@/lib/map-coordinates";
 
-type Section = "dashboard" | "house-types" | "facilities" | "promotions" | "news" | "contact" | "after-sales" | "leads";
+type Section =
+  "dashboard" | "house-types" | "facilities" | "promotions" | "news" | "nearby" | "contact" | "after-sales" | "leads";
 type Field = {
   key: string;
   label: string;
@@ -150,7 +151,11 @@ const configs: Partial<Record<Section, DataConfig>> = {
     readOnlyCreate: true,
   },
 };
-const settingFields: Record<"contact" | "after-sales", Field[]> = {
+const settingFields: Record<"nearby" | "contact" | "after-sales", Field[]> = {
+  nearby: [
+    { key: "nearby_places_th", label: "สถานที่ใกล้เคียง - ภาษาไทย", type: "textarea" },
+    { key: "nearby_places_en", label: "Nearby Places - English", type: "textarea" },
+  ],
   contact: [
     { key: "phone", label: "เบอร์โทรศัพท์โครงการ" },
     { key: "email", label: "อีเมลโครงการ" },
@@ -160,8 +165,6 @@ const settingFields: Record<"contact" | "after-sales", Field[]> = {
     { key: "virtual_tour_url", label: "ลิงก์ Map 3D / Virtual Tour", type: "text" },
     { key: "latitude", label: "ละติจูด (Latitude)", type: "number" },
     { key: "longitude", label: "ลองจิจูด (Longitude)", type: "number" },
-    { key: "nearby_places_th", label: "สถานที่ใกล้เคียง - ภาษาไทย", type: "textarea" },
-    { key: "nearby_places_en", label: "Nearby Places - English", type: "textarea" },
   ],
   "after-sales": [
     { key: "care_warranty", label: "การรับประกันหลังขาย", type: "textarea" },
@@ -224,7 +227,7 @@ export function ProjectWorkspace({
   dashboard?: ProjectDashboard;
 }) {
   const dataConfig = configs[section];
-  const settingMode = section === "contact" || section === "after-sales";
+  const settingMode = section === "nearby" || section === "contact" || section === "after-sales";
   const fields = useMemo(
     () => (settingMode ? settingFields[section] : (dataConfig?.fields ?? [])),
     [dataConfig, section, settingMode],
@@ -239,6 +242,8 @@ export function ProjectWorkspace({
   const [existingHouseTypeImage, setExistingHouseTypeImage] = useState<string | null>(null);
   const [contentMediaFiles, setContentMediaFiles] = useState<File[]>([]);
   const [contentMedia, setContentMedia] = useState<{ id: string; name: string; mimeType: string; url: string }[]>([]);
+  const [nearbyMediaFiles, setNearbyMediaFiles] = useState<File[]>([]);
+  const [nearbyMedia, setNearbyMedia] = useState<{ id: string; name: string; mimeType: string; url: string }[]>([]);
   const load = useCallback(async () => {
     if (section === "dashboard") {
       return;
@@ -247,6 +252,13 @@ export function ProjectWorkspace({
       const response = await fetch(`/api/admin/project-settings?projectId=${projectId}`);
       const data = await response.json();
       setForm(Object.fromEntries(fields.map((field) => [field.key, valueForInput(field, data.settings?.[field.key])])));
+      if (section === "nearby") {
+        const mediaResponse = await fetch(
+          `/api/admin/media?entityType=projects&entityId=${projectId}&mediaKind=nearby&list=1`,
+        );
+        const mediaData = mediaResponse.ok ? await mediaResponse.json() : { rows: [] };
+        setNearbyMedia(mediaData.rows ?? []);
+      }
       return;
     }
     const response = await fetch(`/api/admin/${dataConfig?.resource}`);
@@ -282,8 +294,28 @@ export function ProjectWorkspace({
           setMessage(result.message ?? "บันทึกไม่สำเร็จ");
           return;
         }
+        if (section === "nearby") {
+          for (const file of nearbyMediaFiles) {
+            const upload = new FormData();
+            upload.set("entityType", "projects");
+            upload.set("entityId", projectId);
+            upload.set("mediaKind", "nearby");
+            upload.set("file", file);
+            const mediaResponse = await fetch("/api/admin/media", { method: "POST", body: upload });
+            if (!mediaResponse.ok) {
+              const mediaResult = await mediaResponse.json();
+              setMessage(mediaResult.message ?? "บันทึกสถานที่แล้ว แต่อัปโหลดรูปภาพไม่สำเร็จ");
+              return;
+            }
+          }
+          setNearbyMediaFiles([]);
+        }
         setMessage(
-          section === "after-sales" ? "บันทึกข้อมูลบริการหลังการขายเรียบร้อย" : "บันทึกข้อมูลติดต่อและแผนที่เรียบร้อย",
+          section === "after-sales"
+            ? "บันทึกข้อมูลบริการหลังการขายเรียบร้อย"
+            : section === "nearby"
+              ? "บันทึกข้อมูลสถานที่ใกล้เคียงเรียบร้อย"
+              : "บันทึกข้อมูลติดต่อและแผนที่เรียบร้อย",
         );
         await load();
       } catch {
@@ -407,6 +439,16 @@ export function ProjectWorkspace({
       { method: "DELETE" },
     );
     if (response.ok) setContentMedia((items) => items.filter((item) => item.id !== id));
+    else setMessage("ลบรูปภาพไม่สำเร็จ");
+  };
+  const removeNearbyMedia = async (id: string) => {
+    if (section !== "nearby") return;
+    if (!confirm("ต้องการลบรูปภาพนี้ใช่หรือไม่")) return;
+    const response = await fetch(
+      `/api/admin/media?entityType=projects&entityId=${projectId}&mediaKind=nearby&mediaId=${id}`,
+      { method: "DELETE" },
+    );
+    if (response.ok) setNearbyMedia((items) => items.filter((item) => item.id !== id));
     else setMessage("ลบรูปภาพไม่สำเร็จ");
   };
   const updateLeadStatus = async (id: string, status: string) => {
@@ -567,15 +609,19 @@ export function ProjectWorkspace({
   const title =
     section === "after-sales"
       ? "บริการหลังการขาย (Mida Care)"
-      : settingMode
-        ? "จัดการข้อมูลติดต่อ & แผนที่"
-        : (dataConfig?.title ?? "");
+      : section === "nearby"
+        ? "จัดการสถานที่ใกล้เคียง"
+        : settingMode
+          ? "จัดการข้อมูลติดต่อ & แผนที่"
+          : (dataConfig?.title ?? "");
   const intro =
     section === "after-sales"
       ? "แก้ไขข้อมูลบริการที่จะแสดงเป็นปุ่มบนหน้าโครงการ"
-      : settingMode
-        ? "ตั้งค่าเบอร์โทร อีเมล แผนที่ และสถานที่ใกล้เคียง"
-        : (dataConfig?.intro ?? "");
+      : section === "nearby"
+        ? "เพิ่มชื่อสถานที่และรูปภาพเพื่อแสดงใน Project Nearby Showcase"
+        : settingMode
+          ? "ตั้งค่าเบอร์โทร อีเมล และแผนที่ของโครงการ"
+          : (dataConfig?.intro ?? "");
   if (section === "leads")
     return (
       <>
@@ -998,6 +1044,23 @@ export function ProjectWorkspace({
               วาง Google Maps URL หรือโค้ด Embed แล้วระบบจะเติม Latitude และ Longitude อัตโนมัติ สำหรับลิงก์ย่อ
               maps.app.goo.gl ระบบจะดึงพิกัดเมื่อกดบันทึก
             </p>
+          )}
+          {section === "nearby" && (
+            <div className="mt-5">
+              <BannerMediaUpload
+                title="รูปภาพสถานที่ใกล้เคียง"
+                allowVideo={false}
+                media={nearbyMedia}
+                files={nearbyMediaFiles}
+                onFilesChange={setNearbyMediaFiles}
+                onRemove={removeNearbyMedia}
+                disabled={busy}
+              />
+              <p className="mt-2 text-xs leading-5 text-slate-500">
+                เพิ่มชื่อสถานที่หนึ่งรายการต่อหนึ่งบรรทัด และอัปโหลดรูปภาพตามลำดับเดียวกัน
+                ระบบจะแสดงภาพซ้ำเมื่อมีรูปน้อยกว่ารายการสถานที่
+              </p>
+            </div>
           )}
           {section === "house-types" && (
             <div className="mt-5">

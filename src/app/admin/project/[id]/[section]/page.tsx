@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { ProjectEditor } from "@/components/project-editor";
 import { ProjectWorkspace } from "@/components/project-workspace";
+import { ProjectShowcaseManager } from "@/components/project-showcase-manager";
 import { requireUser } from "@/lib/auth";
 import { canAccessProject } from "@/lib/project-access";
 import { prisma } from "@/lib/prisma";
@@ -12,6 +13,8 @@ const sections = [
   "facilities",
   "promotions",
   "news",
+  "nearby",
+  "showcase",
   "contact",
   "after-sales",
   "leads",
@@ -49,28 +52,29 @@ async function getProjectDashboardData(projectId: string): Promise<ProjectDashbo
   const publicVisitWhere = { ...projectWhere, area: "PUBLIC", action: "PAGE_VISIT" };
   const publicDurationWhere = { ...projectWhere, area: "PUBLIC", action: "PAGE_DURATION" };
   const sectionDurationWhere = { ...projectWhere, area: "PUBLIC", action: "SECTION_DURATION" };
-  const [views, duration, sectionDuration, leads, houseTypes, houseTypeLogs, sectionLogs, demographicLeads] = await Promise.all([
-    prisma.activityLog.count({ where: publicVisitWhere }),
-    prisma.activityLog.aggregate({
-      _avg: { duration_seconds: true },
-      where: { ...publicDurationWhere, duration_seconds: { gt: 0 } },
-    }),
-    prisma.activityLog.aggregate({
-      _avg: { duration_seconds: true },
-      where: { ...sectionDurationWhere, duration_seconds: { gt: 0 } },
-    }),
-    prisma.lead.count({ where: projectWhere }),
-    prisma.houseType.findMany({ where: projectWhere, orderBy: { name: "asc" }, select: { id: true, name: true } }),
-    prisma.activityLog.findMany({
-      where: { ...projectWhere, area: "PUBLIC", action: "HOUSE_TYPE_VIEW" },
-      select: { path: true },
-    }),
-    prisma.activityLog.findMany({
-      where: { ...projectWhere, area: "PUBLIC", action: "SECTION_VIEW" },
-      select: { path: true },
-    }),
-    prisma.lead.findMany({ where: projectWhere, select: { age_range: true, occupation: true, budget: true } }),
-  ]);
+  const [views, duration, sectionDuration, leads, houseTypes, houseTypeLogs, sectionLogs, demographicLeads] =
+    await Promise.all([
+      prisma.activityLog.count({ where: publicVisitWhere }),
+      prisma.activityLog.aggregate({
+        _avg: { duration_seconds: true },
+        where: { ...publicDurationWhere, duration_seconds: { gt: 0 } },
+      }),
+      prisma.activityLog.aggregate({
+        _avg: { duration_seconds: true },
+        where: { ...sectionDurationWhere, duration_seconds: { gt: 0 } },
+      }),
+      prisma.lead.count({ where: projectWhere }),
+      prisma.houseType.findMany({ where: projectWhere, orderBy: { name: "asc" }, select: { id: true, name: true } }),
+      prisma.activityLog.findMany({
+        where: { ...projectWhere, area: "PUBLIC", action: "HOUSE_TYPE_VIEW" },
+        select: { path: true },
+      }),
+      prisma.activityLog.findMany({
+        where: { ...projectWhere, area: "PUBLIC", action: "SECTION_VIEW" },
+        select: { path: true },
+      }),
+      prisma.lead.findMany({ where: projectWhere, select: { age_range: true, occupation: true, budget: true } }),
+    ]);
   const sectionLabels = [
     { id: "project-top", label: "ภาพรวมโครงการ" },
     { id: "house-types", label: "ข้อมูลแบบบ้าน" },
@@ -103,7 +107,10 @@ async function getProjectDashboardData(projectId: string): Promise<ProjectDashbo
     views,
     leads,
     averageDuration: Math.round(duration._avg.duration_seconds || sectionDuration._avg.duration_seconds || 0),
-    houseTypeViews: houseTypes.map((houseType) => ({ label: houseType.name, value: houseTypeCounts.get(houseType.id) ?? 0 })),
+    houseTypeViews: houseTypes.map((houseType) => ({
+      label: houseType.name,
+      value: houseTypeCounts.get(houseType.id) ?? 0,
+    })),
     contentViews,
     demographics: {
       ages: distribution(demographicLeads.map((lead) => lead.age_range)),
@@ -120,13 +127,14 @@ export default async function ProjectSectionPage({ params }: { params: Promise<{
   if (!sections.includes(section as Section)) notFound();
   const project = await prisma.project.findUnique({ where: { id }, select: { name_th: true } });
   if (!project) notFound();
+  if (section === "showcase") return <ProjectShowcaseManager projectId={id} />;
   if (section === "project-info") return <ProjectEditor selectedProjectId={id} mode="edit" />;
   const dashboard = section === "dashboard" ? await getProjectDashboardData(id) : undefined;
   return (
     <ProjectWorkspace
       projectId={id}
       projectName={project.name_th}
-      section={section as Exclude<Section, "project-info">}
+      section={section as Exclude<Section, "project-info" | "showcase">}
       dashboard={dashboard}
     />
   );

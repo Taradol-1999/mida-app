@@ -17,6 +17,7 @@ type Props = {
   disabled?: boolean;
   single?: boolean;
   allowRemoveSaved?: boolean;
+  hideEmptyState?: boolean;
 };
 
 function Preview({ url, name, mimeType, compact = false }: Omit<BannerMedia, "id"> & { compact?: boolean }) {
@@ -54,6 +55,7 @@ export function BannerMediaUpload({
   disabled = false,
   single = false,
   allowRemoveSaved = true,
+  hideEmptyState = false,
 }: Props) {
   const id = useId();
   const [error, setError] = useState("");
@@ -169,11 +171,11 @@ export function BannerMediaUpload({
               </li>
             ))}
           </ul>
-        ) : (
+        ) : !hideEmptyState ? (
           <p className="mt-3 rounded-lg border border-dashed border-slate-200 px-3 py-5 text-center text-xs text-slate-400">
             {single ? "ยังไม่มีไฟล์ที่เลือก" : "ยังไม่มีไฟล์"}
           </p>
-        )}
+        ) : null}
       </div>
     </fieldset>
   );

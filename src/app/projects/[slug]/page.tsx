@@ -14,6 +14,7 @@ import {
 } from "@/components/news-promotion-slider";
 import { type ProjectGalleryItem } from "@/components/project-gallery";
 import { ProjectNearbyShowcase } from "@/components/project-nearby-showcase";
+import { projectShowcaseSchema, showcaseKey } from "@/lib/project-showcase";
 import { findProject } from "@/data/projects";
 import { prisma } from "@/lib/prisma";
 import { directionsUrl, type MapProject } from "@/lib/project-map";
@@ -151,6 +152,7 @@ async function getProject(slug: string) {
     news: [] as Array<Record<string, unknown>>,
     heroMedia: [] as ProjectGalleryItem[],
     galleryMedia: [] as ProjectGalleryItem[],
+    nearbyMedia: [] as ProjectGalleryItem[],
     brochureUrl: null as string | null,
     settings: emptySettings,
   };
@@ -168,7 +170,11 @@ async function getProject(slug: string) {
     if (!row) return fallbackData;
     const [mediaRows, houseMedia, updateMedia] = await Promise.all([
       prisma.mediaAsset.findMany({
-        where: { entity_type: "projects", entity_id: row.id, media_kind: { in: ["cover", "hero", "brochure"] } },
+        where: {
+          entity_type: "projects",
+          entity_id: row.id,
+          media_kind: { in: ["cover", "hero", "brochure", "nearby"] },
+        },
         orderBy: [{ sort_order: "asc" }, { created_at: "asc" }],
       }),
       prisma.mediaAsset.findMany({
@@ -198,6 +204,7 @@ async function getProject(slug: string) {
       type: String(item.mime_type).startsWith("video/") ? ("video" as const) : ("image" as const),
     }));
     const heroMedia = media.filter((_, index) => mediaRows[index].media_kind === "hero");
+    const nearbyMedia = media.filter((_, index) => mediaRows[index].media_kind === "nearby");
     const cover = media.find((_, index) => mediaRows[index].media_kind === "cover");
     const brochure = media.find((_, index) => mediaRows[index].media_kind === "brochure");
     const contentMediaByItem = new Map<string, typeof updateMedia>();
@@ -238,6 +245,7 @@ async function getProject(slug: string) {
       coverUrl: cover?.src ?? null,
       heroMedia: heroMedia.length ? heroMedia : cover ? [cover] : [],
       galleryMedia: media.filter((_, index) => mediaRows[index].media_kind !== "brochure"),
+      nearbyMedia,
       brochureUrl: brochure?.src ?? null,
     };
   } catch {
@@ -249,6 +257,16 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   const { slug } = await params;
   const project = await getProject(slug);
   if (!project) notFound();
+  const showcaseRow = project.id
+    ? await prisma.siteContent.findUnique({ where: { content_key: showcaseKey(project.id) } }).catch(() => null)
+    : null;
+  const showcase = (() => {
+    try {
+      return projectShowcaseSchema.safeParse(JSON.parse(showcaseRow?.body || "null")).data;
+    } catch {
+      return undefined;
+    }
+  })();
   const heroTitle = project.settings.hero_title_th || project.name;
   const heroTitleEn = project.settings.hero_title_en || project.name_en;
   const heroDescription = project.settings.hero_subtitle_th || project.description;
@@ -364,11 +382,19 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         ariaLabelTh={`สไลด์รูปภาพโครงการ ${project.name}`}
         ariaLabelEn={`Image slider for ${project.name_en || project.name}`}
       />
-      <ProjectNearbyShowcase
-        places={landmarks.map((landmark, index) => ({ th: landmark, en: landmarksEn[index] }))}
-        media={project.galleryMedia}
-        location={projectAddressText || project.location}
-      />
+      {showcase && showcase.items.length > 0 && (
+        <ProjectNearbyShowcase
+          title={showcase.title}
+          description={showcase.description}
+          places={showcase.items.map((item) => ({ th: item.name, description: item.description }))}
+          media={showcase.items.map((item) => ({
+            src: `/api/admin/media?entityType=projects&entityId=${project.id}&mediaKind=nearby&mediaId=${item.mediaId}`,
+            alt: item.name,
+            type: "image" as const,
+          }))}
+          location={projectAddressText || project.location}
+        />
+      )}
       {project.houseTypes.length > 0 && (
         <section id="house-types" className="overflow-hidden bg-brand-muted pt-12 sm:pt-16 md:pt-20">
           <div className="project-container relative z-10">
