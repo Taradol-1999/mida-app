@@ -9,6 +9,8 @@ import { Input, Select } from "@/components/ui/form-controls";
 import { leadAgeRanges, leadOccupations, occupationEnglish } from "@/lib/lead-options";
 import { T } from "@/components/language-provider";
 import { HomeHeader } from "@/components/home-header";
+import { FloatingContactWidget } from "@/components/floating-contact-widget";
+import { projectContactKey } from "@/lib/project-contact";
 import { type NewsPromotionImage, type NewsPromotionItem } from "@/components/news-promotion-slider";
 import { type ProjectGalleryItem } from "@/components/project-gallery";
 import { ProjectNearbyShowcase } from "@/components/project-nearby-showcase";
@@ -69,6 +71,7 @@ async function getProject(slug: string) {
     district: fallback.district ?? null,
     subdistrict: fallback.subdistrict ?? null,
     coverUrl: null,
+    logoUrl: null as string | null,
     houseTypes: [] as Array<Record<string, unknown>>,
     promotions: [] as Array<Record<string, unknown>>,
     news: [] as Array<Record<string, unknown>>,
@@ -95,7 +98,7 @@ async function getProject(slug: string) {
         where: {
           entity_type: "projects",
           entity_id: row.id,
-          media_kind: { in: ["cover", "hero", "brochure", "nearby"] },
+          media_kind: { in: ["cover", "hero", "brochure", "nearby", "logo"] },
         },
         orderBy: [{ sort_order: "asc" }, { created_at: "asc" }],
       }),
@@ -165,8 +168,9 @@ async function getProject(slug: string) {
       news: row.news_items.map((item) => ({ ...item, images: contentImages("news", item.id, item.title) })),
       settings: { ...emptySettings, ...(row.settings ?? {}) },
       coverUrl: cover?.src ?? null,
+      logoUrl: media.find((_, index) => mediaRows[index].media_kind === "logo")?.src ?? null,
       heroMedia: heroMedia.length ? heroMedia : cover ? [cover] : [],
-      galleryMedia: media.filter((_, index) => mediaRows[index].media_kind !== "brochure"),
+      galleryMedia: media.filter((_, index) => !["brochure", "logo"].includes(mediaRows[index].media_kind)),
       nearbyMedia,
       brochureUrl: brochure?.src ?? null,
     };
@@ -179,6 +183,17 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   const { slug } = await params;
   const project = await getProject(slug);
   if (!project) notFound();
+  const contactContent = project.id
+    ? await prisma.siteContent.findUnique({ where: { content_key: projectContactKey(project.id) } })
+    : null;
+  const safeContactUrl = (value?: string | null) => {
+    try {
+      const url = new URL(value ?? "");
+      return url.protocol === "https:" ? url.href : undefined;
+    } catch {
+      return undefined;
+    }
+  };
   const facilityRows = project.id
     ? await prisma.facility.findMany({ where: { project_id: project.id }, orderBy: { sort_order: "asc" } })
     : [];
@@ -321,6 +336,8 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   return (
     <main id="project-top" className="bg-white">
       <HomeHeader
+        logoUrl={project.logoUrl}
+        logoLabel={{ th: project.name, en: project.name_en ?? "" }}
         showAdmin={false}
         items={projectNavigation}
         menuLabel={{ th: "เมนูโครงการ", en: "Project menu" }}
@@ -698,6 +715,12 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           </div>
         </div>
       </section>
+      <FloatingContactWidget
+        lineUrl={safeContactUrl(project.settings.line_url)}
+        messengerUrl={safeContactUrl(contactContent?.body)}
+        phone={project.settings.phone ?? ""}
+        email={project.settings.email ?? ""}
+      />
     </main>
   );
 }

@@ -127,9 +127,6 @@ export function MobileHeaderMenu({
                       <i className="fa-solid fa-xmark text-xl" aria-hidden="true" />
                       {t({ th: "ปิดเมนู", en: "Close menu" })}
                     </button>
-                    <span className="text-[10px] font-extrabold tracking-[0.18em] text-brand-primary">
-                      MIDA PROPERTY
-                    </span>
                   </div>
 
                   <div className="border-b border-slate-100 px-6 py-6 sm:px-8">

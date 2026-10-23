@@ -1,6 +1,8 @@
 "use client";
 
 import { BannerMediaUpload } from "@/components/banner-media-upload";
+import { ProjectLogoUpload } from "@/components/project-logo-upload";
+import { ContactWidgetSettings, type ContactWidgetValues } from "@/components/contact-widget-settings";
 
 import { Input, Textarea, Select } from "@/components/ui/form-controls";
 
@@ -106,6 +108,8 @@ export function ProjectEditor({
   const [heroImages, setHeroImages] = useState<MediaItem[]>([]);
   const [brochure, setBrochure] = useState<Brochure | null>(null);
   const [brochureBusy, setBrochureBusy] = useState(false);
+  const [contact, setContact] = useState<ContactWidgetValues>({ line: "", messenger: "", phone: "", email: "" });
+  const [contactReady, setContactReady] = useState(false);
   const load = useCallback(async () => {
     const response = await fetch("/api/admin/projects");
     if (!response.ok) {
@@ -153,10 +157,12 @@ export function ProjectEditor({
     }
   }, [isEditMode, selectedProjectId, projects]);
   const loadProjectHomepage = useCallback(async (projectId: string) => {
-    const [settingsResponse, heroResponse, brochureResponse] = await Promise.all([
+    setContactReady(false);
+    const [settingsResponse, heroResponse, brochureResponse, contactResponse] = await Promise.all([
       fetch(`/api/admin/project-settings?projectId=${projectId}`),
       fetch(`/api/admin/media?entityType=projects&entityId=${projectId}&mediaKind=hero&list=1`),
       fetch(`/api/admin/media?entityType=projects&entityId=${projectId}&mediaKind=brochure&list=1`),
+      fetch(`/api/admin/project-contact?projectId=${projectId}`),
     ]);
     const settingsData = settingsResponse.ok ? await settingsResponse.json() : { settings: null };
     const heroData = heroResponse.ok ? await heroResponse.json() : { rows: [] };
@@ -169,6 +175,10 @@ export function ProjectEditor({
     });
     setHeroImages(heroData.rows ?? []);
     setBrochure(brochureData.rows?.[0] ?? null);
+    if (contactResponse.ok) {
+      setContact(await contactResponse.json());
+      setContactReady(true);
+    } else setMessage("โหลดช่องทางติดต่อไม่สำเร็จ กรุณารีเฟรชหน้าอีกครั้ง");
   }, []);
   useEffect(() => {
     if (isEditMode && selectedProjectId) void loadProjectHomepage(selectedProjectId);
@@ -184,7 +194,7 @@ export function ProjectEditor({
     setHomepage((current) => ({ ...current, [field]: value }));
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (isEditMode && !editingId) return;
+    if (isEditMode && (!editingId || !contactReady)) return;
     setBusy(true);
     const response = await fetch("/api/admin/projects", {
       method: isEditMode ? "PATCH" : "POST",
@@ -214,6 +224,17 @@ export function ProjectEditor({
         const settingsResult = await settingsResponse.json();
         setBusy(false);
         setMessage(settingsResult.message ?? "บันทึกข้อมูลโครงการแล้ว แต่บันทึกข้อมูลหน้าหลักไม่สำเร็จ");
+        return;
+      }
+      const contactResponse = await fetch("/api/admin/project-contact", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ projectId: editingId, contact }),
+      });
+      if (!contactResponse.ok) {
+        const result = await contactResponse.json();
+        setBusy(false);
+        setMessage(result.message ?? "บันทึกช่องทางติดต่อไม่สำเร็จ");
         return;
       }
       for (const heroFile of heroFiles) {
@@ -302,28 +323,31 @@ export function ProjectEditor({
             </div>
           </div>
           {isEditMode && editingId && (
-            <div className="mb-5 flex flex-wrap items-center gap-4 rounded-xl bg-slate-50 p-4">
-              <div className="grid size-24 place-items-center overflow-hidden rounded-lg bg-slate-200">
-                {!imageMissing && (
-                  <img
-                    src={`/api/admin/media?entityType=projects&entityId=${editingId}`}
-                    alt="ภาพปกโครงการ"
-                    className="size-full object-cover"
-                    onError={() => setImageMissing(true)}
-                  />
-                )}
-                {imageMissing && <i className="fa-regular fa-image text-2xl text-slate-400" />}
+            <div className="mb-5 grid gap-4 lg:grid-cols-2">
+              <div className="flex flex-wrap items-center gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-4 sm:p-5">
+                <div className="grid size-24 shrink-0 place-items-center overflow-hidden rounded-lg border border-slate-200 bg-white">
+                  {!imageMissing && (
+                    <img
+                      src={`/api/admin/media?entityType=projects&entityId=${editingId}`}
+                      alt="ภาพปกโครงการ"
+                      className="size-full object-cover"
+                      onError={() => setImageMissing(true)}
+                    />
+                  )}
+                  {imageMissing && <i className="fa-regular fa-image text-2xl text-slate-400" />}
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-slate-700">ภาพปกโครงการ</p>
+                  <Link
+                    href={`/admin/media?project=${editingId}`}
+                    className="mt-2 inline-flex min-h-10 items-center rounded-lg border border-brand-primary/20 bg-white px-3 py-2 text-xs font-bold text-brand-primary transition hover:bg-brand-soft"
+                  >
+                    <i className="fa-solid fa-cloud-arrow-up mr-1" />
+                    อัปโหลดหรือเปลี่ยนรูปภาพ
+                  </Link>
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-bold text-slate-700">ภาพปกโครงการ</p>
-                <Link
-                  href={`/admin/media?project=${editingId}`}
-                  className="mt-1 inline-block text-sm font-semibold text-brand-primary hover:underline"
-                >
-                  <i className="fa-solid fa-cloud-arrow-up mr-1" />
-                  อัปโหลดหรือเปลี่ยนรูปภาพ
-                </Link>
-              </div>
+              <ProjectLogoUpload key={editingId} projectId={editingId} />
             </div>
           )}
 
@@ -520,29 +544,36 @@ export function ProjectEditor({
               </div>
             </div>
           )}
+          {isEditMode && (
+            <div className="mt-8 border-t border-slate-200 pt-7">
+              <ContactWidgetSettings scope="หน้าโครงการนี้" value={contact} onChange={setContact} />
+            </div>
+          )}
           {message && (
             <p className="mt-4 rounded-lg bg-brand-soft px-3 py-2 text-sm font-medium text-brand-primary">{message}</p>
           )}
-          <button
-            disabled={busy || (isEditMode && !editingId)}
-            className="mt-5 rounded-lg bg-brand-primary px-4 py-2.5 text-sm font-bold text-white transition hover:bg-brand-text disabled:opacity-50"
-          >
-            <i className="fa-solid fa-floppy-disk mr-2" />
-            {busy ? "กำลังบันทึก..." : isEditMode ? "บันทึกข้อมูลโครงการทั้งหมด" : "สร้างโครงการ"}
-          </button>
-          {isEditMode && editingId && (
+          <div className="mt-6 flex flex-col gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:items-center sm:justify-between">
             <button
-              type="button"
-              onClick={() => {
-                const project = projects.find((item) => item.id === editingId);
-                if (project) void remove(project);
-              }}
-              className="ml-3 rounded-lg border border-rose-200 px-4 py-2.5 text-sm font-bold text-rose-600 transition hover:bg-rose-50"
+              disabled={busy || (isEditMode && (!editingId || !contactReady))}
+              className="inline-flex min-h-11 items-center justify-center rounded-lg bg-brand-primary px-5 py-2.5 text-sm font-bold text-white transition hover:bg-brand-text disabled:opacity-50"
             >
-              <i className="fa-solid fa-trash-can mr-2" />
-              ลบโครงการ
+              <i className="fa-solid fa-floppy-disk mr-2" />
+              {busy ? "กำลังบันทึก..." : isEditMode ? "บันทึกข้อมูลโครงการทั้งหมด" : "สร้างโครงการ"}
             </button>
-          )}
+            {isEditMode && editingId && (
+              <button
+                type="button"
+                onClick={() => {
+                  const project = projects.find((item) => item.id === editingId);
+                  if (project) void remove(project);
+                }}
+                className="inline-flex min-h-11 items-center justify-center rounded-lg border border-rose-200 px-4 py-2.5 text-sm font-bold text-rose-600 transition hover:bg-rose-50"
+              >
+                <i className="fa-solid fa-trash-can mr-2" />
+                ลบโครงการ
+              </button>
+            )}
+          </div>
         </form>
       </div>
     </>

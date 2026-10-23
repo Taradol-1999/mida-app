@@ -22,14 +22,20 @@ export function HomeHeader({
   items: customItems,
   menuLabel = { th: "เมนูหลัก", en: "Main menu" },
   searchHref,
+  logoUrl,
+  logoLabel,
 }: {
   showAdmin: boolean;
   innerPage?: boolean;
   items?: HeaderItem[];
   menuLabel?: BilingualText;
   searchHref?: string;
+  logoUrl?: string | null;
+  logoLabel?: BilingualText;
 }) {
   const [scrolled, setScrolled] = useState(false);
+  const [failedLogo, setFailedLogo] = useState<string | null>(null);
+  const customLogo = logoUrl && failedLogo !== logoUrl ? logoUrl : null;
   const pathname = usePathname();
   const items = customItems ?? (pathname === "/" ? nav : nav.map((item) => ({ ...item, href: `/${item.href}` })));
   const projectSearchHref = searchHref ?? (pathname === "/" ? "#projects" : "/#projects");
@@ -44,19 +50,24 @@ export function HomeHeader({
   return (
     <header className={`home-page-header fixed inset-x-0 top-0 z-80 ${scrolled || innerPage ? "is-scrolled" : ""}`}>
       <div className="home-page-header-bar mx-auto grid h-12 grid-cols-[1fr_auto_1fr] items-center px-3 sm:h-14 sm:px-5">
-        <MobileHeaderMenu
-          items={items}
-          showAdmin={showAdmin}
-          label={menuLabel}
-          desktopBreakpoint="always"
-          homeStyle
-        />
+        <MobileHeaderMenu items={items} showAdmin={showAdmin} label={menuLabel} desktopBreakpoint="always" homeStyle />
         <Link
           href="/"
-          aria-label="MIDA Property"
+          aria-label={logoLabel?.th || "MIDA Property"}
           className="inline-flex items-center justify-center focus-visible:rounded-md focus-visible:outline-2 focus-visible:outline-brand-primary"
         >
-          <Image src={midaLogo} alt="MIDA Property" className="h-9 w-auto object-contain sm:h-10" priority />
+          <Image
+            src={customLogo || midaLogo}
+            alt={logoLabel?.th || "MIDA Property"}
+            width={180}
+            height={64}
+            unoptimized={Boolean(customLogo)}
+            onError={() => {
+              if (logoUrl) setFailedLogo(logoUrl);
+            }}
+            className="h-9 w-auto max-w-40 object-contain sm:h-10 sm:max-w-48"
+            priority
+          />
         </Link>
         <a
           href={projectSearchHref}
