@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useTranslation } from "@/components/language-provider";
+import backgroundImageFile from "@/assets/background/city-5.jpg";
 
 export type HouseTypeItem = {
   id: string;
@@ -60,21 +61,21 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
   }
 
   return (
-    <section className="relative left-1/2 mt-7 w-screen -translate-x-1/2 overflow-hidden border-y border-brand-primary/10 bg-linear-to-br from-brand-primary via-[#063f82] to-brand-text p-4 shadow-2xl sm:mt-9 sm:p-6 md:p-8">
-      <span
-        className="absolute -top-28 -right-20 size-80 rounded-full bg-brand-accent/20 blur-3xl"
-        aria-hidden="true"
-      />
-      <span
-        className="absolute -bottom-32 -left-24 size-72 rounded-full border-[2rem] border-white/5"
-        aria-hidden="true"
-      />
-
+    <section
+      style={{ backgroundImage: `url(${backgroundImageFile.src})` }}
+      className=" bg-cover bg-center bg-no-repeat relative left-1/2 w-screen -translate-x-1/2 overflow-hidden  border-brand-primary/10 bg-linear-to-br from-brand-primary via-[#063f82] to-brand-text p-4 shadow-2xl sm:mt-9 sm:p-6 md:p-8"
+    >
+      <div className="pointer-events-none absolute inset-0 bg-[#003f7d]/85 bg-[radial-gradient(circle_at_22%_15%,rgba(0,111,181,.35),transparent_40%),linear-gradient(120deg,rgba(0,59,115,0.7),rgba(0,77,145,0.7)_62%,rgba(0,54,104,0.8))]" />
       <div className="relative mx-auto w-full max-w-[160rem] sm:w-[calc(100%-2rem)] xl:w-[calc(100%-16rem)]">
         <div className="flex flex-wrap items-end justify-between gap-4 border-b border-white/15 pb-4 text-white sm:pb-5">
           <div>
             <p className="text-xs font-bold tracking-[0.2em] text-brand-accent">MIDA HOME COLLECTION</p>
-            <p className="mt-1 text-sm text-white/75">{t({ th: "เลือกแบบบ้านที่ลงตัวกับทุกจังหวะชีวิต", en: "Choose the home type that fits every moment of your life." })}</p>
+            <p className="mt-1 text-sm text-white/75">
+              {t({
+                th: "เลือกแบบบ้านที่ลงตัวกับทุกจังหวะชีวิต",
+                en: "Choose the home type that fits every moment of your life.",
+              })}
+            </p>
             {items.length > 1 && (
               <p className="mt-1.5 text-xs font-semibold text-white/60 md:hidden">
                 <i className="fa-solid fa-hand-pointer mr-1.5 text-brand-accent" aria-hidden="true" />
@@ -180,7 +181,9 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
                 <div className="absolute inset-x-0 bottom-0 p-4 text-white sm:p-5 md:p-7">
                   <p className="text-[0.65rem] font-bold tracking-[0.2em] text-brand-accent">HOUSE TYPE</p>
                   <div className="mt-1 flex flex-wrap items-end justify-between gap-3">
-                  <h3 className="text-2xl font-black sm:text-3xl md:text-4xl">{t({ th: house.name, en: house.nameEn ?? "" })}</h3>
+                    <h3 className="text-2xl font-black sm:text-3xl md:text-4xl">
+                      {t({ th: house.name, en: house.nameEn ?? "" })}
+                    </h3>
                     <p className="rounded-full bg-brand-accent px-3 py-1.5 text-sm font-extrabold text-brand-primary shadow-lg">
                       {house.startingPrice === null
                         ? t({ th: "สอบถามราคา", en: "Price on request" })
@@ -196,13 +199,16 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
                   )}
                   <div className="mt-3 grid grid-cols-3 gap-2 rounded-xl border border-white/15 bg-black/25 p-2 text-center text-xs font-semibold backdrop-blur-sm sm:max-w-md">
                     <span>
-                      <b className="block text-sm text-white">{house.bedrooms}</b>{t({ th: "ห้องนอน", en: "Bedrooms" })}
+                      <b className="block text-sm text-white">{house.bedrooms}</b>
+                      {t({ th: "ห้องนอน", en: "Bedrooms" })}
                     </span>
                     <span className="border-x border-white/15">
-                      <b className="block text-sm text-white">{house.bathrooms}</b>{t({ th: "ห้องน้ำ", en: "Bathrooms" })}
+                      <b className="block text-sm text-white">{house.bathrooms}</b>
+                      {t({ th: "ห้องน้ำ", en: "Bathrooms" })}
                     </span>
                     <span>
-                      <b className="block text-sm text-white">{house.usableArea}</b>{t({ th: "ตร.ม.", en: "sq.m." })}
+                      <b className="block text-sm text-white">{house.usableArea}</b>
+                      {t({ th: "ตร.ม.", en: "sq.m." })}
                     </span>
                   </div>
                 </div>

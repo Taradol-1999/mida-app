@@ -6,7 +6,7 @@ import { T } from "@/components/language-provider";
 import { NewsPromotionSlider, type NewsPromotionItem } from "@/components/news-promotion-slider";
 import { ProjectFilter } from "@/components/project-filter";
 import { prisma } from "@/lib/prisma";
-import backgroundImageFile from "@/assets/background/burj-khalifa-dubai-united.jpg";
+import backgroundImageFile from "@/assets/background/city-2.jpg";
 
 export const dynamic = "force-dynamic";
 

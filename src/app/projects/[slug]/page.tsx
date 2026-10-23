@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { HeroImageSlider } from "@/components/hero-image-slider";
-import { ProjectLocationMap } from "@/components/project-location-map";
 import { ProjectSectionTracker } from "@/components/project-section-tracker";
 import { HouseTypeCarousel, type HouseTypeItem } from "@/components/house-type-carousel";
 import { LeadModal } from "@/components/lead-modal";
@@ -17,7 +16,7 @@ import { ProjectNearbyShowcase } from "@/components/project-nearby-showcase";
 import { projectShowcaseSchema, showcaseKey } from "@/lib/project-showcase";
 import { findProject } from "@/data/projects";
 import { prisma } from "@/lib/prisma";
-import { directionsUrl, type MapProject } from "@/lib/project-map";
+import { directionsUrl, googleMapsEmbedUrl, type MapProject } from "@/lib/project-map";
 import { FacilityCategory, ProjectFacilitiesShowcase } from "@/components/project-facilities-showcase";
 
 export const dynamic = "force-dynamic";
@@ -392,12 +391,19 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
               />
             </p>
           </div>
-          <div className="mt-7">
-            <ProjectLocationMap projects={[mapProject]} />
+          <div className="mt-7 overflow-hidden rounded-2xl border border-brand-primary/15 bg-brand-soft shadow-sm">
+            <iframe
+              src={googleMapsEmbedUrl(mapProject)}
+              title={`Google Maps — ${project.name}`}
+              className="h-80 w-full border-0 sm:h-96 lg:h-112"
+              loading="lazy"
+              allowFullScreen
+              referrerPolicy="no-referrer-when-downgrade"
+            />
           </div>
           <div className="mt-6 grid gap-5 lg:grid-cols-[.75fr_1.25fr]">
             <aside className="relative overflow-hidden rounded-3xl bg-brand-primary p-5 text-white shadow-[0_14px_30px_rgba(0,45,98,0.16)] sm:p-6">
-              <span className="absolute -right-12 -bottom-16 size-48 rounded-full border-[28px] border-white/10" />
+              <span className="absolute -right-12 -bottom-16 size-48 rounded-full border-28 border-white/10" />
               <div className="relative">
                 <span className="grid size-11 place-items-center rounded-2xl bg-brand-accent text-lg text-brand-primary shadow-sm">
                   <i className="fa-solid fa-location-dot" />
@@ -464,7 +470,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
               <iframe
                 src={String(project.settings.virtual_tour_url)}
                 title={`Virtual Tour ${project.name}`}
-                className="h-72 w-full rounded-xl bg-white sm:h-[28rem]"
+                className="h-72 w-full rounded-xl bg-white sm:h-112"
                 loading="lazy"
                 allowFullScreen
               />
@@ -472,55 +478,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           )}
         </div>
       </section>
-      {projectUpdates.length > 0 && (
-        <section id="project-promo-news" className="bg-brand-muted py-12 sm:py-16 md:py-20">
-          <div className="project-container">
-            <div className="gold-rule mb-3" />
-            <h2 className="section-title">
-              <T th="โปรโมชั่น ข่าวสาร & กิจกรรมพิเศษ" en="Promotions, News & Special Events" />
-            </h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-              <T
-                th="อัปเดตข้อเสนอ ข่าวสาร และกิจกรรมล่าสุดสำหรับโครงการนี้"
-                en="Discover the latest offers, news, and events for this project."
-              />
-            </p>
-            <NewsPromotionSlider items={projectUpdates} variant="project" />
-          </div>
-        </section>
-      )}
 
-      <section id="mida-care" className="bg-brand-muted py-12 sm:py-16 md:py-20">
-        <div className="project-container">
-          <div className="text-center">
-            <p className="text-sm font-bold tracking-widest text-brand-text">MIDA CARE</p>
-            <h2 className="section-title mt-2">
-              <T th="บริการหลังการขาย" en="After-sales Service" />
-            </h2>
-          </div>
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
-            {careItems.map(({ title, detail, icon }) => (
-              <details open key={title.th} className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <summary className="flex cursor-pointer list-none items-center gap-3 font-bold text-brand-primary">
-                  <span className="grid size-10 place-items-center rounded-full bg-blue-50">
-                    <i className={`fa-solid ${icon}`} />
-                  </span>
-                  <span className="flex-1">
-                    <T th={title.th} en={title.en} />
-                  </span>
-                  <i className="fa-solid fa-chevron-down text-xs transition group-open:rotate-180" />
-                </summary>
-                <p className="mt-4 border-t border-slate-100 pt-4 text-sm leading-7 text-brand-text">
-                  <T
-                    th={String(detail || "สอบถามรายละเอียดบริการได้จากเจ้าหน้าที่โครงการ")}
-                    en="Please contact the project team for service details."
-                  />
-                </p>
-              </details>
-            ))}
-          </div>
-        </div>
-      </section>
       <section
         id="register"
         className="relative overflow-hidden bg-brand-primary py-14 text-center text-white sm:py-20"
