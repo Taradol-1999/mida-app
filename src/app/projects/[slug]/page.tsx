@@ -443,7 +443,9 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                   <i className="fa-solid fa-map-pin" />
                 </span>
                 <div>
-                  <p className="text-[10px] font-extrabold tracking-[0.13em] text-brand-accent">MIDA LOCATION</p>
+                  <p className="text-[10px] font-extrabold tracking-[0.13em] text-brand-accent">
+                    <T th={project.name} en={project.name_en ?? ""} />
+                  </p>
                   <h3 className="mt-0.5 font-extrabold text-brand-primary">
                     <T th="สถานที่ใกล้เคียง" en="Nearby Places" />
                   </h3>
