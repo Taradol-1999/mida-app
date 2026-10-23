@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { ProjectEditor } from "@/components/project-editor";
 import { ProjectWorkspace } from "@/components/project-workspace";
 import { ProjectShowcaseManager } from "@/components/project-showcase-manager";
+import { ProjectLocationManager } from "@/components/project-location-manager";
 import { requireUser } from "@/lib/auth";
 import { canAccessProject } from "@/lib/project-access";
 import { prisma } from "@/lib/prisma";
@@ -14,6 +15,7 @@ const sections = [
   "promotions",
   "news",
   "showcase",
+  "location",
   "contact",
   "after-sales",
   "leads",
@@ -127,13 +129,14 @@ export default async function ProjectSectionPage({ params }: { params: Promise<{
   const project = await prisma.project.findUnique({ where: { id }, select: { name_th: true } });
   if (!project) notFound();
   if (section === "showcase") return <ProjectShowcaseManager projectId={id} />;
+  if (section === "location") return <ProjectLocationManager projectId={id} />;
   if (section === "project-info") return <ProjectEditor selectedProjectId={id} mode="edit" />;
   const dashboard = section === "dashboard" ? await getProjectDashboardData(id) : undefined;
   return (
     <ProjectWorkspace
       projectId={id}
       projectName={project.name_th}
-      section={section as Exclude<Section, "project-info" | "showcase">}
+      section={section as Exclude<Section, "project-info" | "showcase" | "location">}
       dashboard={dashboard}
     />
   );

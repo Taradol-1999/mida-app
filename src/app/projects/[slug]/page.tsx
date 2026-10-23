@@ -1,4 +1,6 @@
 import { notFound } from "next/navigation";
+import { ProjectMapTabs } from "@/components/project-map-tabs";
+import { projectLocationKey, projectLocationSchema } from "@/lib/project-location";
 import { HeroImageSlider } from "@/components/hero-image-slider";
 import { ProjectSectionTracker } from "@/components/project-section-tracker";
 import { HouseTypeCarousel, type HouseTypeItem } from "@/components/house-type-carousel";
@@ -6,11 +8,7 @@ import { LeadModal } from "@/components/lead-modal";
 import { LeadOpenButton } from "@/components/lead-open-button";
 import { T } from "@/components/language-provider";
 import { HomeHeader } from "@/components/home-header";
-import {
-  NewsPromotionSlider,
-  type NewsPromotionImage,
-  type NewsPromotionItem,
-} from "@/components/news-promotion-slider";
+import { type NewsPromotionImage, type NewsPromotionItem } from "@/components/news-promotion-slider";
 import { type ProjectGalleryItem } from "@/components/project-gallery";
 import { ProjectNearbyShowcase } from "@/components/project-nearby-showcase";
 import { projectShowcaseSchema, showcaseKey } from "@/lib/project-showcase";
@@ -18,6 +16,7 @@ import { findProject } from "@/data/projects";
 import { prisma } from "@/lib/prisma";
 import { directionsUrl, googleMapsEmbedUrl, type MapProject } from "@/lib/project-map";
 import { FacilityCategory, ProjectFacilitiesShowcase } from "@/components/project-facilities-showcase";
+import backgroundImageFile from "@/assets/background/city-3.jpg";
 
 export const dynamic = "force-dynamic";
 const emptySettings = {
@@ -217,6 +216,16 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
     }
   })();
   const heroTitle = project.settings.hero_title_th || project.name;
+  const locationRow = project.id
+    ? await prisma.siteContent.findUnique({ where: { content_key: projectLocationKey(project.id) } })
+    : null;
+  const locationSettings = (() => {
+    try {
+      return projectLocationSchema.safeParse(JSON.parse(locationRow?.body || "null")).data;
+    } catch {
+      return undefined;
+    }
+  })();
   const heroTitleEn = project.settings.hero_title_en || project.name_en;
   const heroDescription = project.settings.hero_subtitle_th || project.description;
   const heroDescriptionEn = project.settings.hero_subtitle_en || project.description_en;
@@ -277,9 +286,9 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
     nameEn: project.name_en,
     location: projectAddressText || project.location,
     locationEn: project.location_en,
-    latitude: project.latitude ?? null,
-    longitude: project.longitude ?? null,
-    mapUrl: project.settings.map_url,
+    latitude: locationSettings?.latitude ?? project.latitude ?? null,
+    longitude: locationSettings?.longitude ?? project.longitude ?? null,
+    mapUrl: locationSettings ? locationSettings.mapUrl : project.settings.map_url,
   };
   const careItems = [
     {
@@ -391,19 +400,22 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
               />
             </p>
           </div>
-          <div className="mt-7 overflow-hidden rounded-2xl border border-brand-primary/15 bg-brand-soft shadow-sm">
-            <iframe
-              src={googleMapsEmbedUrl(mapProject)}
-              title={`Google Maps — ${project.name}`}
-              className="h-80 w-full border-0 sm:h-96 lg:h-112"
-              loading="lazy"
-              allowFullScreen
-              referrerPolicy="no-referrer-when-downgrade"
-            />
-          </div>
+          <ProjectMapTabs
+            imageUrl={
+              locationSettings?.imageId
+                ? `/api/admin/media?entityType=projects&entityId=${project.id}&mediaKind=map-image&mediaId=${locationSettings.imageId}`
+                : undefined
+            }
+            embedUrl={googleMapsEmbedUrl(mapProject)}
+            directionsHref={mapProject.mapUrl || directionsUrl(mapProject)}
+            projectName={project.name}
+          />
           <div className="mt-6 grid gap-5 lg:grid-cols-[.75fr_1.25fr]">
-            <aside className="relative overflow-hidden rounded-3xl bg-brand-primary p-5 text-white shadow-[0_14px_30px_rgba(0,45,98,0.16)] sm:p-6">
-              <span className="absolute -right-12 -bottom-16 size-48 rounded-full border-28 border-white/10" />
+            <aside
+              style={{ backgroundImage: `url(${backgroundImageFile.src})` }}
+              className="bg-cover bg-center bg-no-repeat relative overflow-hidden rounded-3xl bg-brand-primary p-5 text-white shadow-[0_14px_30px_rgba(0,45,98,0.16)] sm:p-6"
+            >
+              <div className="pointer-events-none absolute inset-0 bg-[#003f7d]/85 bg-[radial-gradient(circle_at_22%_15%,rgba(0,111,181,.35),transparent_40%),linear-gradient(120deg,rgba(0,59,115,0.7),rgba(0,77,145,0.7)_62%,rgba(0,54,104,0.8))]" />
               <div className="relative">
                 <span className="grid size-11 place-items-center rounded-2xl bg-brand-accent text-lg text-brand-primary shadow-sm">
                   <i className="fa-solid fa-location-dot" />
@@ -415,7 +427,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                   {projectAddressText || project.location}
                 </p>
                 <a
-                  href={project.settings.map_url || directionsUrl(mapProject)}
+                  href={mapProject.mapUrl || directionsUrl(mapProject)}
                   target="_blank"
                   rel="noreferrer"
                   className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-bold text-brand-primary transition hover:bg-brand-accent"
@@ -438,17 +450,37 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                 </div>
               </div>
               <ul className="mt-5 grid gap-x-6 sm:grid-cols-2">
-                {landmarks.map((landmark, index) => (
+                {(locationSettings
+                  ? locationSettings.places
+                  : landmarks.map((name, index) => ({
+                      name,
+                      nameEn: landmarksEn[index],
+                      url: "",
+                      icon: "fa-location-dot",
+                    }))
+                ).map((place, index) => (
                   <li
-                    key={landmark}
+                    key={`${place.name}-${index}`}
                     className="flex min-w-0 items-center gap-3 border-b border-slate-100 py-3 last:border-0"
                   >
                     <span className="grid size-7 shrink-0 place-items-center rounded-full bg-brand-soft text-[0.65rem] font-extrabold text-brand-primary">
-                      {String(index + 1).padStart(2, "0")}
+                      <i className={`fa-solid ${place.icon ?? "fa-location-dot"}`} aria-hidden="true" />
                     </span>
-                    <span className="min-w-0 truncate text-sm font-medium text-slate-600">
-                      <T th={landmark} en={landmarksEn[index] ?? "Nearby landmark"} />
-                    </span>
+                    {place.url ? (
+                      <a
+                        href={place.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="min-w-0 text-sm font-medium text-brand-primary hover:underline"
+                      >
+                        <T th={place.name} en={place.nameEn ?? ""} />
+                        <i className="fa-solid fa-arrow-up-right-from-square ml-2 text-xs" aria-hidden="true" />
+                      </a>
+                    ) : (
+                      <span className="min-w-0 text-sm font-medium text-slate-600">
+                        <T th={place.name} en={place.nameEn ?? ""} />
+                      </span>
+                    )}
                   </li>
                 ))}
               </ul>

@@ -35,7 +35,7 @@ function isEntityType(value: string): value is EntityType {
   return entityTypes.includes(value as EntityType);
 }
 function isKind(value: string) {
-  return ["cover", "hero", "gallery", "brochure", "portrait", "nearby"].includes(value);
+  return ["cover", "hero", "gallery", "brochure", "portrait", "nearby", "map-image"].includes(value);
 }
 async function mediaProjectId(entityType: EntityType, entityId: string) {
   switch (entityType) {
@@ -163,6 +163,8 @@ export async function POST(request: Request) {
   )
     return NextResponse.json({ message: "ข้อมูลอัปโหลดไม่ถูกต้อง" }, { status: 400 });
   const extension = mimeExtensions[file.type];
+  if (mediaKind === "map-image" && !["image/jpeg", "image/png", "image/webp"].includes(file.type))
+    return NextResponse.json({ message: "รูปแผนที่รองรับ JPG, PNG และ WEBP เท่านั้น" }, { status: 400 });
   if (!(await canAccessRecord(user, entityType, entityId)))
     return NextResponse.json({ message: "ไม่มีสิทธิ์จัดการโครงการนี้" }, { status: 403 });
   const isVideo = file.type.startsWith("video/");
@@ -256,6 +258,7 @@ export async function DELETE(request: Request) {
       mediaKind !== "gallery" &&
       mediaKind !== "portrait" &&
       mediaKind !== "nearby" &&
+      mediaKind !== "map-image" &&
       !(entityType === "mida-blog" && mediaKind === "cover"))
   )
     return NextResponse.json({ message: "คำขอลบรูปภาพไม่ถูกต้อง" }, { status: 400 });
