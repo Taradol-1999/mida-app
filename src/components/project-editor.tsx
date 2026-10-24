@@ -2,6 +2,7 @@
 
 import { BannerMediaUpload } from "@/components/banner-media-upload";
 import { FileDropzone } from "@/components/file-dropzone";
+import { UploadRemoveButton } from "@/components/upload-remove-button";
 import { ProjectLogoUpload } from "@/components/project-logo-upload";
 import { ContactWidgetSettings, type ContactWidgetValues } from "@/components/contact-widget-settings";
 
@@ -300,6 +301,13 @@ export function ProjectEditor({
   };
   const uploadBrochure = async (file?: File) => {
     if (!file || !editingId) return;
+    if (
+      (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) ||
+      file.size > 10 * 1024 * 1024
+    ) {
+      setMessage("กรุณาเลือกไฟล์ PDF ขนาดไม่เกิน 10 MB");
+      return;
+    }
     setBrochureBusy(true);
     setMessage("");
     const upload = new FormData();
@@ -316,6 +324,23 @@ export function ProjectEditor({
     }
     await loadProjectHomepage(editingId);
     setMessage("อัปโหลดโบรชัวร์เรียบร้อย");
+  };
+  const removeBrochure = async () => {
+    if (!editingId || !brochure || !(await confirmDelete("ต้องการลบโบรชัวร์โครงการนี้ใช่หรือไม่?"))) return;
+    setBrochureBusy(true);
+    try {
+      const response = await fetch(
+        `/api/admin/media?entityType=projects&entityId=${editingId}&mediaKind=brochure&mediaId=${brochure.id}`,
+        { method: "DELETE" },
+      );
+      if (!response.ok) throw new Error("ลบโบรชัวร์ไม่สำเร็จ");
+      setBrochure(null);
+      setMessage("ลบโบรชัวร์เรียบร้อย");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "ลบโบรชัวร์ไม่สำเร็จ");
+    } finally {
+      setBrochureBusy(false);
+    }
   };
   const remove = async (project: Project) => {
     if (!(await confirmDelete(`ต้องการลบ ${project.name_th} หรือไม่?`, "ยืนยันการลบโครงการ"))) return;
@@ -527,6 +552,7 @@ export function ProjectEditor({
               <div className="mt-6">
                 <BannerMediaUpload
                   title="รูปภาพ/วิดีโอ banner หน้าโครงการ"
+                  compact
                   media={heroImages}
                   files={heroFiles}
                   onFilesChange={setHeroFiles}
@@ -535,35 +561,39 @@ export function ProjectEditor({
                 />
               </div>
               <div className="mt-6 rounded-xl border border-brand-primary/10 bg-brand-soft/50 p-4">
-                <div className="flex flex-wrap items-center justify-between gap-4">
-                  <div className="flex min-w-0 items-center gap-3">
-                    <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-rose-100 text-rose-600">
-                      <i className="fa-solid fa-file-pdf" />
-                    </span>
-                    <div className="min-w-0">
-                      <p className="text-sm font-bold text-slate-700">โบรชัวร์โครงการ</p>
-                      {brochure ? (
-                        <a
-                          href={brochure.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="mt-1 block truncate text-xs font-semibold text-brand-primary hover:underline"
-                        >
-                          {brochure.name}
-                        </a>
-                      ) : (
-                        <p className="mt-1 text-xs text-slate-500">ยังไม่มีไฟล์โบรชัวร์</p>
-                      )}
-                    </div>
-                  </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-bold text-slate-700">โบรชัวร์โครงการ</p>
                   <FileDropzone
                     title={brochureBusy ? "กำลังอัปโหลด..." : "ลากและวางโบรชัวร์ที่นี่"}
                     hint="PDF · ไม่เกิน 10 MB"
                     accept="application/pdf,.pdf"
                     disabled={brochureBusy}
-                    fileName={brochure?.name}
-                    className="min-h-28 min-w-64"
+                    className="mt-3 w-full min-w-0"
                     onFilesChange={(files) => void uploadBrochure(files[0])}
+                    preview={
+                      brochure ? (
+                        <div className="relative mx-auto w-full max-w-lg rounded-lg border border-slate-200 bg-white p-5">
+                          <UploadRemoveButton
+                            label="ลบโบรชัวร์โครงการ"
+                            disabled={brochureBusy}
+                            onRemove={removeBrochure}
+                          />
+                          <a
+                            href={brochure.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex min-w-0 flex-col items-center gap-3 rounded-lg px-8 py-4 text-brand-primary hover:bg-brand-soft focus-visible:outline-2 focus-visible:outline-brand-primary"
+                          >
+                            <i className="fa-solid fa-file-pdf text-4xl text-rose-600" aria-hidden="true" />
+                            <span className="w-full break-words text-sm font-semibold">{brochure.name}</span>
+                            <span className="text-xs text-slate-500">
+                              เปิดดูไฟล์ PDF{" "}
+                              <i className="fa-solid fa-arrow-up-right-from-square ml-1" aria-hidden="true" />
+                            </span>
+                          </a>
+                        </div>
+                      ) : undefined
+                    }
                   />
                 </div>
               </div>

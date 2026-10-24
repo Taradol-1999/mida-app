@@ -19,6 +19,7 @@ type Props = {
   single?: boolean;
   allowRemoveSaved?: boolean;
   hideEmptyState?: boolean;
+  compact?: boolean;
 };
 
 function Preview({ url, name, mimeType, compact = false }: Omit<BannerMedia, "id"> & { compact?: boolean }) {
@@ -50,14 +51,16 @@ function PendingMediaPreviews({
   files,
   onRemove,
   single = false,
+  compact = false,
 }: {
   files: File[];
   onRemove: (index: number) => void;
   single?: boolean;
+  compact?: boolean;
 }) {
   return (
     <div
-      className={`mb-3 grid w-full grid-cols-1 gap-3 ${single ? "mx-auto max-w-lg" : "sm:grid-cols-2 lg:grid-cols-3"}`}
+      className={`mb-3 grid w-full gap-3 ${single ? "mx-auto max-w-lg grid-cols-1" : compact ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"}`}
     >
       {files.map((file, index) => (
         <div
@@ -89,6 +92,7 @@ export function BannerMediaUpload({
   single = false,
   allowRemoveSaved = true,
   hideEmptyState = false,
+  compact = false,
 }: Props) {
   const id = useId();
   const [error, setError] = useState("");
@@ -143,12 +147,13 @@ export function BannerMediaUpload({
                   <PendingMediaPreviews
                     files={files}
                     single={single}
+                    compact={compact}
                     onRemove={(index) => onFilesChange(files.filter((_, position) => position !== index))}
                   />
                 )}
                 {media.length > 0 && (
                   <ul
-                    className={`grid w-full grid-cols-1 gap-3 text-left ${single ? "mx-auto max-w-lg" : "sm:grid-cols-2 lg:grid-cols-3"}`}
+                    className={`grid w-full gap-3 text-left ${single ? "mx-auto max-w-lg grid-cols-1" : compact ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"}`}
                   >
                     {media.map((item) => (
                       <li
