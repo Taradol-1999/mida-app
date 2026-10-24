@@ -11,6 +11,7 @@ import { T } from "@/components/language-provider";
 import { HomeHeader } from "@/components/home-header";
 import { FloatingContactWidget } from "@/components/floating-contact-widget";
 import { projectContactKey } from "@/lib/project-contact";
+import { contactOptionsKey, readContactOptions } from "@/lib/contact-widget-options";
 import { type NewsPromotionImage, type NewsPromotionItem } from "@/components/news-promotion-slider";
 import { type ProjectGalleryItem } from "@/components/project-gallery";
 import { ProjectNearbyShowcase } from "@/components/project-nearby-showcase";
@@ -186,6 +187,10 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   const contactContent = project.id
     ? await prisma.siteContent.findUnique({ where: { content_key: projectContactKey(project.id) } })
     : null;
+  const contactOptionsContent = project.id
+    ? await prisma.siteContent.findUnique({ where: { content_key: contactOptionsKey(project.id) } })
+    : null;
+  const contactOptions = readContactOptions(contactOptionsContent?.body);
   const safeContactUrl = (value?: string | null) => {
     try {
       const url = new URL(value ?? "");
@@ -721,6 +726,9 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
       <FloatingContactWidget
         lineUrl={safeContactUrl(project.settings.line_url)}
         messengerUrl={safeContactUrl(contactContent?.body)}
+        tiktokUrl={safeContactUrl(contactContent?.body_en)}
+        youtubeUrl={safeContactUrl(contactOptions.youtube)}
+        widgetChannels={contactOptions.widgetChannels}
         phone={project.settings.phone ?? ""}
         email={project.settings.email ?? ""}
       />

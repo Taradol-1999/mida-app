@@ -27,6 +27,10 @@ export function SiteFooter({
   facebookUrl,
   lineUrl,
   tiktokUrl,
+  youtubeUrl,
+  messengerUrl,
+  phone,
+  email,
 }: {
   projectName?: string;
   contact?: string | null;
@@ -34,14 +38,19 @@ export function SiteFooter({
   facebookUrl?: string | null;
   lineUrl?: string | null;
   tiktokUrl?: string | null;
+  youtubeUrl?: string | null;
+  messengerUrl?: string | null;
+  phone?: string | null;
+  email?: string | null;
 }) {
   const { t } = useTranslation();
   const socials = [
     { ...socialLinks[0], href: facebookUrl || socialLinks[0].href },
-    socialLinks[1],
+    { ...socialLinks[1], href: youtubeUrl },
     { href: lineUrl, label: "LINE", icon: "fa-line", color: "bg-social-line-footer" },
+    { href: messengerUrl, label: "Messenger", icon: "fa-facebook-messenger", color: "bg-social-messenger" },
     { href: tiktokUrl, label: "TikTok", icon: "fa-tiktok", color: "bg-social-tiktok" },
-  ];
+  ].filter((social) => Boolean(social.href));
 
   return (
     <footer id="contact" className="bg-brand-primary text-white">
@@ -93,14 +102,14 @@ export function SiteFooter({
               en: "Follow our news, new projects, and special events.",
             })}
           </p>
-          <div className="mt-2 flex items-center gap-3 md:gap-2.5">
+          <div className="mt-2 flex flex-wrap items-center gap-3 md:gap-2.5">
             {socials.map((social) => {
               const icon = <i className={`fa-brands ${social.icon}`} aria-hidden="true" />;
               const className = `grid size-9 place-items-center rounded-[3px] text-lg text-white md:size-6 md:text-sm ${social.color}`;
-              return social.href ? (
+              return (
                 <a
                   key={social.label}
-                  href={social.href}
+                  href={social.href ?? undefined}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={t({
@@ -111,14 +120,26 @@ export function SiteFooter({
                 >
                   {icon}
                 </a>
-              ) : (
-                <span key={social.label} aria-label={social.label} className={className}>
-                  {icon}
-                </span>
               );
             })}
           </div>
-          <p className="mt-2 text-sm text-white/80">TEL : 02 885 5558</p>
+          {phone && (
+            <a
+              href={`tel:${phone.replace(/[^\d+]/g, "")}`}
+              className="mt-3 block w-fit max-w-full break-words text-sm text-white/80 transition hover:text-brand-accent focus-visible:outline-2 focus-visible:outline-white"
+            >
+              TEL : {phone}
+            </a>
+          )}
+          {email && (
+            <a
+              href={`mailto:${encodeURIComponent(email)}`}
+              className="mt-2 block w-fit max-w-full break-all text-sm text-white/80 transition hover:text-brand-accent focus-visible:outline-2 focus-visible:outline-white"
+            >
+              <i className="fa-solid fa-envelope mr-2" aria-hidden="true" />
+              {email}
+            </a>
+          )}
         </div>
       </div>
     </footer>

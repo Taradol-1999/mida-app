@@ -2,15 +2,22 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "@/components/language-provider";
+import { type ContactChannel, type WidgetChannels } from "@/lib/contact-widget-options";
 
 export function FloatingContactWidget({
   lineUrl,
   messengerUrl,
+  tiktokUrl,
+  youtubeUrl,
+  widgetChannels,
   phone,
   email,
 }: {
   lineUrl?: string;
   messengerUrl?: string;
+  tiktokUrl?: string;
+  youtubeUrl?: string;
+  widgetChannels?: Partial<WidgetChannels>;
   phone: string;
   email: string;
 }) {
@@ -36,21 +43,37 @@ export function FloatingContactWidget({
   }, [open]);
 
   const contacts = [
-    { label: "LINE", href: lineUrl, icon: "fa-brands fa-line", color: "bg-social-line" },
-    { label: "Messenger", href: messengerUrl, icon: "fa-brands fa-facebook-messenger", color: "bg-social-messenger" },
+    { channel: "line", label: "LINE", href: lineUrl, icon: "fa-brands fa-line", color: "bg-social-line" },
+    {
+      channel: "messenger",
+      label: "Messenger",
+      href: messengerUrl,
+      icon: "fa-brands fa-facebook-messenger",
+      color: "bg-social-messenger",
+    },
+    { channel: "tiktok", label: "TikTok", href: tiktokUrl, icon: "fa-brands fa-tiktok", color: "bg-social-tiktok" },
+    {
+      channel: "youtube",
+      label: "YouTube",
+      href: youtubeUrl,
+      icon: "fa-brands fa-youtube",
+      color: "bg-social-youtube",
+    },
     {
       label: t({ th: "อีเมล", en: "Email" }),
+      channel: "email",
       href: email ? `mailto:${encodeURIComponent(email)}` : undefined,
       icon: "fa-solid fa-envelope text-red-600",
       color: "bg-white",
     },
     {
       label: t({ th: phone ? `โทร ${phone}` : "โทรศัพท์", en: phone ? `Call ${phone}` : "Phone" }),
+      channel: "phone",
       href: phone ? `tel:${phone.replace(/[^\d+]/g, "")}` : undefined,
       icon: "fa-solid fa-phone text-sm",
       color: "bg-brand-text",
     },
-  ].filter((contact) => Boolean(contact.href));
+  ].filter((contact) => Boolean(contact.href) && widgetChannels?.[contact.channel as ContactChannel] !== false);
 
   if (!contacts.length) return null;
 

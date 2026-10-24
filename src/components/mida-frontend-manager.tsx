@@ -2,6 +2,7 @@
 
 import { BannerMediaUpload } from "@/components/banner-media-upload";
 import { ContactWidgetSettings, type ContactWidgetValues } from "@/components/contact-widget-settings";
+import { defaultWidgetChannels } from "@/lib/contact-widget-options";
 import { confirmDelete } from "@/lib/admin-alert";
 
 import { Input, Textarea } from "@/components/ui/form-controls";
@@ -27,6 +28,9 @@ export function MidaFrontendManager() {
   const [contact, setContact] = useState<ContactWidgetValues>({
     line: "",
     messenger: "",
+    tiktok: "",
+    youtube: "",
+    widgetChannels: { ...defaultWidgetChannels },
     phone: "02 885 5558",
     email: "",
   });

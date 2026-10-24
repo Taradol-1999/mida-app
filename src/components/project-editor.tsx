@@ -5,6 +5,7 @@ import { FileDropzone } from "@/components/file-dropzone";
 import { UploadRemoveButton } from "@/components/upload-remove-button";
 import { ProjectLogoUpload } from "@/components/project-logo-upload";
 import { ContactWidgetSettings, type ContactWidgetValues } from "@/components/contact-widget-settings";
+import { defaultWidgetChannels } from "@/lib/contact-widget-options";
 
 import { Input, Textarea, Select } from "@/components/ui/form-controls";
 import { confirmDelete } from "@/lib/admin-alert";
@@ -112,7 +113,15 @@ export function ProjectEditor({
   const [heroImages, setHeroImages] = useState<MediaItem[]>([]);
   const [brochure, setBrochure] = useState<Brochure | null>(null);
   const [brochureBusy, setBrochureBusy] = useState(false);
-  const [contact, setContact] = useState<ContactWidgetValues>({ line: "", messenger: "", phone: "", email: "" });
+  const [contact, setContact] = useState<ContactWidgetValues>({
+    line: "",
+    messenger: "",
+    tiktok: "",
+    youtube: "",
+    widgetChannels: { ...defaultWidgetChannels },
+    phone: "",
+    email: "",
+  });
   const [contactReady, setContactReady] = useState(false);
   const load = useCallback(async () => {
     const response = await fetch("/api/admin/projects");
