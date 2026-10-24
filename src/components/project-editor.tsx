@@ -1,5 +1,7 @@
 "use client";
 
+import { AdminFeedback, useAdminFeedback } from "@/components/admin-feedback";
+
 import { BannerMediaUpload } from "@/components/banner-media-upload";
 import { FileDropzone } from "@/components/file-dropzone";
 import { UploadRemoveButton } from "@/components/upload-remove-button";
@@ -103,7 +105,7 @@ export function ProjectEditor({
   const [projects, setProjects] = useState<Project[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<Form>(emptyForm);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useAdminFeedback();
   const [busy, setBusy] = useState(false);
   const [imageMissing, setImageMissing] = useState(false);
   const [coverBusy, setCoverBusy] = useState(false);
@@ -131,7 +133,7 @@ export function ProjectEditor({
     }
     const data = await response.json();
     setProjects(data.rows ?? []);
-  }, []);
+  }, [setMessage]);
   function startEditing(project: Project) {
     setEditingId(project.id);
     setForm({
@@ -168,31 +170,34 @@ export function ProjectEditor({
     } else {
       setMessage("ไม่พบข้อมูลโครงการที่เลือก");
     }
-  }, [isEditMode, selectedProjectId, projects]);
-  const loadProjectHomepage = useCallback(async (projectId: string) => {
-    setContactReady(false);
-    const [settingsResponse, heroResponse, brochureResponse, contactResponse] = await Promise.all([
-      fetch(`/api/admin/project-settings?projectId=${projectId}`),
-      fetch(`/api/admin/media?entityType=projects&entityId=${projectId}&mediaKind=hero&list=1`),
-      fetch(`/api/admin/media?entityType=projects&entityId=${projectId}&mediaKind=brochure&list=1`),
-      fetch(`/api/admin/project-contact?projectId=${projectId}`),
-    ]);
-    const settingsData = settingsResponse.ok ? await settingsResponse.json() : { settings: null };
-    const heroData = heroResponse.ok ? await heroResponse.json() : { rows: [] };
-    const brochureData = brochureResponse.ok ? await brochureResponse.json() : { rows: [] };
-    setHomepage({
-      hero_title_th: String(settingsData.settings?.hero_title_th ?? ""),
-      hero_title_en: String(settingsData.settings?.hero_title_en ?? ""),
-      hero_subtitle_th: String(settingsData.settings?.hero_subtitle_th ?? ""),
-      hero_subtitle_en: String(settingsData.settings?.hero_subtitle_en ?? ""),
-    });
-    setHeroImages(heroData.rows ?? []);
-    setBrochure(brochureData.rows?.[0] ?? null);
-    if (contactResponse.ok) {
-      setContact(await contactResponse.json());
-      setContactReady(true);
-    } else setMessage("โหลดช่องทางติดต่อไม่สำเร็จ กรุณารีเฟรชหน้าอีกครั้ง");
-  }, []);
+  }, [isEditMode, selectedProjectId, projects, setMessage]);
+  const loadProjectHomepage = useCallback(
+    async (projectId: string) => {
+      setContactReady(false);
+      const [settingsResponse, heroResponse, brochureResponse, contactResponse] = await Promise.all([
+        fetch(`/api/admin/project-settings?projectId=${projectId}`),
+        fetch(`/api/admin/media?entityType=projects&entityId=${projectId}&mediaKind=hero&list=1`),
+        fetch(`/api/admin/media?entityType=projects&entityId=${projectId}&mediaKind=brochure&list=1`),
+        fetch(`/api/admin/project-contact?projectId=${projectId}`),
+      ]);
+      const settingsData = settingsResponse.ok ? await settingsResponse.json() : { settings: null };
+      const heroData = heroResponse.ok ? await heroResponse.json() : { rows: [] };
+      const brochureData = brochureResponse.ok ? await brochureResponse.json() : { rows: [] };
+      setHomepage({
+        hero_title_th: String(settingsData.settings?.hero_title_th ?? ""),
+        hero_title_en: String(settingsData.settings?.hero_title_en ?? ""),
+        hero_subtitle_th: String(settingsData.settings?.hero_subtitle_th ?? ""),
+        hero_subtitle_en: String(settingsData.settings?.hero_subtitle_en ?? ""),
+      });
+      setHeroImages(heroData.rows ?? []);
+      setBrochure(brochureData.rows?.[0] ?? null);
+      if (contactResponse.ok) {
+        setContact(await contactResponse.json());
+        setContactReady(true);
+      } else setMessage("โหลดช่องทางติดต่อไม่สำเร็จ กรุณารีเฟรชหน้าอีกครั้ง");
+    },
+    [setMessage],
+  );
   useEffect(() => {
     if (isEditMode && selectedProjectId) void loadProjectHomepage(selectedProjectId);
   }, [isEditMode, loadProjectHomepage, selectedProjectId]);
@@ -265,12 +270,12 @@ export function ProjectEditor({
         }
       }
       setHeroFiles([]);
-      setMessage("บันทึกข้อมูลโครงการและข้อมูลหน้าหลักเรียบร้อย");
+      setMessage("บันทึกข้อมูลโครงการและข้อมูลหน้าหลักเรียบร้อย", "success");
       await load();
       await loadProjectHomepage(String(editingId));
     } else {
       setForm(emptyForm);
-      setMessage("สร้างโครงการเรียบร้อย สามารถเลือกโครงการจากเมนูด้านซ้ายเพื่อเพิ่มรูปและข้อมูลอื่นๆ");
+      setMessage("สร้างโครงการเรียบร้อย สามารถเลือกโครงการจากเมนูด้านซ้ายเพื่อเพิ่มรูปและข้อมูลอื่นๆ", "success");
       router.refresh();
     }
     setBusy(false);
@@ -281,7 +286,10 @@ export function ProjectEditor({
       `/api/admin/media?entityType=projects&entityId=${editingId}&mediaKind=hero&mediaId=${id}`,
       { method: "DELETE" },
     );
-    if (response.ok) setHeroImages((items) => items.filter((item) => item.id !== id));
+    if (response.ok) {
+      setHeroImages((items) => items.filter((item) => item.id !== id));
+      setMessage("ลบไฟล์แบนเนอร์เรียบร้อย", "success");
+    } else setMessage("ลบไฟล์แบนเนอร์ไม่สำเร็จ");
   };
   const uploadCover = async (file?: File) => {
     if (!file || !editingId) return;
@@ -301,7 +309,7 @@ export function ProjectEditor({
       if (!response.ok) throw new Error(result.message || "อัปโหลดภาพปกไม่สำเร็จ");
       setImageMissing(false);
       setCoverVersion(Date.now());
-      setMessage("อัปโหลดภาพปกเรียบร้อย");
+      setMessage("อัปโหลดภาพปกเรียบร้อย", "success");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "อัปโหลดภาพปกไม่สำเร็จ");
     } finally {
@@ -332,7 +340,7 @@ export function ProjectEditor({
       return;
     }
     await loadProjectHomepage(editingId);
-    setMessage("อัปโหลดโบรชัวร์เรียบร้อย");
+    setMessage("อัปโหลดโบรชัวร์เรียบร้อย", "success");
   };
   const removeBrochure = async () => {
     if (!editingId || !brochure || !(await confirmDelete("ต้องการลบโบรชัวร์โครงการนี้ใช่หรือไม่?"))) return;
@@ -344,7 +352,7 @@ export function ProjectEditor({
       );
       if (!response.ok) throw new Error("ลบโบรชัวร์ไม่สำเร็จ");
       setBrochure(null);
-      setMessage("ลบโบรชัวร์เรียบร้อย");
+      setMessage("ลบโบรชัวร์เรียบร้อย", "success");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "ลบโบรชัวร์ไม่สำเร็จ");
     } finally {
@@ -359,7 +367,10 @@ export function ProjectEditor({
       body: JSON.stringify({ id: project.id }),
     });
     const result = await response.json();
-    setMessage(response.ok ? "ลบโครงการแล้ว" : (result.message ?? "ลบโครงการไม่สำเร็จ"));
+    setMessage(
+      response.ok ? "ลบโครงการแล้ว" : (result.message ?? "ลบโครงการไม่สำเร็จ"),
+      response.ok ? "success" : "error",
+    );
     if (response.ok) {
       router.push("/admin");
       router.refresh();
@@ -374,7 +385,7 @@ export function ProjectEditor({
         </div>
       </header>
       <div className="mt-6">
-        <form onSubmit={submit} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
+        <form onSubmit={submit} className="admin-card md:p-6">
           <div className="mb-5 border-b border-slate-100 pb-4">
             <div>
               <h2 className="text-base font-bold text-slate-800">
@@ -613,14 +624,9 @@ export function ProjectEditor({
               <ContactWidgetSettings scope="หน้าโครงการนี้" value={contact} onChange={setContact} />
             </div>
           )}
-          {message && (
-            <p className="mt-4 rounded-lg bg-brand-soft px-3 py-2 text-sm font-medium text-brand-primary">{message}</p>
-          )}
+          <AdminFeedback notice={message} />
           <div className="mt-6 flex flex-col gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:items-center sm:justify-between">
-            <button
-              disabled={busy || (isEditMode && (!editingId || !contactReady))}
-              className="inline-flex min-h-11 items-center justify-center rounded-lg bg-brand-primary px-5 py-2.5 text-sm font-bold text-white transition hover:bg-brand-text disabled:opacity-50"
-            >
+            <button disabled={busy || (isEditMode && (!editingId || !contactReady))} className="admin-button-primary">
               <i className="fa-solid fa-floppy-disk mr-2" />
               {busy ? "กำลังบันทึก..." : isEditMode ? "บันทึกข้อมูลโครงการทั้งหมด" : "สร้างโครงการ"}
             </button>

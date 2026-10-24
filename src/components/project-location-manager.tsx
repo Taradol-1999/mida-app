@@ -1,5 +1,7 @@
 "use client";
 
+import { AdminFeedback, useAdminFeedback } from "@/components/admin-feedback";
+
 import { useEffect, useState } from "react";
 import { BannerMediaUpload } from "@/components/banner-media-upload";
 import type { ProjectLocationData } from "@/lib/project-location";
@@ -12,7 +14,7 @@ export function ProjectLocationManager({ projectId }: { projectId: string }) {
   const [files, setFiles] = useState<File[]>([]);
   const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useAdminFeedback();
   useEffect(() => {
     let cancelled = false;
     Promise.all([
@@ -34,7 +36,7 @@ export function ProjectLocationManager({ projectId }: { projectId: string }) {
     return () => {
       cancelled = true;
     };
-  }, [projectId]);
+  }, [projectId, setMessage]);
 
   async function save(event: React.FormEvent) {
     event.preventDefault();
@@ -70,7 +72,7 @@ export function ProjectLocationManager({ projectId }: { projectId: string }) {
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.message || "บันทึกไม่สำเร็จ");
-      setMessage("บันทึกแผนที่และสถานที่ใกล้เคียงเรียบร้อยแล้ว");
+      setMessage("บันทึกแผนที่และสถานที่ใกล้เคียงเรียบร้อยแล้ว", "success");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "บันทึกไม่สำเร็จ");
     } finally {
@@ -82,11 +84,7 @@ export function ProjectLocationManager({ projectId }: { projectId: string }) {
     <section className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-8">
       <h1 className="text-2xl font-extrabold text-brand-primary">แผนที่และสถานที่ใกล้เคียง</h1>
       <p className="mt-2 text-sm text-slate-500">จัดการแผนที่โครงการและลิงก์สถานที่ใกล้เคียงสำหรับหน้าบ้าน</p>
-      {message && (
-        <p role="status" className="my-4 rounded-xl bg-brand-soft p-4 text-sm text-brand-primary">
-          {message}
-        </p>
-      )}
+      <AdminFeedback notice={message} />
       <form onSubmit={save} className="mt-6">
         <fieldset disabled={!ready || busy} className="grid min-w-0 gap-6 disabled:opacity-60">
           <label className="text-sm font-semibold">
@@ -115,7 +113,7 @@ export function ProjectLocationManager({ projectId }: { projectId: string }) {
               <h2 className="font-bold text-brand-primary">สถานที่ใกล้เคียง</h2>
               <button
                 type="button"
-                className="button-primary text-sm"
+                className="admin-button-primary"
                 onClick={() => setData({ ...data, places: [...data.places, { name: "", nameEn: "", url: "" }] })}
               >
                 <i className="fa-solid fa-plus" aria-hidden="true" />
@@ -222,7 +220,7 @@ export function ProjectLocationManager({ projectId }: { projectId: string }) {
             {!data.places.length && <p className="py-6 text-center text-sm text-slate-400">ยังไม่มีสถานที่ใกล้เคียง</p>}
           </div>
           <div>
-            <button type="submit" className="button-primary">
+            <button type="submit" className="admin-button-primary">
               {busy ? "กำลังบันทึก…" : "บันทึกข้อมูล"}
             </button>
           </div>

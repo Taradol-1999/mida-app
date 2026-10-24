@@ -1,5 +1,59 @@
 @import "tailwindcss";
 
+@utility admin-card {
+  @apply min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6;
+}
+@utility admin-table {
+  @apply w-full border-collapse text-left text-sm;
+  & thead {
+    @apply border-b border-slate-200 bg-slate-50 text-slate-500;
+  }
+  & tbody tr {
+    @apply border-b border-slate-100 transition-colors hover:bg-slate-50/70;
+  }
+}
+@utility admin-button-primary {
+  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-brand-primary px-5 py-2.5 text-sm font-bold text-white transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary disabled:cursor-not-allowed disabled:opacity-50;
+}
+@utility admin-button-secondary {
+  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary disabled:cursor-not-allowed disabled:opacity-50;
+}
+@utility admin-button-danger {
+  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-rose-600 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-rose-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600 disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+@layer components {
+  .admin-feedback {
+    @apply my-4 flex items-start gap-3 rounded-xl border px-4 py-3 text-sm;
+  }
+  .admin-feedback-error {
+    @apply border-rose-200 bg-rose-50 text-rose-800;
+  }
+  .admin-feedback-warning {
+    @apply border-amber-200 bg-amber-50 text-amber-900;
+  }
+  .admin-shell input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]),
+  .admin-shell select,
+  .admin-shell textarea {
+    @apply min-w-0 max-w-full;
+  }
+}
+
+/* SweetAlert ships unlayered styles; keep these overrides outside Tailwind layers. */
+div.swal2-popup.admin-alert-popup {
+  @apply rounded-2xl border border-slate-200 bg-white text-slate-700 shadow-xl;
+  font-family: var(--font-noto-sans-thai), Arial, sans-serif;
+}
+.swal2-popup .admin-alert-title {
+  @apply text-lg font-bold text-slate-800;
+}
+.swal2-popup .admin-alert-content {
+  @apply text-sm leading-6 text-slate-600;
+}
+.swal2-popup .admin-alert-actions {
+  @apply flex flex-wrap justify-center gap-3;
+}
+
 @layer components {
   .lead-registration-form input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
   .lead-registration-form select {

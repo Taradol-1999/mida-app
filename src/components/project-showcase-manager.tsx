@@ -1,5 +1,7 @@
 "use client";
 
+import { AdminFeedback, useAdminFeedback } from "@/components/admin-feedback";
+
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { BannerMediaUpload } from "@/components/banner-media-upload";
@@ -42,7 +44,7 @@ export function ProjectShowcaseManager({ projectId }: { projectId: string }) {
   >([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useAdminFeedback();
   const mediaUrl = `/api/admin/media?entityType=projects&entityId=${projectId}&mediaKind=nearby&list=1`;
 
   useEffect(() => {
@@ -64,7 +66,7 @@ export function ProjectShowcaseManager({ projectId }: { projectId: string }) {
     return () => {
       cancelled = true;
     };
-  }, [projectId, mediaUrl]);
+  }, [projectId, mediaUrl, setMessage]);
 
   async function save(event: React.FormEvent) {
     event.preventDefault();
@@ -105,7 +107,7 @@ export function ProjectShowcaseManager({ projectId }: { projectId: string }) {
       if (!response.ok) throw new Error(result.message || "บันทึกไม่สำเร็จ");
       const images = await fetch(mediaUrl);
       if (images.ok) setMedia((await images.json()).rows);
-      setMessage("บันทึกข้อมูลเรียบร้อยแล้ว");
+      setMessage("บันทึกข้อมูลเรียบร้อยแล้ว", "success");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "บันทึกไม่สำเร็จ");
     } finally {
@@ -117,11 +119,7 @@ export function ProjectShowcaseManager({ projectId }: { projectId: string }) {
     <section className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-8">
       <h1 className="text-2xl font-extrabold text-brand-primary">จุดเด่นทำเลโครงการ</h1>
       <p className="mt-2 text-sm text-slate-500">จัดการข้อความและการ์ดรูปภาพที่แสดงใต้แบนเนอร์หลักของโครงการ</p>
-      {message && (
-        <p role="status" className="my-4 rounded-xl bg-brand-soft p-4 text-sm text-brand-primary">
-          {message}
-        </p>
-      )}
+      <AdminFeedback notice={message} />
       <form onSubmit={save} className="mt-6">
         <fieldset disabled={loading || busy} className="grid min-w-0 gap-5 disabled:opacity-60">
           <div className="grid gap-5 md:grid-cols-2">
@@ -362,7 +360,7 @@ export function ProjectShowcaseManager({ projectId }: { projectId: string }) {
               ))}
           </div>
           <div>
-            <button type="submit" className="button-primary">
+            <button type="submit" className="admin-button-primary">
               {busy ? "กำลังบันทึก…" : loading ? "กำลังโหลด…" : "บันทึกข้อมูล"}
             </button>
           </div>

@@ -1,5 +1,7 @@
 "use client";
 
+import { AdminFeedback, useAdminFeedback } from "@/components/admin-feedback";
+
 import { BannerMediaUpload } from "@/components/banner-media-upload";
 import { ContactWidgetSettings, type ContactWidgetValues } from "@/components/contact-widget-settings";
 import { defaultWidgetChannels } from "@/lib/contact-widget-options";
@@ -24,7 +26,7 @@ export function MidaFrontendManager() {
   const [projects, setProjects] = useState<HomepageProject[]>([]);
   const [selectedProjectIds, setSelectedProjectIds] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useAdminFeedback();
   const [contact, setContact] = useState<ContactWidgetValues>({
     line: "",
     messenger: "",
@@ -68,7 +70,7 @@ export function MidaFrontendManager() {
     setDescription(String(home.body ?? ""));
     setDescriptionEn(String(home.body_en ?? ""));
     await loadImages(id);
-  }, [loadImages]);
+  }, [loadImages, setMessage]);
 
   useEffect(() => void load(), [load]);
 
@@ -137,7 +139,7 @@ export function MidaFrontendManager() {
     }
     setFiles([]);
     await loadImages(savedContentId);
-    setMessage("บันทึกข้อมูลเว็บไซต์ส่วนกลาง MIDA เรียบร้อย");
+    setMessage("บันทึกข้อมูลเว็บไซต์ส่วนกลาง MIDA เรียบร้อย", "success");
     setBusy(false);
   }
 
@@ -147,7 +149,10 @@ export function MidaFrontendManager() {
       `/api/admin/media?entityType=site-content&entityId=${contentId}&mediaKind=hero&mediaId=${id}`,
       { method: "DELETE" },
     );
-    if (response.ok) setImages((current) => current.filter((image) => image.id !== id));
+    if (response.ok) {
+      setImages((current) => current.filter((image) => image.id !== id));
+      setMessage("ลบไฟล์แบนเนอร์เรียบร้อย", "success");
+    } else setMessage("ลบไฟล์แบนเนอร์ไม่สำเร็จ");
   }
 
   return (
@@ -279,16 +284,9 @@ export function MidaFrontendManager() {
         </fieldset>
 
         <ContactWidgetSettings value={contact} onChange={setContact} />
-        {message && (
-          <p role="status" className="rounded-xl bg-brand-soft px-4 py-3 text-brand-primary">
-            {message}
-          </p>
-        )}
+        <AdminFeedback notice={message} />
         <div className="flex justify-end border-t border-slate-100 pt-5">
-          <button
-            disabled={busy || !contactReady}
-            className="min-h-11 w-full rounded-xl bg-brand-primary px-6 py-3 font-bold text-white shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
-          >
+          <button disabled={busy || !contactReady} className="admin-button-primary w-full sm:w-auto">
             <i className="fa-solid fa-floppy-disk mr-2" aria-hidden="true" />
             {busy ? "กำลังบันทึก..." : "บันทึกข้อมูลเว็บไซต์ส่วนกลาง"}
           </button>

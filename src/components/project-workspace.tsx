@@ -1,5 +1,7 @@
 "use client";
 
+import { AdminFeedback, useAdminFeedback } from "@/components/admin-feedback";
+
 import { BannerMediaUpload } from "@/components/banner-media-upload";
 import { DashboardBarChart, DashboardDoughnutChart } from "@/components/dashboard-charts";
 import { FileDropzone } from "@/components/file-dropzone";
@@ -231,7 +233,7 @@ export function ProjectWorkspace({
   const [form, setForm] = useState<Record<string, unknown>>(() => empty(fields));
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editorOpen, setEditorOpen] = useState(false);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useAdminFeedback();
   const [busy, setBusy] = useState(false);
   const [houseTypeImage, setHouseTypeImage] = useState<File | null>(null);
   const [existingHouseTypeImage, setExistingHouseTypeImage] = useState<string | null>(null);
@@ -282,6 +284,7 @@ export function ProjectWorkspace({
         }
         setMessage(
           section === "after-sales" ? "บันทึกข้อมูลบริการหลังการขายเรียบร้อย" : "บันทึกข้อมูลติดต่อและแผนที่เรียบร้อย",
+          "success",
         );
         await load();
       } catch {
@@ -338,7 +341,7 @@ export function ProjectWorkspace({
         setContentMediaFiles((files) => files.filter((pending) => pending !== file));
       }
     }
-    setMessage("บันทึกข้อมูลเรียบร้อย");
+    setMessage("บันทึกข้อมูลเรียบร้อย", "success");
     setBusy(false);
     setHouseTypeImage(null);
     setExistingHouseTypeImage(null);
@@ -406,8 +409,10 @@ export function ProjectWorkspace({
       `/api/admin/media?entityType=${section}&entityId=${editingId}&mediaKind=gallery&mediaId=${id}`,
       { method: "DELETE" },
     );
-    if (response.ok) setContentMedia((items) => items.filter((item) => item.id !== id));
-    else setMessage("ลบรูปภาพไม่สำเร็จ");
+    if (response.ok) {
+      setContentMedia((items) => items.filter((item) => item.id !== id));
+      setMessage("ลบรูปภาพเรียบร้อย", "success");
+    } else setMessage("ลบรูปภาพไม่สำเร็จ");
   };
   const removeFacility = async (row: Record<string, unknown>) => {
     if (busy || section !== "facilities") return;
@@ -428,7 +433,7 @@ export function ProjectWorkspace({
       const result = await response.json();
       if (!response.ok) throw new Error(result.message || "ลบไม่สำเร็จ");
       setRows((items) => items.filter((item) => item.id !== row.id));
-      setMessage("ลบสิ่งอำนวยความสะดวกเรียบร้อยแล้ว");
+      setMessage("ลบสิ่งอำนวยความสะดวกเรียบร้อยแล้ว", "success");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "ลบไม่สำเร็จ กรุณาลองใหม่");
     } finally {
@@ -450,7 +455,7 @@ export function ProjectWorkspace({
         return;
       }
       setRows((current) => current.map((row) => (String(row.id) === id ? { ...row, status } : row)));
-      setMessage("บันทึกสถานะติดตามเรียบร้อย");
+      setMessage("บันทึกสถานะติดตามเรียบร้อย", "success");
     } catch {
       setMessage("ไม่สามารถเชื่อมต่อระบบบันทึกสถานะได้");
     } finally {
@@ -619,10 +624,10 @@ export function ProjectWorkspace({
             ส่งออกข้อมูลลูกค้า (CSV)
           </a>
         </header>
-        {message && <p className="mt-5 rounded-lg bg-brand-soft px-4 py-3 text-sm text-brand-primary">{message}</p>}
+        <AdminFeedback notice={message} />
         <section className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="overflow-x-auto">
-            <table className="min-w-295 w-full text-left text-sm">
+            <table className="admin-table min-w-295">
               <thead className="bg-slate-50 text-xs font-bold uppercase tracking-wide text-slate-600">
                 <tr>
                   <th className="px-4 py-4">วันที่/เวลา</th>
@@ -709,21 +714,13 @@ export function ProjectWorkspace({
             <h1 className="mt-1 text-xl font-bold text-slate-800">{dataConfig.title}</h1>
             <p className="mt-1 text-sm text-slate-500">{dataConfig.intro}</p>
           </div>
-          <button
-            type="button"
-            onClick={startCreate}
-            className="rounded-lg bg-brand-primary px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-brand-text"
-          >
+          <button type="button" onClick={startCreate} className="admin-button-primary">
             <i className="fa-solid fa-circle-plus mr-2" />
             เพิ่มข้อมูลใหม่
           </button>
         </header>
 
-        {message && (
-          <p className="mt-5 rounded-lg border border-brand-primary/10 bg-brand-soft px-4 py-3 text-sm font-semibold text-brand-primary">
-            {message}
-          </p>
-        )}
+        <AdminFeedback notice={message} />
 
         <section className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="flex items-center justify-between gap-4 border-b border-slate-100 px-5 py-4">
@@ -733,7 +730,7 @@ export function ProjectWorkspace({
             </div>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full min-w-220 text-left text-sm">
+            <table className="admin-table min-w-220">
               <thead className="border-b border-slate-200 bg-slate-50 text-xs font-bold text-slate-600">
                 <tr>
                   {dataConfig.columns?.map(([, label]) => (
@@ -940,10 +937,7 @@ export function ProjectWorkspace({
                 >
                   ยกเลิก
                 </button>
-                <button
-                  disabled={busy}
-                  className="rounded-lg bg-brand-primary px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-text disabled:opacity-50"
-                >
+                <button disabled={busy} className="admin-button-primary">
                   <i className="fa-solid fa-floppy-disk mr-2" />
                   {busy ? "กำลังบันทึก..." : editingId ? "บันทึกการแก้ไข" : "เพิ่มข้อมูล"}
                 </button>
@@ -963,7 +957,7 @@ export function ProjectWorkspace({
         </div>
       </header>
       <div className={`mt-6 grid gap-6 ${settingMode ? "" : "xl:grid-cols-[minmax(0,1fr)_22rem]"}`}>
-        <form onSubmit={save} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <form onSubmit={save} className="admin-card">
           <h2 className="border-b border-slate-100 pb-4 text-base font-bold text-slate-800">
             {editingId
               ? "แก้ไขข้อมูล"
@@ -1058,12 +1052,9 @@ export function ProjectWorkspace({
               />
             </div>
           )}
-          {message && <p className="mt-4 rounded-lg bg-brand-soft px-3 py-2 text-sm text-brand-primary">{message}</p>}
+          <AdminFeedback notice={message} />
           <div className="mt-5 flex gap-3">
-            <button
-              disabled={busy}
-              className="rounded-lg bg-brand-primary px-4 py-2.5 text-sm font-bold text-white disabled:opacity-50"
-            >
+            <button disabled={busy} className="admin-button-primary">
               <i className="fa-solid fa-floppy-disk mr-2" />
               {busy ? "กำลังบันทึก..." : "บันทึกข้อมูล"}
             </button>

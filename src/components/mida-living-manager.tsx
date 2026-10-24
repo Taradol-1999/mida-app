@@ -1,5 +1,7 @@
 "use client";
 
+import { AdminFeedback, useAdminFeedback } from "@/components/admin-feedback";
+
 import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 import { Input, Textarea } from "@/components/ui/form-controls";
@@ -87,11 +89,7 @@ function PortraitUpload({
           ) : undefined
         }
       />
-      {error && (
-        <p role="alert" className="mt-2 text-sm text-rose-600">
-          {error}
-        </p>
-      )}
+      <AdminFeedback notice={error ? { text: error, kind: "error" } : null} />
     </div>
   );
 }
@@ -120,8 +118,8 @@ export function MidaLivingManager({ blog = false }: { blog?: boolean }) {
   >([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
+  const [message, setMessage] = useAdminFeedback("success");
+  const [error, setError] = useAdminFeedback();
 
   const load = useCallback(async () => {
     try {
@@ -134,7 +132,7 @@ export function MidaLivingManager({ blog = false }: { blog?: boolean }) {
     } finally {
       setLoading(false);
     }
-  }, [endpoint]);
+  }, [endpoint, setError]);
 
   useEffect(() => void load(), [load]);
 
@@ -195,8 +193,10 @@ export function MidaLivingManager({ blog = false }: { blog?: boolean }) {
       `/api/admin/media?entityType=mida-blog&entityId=${editing.id}&mediaKind=${item.kind}&mediaId=${id}`,
       { method: "DELETE" },
     );
-    if (response.ok) setBlogMedia((items) => items.filter((media) => media.id !== id));
-    else setError("ลบรูปภาพไม่สำเร็จ");
+    if (response.ok) {
+      setBlogMedia((items) => items.filter((media) => media.id !== id));
+      setMessage("ลบรูปภาพเรียบร้อย", "success");
+    } else setError("ลบรูปภาพไม่สำเร็จ");
   }
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
@@ -250,7 +250,7 @@ export function MidaLivingManager({ blog = false }: { blog?: boolean }) {
         return;
       }
     }
-    setMessage(editing ? "บันทึกการแก้ไขเรียบร้อย" : "เพิ่มรายการเรียบร้อย");
+    setMessage(editing ? "บันทึกการแก้ไขเรียบร้อย" : "เพิ่มรายการเรียบร้อย", "success");
     setEditing(null);
     setOpen(false);
     setForm(emptyForm);
@@ -267,7 +267,7 @@ export function MidaLivingManager({ blog = false }: { blog?: boolean }) {
     const data = await responseJson<{ message?: string }>(response);
     if (!response.ok) return setError(data.message ?? "ลบข้อมูลไม่สำเร็จ");
     if (editing?.id === row.id) reset();
-    setMessage("ลบรายการเรียบร้อย");
+    setMessage("ลบรายการเรียบร้อย", "success");
     await load();
   }
 
@@ -380,24 +380,15 @@ export function MidaLivingManager({ blog = false }: { blog?: boolean }) {
                 </label>
               )}
             </div>
-            {(message || error) && (
-              <p
-                className={`mt-5 rounded-xl px-4 py-3 text-sm ${error ? "bg-rose-50 text-rose-700" : "bg-emerald-50 text-emerald-700"}`}
-              >
-                {error || message}
-              </p>
-            )}
-            <button
-              disabled={saving}
-              className="mt-6 min-h-11 rounded-xl bg-brand-primary px-6 text-sm font-bold text-white transition hover:bg-brand-secondary disabled:opacity-50"
-            >
+            <AdminFeedback notice={error || message} />
+            <button disabled={saving} className="mt-6 admin-button-primary">
               {saving ? "กำลังบันทึก..." : editing ? "บันทึกการแก้ไข" : "เพิ่มรายการ"}
             </button>
           </form>
         </div>
       )}
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-7">
+      <section className="admin-card md:p-7">
         <div className="mb-5 flex items-center justify-between">
           <h2 className="font-bold text-brand-primary">รายการทั้งหมด</h2>
           <button
@@ -406,19 +397,13 @@ export function MidaLivingManager({ blog = false }: { blog?: boolean }) {
               reset();
               setOpen(true);
             }}
-            className="rounded-lg bg-brand-primary px-4 py-2 text-sm font-bold text-white hover:bg-brand-secondary"
+            className="admin-button-primary"
           >
             <i className="fa-solid fa-plus mr-2" />
             เพิ่มรายการ
           </button>
         </div>
-        {(message || (!open && error)) && (
-          <p
-            className={`mb-4 rounded-xl px-4 py-3 text-sm ${error ? "bg-rose-50 text-rose-700" : "bg-emerald-50 text-emerald-700"}`}
-          >
-            {error || message}
-          </p>
-        )}
+        {!open && <AdminFeedback notice={error || message} />}
         {loading ? (
           <p className="py-10 text-center text-sm text-slate-400">กำลังโหลด...</p>
         ) : rows.length === 0 ? (
@@ -427,7 +412,7 @@ export function MidaLivingManager({ blog = false }: { blog?: boolean }) {
           </p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-160 text-left text-sm">
+            <table className="admin-table min-w-160">
               <thead className="bg-slate-50 text-slate-500">
                 <tr>
                   <th className="p-3">รูปภาพ</th>

@@ -20,7 +20,7 @@ export default async function AdminLayout({ children }: Readonly<{ children: Rea
   const user = await requireUser();
   const projects = await navigationProjects(user);
   return (
-    <main className="min-h-screen bg-slate-50 md:flex">
+    <main className="admin-shell min-h-screen bg-slate-50 md:flex">
       <AdminSidebar user={user} projects={projects} />
       <section className="min-w-0 flex-1">
         <div className="min-h-17 border-b border-t-4 border-b-slate-200 border-t-brand-accent bg-white px-5 py-3 shadow-sm md:px-8">

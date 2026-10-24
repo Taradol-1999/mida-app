@@ -1,4 +1,6 @@
 "use client";
+
+import { AdminFeedback, useAdminFeedback } from "@/components/admin-feedback";
 import { userRoleOptions } from "@/lib/user-roles";
 
 import { BannerMediaUpload } from "@/components/banner-media-upload";
@@ -306,7 +308,7 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
   const [editing, setEditing] = useState<string | null>(null);
   const [isEditingCurrentUser, setIsEditingCurrentUser] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useAdminFeedback();
   const [busy, setBusy] = useState(false);
   const [contentMediaFiles, setContentMediaFiles] = useState<File[]>([]);
   const [contentMedia, setContentMedia] = useState<{ id: string; name: string; mimeType: string; url: string }[]>([]);
@@ -320,7 +322,7 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
     const data = await response.json();
     setRows(data.rows ?? []);
     setProjects(data.projectOptions ?? []);
-  }, [resource]);
+  }, [resource, setMessage]);
   // This starts a network request; state changes happen after the request resolves.
   useEffect(() => {
     void load();
@@ -379,7 +381,7 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
     }
     setBusy(false);
     reset();
-    setMessage("บันทึกข้อมูลเรียบร้อย");
+    setMessage("บันทึกข้อมูลเรียบร้อย", "success");
     await load();
   };
   const edit = async (row: Record<string, unknown>) => {
@@ -414,8 +416,10 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
       `/api/admin/media?entityType=${resource}&entityId=${editing}&mediaKind=gallery&mediaId=${id}`,
       { method: "DELETE" },
     );
-    if (response.ok) setContentMedia((items) => items.filter((item) => item.id !== id));
-    else setMessage("ลบรูปภาพไม่สำเร็จ");
+    if (response.ok) {
+      setContentMedia((items) => items.filter((item) => item.id !== id));
+      setMessage("ลบรูปภาพเรียบร้อย", "success");
+    } else setMessage("ลบรูปภาพไม่สำเร็จ");
   };
   const remove = async (id: string) => {
     if (!(await confirmDelete("ต้องการลบรายการนี้หรือไม่?"))) return;
@@ -427,7 +431,7 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
     const result = await response.json();
     if (!response.ok) setMessage(result.message ?? "ลบข้อมูลไม่สำเร็จ");
     else {
-      setMessage("ลบรายการแล้ว");
+      setMessage("ลบรายการแล้ว", "success");
       await load();
     }
   };
@@ -435,7 +439,7 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
   const formCard = (config.canCreate !== false || editing) && (
     <form
       onSubmit={submit}
-      className={`rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6 ${resource === "users" ? "max-h-[calc(100vh-5rem)] overflow-y-auto" : ""}`}
+      className={`admin-card md:p-6 ${resource === "users" ? "max-h-[calc(100vh-5rem)] overflow-y-auto" : ""}`}
     >
       <div className="mb-5 border-b border-slate-100 pb-4">
         <div className="flex items-center justify-between gap-3">
@@ -583,13 +587,8 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
           </p>
         </div>
       )}
-      {message && (
-        <p className="mt-4 rounded-lg bg-brand-soft px-3 py-2 text-sm font-medium text-brand-primary">{message}</p>
-      )}
-      <button
-        disabled={busy}
-        className="mt-5 rounded-lg bg-brand-primary px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-brand-text disabled:opacity-50"
-      >
+      <AdminFeedback notice={message} />
+      <button disabled={busy} className="mt-5 admin-button-primary">
         {busy
           ? "กำลังบันทึก..."
           : editing
@@ -617,11 +616,7 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
           </a>
         )}
         {resource === "users" && (
-          <button
-            type="button"
-            onClick={openCreateUser}
-            className="inline-flex items-center gap-2 rounded-lg bg-brand-primary px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-brand-text"
-          >
+          <button type="button" onClick={openCreateUser} className="admin-button-primary">
             <i className="fa-solid fa-user-plus" aria-hidden="true" />
             เพิ่มผู้ใช้งานใหม่
           </button>
@@ -642,7 +637,7 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
             </h2>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full min-w-200 text-left text-xs">
+            <table className="admin-table min-w-200">
               <thead className="border-b border-slate-200 bg-slate-50 uppercase text-slate-500">
                 <tr>
                   {config.columns.map(([, label]) => (

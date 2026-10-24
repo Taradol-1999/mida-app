@@ -1,5 +1,7 @@
 "use client";
 
+import { AdminFeedback, useAdminFeedback } from "@/components/admin-feedback";
+
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import midaLogo from "@/assets/logos/png/01-mida-property.png";
@@ -11,7 +13,7 @@ type Logo = { id: string; url: string };
 export function ProjectLogoUpload({ projectId }: { projectId: string }) {
   const [logo, setLogo] = useState<Logo | null>(null);
   const [busy, setBusy] = useState(true);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useAdminFeedback();
   const endpoint = `/api/admin/media?entityType=projects&entityId=${projectId}&mediaKind=logo`;
   useEffect(() => {
     let cancelled = false;
@@ -30,7 +32,7 @@ export function ProjectLogoUpload({ projectId }: { projectId: string }) {
     return () => {
       cancelled = true;
     };
-  }, [endpoint]);
+  }, [endpoint, setMessage]);
   async function upload(file?: File) {
     if (!file) return;
     if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 5 * 1024 * 1024) {
@@ -49,7 +51,7 @@ export function ProjectLogoUpload({ projectId }: { projectId: string }) {
       const result = await response.json();
       if (!response.ok) throw new Error(result.message || "อัปโหลดโลโก้ไม่สำเร็จ");
       setLogo({ id: result.id, url: `${endpoint}&mediaId=${result.id}&v=${Date.now()}` });
-      setMessage("บันทึกโลโก้เรียบร้อยแล้ว");
+      setMessage("บันทึกโลโก้เรียบร้อยแล้ว", "success");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "อัปโหลดไม่สำเร็จ");
     } finally {
@@ -63,7 +65,7 @@ export function ProjectLogoUpload({ projectId }: { projectId: string }) {
       const response = await fetch(`${endpoint}&mediaId=${logo.id}`, { method: "DELETE" });
       if (!response.ok) throw new Error("ลบโลโก้ไม่สำเร็จ");
       setLogo(null);
-      setMessage("กลับไปใช้โลโก้ MIDA แล้ว");
+      setMessage("กลับไปใช้โลโก้ MIDA แล้ว", "success");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "ลบไม่สำเร็จ");
     } finally {
@@ -100,11 +102,7 @@ export function ProjectLogoUpload({ projectId }: { projectId: string }) {
           }
         />
         <p className="mt-1 text-xs text-slate-500">หากยังไม่มีโลโก้ จะใช้โลโก้ MIDA</p>
-        {message && (
-          <p role="status" className="mt-2 text-xs text-brand-primary">
-            {message}
-          </p>
-        )}
+        <AdminFeedback notice={message} />
       </div>
     </div>
   );

@@ -1,5 +1,7 @@
 "use client";
 
+import { AdminFeedback, useAdminFeedback } from "@/components/admin-feedback";
+
 import { FileDropzone } from "@/components/file-dropzone";
 
 /* The image endpoint is session-protected, so this admin preview is intentionally not proxied through next/image. */
@@ -15,7 +17,7 @@ export function AdminMediaManager() {
   const searchParams = useSearchParams();
   const selectedProject = searchParams.get("project");
   const [projects, setProjects] = useState<Project[]>([]);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useAdminFeedback();
   const [busy, setBusy] = useState<string | null>(null);
   const [versions, setVersions] = useState<Record<string, number>>({});
   const [missing, setMissing] = useState<Record<string, boolean>>({});
@@ -27,7 +29,7 @@ export function AdminMediaManager() {
     }
     const data = await response.json();
     setProjects(data.rows ?? []);
-  }, []);
+  }, [setMessage]);
   // Data is loaded from the authenticated admin API after this client component mounts.
   useEffect(() => {
     void load();
@@ -50,7 +52,7 @@ export function AdminMediaManager() {
     }
     setMissing((current) => ({ ...current, [project.id]: false }));
     setVersions((current) => ({ ...current, [project.id]: Date.now() }));
-    setMessage(`อัปโหลดรูปภาพของ ${project.name_th} เรียบร้อย`);
+    setMessage(`อัปโหลดรูปภาพของ ${project.name_th} เรียบร้อย`, "success");
   };
   const visibleProjects = selectedProject ? projects.filter((project) => project.id === selectedProject) : projects;
   return (
@@ -65,9 +67,7 @@ export function AdminMediaManager() {
           JPG · PNG · WEBP · ไม่เกิน 5 MB
         </span>
       </header>
-      {message && (
-        <p className="mt-5 rounded-lg bg-brand-soft px-4 py-3 text-sm font-medium text-brand-primary">{message}</p>
-      )}
+      <AdminFeedback notice={message} />
       <section className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
         {visibleProjects.map((project) => (
           <article key={project.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">

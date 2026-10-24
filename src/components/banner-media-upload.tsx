@@ -6,6 +6,7 @@
 import { useEffect, useId, useState } from "react";
 import { FileDropzone } from "@/components/file-dropzone";
 import { UploadRemoveButton } from "@/components/upload-remove-button";
+import { AdminFeedback } from "@/components/admin-feedback";
 
 type BannerMedia = { id: string; name: string; mimeType: string; url: string };
 type Props = {
@@ -186,11 +187,7 @@ export function BannerMediaUpload({
             ) : undefined
           }
         />
-        {error && (
-          <p role="alert" className="mt-3 text-xs font-medium text-rose-600">
-            {error}
-          </p>
-        )}
+        <AdminFeedback notice={error ? { text: error, kind: "error" } : null} />
         {!media.length && !hideEmptyState && !files.length ? (
           <p className="mt-3 rounded-lg border border-dashed border-slate-200 px-3 py-5 text-center text-xs text-slate-400">
             {single ? "ยังไม่มีไฟล์ที่เลือก" : "ยังไม่มีไฟล์"}
