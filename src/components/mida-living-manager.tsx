@@ -1,9 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Input, Textarea } from "@/components/ui/form-controls";
 import { BannerMediaUpload } from "@/components/banner-media-upload";
+import { FileDropzone } from "@/components/file-dropzone";
+import { confirmDelete } from "@/lib/admin-alert";
 /* eslint-disable react-hooks/set-state-in-effect */
 
 type LivingRow = {
@@ -34,18 +36,14 @@ function PortraitUpload({
   imageUrl,
   onChange,
   disabled,
-  blog,
 }: {
   file: File | null;
   imageUrl: string | null;
   onChange: (file: File | null) => void;
   disabled: boolean;
-  blog: boolean;
 }) {
-  const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState("");
   const [error, setError] = useState("");
-  const [dragging, setDragging] = useState(false);
 
   useEffect(() => {
     if (!file) return;
@@ -67,73 +65,37 @@ function PortraitUpload({
   const image = file ? preview : imageUrl;
   return (
     <div>
-      <div
-        role="button"
-        tabIndex={disabled ? -1 : 0}
-        aria-label="เลือกรูปภาพ"
-        aria-disabled={disabled}
-        onClick={() => {
-          if (!disabled) inputRef.current?.click();
-        }}
-        onKeyDown={(event) => {
-          if (!disabled && (event.key === "Enter" || event.key === " ")) {
-            event.preventDefault();
-            inputRef.current?.click();
-          }
-        }}
-        onDragOver={(event) => {
-          event.preventDefault();
-          if (!disabled) setDragging(true);
-        }}
-        onDragLeave={() => setDragging(false)}
-        onDrop={(event) => {
-          event.preventDefault();
-          setDragging(false);
-          if (!disabled) select(event.dataTransfer.files[0]);
-        }}
-        className={`mt-2 flex min-h-52 flex-col items-center justify-center rounded-2xl border-2 border-dashed px-5 py-6 text-center transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary ${disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"} ${dragging ? "border-brand-primary bg-blue-50" : "border-slate-300 bg-slate-50/50"}`}
-      >
-        {image ? (
-          // The selected file uses a local object URL for its preview.
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={image} alt="ตัวอย่างรูปภาพ" className="mb-4 h-40 max-w-full rounded-lg object-contain" />
-        ) : (
-          <i className="fa-solid fa-cloud-arrow-up mb-3 text-2xl text-slate-500" aria-hidden="true" />
-        )}
-        <p className="text-sm font-semibold text-slate-700">เลือกรูปภาพ หรือลากและวางที่นี่</p>
-        <p className="mt-1 text-xs text-slate-400">JPG, PNG, WEBP · ไม่เกิน 5 MB · {blog ? "แนะนำรูปแนวนอน" : "แนะนำ 3:4 หรือ 4:5"}</p>
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          className="sr-only"
+      <FileDropzone
+        title="ลากและวางรูปภาพที่นี่"
+        hint="JPG, PNG, WEBP · ไม่เกิน 5 MB · แนะนำ 3:4 หรือ 4:5"
+        accept="image/jpeg,image/png,image/webp"
+        disabled={disabled}
+        fileName={file?.name}
+        className="mt-2 min-h-52"
+        onFilesChange={(files) => select(files[0])}
+        preview={
+          image ? (
+            // The selected file uses a local object URL for its preview.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={image} alt="ตัวอย่างรูปภาพ" className="mb-3 h-32 max-w-full rounded-lg object-contain" />
+          ) : undefined
+        }
+      />
+      {file && (
+        <button
+          type="button"
           disabled={disabled}
-          onClick={(event) => event.stopPropagation()}
-          onChange={(event) => {
-            select(event.target.files?.[0]);
-            event.target.value = "";
-          }}
-        />
-        {file && (
-          <button
-            type="button"
-            disabled={disabled}
-            onClick={(event) => {
-              event.stopPropagation();
-              onChange(null);
-            }}
-            onKeyDown={(event) => event.stopPropagation()}
-            className="mt-2 text-xs text-rose-600 hover:underline"
-          >
-            ยกเลิกรูปที่เลือก
-          </button>
-        )}
-        {error && (
-          <p role="alert" className="mt-2 text-sm text-rose-600">
-            {error}
-          </p>
-        )}
-      </div>
+          onClick={() => onChange(null)}
+          className="mt-2 text-xs text-rose-600 hover:underline disabled:opacity-50"
+        >
+          ยกเลิกรูปที่เลือก
+        </button>
+      )}
+      {error && (
+        <p role="alert" className="mt-2 text-sm text-rose-600">
+          {error}
+        </p>
+      )}
     </div>
   );
 }
@@ -157,7 +119,9 @@ export function MidaLivingManager({ blog = false }: { blog?: boolean }) {
   const [form, setForm] = useState<FormState>(emptyForm);
   const [file, setFile] = useState<File | null>(null);
   const [blogFiles, setBlogFiles] = useState<File[]>([]);
-  const [blogMedia, setBlogMedia] = useState<{ id: string; name: string; mimeType: string; url: string; kind: string }[]>([]);
+  const [blogMedia, setBlogMedia] = useState<
+    { id: string; name: string; mimeType: string; url: string; kind: string }[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -208,12 +172,19 @@ export function MidaLivingManager({ blog = false }: { blog?: boolean }) {
     if (blog) {
       try {
         const kinds = ["cover", "gallery"];
-        const results = await Promise.all(kinds.map(async (kind) => {
-          const response = await fetch(`/api/admin/media?entityType=mida-blog&entityId=${row.id}&mediaKind=${kind}&list=1`);
-          if (!response.ok) throw new Error("โหลดรูปภาพไม่สำเร็จ");
-          const data = await response.json();
-          return (data.rows as { id: string; name: string; mimeType: string; url: string }[]).map((item) => ({ ...item, kind }));
-        }));
+        const results = await Promise.all(
+          kinds.map(async (kind) => {
+            const response = await fetch(
+              `/api/admin/media?entityType=mida-blog&entityId=${row.id}&mediaKind=${kind}&list=1`,
+            );
+            if (!response.ok) throw new Error("โหลดรูปภาพไม่สำเร็จ");
+            const data = await response.json();
+            return (data.rows as { id: string; name: string; mimeType: string; url: string }[]).map((item) => ({
+              ...item,
+              kind,
+            }));
+          }),
+        );
         setBlogMedia(results.flat());
       } catch {
         setError("โหลดรูปภาพไม่สำเร็จ กรุณาลองอีกครั้ง");
@@ -223,8 +194,11 @@ export function MidaLivingManager({ blog = false }: { blog?: boolean }) {
 
   async function removeBlogMedia(id: string) {
     const item = blogMedia.find((media) => media.id === id);
-    if (!editing || !item || !window.confirm("ต้องการลบรูปภาพนี้หรือไม่?")) return;
-    const response = await fetch(`/api/admin/media?entityType=mida-blog&entityId=${editing.id}&mediaKind=${item.kind}&mediaId=${id}`, { method: "DELETE" });
+    if (!editing || !item || !(await confirmDelete("ต้องการลบรูปภาพนี้หรือไม่?", "ยืนยันการลบรูปภาพ"))) return;
+    const response = await fetch(
+      `/api/admin/media?entityType=mida-blog&entityId=${editing.id}&mediaKind=${item.kind}&mediaId=${id}`,
+      { method: "DELETE" },
+    );
     if (response.ok) setBlogMedia((items) => items.filter((media) => media.id !== id));
     else setError("ลบรูปภาพไม่สำเร็จ");
   }
@@ -292,7 +266,7 @@ export function MidaLivingManager({ blog = false }: { blog?: boolean }) {
   }
 
   async function remove(row: LivingRow) {
-    if (!window.confirm(`ยืนยันลบ “${row.name_th}” หรือไม่`)) return;
+    if (!(await confirmDelete(`ต้องการลบ “${row.name_th}” หรือไม่`))) return;
     const response = await fetch(`${endpoint}?id=${row.id}`, { method: "DELETE" });
     const data = await responseJson<{ message?: string }>(response);
     if (!response.ok) return setError(data.message ?? "ลบข้อมูลไม่สำเร็จ");
@@ -305,8 +279,14 @@ export function MidaLivingManager({ blog = false }: { blog?: boolean }) {
     <div className="space-y-6">
       <div>
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-accent">MIDA PROPERTY · ส่วนกลาง</p>
-        <h1 className="mt-1 text-2xl font-black text-brand-primary md:text-3xl">{blog ? "Blog เรื่องราวที่น่าสนใจ" : "เริ่มที่เรา เริ่มที่ไมด้า"}</h1>
-        <p className="mt-2 text-sm text-slate-500">{blog ? "จัดการบทความส่วนกลางที่แสดงบนหน้าแรก พร้อมรูปภาพประกอบ" : "จัดการการ์ดธุรกิจที่แสดงบนหน้าแรก พร้อมรูปแนวตั้งและลิงก์เว็บไซต์"}</p>
+        <h1 className="mt-1 text-2xl font-black text-brand-primary md:text-3xl">
+          {blog ? "Blog เรื่องราวที่น่าสนใจ" : "เริ่มที่เรา เริ่มที่ไมด้า"}
+        </h1>
+        <p className="mt-2 text-sm text-slate-500">
+          {blog
+            ? "จัดการบทความส่วนกลางที่แสดงบนหน้าแรก พร้อมรูปภาพประกอบ"
+            : "จัดการการ์ดธุรกิจที่แสดงบนหน้าแรก พร้อมรูปแนวตั้งและลิงก์เว็บไซต์"}
+        </p>
       </div>
 
       {open && (
@@ -361,21 +341,45 @@ export function MidaLivingManager({ blog = false }: { blog?: boolean }) {
                   onChange={(e) => setForm({ ...form, description_en: e.target.value })}
                 />
               </label>
-              {!blog && <label className="space-y-2 text-sm font-semibold text-slate-700 md:col-span-2">
-                ลิงก์เว็บไซต์
-                <Input
-                  type="url"
-                  placeholder="https://example.com"
-                  value={form.website_url ?? ""}
-                  onChange={(e) => setForm({ ...form, website_url: e.target.value })}
-                />
-              </label>}
+              {!blog && (
+                <label className="space-y-2 text-sm font-semibold text-slate-700 md:col-span-2">
+                  ลิงก์เว็บไซต์
+                  <Input
+                    type="url"
+                    placeholder="https://example.com"
+                    value={form.website_url ?? ""}
+                    onChange={(e) => setForm({ ...form, website_url: e.target.value })}
+                  />
+                </label>
+              )}
               <div className="md:col-span-2">
-                {blog ? <BannerMediaUpload title="รูปภาพประกอบบทความ" allowVideo={false} media={blogMedia} files={blogFiles} onFilesChange={setBlogFiles} onRemove={removeBlogMedia} disabled={saving} /> : <PortraitUpload file={file} imageUrl={editing?.imageUrl ?? null} onChange={setFile} disabled={saving} blog={false} />}
+                {blog ? (
+                  <BannerMediaUpload
+                    title="รูปภาพประกอบบทความ"
+                    allowVideo={false}
+                    media={blogMedia}
+                    files={blogFiles}
+                    onFilesChange={setBlogFiles}
+                    onRemove={removeBlogMedia}
+                    disabled={saving}
+                  />
+                ) : (
+                  <PortraitUpload
+                    file={file}
+                    imageUrl={editing?.imageUrl ?? null}
+                    onChange={setFile}
+                    disabled={saving}
+                  />
+                )}
               </div>
               {blog && (
                 <label className="flex items-center gap-3 rounded-xl bg-slate-50 p-4 text-sm font-semibold text-slate-700 md:col-span-2">
-                  <input type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} className="size-4 accent-brand-primary" />
+                  <input
+                    type="checkbox"
+                    checked={form.is_active}
+                    onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
+                    className="size-4 accent-brand-primary"
+                  />
                   เผยแพร่บทความนี้บนหน้าแรก
                 </label>
               )}
@@ -466,20 +470,30 @@ export function MidaLivingManager({ blog = false }: { blog?: boolean }) {
                     <td className="max-w-xs p-3 text-slate-500">
                       <p className="line-clamp-2">{row.description_th || "—"}</p>
                     </td>
-                    {!blog && <td className="p-3">
-                      {row.website_url && (
-                        <a
-                          href={row.website_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label={`เปิดเว็บไซต์ ${row.name_th}`}
-                          className="grid size-9 shrink-0 place-items-center rounded-full bg-blue-50 text-brand-primary hover:bg-brand-primary hover:text-white"
+                    {!blog && (
+                      <td className="p-3">
+                        {row.website_url && (
+                          <a
+                            href={row.website_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`เปิดเว็บไซต์ ${row.name_th}`}
+                            className="grid size-9 shrink-0 place-items-center rounded-full bg-blue-50 text-brand-primary hover:bg-brand-primary hover:text-white"
+                          >
+                            <i className="fa-solid fa-arrow-up-right-from-square text-xs" />
+                          </a>
+                        )}
+                      </td>
+                    )}
+                    {blog && (
+                      <td className="p-3">
+                        <span
+                          className={`rounded-full px-3 py-1 text-xs font-semibold ${row.is_active ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600"}`}
                         >
-                          <i className="fa-solid fa-arrow-up-right-from-square text-xs" />
-                        </a>
-                      )}
-                    </td>}
-                    {blog && <td className="p-3"><span className={`rounded-full px-3 py-1 text-xs font-semibold ${row.is_active ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600"}`}>{row.is_active ? "เผยแพร่" : "ฉบับร่าง"}</span></td>}
+                          {row.is_active ? "เผยแพร่" : "ฉบับร่าง"}
+                        </span>
+                      </td>
+                    )}
                     <td className="p-3">
                       <div className="flex justify-end gap-2">
                         <button

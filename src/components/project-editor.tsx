@@ -1,16 +1,18 @@
 "use client";
 
 import { BannerMediaUpload } from "@/components/banner-media-upload";
+import { FileDropzone } from "@/components/file-dropzone";
 import { ProjectLogoUpload } from "@/components/project-logo-upload";
 import { ContactWidgetSettings, type ContactWidgetValues } from "@/components/contact-widget-settings";
 
 import { Input, Textarea, Select } from "@/components/ui/form-controls";
+import { confirmDelete } from "@/lib/admin-alert";
 
 /* The project cover endpoint is session-protected, so the preview is not proxied through next/image. */
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable react-hooks/set-state-in-effect */
 
-import { ChangeEvent, FormEvent, useCallback, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -263,15 +265,14 @@ export function ProjectEditor({
     setBusy(false);
   };
   const removeHero = async (id: string) => {
-    if (!editingId || !window.confirm("ต้องการลบไฟล์ Hero นี้ใช่หรือไม่?")) return;
+    if (!editingId || !(await confirmDelete("ต้องการลบไฟล์ Hero นี้ใช่หรือไม่?", "ยืนยันการลบ Hero"))) return;
     const response = await fetch(
       `/api/admin/media?entityType=projects&entityId=${editingId}&mediaKind=hero&mediaId=${id}`,
       { method: "DELETE" },
     );
     if (response.ok) setHeroImages((items) => items.filter((item) => item.id !== id));
   };
-  const uploadBrochure = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const uploadBrochure = async (file?: File) => {
     if (!file || !editingId) return;
     setBrochureBusy(true);
     setMessage("");
@@ -282,7 +283,6 @@ export function ProjectEditor({
     upload.set("file", file);
     const response = await fetch("/api/admin/media", { method: "POST", body: upload });
     const result = await response.json();
-    event.target.value = "";
     setBrochureBusy(false);
     if (!response.ok) {
       setMessage(result.message ?? "อัปโหลดโบรชัวร์ไม่สำเร็จ");
@@ -292,7 +292,7 @@ export function ProjectEditor({
     setMessage("อัปโหลดโบรชัวร์เรียบร้อย");
   };
   const remove = async (project: Project) => {
-    if (!window.confirm(`ต้องการลบ ${project.name_th} หรือไม่?`)) return;
+    if (!(await confirmDelete(`ต้องการลบ ${project.name_th} หรือไม่?`, "ยืนยันการลบโครงการ"))) return;
     const response = await fetch("/api/admin/projects", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
@@ -529,17 +529,15 @@ export function ProjectEditor({
                       )}
                     </div>
                   </div>
-                  <label className="cursor-pointer rounded-lg bg-brand-primary px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-text">
-                    <i className="fa-solid fa-cloud-arrow-up mr-2" />
-                    {brochureBusy ? "กำลังอัปโหลด..." : brochure ? "เปลี่ยนโบรชัวร์" : "อัปโหลดโบรชัวร์"}
-                    <Input
-                      type="file"
-                      accept="application/pdf,.pdf"
-                      className="hidden"
-                      disabled={brochureBusy}
-                      onChange={(event) => void uploadBrochure(event)}
-                    />
-                  </label>
+                  <FileDropzone
+                    title={brochureBusy ? "กำลังอัปโหลด..." : "ลากและวางโบรชัวร์ที่นี่"}
+                    hint="PDF · ไม่เกิน 10 MB"
+                    accept="application/pdf,.pdf"
+                    disabled={brochureBusy}
+                    fileName={brochure?.name}
+                    className="min-h-28 min-w-64"
+                    onFilesChange={(files) => void uploadBrochure(files[0])}
+                  />
                 </div>
               </div>
             </div>

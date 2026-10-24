@@ -136,7 +136,9 @@ export async function GET(request: Request) {
     return new Response(file, {
       headers: {
         "Content-Type": String(media.mime_type),
-        "Cache-Control": "public, max-age=3600",
+        // A URL without mediaId always resolves to the current cover and must refresh after an upload.
+        // URLs with mediaId are immutable because a replacement receives a new media record and URL.
+        "Cache-Control": mediaId ? "public, max-age=31536000, immutable" : "no-store",
         ...(mediaKind === "brochure"
           ? { "Content-Disposition": `attachment; filename*=UTF-8''${encodeURIComponent(String(media.original_name))}` }
           : {}),

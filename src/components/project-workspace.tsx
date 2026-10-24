@@ -2,8 +2,10 @@
 
 import { BannerMediaUpload } from "@/components/banner-media-upload";
 import { DashboardBarChart, DashboardDoughnutChart } from "@/components/dashboard-charts";
+import { FileDropzone } from "@/components/file-dropzone";
 
 import { Input, Textarea, Select } from "@/components/ui/form-controls";
+import { confirmDelete } from "@/lib/admin-alert";
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable react-hooks/set-state-in-effect */
 
@@ -399,7 +401,7 @@ export function ProjectWorkspace({
   };
   const removeContentMedia = async (id: string) => {
     if (!editingId || (section !== "promotions" && section !== "news" && section !== "facilities")) return;
-    if (!confirm("ต้องการลบรูปภาพนี้ใช่หรือไม่")) return;
+    if (!(await confirmDelete("ต้องการลบรูปภาพนี้ใช่หรือไม่?", "ยืนยันการลบรูปภาพ"))) return;
     const response = await fetch(
       `/api/admin/media?entityType=${section}&entityId=${editingId}&mediaKind=gallery&mediaId=${id}`,
       { method: "DELETE" },
@@ -409,7 +411,13 @@ export function ProjectWorkspace({
   };
   const removeFacility = async (row: Record<string, unknown>) => {
     if (busy || section !== "facilities") return;
-    if (!confirm(`ต้องการลบ “${String(row.name ?? "สิ่งอำนวยความสะดวก")}” พร้อมรูปภาพทั้งหมดใช่หรือไม่?`)) return;
+    if (
+      !(await confirmDelete(
+        `ต้องการลบ “${String(row.name ?? "สิ่งอำนวยความสะดวก")}” พร้อมรูปภาพทั้งหมดใช่หรือไม่?`,
+        "ยืนยันการลบสิ่งอำนวยความสะดวก",
+      ))
+    )
+      return;
     setBusy(true);
     try {
       const response = await fetch("/api/admin/facilities", {
@@ -884,27 +892,23 @@ export function ProjectWorkspace({
                 {section === "house-types" && (
                   <div className="mt-5">
                     <p className="text-sm font-semibold text-slate-700">รูปแบบบ้าน</p>
-                    <label className="mt-2 flex min-h-32 cursor-pointer items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-4 text-center text-sm font-semibold text-slate-400 hover:border-brand-primary hover:bg-brand-soft">
-                      <Input
-                        type="file"
-                        accept="image/jpeg,image/png,image/webp"
-                        className="sr-only"
-                        onChange={(event) => setHouseTypeImage(event.target.files?.[0] ?? null)}
-                      />
-                      {existingHouseTypeImage && !houseTypeImage ? (
-                        <img
-                          src={existingHouseTypeImage}
-                          alt="รูปแบบบ้านปัจจุบัน"
-                          className="h-40 w-full object-cover"
-                        />
-                      ) : (
-                        <span>
-                          <i className="fa-solid fa-image mr-2 text-xl text-brand-primary" />
-                          {houseTypeImage ? houseTypeImage.name : "คลิกเพื่อเพิ่มหรือเปลี่ยนรูปแบบบ้าน"}
-                        </span>
-                      )}
-                    </label>
-                    <p className="mt-2 text-xs text-slate-400">รองรับ JPG, PNG และ WEBP ขนาดไม่เกิน 5 MB</p>
+                    <FileDropzone
+                      title="ลากและวางรูปแบบบ้านที่นี่"
+                      hint="JPG, PNG, WEBP · ไม่เกิน 5 MB"
+                      accept="image/jpeg,image/png,image/webp"
+                      fileName={houseTypeImage?.name}
+                      onFilesChange={(files) => setHouseTypeImage(files[0] ?? null)}
+                      className="mt-2 min-h-32 overflow-hidden"
+                      preview={
+                        existingHouseTypeImage && !houseTypeImage ? (
+                          <img
+                            src={existingHouseTypeImage}
+                            alt="รูปแบบบ้านปัจจุบัน"
+                            className="mb-3 h-28 max-w-full rounded-lg object-cover"
+                          />
+                        ) : undefined
+                      }
+                    />
                   </div>
                 )}
                 {(section === "promotions" || section === "news" || section === "facilities") && (
@@ -1033,23 +1037,23 @@ export function ProjectWorkspace({
           {section === "house-types" && (
             <div className="mt-5">
               <p className="text-sm font-semibold text-slate-700">รูปแบบบ้าน</p>
-              <label className="mt-2 flex min-h-28 cursor-pointer items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-4 text-center text-sm font-semibold text-slate-400 hover:border-brand-primary hover:bg-brand-soft">
-                <Input
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  className="sr-only"
-                  onChange={(event) => setHouseTypeImage(event.target.files?.[0] ?? null)}
-                />
-                {existingHouseTypeImage && !houseTypeImage ? (
-                  <img src={existingHouseTypeImage} alt="รูปแบบบ้านปัจจุบัน" className="h-32 w-full object-cover" />
-                ) : (
-                  <span>
-                    <i className="fa-solid fa-image mr-2 text-xl text-brand-primary" />
-                    {houseTypeImage ? houseTypeImage.name : "คลิกเพื่อเพิ่มหรือเปลี่ยนรูปแบบบ้าน"}
-                  </span>
-                )}
-              </label>
-              <p className="mt-2 text-xs text-slate-400">รองรับ JPG, PNG และ WEBP ขนาดไม่เกิน 5 MB</p>
+              <FileDropzone
+                title="ลากและวางรูปแบบบ้านที่นี่"
+                hint="JPG, PNG, WEBP · ไม่เกิน 5 MB"
+                accept="image/jpeg,image/png,image/webp"
+                fileName={houseTypeImage?.name}
+                onFilesChange={(files) => setHouseTypeImage(files[0] ?? null)}
+                className="mt-2 min-h-28 overflow-hidden"
+                preview={
+                  existingHouseTypeImage && !houseTypeImage ? (
+                    <img
+                      src={existingHouseTypeImage}
+                      alt="รูปแบบบ้านปัจจุบัน"
+                      className="mb-3 h-24 max-w-full rounded-lg object-cover"
+                    />
+                  ) : undefined
+                }
+              />
             </div>
           )}
           {message && <p className="mt-4 rounded-lg bg-brand-soft px-3 py-2 text-sm text-brand-primary">{message}</p>}

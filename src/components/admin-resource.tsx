@@ -4,6 +4,7 @@ import { userRoleOptions } from "@/lib/user-roles";
 import { BannerMediaUpload } from "@/components/banner-media-upload";
 import { Input, Textarea, Select } from "@/components/ui/form-controls";
 import { PasswordInput } from "@/components/ui/password-input";
+import { confirmDelete } from "@/lib/admin-alert";
 /* eslint-disable react-hooks/set-state-in-effect */
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
@@ -408,7 +409,7 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
   };
   const removeContentMedia = async (id: string) => {
     if (!editing || !contentResource) return;
-    if (!window.confirm("ต้องการลบรูปภาพนี้หรือไม่?")) return;
+    if (!(await confirmDelete("ต้องการลบรูปภาพนี้หรือไม่?", "ยืนยันการลบรูปภาพ"))) return;
     const response = await fetch(
       `/api/admin/media?entityType=${resource}&entityId=${editing}&mediaKind=gallery&mediaId=${id}`,
       { method: "DELETE" },
@@ -417,7 +418,7 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
     else setMessage("ลบรูปภาพไม่สำเร็จ");
   };
   const remove = async (id: string) => {
-    if (!window.confirm("ต้องการลบรายการนี้หรือไม่?")) return;
+    if (!(await confirmDelete("ต้องการลบรายการนี้หรือไม่?"))) return;
     const response = await fetch(`/api/admin/${resource}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },

@@ -1,12 +1,12 @@
 "use client";
 
-import { Input } from "@/components/ui/form-controls";
+import { FileDropzone } from "@/components/file-dropzone";
 
 /* The image endpoint is session-protected, so this admin preview is intentionally not proxied through next/image. */
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable react-hooks/set-state-in-effect */
 
-import { ChangeEvent, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 type Project = { id: string; name_th: string; location: string };
@@ -32,19 +32,18 @@ export function AdminMediaManager() {
   useEffect(() => {
     void load();
   }, [load]);
-  const upload = async (project: Project, event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const upload = async (project: Project, file?: File) => {
     if (!file) return;
     setBusy(project.id);
     setMessage("");
     const form = new FormData();
     form.append("entityType", "projects");
     form.append("entityId", project.id);
+    form.append("mediaKind", "cover");
     form.append("file", file);
     const response = await fetch("/api/admin/media", { method: "POST", body: form });
     const result = await response.json();
     setBusy(null);
-    event.target.value = "";
     if (!response.ok) {
       setMessage(result.message ?? "อัปโหลดรูปไม่สำเร็จ");
       return;
@@ -90,17 +89,14 @@ export function AdminMediaManager() {
             <div className="p-5">
               <h2 className="font-bold text-slate-800">{project.name_th}</h2>
               <p className="mt-1 text-sm text-slate-400">{project.location}</p>
-              <label className="mt-4 flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-brand-primary px-4 py-2.5 text-sm font-bold text-white transition hover:bg-brand-text">
-                <i className="fa-solid fa-cloud-arrow-up" />
-                {busy === project.id ? "กำลังอัปโหลด..." : "อัปโหลดรูปภาพ"}
-                <Input
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  className="hidden"
-                  disabled={busy === project.id}
-                  onChange={(event) => void upload(project, event)}
-                />
-              </label>
+              <FileDropzone
+                title={busy === project.id ? "กำลังอัปโหลด..." : "ลากและวางรูปภาพที่นี่"}
+                hint="JPG, PNG, WEBP · ไม่เกิน 5 MB"
+                accept="image/jpeg,image/png,image/webp"
+                disabled={busy === project.id}
+                className="mt-4 min-h-28"
+                onFilesChange={(files) => void upload(project, files[0])}
+              />
             </div>
           </article>
         ))}

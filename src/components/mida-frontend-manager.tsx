@@ -2,6 +2,7 @@
 
 import { BannerMediaUpload } from "@/components/banner-media-upload";
 import { ContactWidgetSettings, type ContactWidgetValues } from "@/components/contact-widget-settings";
+import { confirmDelete } from "@/lib/admin-alert";
 
 import { Input, Textarea } from "@/components/ui/form-controls";
 /* eslint-disable react-hooks/set-state-in-effect */
@@ -23,7 +24,12 @@ export function MidaFrontendManager() {
   const [selectedProjectIds, setSelectedProjectIds] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
-  const [contact, setContact] = useState<ContactWidgetValues>({ line: "", messenger: "", phone: "02 885 5558", email: "" });
+  const [contact, setContact] = useState<ContactWidgetValues>({
+    line: "",
+    messenger: "",
+    phone: "02 885 5558",
+    email: "",
+  });
   const [contactReady, setContactReady] = useState(false);
 
   const loadImages = useCallback(async (id: string) => {
@@ -132,7 +138,7 @@ export function MidaFrontendManager() {
   }
 
   async function removeImage(id: string) {
-    if (!confirm("ต้องการลบรูปสไลด์นี้ใช่หรือไม่")) return;
+    if (!(await confirmDelete("ต้องการลบรูปสไลด์นี้ใช่หรือไม่?", "ยืนยันการลบรูปสไลด์"))) return;
     const response = await fetch(
       `/api/admin/media?entityType=site-content&entityId=${contentId}&mediaKind=hero&mediaId=${id}`,
       { method: "DELETE" },
@@ -155,45 +161,52 @@ export function MidaFrontendManager() {
       </header>
       <form onSubmit={save} className="mt-6 space-y-6 text-sm">
         <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 sm:p-5">
-        <div className="mb-5 flex items-start gap-3">
-          <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-white text-brand-primary shadow-sm"><i className="fa-solid fa-pen-to-square" aria-hidden="true" /></span>
-          <div><h2 className="font-bold text-brand-primary">ข้อมูลหน้าแรก</h2><p className="mt-1 text-xs leading-5 text-slate-500">ข้อความที่แสดงบนแบนเนอร์หลัก รองรับภาษาไทยและภาษาอังกฤษ</p></div>
-        </div>
-        <div className="grid gap-5 md:grid-cols-2">
-        <label className="block font-semibold text-slate-700">
-          คำพาดหัวหลัก (TH)
-          <Input
-            required
-            value={headline}
-            onChange={(event) => setHeadline(event.target.value)}
-            className="mt-1.5 w-full rounded-lg border border-slate-300 p-2.5 outline-none focus:border-brand-primary"
-          />
-        </label>
-        <label className="block font-semibold text-slate-700">
-          คำพาดหัวหลัก (EN)
-          <Input
-            value={headlineEn}
-            onChange={(event) => setHeadlineEn(event.target.value)}
-            className="mt-1.5 w-full rounded-lg border border-slate-300 p-2.5 outline-none focus:border-brand-primary"
-          />
-        </label>
-        <label className="block font-semibold text-slate-700">
-          คำอธิบายหน้าแรก (TH)
-          <Textarea
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
-            className="mt-1.5 min-h-24 w-full rounded-lg border border-slate-300 p-2.5 outline-none focus:border-brand-primary"
-          />
-        </label>
-        <label className="block font-semibold text-slate-700">
-          คำอธิบายหน้าแรก (EN)
-          <Textarea
-            value={descriptionEn}
-            onChange={(event) => setDescriptionEn(event.target.value)}
-            className="mt-1.5 min-h-24 w-full rounded-lg border border-slate-300 p-2.5 outline-none focus:border-brand-primary"
-          />
-        </label>
-        </div>
+          <div className="mb-5 flex items-start gap-3">
+            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-white text-brand-primary shadow-sm">
+              <i className="fa-solid fa-pen-to-square" aria-hidden="true" />
+            </span>
+            <div>
+              <h2 className="font-bold text-brand-primary">ข้อมูลหน้าแรก</h2>
+              <p className="mt-1 text-xs leading-5 text-slate-500">
+                ข้อความที่แสดงบนแบนเนอร์หลัก รองรับภาษาไทยและภาษาอังกฤษ
+              </p>
+            </div>
+          </div>
+          <div className="grid gap-5 md:grid-cols-2">
+            <label className="block font-semibold text-slate-700">
+              คำพาดหัวหลัก (TH)
+              <Input
+                required
+                value={headline}
+                onChange={(event) => setHeadline(event.target.value)}
+                className="mt-1.5 w-full rounded-lg border border-slate-300 p-2.5 outline-none focus:border-brand-primary"
+              />
+            </label>
+            <label className="block font-semibold text-slate-700">
+              คำพาดหัวหลัก (EN)
+              <Input
+                value={headlineEn}
+                onChange={(event) => setHeadlineEn(event.target.value)}
+                className="mt-1.5 w-full rounded-lg border border-slate-300 p-2.5 outline-none focus:border-brand-primary"
+              />
+            </label>
+            <label className="block font-semibold text-slate-700">
+              คำอธิบายหน้าแรก (TH)
+              <Textarea
+                value={description}
+                onChange={(event) => setDescription(event.target.value)}
+                className="mt-1.5 min-h-24 w-full rounded-lg border border-slate-300 p-2.5 outline-none focus:border-brand-primary"
+              />
+            </label>
+            <label className="block font-semibold text-slate-700">
+              คำอธิบายหน้าแรก (EN)
+              <Textarea
+                value={descriptionEn}
+                onChange={(event) => setDescriptionEn(event.target.value)}
+                className="mt-1.5 min-h-24 w-full rounded-lg border border-slate-300 p-2.5 outline-none focus:border-brand-primary"
+              />
+            </label>
+          </div>
         </div>
         <div>
           <BannerMediaUpload
@@ -262,15 +275,19 @@ export function MidaFrontendManager() {
         </fieldset>
 
         <ContactWidgetSettings value={contact} onChange={setContact} />
-        {message && <p role="status" className="rounded-xl bg-brand-soft px-4 py-3 text-brand-primary">{message}</p>}
+        {message && (
+          <p role="status" className="rounded-xl bg-brand-soft px-4 py-3 text-brand-primary">
+            {message}
+          </p>
+        )}
         <div className="flex justify-end border-t border-slate-100 pt-5">
-        <button
-          disabled={busy || !contactReady}
-          className="min-h-11 w-full rounded-xl bg-brand-primary px-6 py-3 font-bold text-white shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
-        >
-          <i className="fa-solid fa-floppy-disk mr-2" aria-hidden="true" />
-          {busy ? "กำลังบันทึก..." : "บันทึกข้อมูลเว็บไซต์ส่วนกลาง"}
-        </button>
+          <button
+            disabled={busy || !contactReady}
+            className="min-h-11 w-full rounded-xl bg-brand-primary px-6 py-3 font-bold text-white shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+          >
+            <i className="fa-solid fa-floppy-disk mr-2" aria-hidden="true" />
+            {busy ? "กำลังบันทึก..." : "บันทึกข้อมูลเว็บไซต์ส่วนกลาง"}
+          </button>
         </div>
       </form>
     </section>

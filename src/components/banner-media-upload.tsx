@@ -4,7 +4,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { useEffect, useId, useState } from "react";
-import { Input } from "@/components/ui/form-controls";
+import { FileDropzone } from "@/components/file-dropzone";
 
 type BannerMedia = { id: string; name: string; mimeType: string; url: string };
 type Props = {
@@ -42,6 +42,39 @@ function SelectedPreview({ file, compact = false }: { file: File; compact?: bool
     <Preview url={url} name={file.name} mimeType={file.type} compact={compact} />
   ) : (
     <div className={compact ? "size-full bg-brand-muted" : "aspect-video bg-brand-muted"} />
+  );
+}
+
+function PendingMediaPreviews({ files, onRemove }: { files: File[]; onRemove: (index: number) => void }) {
+  return (
+    <div className="mb-3 grid w-full grid-cols-2 gap-2 sm:grid-cols-3">
+      {files.map((file, index) => (
+        <div
+          key={`${file.name}-${file.lastModified}-${index}`}
+          className="group relative min-w-0 overflow-hidden rounded-lg border border-brand-primary/15 bg-white p-1.5 text-left shadow-sm"
+        >
+          <div className="aspect-video overflow-hidden rounded-md bg-brand-muted">
+            <SelectedPreview file={file} compact />
+          </div>
+          <p title={file.name} className="mt-1 truncate px-1 text-xs font-semibold text-slate-700">
+            {file.name}
+          </p>
+          <p className="px-1 text-[0.68rem] font-medium text-brand-primary">รอบันทึก</p>
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              onRemove(index);
+            }}
+            onKeyDown={(event) => event.stopPropagation()}
+            aria-label={`ยกเลิก ${file.name}`}
+            className="absolute right-2 top-2 grid size-7 place-items-center rounded-full bg-slate-900/70 text-white opacity-100 transition hover:bg-rose-600 sm:opacity-0 sm:group-hover:opacity-100"
+          >
+            <i className="fa-solid fa-xmark text-xs" aria-hidden="true" />
+          </button>
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -90,33 +123,34 @@ export function BannerMediaUpload({
               </p>
             </div>
           </div>
-          <label
-            className={`relative rounded-lg bg-brand-primary px-3 py-2 text-xs font-bold text-white transition hover:bg-brand-text focus-within:ring-2 focus-within:ring-brand-accent focus-within:ring-offset-2 ${disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}
-          >
-            <i className="fa-solid fa-plus mr-2" aria-hidden="true" />
-            {allowVideo ? "เพิ่มไฟล์" : "เพิ่มรูปภาพ"}
-            <Input
-              type="file"
-              aria-label={title}
-              aria-describedby={`${id}-hint`}
-              multiple={!single}
-              accept={
-                allowVideo ? "image/jpeg,image/png,image/webp,video/mp4,video/webm" : "image/jpeg,image/png,image/webp"
-              }
-              className="sr-only"
-              onChange={(event) => {
-                selectFiles(Array.from(event.target.files ?? []));
-                event.target.value = "";
-              }}
-            />
-          </label>
         </div>
+        <FileDropzone
+          title={
+            files.length ? "ไฟล์ที่เลือกรอการบันทึก" : single ? "ลากและวางไฟล์ที่นี่" : "ลากและวางไฟล์ที่นี่เพื่อเพิ่ม"
+          }
+          hint={allowVideo ? "JPG, PNG, WEBP ≤ 5 MB · MP4, WEBM ≤ 50 MB" : "JPG, PNG, WEBP · สูงสุด 5 MB"}
+          accept={
+            allowVideo ? "image/jpeg,image/png,image/webp,video/mp4,video/webm" : "image/jpeg,image/png,image/webp"
+          }
+          multiple={!single}
+          disabled={disabled}
+          className="mt-4 min-h-30"
+          onFilesChange={selectFiles}
+          preview={
+            files.length ? (
+              <PendingMediaPreviews
+                files={files}
+                onRemove={(index) => onFilesChange(files.filter((_, position) => position !== index))}
+              />
+            ) : undefined
+          }
+        />
         {error && (
           <p role="alert" className="mt-3 text-xs font-medium text-rose-600">
             {error}
           </p>
         )}
-        {media.length + files.length > 0 ? (
+        {media.length > 0 ? (
           <ul className="mt-3 grid gap-2 sm:grid-cols-3">
             {media.map((item) => (
               <li
@@ -145,33 +179,8 @@ export function BannerMediaUpload({
                 )}
               </li>
             ))}
-            {files.map((file, index) => (
-              <li
-                key={`${file.name}-${file.lastModified}-${index}`}
-                className="flex min-w-0 items-center gap-3 rounded-lg border border-brand-accent/40 bg-brand-accent-soft/35 p-2"
-              >
-                <div className="h-14 w-20 shrink-0 overflow-hidden rounded-md bg-brand-muted">
-                  <SelectedPreview file={file} compact />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p title={file.name} className="truncate text-xs font-medium text-slate-700">
-                    {file.name}
-                  </p>
-                  <p className="mt-0.5 text-[0.68rem] font-semibold text-brand-primary">รอบันทึก</p>
-                </div>
-                <button
-                  type="button"
-                  disabled={disabled}
-                  onClick={() => onFilesChange(files.filter((_, position) => position !== index))}
-                  aria-label={`ยกเลิก ${file.name}`}
-                  className="grid size-8 shrink-0 place-items-center rounded-md text-rose-600 hover:bg-rose-50 disabled:opacity-50"
-                >
-                  <i className="fa-solid fa-xmark text-xs" aria-hidden="true" />
-                </button>
-              </li>
-            ))}
           </ul>
-        ) : !hideEmptyState ? (
+        ) : !hideEmptyState && !files.length ? (
           <p className="mt-3 rounded-lg border border-dashed border-slate-200 px-3 py-5 text-center text-xs text-slate-400">
             {single ? "ยังไม่มีไฟล์ที่เลือก" : "ยังไม่มีไฟล์"}
           </p>
