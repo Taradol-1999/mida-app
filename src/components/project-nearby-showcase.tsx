@@ -11,6 +11,7 @@ import "swiper/css";
 
 import { useTranslation } from "@/components/language-provider";
 import type { ProjectGalleryItem } from "@/components/project-gallery";
+import { FullscreenMediaViewer } from "@/components/fullscreen-media-viewer";
 
 type NearbyPlace = {
   th: string;
@@ -34,30 +35,22 @@ export function ProjectNearbyShowcase({ places, media, location, title, titleEn,
 
   const swiperRef = useRef<SwiperType | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [selectedImage, setSelectedImage] = useState<number | null>(null);
 
   if (!places.length && !title) return null;
 
   const total = places.length;
-  const canLoop = total > 3;
+  // Keep enough slides on both sides for seamless looping at the widest breakpoint.
+  const copies = total > 1 ? Math.ceil((Math.min(4, total) * 2 + 2) / total) : 1;
+  const slides = Array.from({ length: copies }, () => places).flat();
 
   const move = (direction: -1 | 1) => {
     const swiper = swiperRef.current;
 
     if (!swiper || swiper.destroyed) return;
 
-    if (direction === 1) {
-      if (!canLoop && swiper.isEnd) {
-        swiper.slideTo(0);
-      } else {
-        swiper.slideNext();
-      }
-    } else {
-      if (!canLoop && swiper.isBeginning) {
-        swiper.slideTo(total - 1);
-      } else {
-        swiper.slidePrev();
-      }
-    }
+    if (direction === 1) swiper.slideNext();
+    else swiper.slidePrev();
   };
 
   return (
@@ -91,30 +84,38 @@ export function ProjectNearbyShowcase({ places, media, location, title, titleEn,
               <Swiper
                 onSwiper={(swiper) => {
                   swiperRef.current = swiper;
-                  setActiveIndex(swiper.realIndex);
+                  setActiveIndex(total ? swiper.realIndex % total : 0);
                 }}
                 onSlideChange={(swiper) => {
-                  setActiveIndex(swiper.realIndex);
+                  setActiveIndex(total ? swiper.realIndex % total : 0);
                 }}
-                slidesPerView="auto"
+                slidesPerView={1}
                 spaceBetween={12}
                 speed={650}
-                loop={canLoop}
+                loop={total > 1}
                 grabCursor={total > 1}
                 allowTouchMove={total > 1}
                 watchSlidesProgress
                 breakpoints={{
+                  480: {
+                    slidesPerView: Math.min(2, total),
+                  },
                   640: {
+                    slidesPerView: Math.min(3, total),
                     spaceBetween: 12,
                   },
                   1024: {
+                    slidesPerView: Math.min(2, total),
                     spaceBetween: 12,
                   },
+                  1280: { slidesPerView: Math.min(3, total), spaceBetween: 12 },
+                  1600: { slidesPerView: Math.min(4, total), spaceBetween: 12 },
                 }}
                 className="w-full! overflow-hidden!"
               >
-                {places.map((place, index) => {
-                  const item = media.length ? media[index % media.length] : null;
+                {slides.map((place, index) => {
+                  const sourceIndex = index % total;
+                  const item = media.length ? media[sourceIndex % media.length] : null;
 
                   const name = t({
                     th: place.th,
@@ -122,7 +123,7 @@ export function ProjectNearbyShowcase({ places, media, location, title, titleEn,
                   });
 
                   return (
-                    <SwiperSlide key={`${place.th}-${index}`} className="w-[72vw]! sm:w-55! lg:w-52.5! xl:w-56.25!">
+                    <SwiperSlide key={`${place.th}-${index}`} className="min-w-0">
                       {({ isActive }) => (
                         <div className="flex h-82.5 items-start sm:h-87.5">
                           <article
@@ -135,6 +136,21 @@ export function ProjectNearbyShowcase({ places, media, location, title, titleEn,
                               ${isActive ? "mt-0 h-77.5 opacity-100 sm:h-82.5" : "mt-4.5 h-68.75 opacity-100 sm:h-73"}
                             `}
                           >
+                            {item && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (swiperRef.current?.allowClick === false) return;
+                                  setSelectedImage(sourceIndex % media.length);
+                                }}
+                                aria-label={t({ th: `ดูรูป ${name} เต็มหน้าจอ`, en: `View ${name} fullscreen` })}
+                                className="absolute inset-0 z-10 cursor-zoom-in rounded-[inherit] focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-white"
+                              >
+                                <span className="absolute right-3 top-3 grid size-9 place-items-center rounded-full bg-brand-overlay/50 text-white">
+                                  <i className="fa-solid fa-expand" aria-hidden="true" />
+                                </span>
+                              </button>
+                            )}
                             {/* MEDIA */}
                             {item ? (
                               item.type === "video" ? (
@@ -224,6 +240,14 @@ export function ProjectNearbyShowcase({ places, media, location, title, titleEn,
           </div>
         </div>
       </div>
+      {selectedImage !== null && (
+        <FullscreenMediaViewer
+          items={media}
+          index={selectedImage}
+          onIndexChange={setSelectedImage}
+          onClose={() => setSelectedImage(null)}
+        />
+      )}
     </section>
   );
 }
