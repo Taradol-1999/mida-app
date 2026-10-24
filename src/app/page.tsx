@@ -138,17 +138,17 @@ export default async function HomePage() {
         description={content.home_hero?.body ?? ""}
         descriptionEn={content.home_hero?.body_en}
       />
-      <div className="bg-[#eaf4fb]">
+      <div className="bg-page-sky">
         <ProjectFilter projectIds={homepageProjectIds} allProjectsHref="/projects" />
         <MidaLivingShowcase items={livingItems} />
       </div>
       <section
         id="promotion"
-        className="relative overflow-hidden bg-[#003f7d] py-14 text-white sm:py-18 lg:py-20 bg-cover bg-center bg-no-repeat"
+        className="relative overflow-hidden bg-banner-blue py-14 text-white sm:py-18 lg:py-20 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${backgroundImageFile.src})` }}
       >
         {/* เลเยอร์ Overlay ปรับจางลง (Opacity 40-60%) เพื่อให้เห็นรูปพื้นหลังชัดขึ้น */}
-        <div className="pointer-events-none absolute inset-0 bg-[#003f7d]/60 bg-[radial-gradient(circle_at_22%_15%,rgba(0,111,181,.35),transparent_40%),linear-gradient(120deg,rgba(0,59,115,0.7),rgba(0,77,145,0.7)_62%,rgba(0,54,104,0.8))]" />
+        <div className="pointer-events-none absolute inset-0 bg-banner-blue/60 background-city-overlay" />
 
         <div className="container-page relative z-10 grid items-center gap-10 lg:grid-cols-[minmax(250px,0.34fr)_minmax(0,0.66fr)] lg:gap-16">
           <div className="max-w-lg lg:pb-8">

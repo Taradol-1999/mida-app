@@ -130,7 +130,7 @@ export function MobileHeaderMenu({
                   </div>
 
                   <div className="border-b border-slate-100 px-6 py-6 sm:px-8">
-                    <p className="mb-3 text-[11px] font-extrabold tracking-[0.16em] text-[#168cc5]">
+                    <p className="mb-3 text-[11px] font-extrabold tracking-[0.16em] text-section-label">
                       {t({ th: "เมนู", en: "MENU" })}
                     </p>
                     <nav aria-label={t(label)} className="grid gap-1">
@@ -141,7 +141,7 @@ export function MobileHeaderMenu({
                     </nav>
                   </div>
                   <div className="px-6 pb-7 pt-7 sm:px-8">
-                    <p className="mb-3 text-[11px] font-extrabold tracking-[0.16em] text-[#168cc5]">
+                    <p className="mb-3 text-[11px] font-extrabold tracking-[0.16em] text-section-label">
                       {t({ th: "ประเภทบ้าน", en: "HOME TYPE" })}
                     </p>
                     <nav aria-label={t({ th: "ประเภทบ้าน", en: "Home types" })} className="grid">

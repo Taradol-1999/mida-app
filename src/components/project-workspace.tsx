@@ -497,7 +497,7 @@ export function ProjectWorkspace({
             ].map(([label, value, unit, icon, tone]) => (
               <section
                 key={label}
-                className="relative overflow-hidden rounded-2xl border border-brand-primary/15 bg-linear-to-br from-brand-soft via-white to-brand-accent-soft/60 p-5 shadow-[0_10px_28px_rgba(0,45,98,0.08)]"
+                className="relative overflow-hidden rounded-2xl border border-brand-primary/15 bg-linear-to-br from-brand-soft via-white to-brand-accent-soft/60 p-5 shadow-admin-highlight"
               >
                 <i
                   className={`fa-solid ${icon} absolute right-5 top-5 text-lg text-brand-accent/70`}
@@ -512,7 +512,7 @@ export function ProjectWorkspace({
           </aside>
 
           <div className="grid gap-6 md:grid-cols-2">
-            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_28px_rgba(0,45,98,0.06)]">
+            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-admin-card">
               <h2 className="flex items-center gap-2 text-sm font-extrabold text-brand-primary">
                 <i className="fa-solid fa-house text-brand-accent" /> จำนวนการเข้าชมแบบบ้าน
               </h2>
@@ -526,7 +526,7 @@ export function ProjectWorkspace({
               <p className="mt-3 text-xs text-slate-500">นับเมื่อผู้ใช้เปิดดูแบบบ้านในหน้าโครงการ</p>
             </section>
 
-            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_28px_rgba(0,45,98,0.06)]">
+            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-admin-card">
               <h2 className="flex items-center gap-2 text-sm font-extrabold text-brand-primary">
                 <i className="fa-solid fa-share-nodes text-brand-accent" /> ข้อมูลโซเชียลมีเดียที่ผู้ใช้เข้าชม
               </h2>
@@ -536,7 +536,7 @@ export function ProjectWorkspace({
               <p className="mt-3 text-xs text-slate-500">เพื่อแสดงแหล่งที่มาจาก Facebook, Google และช่องทางอื่น</p>
             </section>
 
-            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_28px_rgba(0,45,98,0.06)] md:col-span-2">
+            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-admin-card md:col-span-2">
               <h2 className="flex items-center gap-2 text-sm font-extrabold text-brand-primary">
                 <i className="fa-solid fa-bars-progress text-brand-accent" /> ข้อมูลที่ผู้ใช้งานเข้าชมแต่ละหัวข้อ
               </h2>
@@ -553,7 +553,7 @@ export function ProjectWorkspace({
           </div>
         </div>
 
-        <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_28px_rgba(0,45,98,0.06)]">
+        <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-admin-card">
           <h2 className="flex items-center gap-2 text-sm font-extrabold text-brand-primary">
             <i className="fa-solid fa-id-card-clip text-brand-accent" /> ข้อมูลเชิงลึก Demographics (เฉพาะโครงการ)
           </h2>

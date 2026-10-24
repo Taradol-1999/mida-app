@@ -10,13 +10,13 @@ const socialLinks = [
     href: "https://www.facebook.com/midapropertycompany/",
     label: "Facebook",
     icon: "fa-facebook-f",
-    color: "bg-[#1789e9]",
+    color: "bg-social-facebook",
   },
   {
     href: "https://www.youtube.com/channel/UCB7h58xbypfs8dIs7WBFWRw",
     label: "YouTube",
     icon: "fa-youtube",
-    color: "bg-[#ff1717]",
+    color: "bg-social-youtube",
   },
 ];
 
@@ -39,8 +39,8 @@ export function SiteFooter({
   const socials = [
     { ...socialLinks[0], href: facebookUrl || socialLinks[0].href },
     socialLinks[1],
-    { href: lineUrl, label: "LINE", icon: "fa-line", color: "bg-[#52be42]" },
-    { href: tiktokUrl, label: "TikTok", icon: "fa-tiktok", color: "bg-[#1b202d]" },
+    { href: lineUrl, label: "LINE", icon: "fa-line", color: "bg-social-line-footer" },
+    { href: tiktokUrl, label: "TikTok", icon: "fa-tiktok", color: "bg-social-tiktok" },
   ];
 
   return (
@@ -68,7 +68,7 @@ export function SiteFooter({
         </div>
 
         <div>
-          <p className="text-xs font-extrabold tracking-[0.18em] text-[#f3b54d] sm:text-sm">DISCOVER MIDA</p>
+          <p className="text-xs font-extrabold tracking-[0.18em] text-footer-accent sm:text-sm">DISCOVER MIDA</p>
           <nav className="mt-2 grid gap-2 text-sm leading-relaxed text-white/80 sm:gap-1">
             <Link href="/" className="transition hover:text-brand-accent">
               {t({ th: "หน้าแรก", en: "Home" })}
@@ -86,7 +86,7 @@ export function SiteFooter({
         </div>
 
         <div>
-          <p className="text-xs font-extrabold tracking-[0.18em] text-[#f3b54d] sm:text-sm">
+          <p className="text-xs font-extrabold tracking-[0.18em] text-footer-accent sm:text-sm">
             FOLLOW MIDA PROPERTY
           </p>
           <p className="mt-2 text-sm leading-relaxed text-white/80">

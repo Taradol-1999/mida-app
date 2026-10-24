@@ -12,23 +12,15 @@ import {
   Tooltip,
 } from "chart.js";
 import { Bar, Doughnut, Line } from "react-chartjs-2";
+import { chartColors as colors } from "@/lib/chart-style";
 
 ChartJS.register(ArcElement, BarElement, CategoryScale, Legend, LineElement, LinearScale, PointElement, Tooltip);
 
-const colors = {
-  navy: "#002d62",
-  blue: "#426c9e",
-  gold: "#fcb040",
-  mist: "#e8f0f8",
-  slate: "#94a3b8",
-  grid: "#dbe4ef",
-};
-
 // Canvas needs the resolved font family, not the CSS variable used by next/font.
 const chartFont = typeof document === "undefined" ? "sans-serif" : getComputedStyle(document.body).fontFamily;
-const legend = { labels: { boxWidth: 12, boxHeight: 12, color: "#4a4a4a", font: { family: chartFont } } };
+const legend = { labels: { boxWidth: 12, boxHeight: 12, color: colors.text, font: { family: chartFont } } };
 const scale = {
-  ticks: { color: "#64748b", font: { family: chartFont, size: 11 } },
+  ticks: { color: colors.muted, font: { family: chartFont, size: 11 } },
   grid: { color: colors.grid },
   border: { display: false },
 };
@@ -119,7 +111,7 @@ export function DashboardDoughnutChart({
             {
               data: hasData ? values : [1],
               backgroundColor: hasData ? [colors.navy, colors.gold, colors.blue, colors.slate] : [colors.mist],
-              borderColor: "#ffffff",
+              borderColor: colors.surface,
               borderWidth: 2,
             },
           ],

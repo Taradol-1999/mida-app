@@ -63,9 +63,9 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
   return (
     <section
       style={{ backgroundImage: `url(${backgroundImageFile.src})` }}
-      className=" bg-cover bg-center bg-no-repeat relative left-1/2 w-screen -translate-x-1/2 overflow-hidden  border-brand-primary/10 bg-linear-to-br from-brand-primary via-[#063f82] to-brand-text p-4 shadow-2xl sm:mt-9 sm:p-6 md:p-8"
+      className=" bg-cover bg-center bg-no-repeat relative left-1/2 w-screen -translate-x-1/2 overflow-hidden  border-brand-primary/10 bg-linear-to-br from-brand-primary via-brand-deep to-brand-text p-4 shadow-2xl sm:mt-9 sm:p-6 md:p-8"
     >
-      <div className="pointer-events-none absolute inset-0 bg-[#003f7d]/85 bg-[radial-gradient(circle_at_22%_15%,rgba(0,111,181,.35),transparent_40%),linear-gradient(120deg,rgba(0,59,115,0.7),rgba(0,77,145,0.7)_62%,rgba(0,54,104,0.8))]" />
+      <div className="pointer-events-none absolute inset-0 bg-banner-blue/85 background-city-overlay" />
       <div className="relative mx-auto w-full max-w-[160rem] sm:w-[calc(100%-2rem)] xl:w-[calc(100%-16rem)]">
         <div className="flex flex-wrap items-end justify-between gap-4 border-b border-white/15 pb-4 text-white sm:pb-5">
           <div>

@@ -21,13 +21,13 @@ export default async function BlogPage({ params }: { params: Promise<{ id: strin
 
   return (
     <MidaPageLayout innerPage>
-      <article className="bg-[#eef5fa] pb-12 pt-24 sm:pb-16 sm:pt-28">
+      <article className="bg-article-surface pb-12 pt-24 sm:pb-16 sm:pt-28">
         <div className="container-page">
           <Link href="/#promotion" className="mb-5 block text-sm font-bold text-brand-primary">
             <i className="fa-solid fa-arrow-left mr-2" aria-hidden="true" />
             <T th="กลับไปที่ Blog" en="Back to Blog" />
           </Link>
-          <div className="w-full overflow-hidden rounded-2xl bg-white shadow-[0_12px_40px_rgba(0,40,80,.08)]">
+          <div className="w-full overflow-hidden rounded-2xl bg-white shadow-article">
             <BlogImageSlider
               images={images.map((image) => ({
                 src: `/api/admin/media?entityType=mida-blog&entityId=${id}&mediaKind=${image.media_kind}&mediaId=${image.id}`,

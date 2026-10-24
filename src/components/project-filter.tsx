@@ -162,7 +162,7 @@ export function ProjectFilter({
     [addressMatches, catalogue, hasLoadedCatalogue, keyword, priceRange, projectIds, status, tag, type],
   );
   const filterBox = (icon: string, label: string, child: ReactNode) => (
-    <label className="flex min-h-18 flex-col justify-center rounded-lg border border-slate-200 bg-[#eef5fb] p-3">
+    <label className="flex min-h-18 flex-col justify-center rounded-lg border border-slate-200 bg-filter-surface p-3">
       <span className="mb-1 text-xs font-bold text-slate-700">
         <i className={`fa-solid ${icon} mr-1.5 text-brand-primary`} />
         {label}
@@ -179,7 +179,7 @@ export function ProjectFilter({
       id="projects"
       className={`container-page relative z-10 ${standalone ? "pb-12 pt-6 sm:pb-16 sm:pt-8" : "-mt-10 pb-12 sm:-mt-16 sm:pb-18"}`}
     >
-      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_18px_45px_rgba(0,45,98,.16)] sm:p-5 md:p-6">
+      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-project-filter sm:p-5 md:p-6">
         <div className="relative mb-3">
           <i
             className="fa-solid fa-magnifying-glass pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-brand-primary"
@@ -189,7 +189,7 @@ export function ProjectFilter({
             value={keyword}
             onChange={(event) => setKeyword(event.target.value)}
             placeholder={t({ th: "ค้นหาชื่อโครงการหรือทำเล", en: "Search by project or location" })}
-            className="w-full rounded-lg border border-slate-200 bg-[#eef5fb] py-3 pl-11 pr-4 text-base outline-none focus:border-brand-primary sm:text-sm"
+            className="w-full rounded-lg border border-slate-200 bg-filter-surface py-3 pl-11 pr-4 text-base outline-none focus:border-brand-primary sm:text-sm"
           />
         </div>
 
@@ -287,10 +287,10 @@ export function ProjectFilter({
             {allProjectsHref && (
               <Link
                 href={allProjectsHref}
-                className="inline-flex min-h-11 items-center gap-4 rounded-full bg-[#19a9dc] py-1.5 pl-5 pr-1.5 text-xs font-bold text-white shadow-[0_8px_18px_rgba(16,144,194,.25)] transition hover:bg-brand-primary"
+                className="inline-flex min-h-11 items-center gap-4 rounded-full bg-action-cyan py-1.5 pl-5 pr-1.5 text-xs font-bold text-white shadow-action transition hover:bg-brand-primary"
               >
                 {t({ th: "ดูโครงการทั้งหมด", en: "View all projects" })}{" "}
-                <span className="grid size-8 place-items-center rounded-full bg-white text-[#078fc6]">
+                <span className="grid size-8 place-items-center rounded-full bg-white text-action-ink">
                   <i className="fa-solid fa-arrow-right" />
                 </span>
               </Link>
@@ -331,7 +331,7 @@ export function ProjectFilter({
           {visible.map((project) => (
             <article
               key={project.slug}
-              className={`group mt-5 flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white p-1.5 shadow-[0_12px_35px_rgba(0,45,98,0.08)] transition duration-300 hover:-translate-y-1.5 hover:border-brand-accent hover:shadow-[0_20px_45px_rgba(0,45,98,0.14)] ${standalone ? "" : "min-w-[86%] snap-start sm:min-w-[47%] lg:min-w-[calc(33.333%-1rem)]"}`}
+              className={`group mt-5 flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white p-1.5 shadow-project-card transition duration-300 hover:-translate-y-1.5 hover:border-brand-accent hover:shadow-project-card-hover ${standalone ? "" : "min-w-[86%] snap-start sm:min-w-[47%] lg:min-w-[calc(33.333%-1rem)]"}`}
             >
               <div className="project-card-cool relative h-56 overflow-hidden rounded-xl sm:h-64 lg:h-72">
                 {project.has_cover && project.id ? (

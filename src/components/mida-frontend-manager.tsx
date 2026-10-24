@@ -240,7 +240,7 @@ export function MidaFrontendManager() {
                           : [...current, project.id],
                       )
                     }
-                    className="size-4 accent-[#002D62]"
+                    className="size-4 accent-brand-navy"
                   />
                   <span className="min-w-0 flex-1">
                     <b className="block truncate text-sm text-slate-800">{project.name_th}</b>

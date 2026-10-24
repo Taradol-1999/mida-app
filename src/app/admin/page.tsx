@@ -5,6 +5,7 @@ import { formatNumber } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { chartColors } from "@/lib/chart-style";
 
 type Metric = { label: string; value: string; note: string; tone: string };
 
@@ -116,7 +117,7 @@ function duration(seconds: number) {
 }
 function ChartShell({ title, icon, children }: { title: string; icon: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_28px_rgba(0,45,98,0.06)]">
+    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-admin-card">
       <h2 className="flex items-center gap-2 text-sm font-extrabold text-brand-primary">
         <span className="grid size-8 place-items-center rounded-lg bg-brand-soft text-xs text-brand-primary">
           <i className={`fa-solid ${icon}`} aria-hidden="true" />
@@ -209,7 +210,7 @@ export default async function AdminPage({
           {metrics.map((metric) => (
             <section
               key={metric.label}
-              className="relative overflow-hidden rounded-2xl border border-brand-primary/15 bg-linear-to-br from-brand-soft via-white to-brand-accent-soft/55 p-5 shadow-[0_10px_28px_rgba(0,45,98,0.08)]"
+              className="relative overflow-hidden rounded-2xl border border-brand-primary/15 bg-linear-to-br from-brand-soft via-white to-brand-accent-soft/55 p-5 shadow-admin-highlight"
             >
               <span className="absolute -right-5 -top-7 size-24 rounded-full bg-brand-accent/15" aria-hidden="true" />
               <p className="border-l-4 border-brand-accent pl-2 text-xs font-bold uppercase tracking-wide text-brand-primary">
@@ -220,7 +221,7 @@ export default async function AdminPage({
               </p>
             </section>
           ))}
-          <section className="rounded-2xl border border-brand-primary/15 bg-brand-primary p-5 text-white shadow-[0_10px_28px_rgba(0,45,98,0.16)] sm:col-span-3 xl:col-span-1">
+          <section className="rounded-2xl border border-brand-primary/15 bg-brand-primary p-5 text-white shadow-admin-feature sm:col-span-3 xl:col-span-1">
             <p className="border-l-4 border-brand-accent pl-2 text-xs font-bold uppercase tracking-wide text-white">
               แหล่งที่มาที่รอติดตาม
             </p>
@@ -273,11 +274,11 @@ export default async function AdminPage({
                 labels={data.durationByProject.map((row) => row.name)}
                 values={data.durationByProject.map((row) => row.seconds)}
                 label="วินาทีเฉลี่ย"
-                color="#fcb040"
+                color={chartColors.gold}
               />
             </div>
           </ChartShell>
-          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_28px_rgba(0,45,98,0.06)] md:col-span-2">
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-admin-card md:col-span-2">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 className="flex items-center gap-2 text-sm font-extrabold text-brand-primary">
                 <span className="grid size-8 place-items-center rounded-lg bg-brand-soft">

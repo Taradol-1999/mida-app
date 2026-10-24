@@ -8,7 +8,7 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
   const requestedType = (await searchParams).type;
   return (
     <MidaPageLayout innerPage>
-      <div className="min-h-[65vh] bg-[#eaf4fb]">
+      <div className="min-h-[65vh] bg-page-sky">
       <section className="pb-2 pt-28 sm:pt-32">
         <div className="container-page">
           <p className="text-xs font-bold tracking-[0.2em] text-brand-accent">MIDA PROPERTY</p>

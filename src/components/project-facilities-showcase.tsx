@@ -81,7 +81,7 @@ export function ProjectFacilitiesShowcase({
   if (!facilities.length) return null;
 
   return (
-    <section id="facilities" className="relative overflow-hidden bg-[#4CA1D7] py-14 text-white sm:py-16 lg:py-20">
+    <section id="facilities" className="relative overflow-hidden bg-facility py-14 text-white sm:py-16 lg:py-20">
       {/* HEADER */}
       <div className="project-container relative z-10">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
@@ -116,7 +116,7 @@ export function ProjectFacilitiesShowcase({
                 type="button"
                 onClick={nextCategory}
                 aria-label="Next category"
-                className="ml-1 grid size-8 place-items-center rounded-full border border-white/40 transition-all duration-300 hover:bg-white hover:text-[#2586C5]"
+                className="ml-1 grid size-8 place-items-center rounded-full border border-white/40 transition-all duration-300 hover:bg-white hover:text-facility-ink"
               >
                 <i className="fa-solid fa-chevron-right text-xs" />
               </button>
@@ -193,7 +193,7 @@ export function ProjectFacilitiesShowcase({
                           className={`
                             pointer-events-none
                             absolute inset-0
-                            bg-[#4CA1D7]
+                            bg-facility
                             transition-opacity duration-700
                             ${isActive ? "opacity-0" : "opacity-15"}
                           `}
@@ -217,7 +217,7 @@ export function ProjectFacilitiesShowcase({
             h-56 w-[155%]
             -translate-x-1/2
             rounded-[0_0_100%_100%]
-            bg-[#4CA1D7]
+            bg-facility
             sm:-top-30 sm:h-60
             lg:-top-32 lg:h-64
           "
@@ -231,7 +231,7 @@ export function ProjectFacilitiesShowcase({
             h-32 w-[165%]
             -translate-x-1/2
             rounded-[100%_100%_0_0]
-            bg-[#4CA1D7]
+            bg-facility
             sm:-bottom-20 sm:h-36
             lg:-bottom-22 lg:h-40
           "
@@ -253,7 +253,7 @@ export function ProjectFacilitiesShowcase({
                 type="button"
                 onClick={() => move(-1)}
                 aria-label="Previous image"
-                className="grid size-8 place-items-center rounded-full border border-white/50 transition-all duration-300 hover:bg-white hover:text-[#2586C5]"
+                className="grid size-8 place-items-center rounded-full border border-white/50 transition-all duration-300 hover:bg-white hover:text-facility-ink"
               >
                 <i className="fa-solid fa-chevron-left text-xs" />
               </button>
@@ -270,7 +270,7 @@ export function ProjectFacilitiesShowcase({
                 type="button"
                 onClick={() => move(1)}
                 aria-label="Next image"
-                className="grid size-8 place-items-center rounded-full border border-white/50 transition-all duration-300 hover:bg-white hover:text-[#2586C5]"
+                className="grid size-8 place-items-center rounded-full border border-white/50 transition-all duration-300 hover:bg-white hover:text-facility-ink"
               >
                 <i className="fa-solid fa-chevron-right text-xs" />
               </button>

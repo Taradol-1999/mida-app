@@ -22,7 +22,7 @@ export default async function BlogListPage() {
 
   return (
     <MidaPageLayout innerPage>
-      <section className="min-h-[65vh] bg-[#eaf4fb] pb-16 pt-28 sm:pb-24 sm:pt-32">
+      <section className="min-h-[65vh] bg-page-sky pb-16 pt-28 sm:pb-24 sm:pt-32">
         <div className="container-page">
           <p className="text-xs font-bold tracking-[0.2em] text-brand-accent">MIDA PROPERTY · BLOG</p>
           <h1 className="mt-3 text-2xl font-extrabold leading-snug text-brand-primary sm:text-4xl">

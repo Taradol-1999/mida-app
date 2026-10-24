@@ -36,8 +36,8 @@ export function FloatingContactWidget({
   }, [open]);
 
   const contacts = [
-    { label: "LINE", href: lineUrl, icon: "fa-brands fa-line", color: "bg-[#06c755]" },
-    { label: "Messenger", href: messengerUrl, icon: "fa-brands fa-facebook-messenger", color: "bg-[#0084ff]" },
+    { label: "LINE", href: lineUrl, icon: "fa-brands fa-line", color: "bg-social-line" },
+    { label: "Messenger", href: messengerUrl, icon: "fa-brands fa-facebook-messenger", color: "bg-social-messenger" },
     {
       label: t({ th: "อีเมล", en: "Email" }),
       href: email ? `mailto:${encodeURIComponent(email)}` : undefined,
@@ -80,7 +80,7 @@ export function FloatingContactWidget({
               style={{ transitionDelay: open ? `${(contacts.length - 1 - index) * 55}ms` : "0ms" }}
               className={`whitespace-nowrap transition-[transform,opacity] duration-300 ease-out motion-reduce:transition-none ${open ? "translate-y-0 scale-100 opacity-100" : "translate-y-4 scale-90 opacity-0"}`}
             >
-              {contact.href ? (
+              {contact.href && (
                 <a
                   key={contact.label}
                   href={contact.href}
@@ -93,14 +93,6 @@ export function FloatingContactWidget({
                 >
                   {content}
                 </a>
-              ) : (
-                <span
-                  key={contact.label}
-                  title={t({ th: "ยังไม่ได้ตั้งค่าช่องทางติดต่อ", en: "Contact link not configured" })}
-                  className="flex items-center gap-2 opacity-50"
-                >
-                  {content}
-                </span>
               )}
             </div>
           );
@@ -116,7 +108,7 @@ export function FloatingContactWidget({
             : t({ th: "ช่องทางติดต่อ", en: "Contact us" })
         }
         onClick={() => setOpen((value) => !value)}
-        className="grid size-14 cursor-pointer place-items-center rounded-full border-2 border-white bg-brand-primary text-white shadow-[0_8px_24px_rgba(0,31,70,.35)] transition duration-300 hover:scale-105 hover:bg-brand-accent active:scale-95 motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
+        className="grid size-14 cursor-pointer place-items-center rounded-full border-2 border-white bg-brand-primary text-white shadow-contact-widget transition duration-300 hover:scale-105 hover:bg-brand-accent active:scale-95 motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
       >
         <i
           className={`fa-solid ${open ? "fa-xmark rotate-90" : "fa-comments rotate-0"} text-xl transition-transform duration-300 motion-reduce:transition-none `}

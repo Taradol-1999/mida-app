@@ -61,7 +61,7 @@ export function ProjectNearbyShowcase({ places, media, location, title, titleEn,
   };
 
   return (
-    <section className="overflow-hidden bg-[#eaf4fb] py-14 sm:py-16 lg:py-24">
+    <section className="overflow-hidden bg-page-sky py-14 sm:py-16 lg:py-24">
       <div className="project-container">
         <div className="grid min-w-0 grid-cols-1 items-center gap-10 lg:grid-cols-[310px_minmax(0,1fr)] lg:gap-12 xl:grid-cols-[600px_minmax(0,1fr)] xl:gap-14">
           {/* LEFT CONTENT */}
@@ -73,7 +73,7 @@ export function ProjectNearbyShowcase({ places, media, location, title, titleEn,
               })}
             </h2>
 
-            <p className="mt-6 text-sm leading-7 text-[#2470a4] sm:text-base">
+            <p className="mt-6 text-sm leading-7 text-location-text sm:text-base">
               {t({
                 th:
                   description ??
@@ -129,7 +129,7 @@ export function ProjectNearbyShowcase({ places, media, location, title, titleEn,
                             className={`
                               group relative w-full overflow-hidden
                               rounded-[20px] bg-brand-primary
-                              shadow-[0_12px_24px_rgba(0,45,98,.13)]
+                              shadow-location-card
                               transition-[height,margin,opacity]
                               duration-500 ease-in-out
                               ${isActive ? "mt-0 h-77.5 opacity-100 sm:h-82.5" : "mt-4.5 h-68.75 opacity-100 sm:h-73"}
@@ -156,7 +156,7 @@ export function ProjectNearbyShowcase({ places, media, location, title, titleEn,
                                 />
                               )
                             ) : (
-                              <div className="grid size-full place-items-center bg-linear-to-br from-[#1aa7dc] to-brand-primary text-white/80">
+                              <div className="grid size-full place-items-center bg-linear-to-br from-location-cyan to-brand-primary text-white/80">
                                 <i className="fa-solid fa-location-dot text-5xl" aria-hidden="true" />
                               </div>
                             )}
@@ -195,7 +195,7 @@ export function ProjectNearbyShowcase({ places, media, location, title, titleEn,
                       th: "สถานที่ก่อนหน้า",
                       en: "Previous place",
                     })}
-                    className="grid size-8 place-items-center rounded-full border border-[#075a9b] bg-transparent text-[#075a9b] transition-all duration-300 hover:bg-[#075a9b] hover:text-white sm:size-9"
+                    className="grid size-8 place-items-center rounded-full border border-location-blue bg-transparent text-location-blue transition-all duration-300 hover:bg-location-blue hover:text-white sm:size-9"
                   >
                     <i className="fa-solid fa-chevron-left text-[0.65rem]" aria-hidden="true" />
                   </button>
@@ -207,15 +207,15 @@ export function ProjectNearbyShowcase({ places, media, location, title, titleEn,
                       th: "สถานที่ถัดไป",
                       en: "Next place",
                     })}
-                    className="grid size-8 place-items-center rounded-full border border-[#075a9b] bg-transparent text-[#075a9b] transition-all duration-300 hover:bg-[#075a9b] hover:text-white sm:size-9"
+                    className="grid size-8 place-items-center rounded-full border border-location-blue bg-transparent text-location-blue transition-all duration-300 hover:bg-location-blue hover:text-white sm:size-9"
                   >
                     <i className="fa-solid fa-chevron-right text-[0.65rem]" aria-hidden="true" />
                   </button>
                 </div>
 
-                <span className="h-px min-w-8 max-w-62.5 flex-1 bg-[#1aa7dc]/60" />
+                <span className="h-px min-w-8 max-w-62.5 flex-1 bg-location-cyan/60" />
 
-                <span className="whitespace-nowrap text-3xl font-light tabular-nums text-[#075a9b] sm:text-4xl">
+                <span className="whitespace-nowrap text-3xl font-light tabular-nums text-location-blue sm:text-4xl">
                   {String(activeIndex + 1).padStart(2, "0")}
                   <small className="ml-0.5 text-[0.38em]">/{String(total).padStart(2, "0")}</small>
                 </span>

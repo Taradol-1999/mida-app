@@ -431,9 +431,9 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           <div className="mt-6 grid gap-5 lg:grid-cols-[.75fr_1.25fr]">
             <aside
               style={{ backgroundImage: `url(${backgroundImageFile.src})` }}
-              className="bg-cover bg-center bg-no-repeat relative overflow-hidden rounded-3xl bg-brand-primary p-5 text-white shadow-[0_14px_30px_rgba(0,45,98,0.16)] sm:p-6"
+              className="bg-cover bg-center bg-no-repeat relative overflow-hidden rounded-3xl bg-brand-primary p-5 text-white shadow-project-panel sm:p-6"
             >
-              <div className="pointer-events-none absolute inset-0 bg-[#003f7d]/85 bg-[radial-gradient(circle_at_22%_15%,rgba(0,111,181,.35),transparent_40%),linear-gradient(120deg,rgba(0,59,115,0.7),rgba(0,77,145,0.7)_62%,rgba(0,54,104,0.8))]" />
+              <div className="pointer-events-none absolute inset-0 bg-banner-blue/85 background-city-overlay" />
               <div className="relative">
                 <span className="grid size-11 place-items-center rounded-2xl bg-brand-accent text-lg text-brand-primary shadow-sm">
                   <i className="fa-solid fa-location-dot" />
@@ -554,7 +554,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
               />
             </p>
           </div>
-          <div className="w-full rounded-2xl border border-white/30 bg-white p-5 text-left text-slate-700 shadow-[0_20px_70px_rgba(0,28,66,.16)] sm:p-7 lg:p-9">
+          <div className="w-full rounded-2xl border border-white/30 bg-white p-5 text-left text-slate-700 shadow-registration sm:p-7 lg:p-9">
             <LeadRegistrationForm>
               {project.id && <Input type="hidden" name="projectId" value={project.id} />}
               <section className="border-b border-slate-100 pb-6">

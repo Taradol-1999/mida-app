@@ -32,9 +32,7 @@ function HomeNewsSlider({ items }: { items: NewsPromotionItem[] }) {
   function media(item: NewsPromotionItem, featured: boolean) {
     const image = item.images?.[0];
     const content = (
-      <div
-        className={`group relative h-60 overflow-hidden bg-white shadow-[0_18px_45px_rgba(0,20,55,.26)] min-[480px]:h-72 sm:h-88 ${featured ? "w-full" : "w-full"}`}
-      >
+      <div className="group relative h-60 w-full overflow-hidden bg-white shadow-news-card min-[480px]:h-72 sm:h-88">
         {image?.type === "video" ? (
           <video src={image.src} muted playsInline preload="metadata" className="size-full object-cover" />
         ) : image ? (
@@ -47,7 +45,7 @@ function HomeNewsSlider({ items }: { items: NewsPromotionItem[] }) {
             className="object-cover transition duration-700 group-hover:scale-[1.025]"
           />
         ) : (
-          <div className="absolute inset-0 grid place-items-center bg-[radial-gradient(circle_at_80%_15%,rgba(252,176,64,.85),transparent_32%),linear-gradient(135deg,#f8fbff,#d9e9f5)] p-6 text-center text-brand-primary">
+          <div className="absolute inset-0 grid place-items-center background-news-placeholder p-6 text-center text-brand-primary">
             <div>
               <i className="fa-solid fa-house-chimney-window text-5xl text-brand-primary/25" aria-hidden="true" />
               <p className="mt-4 text-lg font-black leading-snug">{t({ th: item.title, en: item.titleEn ?? "" })}</p>
@@ -107,7 +105,7 @@ function HomeNewsSlider({ items }: { items: NewsPromotionItem[] }) {
             type="button"
             onClick={() => swiperRef.current?.slidePrev()}
             aria-label={t({ th: "ข่าวก่อนหน้า", en: "Previous story" })}
-            className="absolute top-1/2 left-0 z-10 grid size-9 -translate-y-1/2 place-items-center rounded-full bg-[#0065a7] text-sm text-white shadow-lg transition hover:scale-105 hover:bg-brand-accent hover:text-brand-primary sm:-left-5 sm:size-11"
+            className="absolute top-1/2 left-0 z-10 grid size-9 -translate-y-1/2 place-items-center rounded-full bg-slider-blue text-sm text-white shadow-lg transition hover:scale-105 hover:bg-brand-accent hover:text-brand-primary sm:-left-5 sm:size-11"
           >
             <i className="fa-solid fa-chevron-left" aria-hidden="true" />
           </button>
@@ -323,7 +321,7 @@ function NewsPromotionCards({
             );
             const emptyMediaPreview = (
               <>
-                <span className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(252,176,64,.95),transparent_38%),linear-gradient(135deg,#002D62,#063f82)]" />
+                <span className="absolute inset-0 background-news-feature" />
                 <span
                   className="absolute -right-8 -bottom-12 text-[11rem] leading-none text-white/10"
                   aria-hidden="true"

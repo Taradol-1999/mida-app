@@ -37,6 +37,7 @@ export function HomeHeader({
   const [failedLogo, setFailedLogo] = useState<string | null>(null);
   const customLogo = logoUrl && failedLogo !== logoUrl ? logoUrl : null;
   const pathname = usePathname();
+  const compact = scrolled || innerPage;
   const items = customItems ?? (pathname === "/" ? nav : nav.map((item) => ({ ...item, href: `/${item.href}` })));
   const projectSearchHref = searchHref ?? (pathname === "/" ? "#projects" : "/#projects");
 
@@ -49,7 +50,9 @@ export function HomeHeader({
 
   return (
     <header className={`home-page-header fixed inset-x-0 top-0 z-80 ${scrolled || innerPage ? "is-scrolled" : ""}`}>
-      <div className="home-page-header-bar mx-auto grid h-12 grid-cols-[1fr_auto_1fr] items-center px-3 sm:h-14 sm:px-5">
+      <div
+        className={`home-page-header-bar mx-auto grid grid-cols-[1fr_auto_1fr] items-center px-3 sm:px-5 ${compact ? "h-12 sm:h-14" : "h-15 sm:h-18"}`}
+      >
         <MobileHeaderMenu items={items} showAdmin={showAdmin} label={menuLabel} desktopBreakpoint="always" homeStyle />
         <Link
           href="/"
@@ -65,7 +68,7 @@ export function HomeHeader({
             onError={() => {
               if (logoUrl) setFailedLogo(logoUrl);
             }}
-            className="h-9 w-auto max-w-40 object-contain sm:h-10 sm:max-w-48"
+            className={`w-auto max-w-40 object-contain transition-[height] duration-400 sm:max-w-48 ${compact ? "h-9 sm:h-10" : "h-11 sm:h-13"}`}
             priority
           />
         </Link>

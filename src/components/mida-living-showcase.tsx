@@ -47,9 +47,9 @@ export function MidaLivingShowcase({ items = [] }: { items?: MidaLivingItem[] })
   if (!source.length) return null;
 
   return (
-    <section id="living" className="relative overflow-hidden bg-[#eaf4fb] pb-12 pt-10 sm:pb-20 sm:pt-16 lg:pb-28">
+    <section id="living" className="relative overflow-hidden bg-page-sky pb-12 pt-10 sm:pb-20 sm:pt-16 lg:pb-28">
       <div className="container-page text-center">
-        <p className="text-xs font-extrabold tracking-[0.22em] text-[#168cc5]">THE MIDA FAMILY</p>
+        <p className="text-xs font-extrabold tracking-[0.22em] text-section-label">THE MIDA FAMILY</p>
         <h2 className="mt-3 text-2xl font-black leading-snug tracking-tight text-brand-primary sm:text-4xl">
           {t({ th: "เริ่มที่เรา เริ่มที่ไมด้า", en: "It starts with us. It starts with MIDA." })}
         </h2>
@@ -110,7 +110,7 @@ export function MidaLivingShowcase({ items = [] }: { items?: MidaLivingItem[] })
                 ? t({ th: brand.descriptionTh ?? "", en: brand.descriptionEn ?? brand.descriptionTh ?? "" })
                 : "";
             const card = (
-              <div className="relative size-full overflow-hidden rounded-[inherit] bg-slate-200 text-left shadow-[0_18px_35px_rgba(0,45,98,.2)] ring-1 ring-white/70">
+              <div className="relative size-full overflow-hidden rounded-[inherit] bg-slate-200 text-left shadow-living-card ring-1 ring-white/70">
                 {"imageUrl" in brand && brand.imageUrl ? (
                   <Image
                     src={brand.imageUrl}
