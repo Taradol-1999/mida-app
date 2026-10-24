@@ -5,6 +5,7 @@
 
 import { useEffect, useId, useState } from "react";
 import { FileDropzone } from "@/components/file-dropzone";
+import { UploadRemoveButton } from "@/components/upload-remove-button";
 
 type BannerMedia = { id: string; name: string; mimeType: string; url: string };
 type Props = {
@@ -21,7 +22,7 @@ type Props = {
 };
 
 function Preview({ url, name, mimeType, compact = false }: Omit<BannerMedia, "id"> & { compact?: boolean }) {
-  const className = compact ? "size-full object-cover" : "aspect-video w-full bg-brand-muted object-contain";
+  const className = compact ? "size-full object-contain" : "aspect-video w-full bg-brand-muted object-contain";
   return mimeType.startsWith("video/") ? (
     <video src={url} aria-label={name} controls muted playsInline preload="metadata" className={className} />
   ) : (
@@ -45,9 +46,19 @@ function SelectedPreview({ file, compact = false }: { file: File; compact?: bool
   );
 }
 
-function PendingMediaPreviews({ files, onRemove }: { files: File[]; onRemove: (index: number) => void }) {
+function PendingMediaPreviews({
+  files,
+  onRemove,
+  single = false,
+}: {
+  files: File[];
+  onRemove: (index: number) => void;
+  single?: boolean;
+}) {
   return (
-    <div className="mb-3 grid w-full grid-cols-2 gap-2 sm:grid-cols-3">
+    <div
+      className={`mb-3 grid w-full grid-cols-1 gap-3 ${single ? "mx-auto max-w-lg" : "sm:grid-cols-2 lg:grid-cols-3"}`}
+    >
       {files.map((file, index) => (
         <div
           key={`${file.name}-${file.lastModified}-${index}`}
@@ -60,18 +71,7 @@ function PendingMediaPreviews({ files, onRemove }: { files: File[]; onRemove: (i
             {file.name}
           </p>
           <p className="px-1 text-[0.68rem] font-medium text-brand-primary">รอบันทึก</p>
-          <button
-            type="button"
-            onClick={(event) => {
-              event.stopPropagation();
-              onRemove(index);
-            }}
-            onKeyDown={(event) => event.stopPropagation()}
-            aria-label={`ยกเลิก ${file.name}`}
-            className="absolute right-2 top-2 grid size-7 place-items-center rounded-full bg-slate-900/70 text-white opacity-100 transition hover:bg-rose-600 sm:opacity-0 sm:group-hover:opacity-100"
-          >
-            <i className="fa-solid fa-xmark text-xs" aria-hidden="true" />
-          </button>
+          <UploadRemoveButton label={`ยกเลิก ${file.name}`} onRemove={() => onRemove(index)} />
         </div>
       ))}
     </div>
@@ -137,11 +137,47 @@ export function BannerMediaUpload({
           className="mt-4 min-h-30"
           onFilesChange={selectFiles}
           preview={
-            files.length ? (
-              <PendingMediaPreviews
-                files={files}
-                onRemove={(index) => onFilesChange(files.filter((_, position) => position !== index))}
-              />
+            files.length || media.length ? (
+              <>
+                {files.length > 0 && (
+                  <PendingMediaPreviews
+                    files={files}
+                    single={single}
+                    onRemove={(index) => onFilesChange(files.filter((_, position) => position !== index))}
+                  />
+                )}
+                {media.length > 0 && (
+                  <ul
+                    className={`grid w-full grid-cols-1 gap-3 text-left ${single ? "mx-auto max-w-lg" : "sm:grid-cols-2 lg:grid-cols-3"}`}
+                  >
+                    {media.map((item) => (
+                      <li
+                        key={item.id}
+                        className="relative min-w-0 overflow-hidden rounded-lg border border-slate-200 bg-white p-2"
+                      >
+                        <div className="aspect-video overflow-hidden rounded-md bg-brand-muted">
+                          <Preview {...item} />
+                        </div>
+                        <div className="mt-2 flex items-center gap-2">
+                          <div className="min-w-0 flex-1">
+                            <p title={item.name} className="truncate text-xs font-semibold text-slate-700">
+                              {item.name}
+                            </p>
+                            <p className="mt-1 text-xs text-slate-400">บันทึกแล้ว</p>
+                          </div>
+                          {allowRemoveSaved && (
+                            <UploadRemoveButton
+                              label={`ลบ ${item.name}`}
+                              disabled={disabled}
+                              onRemove={() => onRemove(item.id)}
+                            />
+                          )}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </>
             ) : undefined
           }
         />
@@ -150,37 +186,7 @@ export function BannerMediaUpload({
             {error}
           </p>
         )}
-        {media.length > 0 ? (
-          <ul className="mt-3 grid gap-2 sm:grid-cols-3">
-            {media.map((item) => (
-              <li
-                key={item.id}
-                className="flex min-w-0 items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-2"
-              >
-                <div className="h-14 w-20 shrink-0 overflow-hidden rounded-md bg-brand-muted">
-                  <Preview {...item} compact />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p title={item.name} className="truncate text-xs font-medium text-slate-700">
-                    {item.name}
-                  </p>
-                  <p className="mt-0.5 text-[0.68rem] text-slate-400">บันทึกแล้ว</p>
-                </div>
-                {allowRemoveSaved && (
-                  <button
-                    type="button"
-                    disabled={disabled}
-                    onClick={() => void onRemove(item.id)}
-                    aria-label={`ลบ ${item.name}`}
-                    className="grid size-8 shrink-0 place-items-center rounded-md text-rose-600 hover:bg-rose-50 disabled:opacity-50"
-                  >
-                    <i className="fa-solid fa-trash-can text-xs" aria-hidden="true" />
-                  </button>
-                )}
-              </li>
-            ))}
-          </ul>
-        ) : !hideEmptyState && !files.length ? (
+        {!media.length && !hideEmptyState && !files.length ? (
           <p className="mt-3 rounded-lg border border-dashed border-slate-200 px-3 py-5 text-center text-xs text-slate-400">
             {single ? "ยังไม่มีไฟล์ที่เลือก" : "ยังไม่มีไฟล์"}
           </p>

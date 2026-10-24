@@ -13,7 +13,6 @@ import { confirmDelete } from "@/lib/admin-alert";
 /* eslint-disable react-hooks/set-state-in-effect */
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 type Project = {
@@ -105,6 +104,8 @@ export function ProjectEditor({
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [imageMissing, setImageMissing] = useState(false);
+  const [coverBusy, setCoverBusy] = useState(false);
+  const [coverVersion, setCoverVersion] = useState(0);
   const [homepage, setHomepage] = useState<HomepageForm>(emptyHomepage);
   const [heroFiles, setHeroFiles] = useState<File[]>([]);
   const [heroImages, setHeroImages] = useState<MediaItem[]>([]);
@@ -272,6 +273,31 @@ export function ProjectEditor({
     );
     if (response.ok) setHeroImages((items) => items.filter((item) => item.id !== id));
   };
+  const uploadCover = async (file?: File) => {
+    if (!file || !editingId) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 5 * 1024 * 1024) {
+      setMessage("กรุณาเลือกรูป JPG, PNG หรือ WEBP ขนาดไม่เกิน 5 MB");
+      return;
+    }
+    setCoverBusy(true);
+    try {
+      const upload = new FormData();
+      upload.set("entityType", "projects");
+      upload.set("entityId", editingId);
+      upload.set("mediaKind", "cover");
+      upload.set("file", file);
+      const response = await fetch("/api/admin/media", { method: "POST", body: upload });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || "อัปโหลดภาพปกไม่สำเร็จ");
+      setImageMissing(false);
+      setCoverVersion(Date.now());
+      setMessage("อัปโหลดภาพปกเรียบร้อย");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "อัปโหลดภาพปกไม่สำเร็จ");
+    } finally {
+      setCoverBusy(false);
+    }
+  };
   const uploadBrochure = async (file?: File) => {
     if (!file || !editingId) return;
     setBrochureBusy(true);
@@ -325,26 +351,27 @@ export function ProjectEditor({
           {isEditMode && editingId && (
             <div className="mb-5 grid gap-4 lg:grid-cols-2">
               <div className="flex flex-wrap items-center gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-4 sm:p-5">
-                <div className="grid size-24 shrink-0 place-items-center overflow-hidden rounded-lg border border-slate-200 bg-white">
-                  {!imageMissing && (
-                    <img
-                      src={`/api/admin/media?entityType=projects&entityId=${editingId}`}
-                      alt="ภาพปกโครงการ"
-                      className="size-full object-cover"
-                      onError={() => setImageMissing(true)}
-                    />
-                  )}
-                  {imageMissing && <i className="fa-regular fa-image text-2xl text-slate-400" />}
-                </div>
-                <div>
+                <div className="min-w-0 w-full">
                   <p className="text-sm font-bold text-slate-700">ภาพปกโครงการ</p>
-                  <Link
-                    href={`/admin/media?project=${editingId}`}
-                    className="mt-2 inline-flex min-h-10 items-center rounded-lg border border-brand-primary/20 bg-white px-3 py-2 text-xs font-bold text-brand-primary transition hover:bg-brand-soft"
-                  >
-                    <i className="fa-solid fa-cloud-arrow-up mr-1" />
-                    อัปโหลดหรือเปลี่ยนรูปภาพ
-                  </Link>
+                  <FileDropzone
+                    title={coverBusy ? "กำลังอัปโหลด..." : "ลากและวางภาพปกที่นี่"}
+                    hint="JPG, PNG, WEBP · ไม่เกิน 5 MB"
+                    accept="image/jpeg,image/png,image/webp"
+                    disabled={coverBusy}
+                    className="mt-3"
+                    onFilesChange={(files) => void uploadCover(files[0])}
+                    preview={
+                      !imageMissing ? (
+                        <img
+                          key={`${editingId}-${coverVersion}`}
+                          src={`/api/admin/media?entityType=projects&entityId=${editingId}&v=${coverVersion}`}
+                          alt="ภาพปกโครงการ"
+                          className="mx-auto h-36 max-w-full rounded-lg object-contain"
+                          onError={() => setImageMissing(true)}
+                        />
+                      ) : undefined
+                    }
+                  />
                 </div>
               </div>
               <ProjectLogoUpload key={editingId} projectId={editingId} />

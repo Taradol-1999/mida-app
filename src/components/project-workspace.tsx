@@ -897,6 +897,7 @@ export function ProjectWorkspace({
                       hint="JPG, PNG, WEBP · ไม่เกิน 5 MB"
                       accept="image/jpeg,image/png,image/webp"
                       fileName={houseTypeImage?.name}
+                      file={houseTypeImage}
                       onFilesChange={(files) => setHouseTypeImage(files[0] ?? null)}
                       className="mt-2 min-h-32 overflow-hidden"
                       preview={
@@ -1042,6 +1043,7 @@ export function ProjectWorkspace({
                 hint="JPG, PNG, WEBP · ไม่เกิน 5 MB"
                 accept="image/jpeg,image/png,image/webp"
                 fileName={houseTypeImage?.name}
+                file={houseTypeImage}
                 onFilesChange={(files) => setHouseTypeImage(files[0] ?? null)}
                 className="mt-2 min-h-28 overflow-hidden"
                 preview={

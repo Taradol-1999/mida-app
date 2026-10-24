@@ -71,21 +71,6 @@ export function AdminMediaManager() {
       <section className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
         {visibleProjects.map((project) => (
           <article key={project.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <div className="relative aspect-video bg-slate-100">
-              {!missing[project.id] && (
-                <img
-                  src={`/api/admin/media?entityType=projects&entityId=${project.id}&v=${versions[project.id] ?? 0}`}
-                  alt={`รูปภาพ ${project.name_th}`}
-                  className="size-full object-cover"
-                  onError={() => setMissing((current) => ({ ...current, [project.id]: true }))}
-                />
-              )}
-              {missing[project.id] && (
-                <div className="grid size-full place-items-center text-slate-400">
-                  <i className="fa-regular fa-image text-4xl" />
-                </div>
-              )}
-            </div>
             <div className="p-5">
               <h2 className="font-bold text-slate-800">{project.name_th}</h2>
               <p className="mt-1 text-sm text-slate-400">{project.location}</p>
@@ -96,6 +81,16 @@ export function AdminMediaManager() {
                 disabled={busy === project.id}
                 className="mt-4 min-h-28"
                 onFilesChange={(files) => void upload(project, files[0])}
+                preview={
+                  !missing[project.id] ? (
+                    <img
+                      src={`/api/admin/media?entityType=projects&entityId=${project.id}&v=${versions[project.id] ?? 0}`}
+                      alt={`รูปภาพ ${project.name_th}`}
+                      className="h-36 w-full rounded-lg bg-brand-muted object-contain"
+                      onError={() => setMissing((current) => ({ ...current, [project.id]: true }))}
+                    />
+                  ) : undefined
+                }
               />
             </div>
           </article>

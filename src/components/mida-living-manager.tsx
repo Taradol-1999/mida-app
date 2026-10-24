@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Input, Textarea } from "@/components/ui/form-controls";
 import { BannerMediaUpload } from "@/components/banner-media-upload";
 import { FileDropzone } from "@/components/file-dropzone";
+import { UploadRemoveButton } from "@/components/upload-remove-button";
 import { confirmDelete } from "@/lib/admin-alert";
 /* eslint-disable react-hooks/set-state-in-effect */
 
@@ -75,22 +76,17 @@ function PortraitUpload({
         onFilesChange={(files) => select(files[0])}
         preview={
           image ? (
-            // The selected file uses a local object URL for its preview.
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={image} alt="ตัวอย่างรูปภาพ" className="mb-3 h-32 max-w-full rounded-lg object-contain" />
+            <div className="relative mx-auto max-w-lg rounded-lg border border-slate-200 bg-white p-3">
+              {/* The selected file uses a local object URL for its preview. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={image} alt="ตัวอย่างรูปภาพ" className="mx-auto h-36 max-w-full rounded-lg object-contain" />
+              {file && (
+                <UploadRemoveButton label="ยกเลิกรูปที่เลือก" disabled={disabled} onRemove={() => onChange(null)} />
+              )}
+            </div>
           ) : undefined
         }
       />
-      {file && (
-        <button
-          type="button"
-          disabled={disabled}
-          onClick={() => onChange(null)}
-          className="mt-2 text-xs text-rose-600 hover:underline disabled:opacity-50"
-        >
-          ยกเลิกรูปที่เลือก
-        </button>
-      )}
       {error && (
         <p role="alert" className="mt-2 text-sm text-rose-600">
           {error}

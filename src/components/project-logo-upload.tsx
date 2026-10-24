@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import midaLogo from "@/assets/logos/png/01-mida-property.png";
 import { FileDropzone } from "@/components/file-dropzone";
+import { UploadRemoveButton } from "@/components/upload-remove-button";
 import { confirmDelete } from "@/lib/admin-alert";
 
 type Logo = { id: string; url: string };
@@ -71,17 +72,6 @@ export function ProjectLogoUpload({ projectId }: { projectId: string }) {
   }
   return (
     <div className="flex flex-wrap items-center gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-4 sm:p-5">
-      <div className="relative size-24 shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-white">
-        <Image
-          key={logo?.url ?? "mida-default-logo"}
-          src={logo?.url ?? midaLogo}
-          alt="โลโก้โครงการ"
-          fill
-          unoptimized={Boolean(logo)}
-          sizes="96px"
-          className="object-contain p-2"
-        />
-      </div>
       <div className="min-w-0 flex-1">
         <p className="text-sm font-bold text-slate-700">โลโก้โครงการ</p>
         <p className="mt-1 text-xs text-slate-500">JPG, PNG, WEBP · ไม่เกิน 5 MB</p>
@@ -92,17 +82,23 @@ export function ProjectLogoUpload({ projectId }: { projectId: string }) {
           disabled={busy}
           className="mt-3 min-h-28"
           onFilesChange={(files) => void upload(files[0])}
+          preview={
+            <div className="relative mx-auto w-full max-w-lg rounded-lg border border-slate-200 bg-white p-4">
+              <div className="relative mx-auto h-36 w-full">
+                <Image
+                  key={logo?.url ?? "mida-default-logo"}
+                  src={logo?.url ?? midaLogo}
+                  alt="โลโก้โครงการ"
+                  fill
+                  unoptimized={Boolean(logo)}
+                  sizes="(min-width: 640px) 480px, 80vw"
+                  className="object-contain p-2"
+                />
+              </div>
+              {logo && <UploadRemoveButton label="ลบโลโก้โครงการ" disabled={busy} onRemove={remove} />}
+            </div>
+          }
         />
-        {logo && (
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => void remove()}
-            className="ml-3 text-xs text-red-600 disabled:opacity-50"
-          >
-            ลบโลโก้
-          </button>
-        )}
         <p className="mt-1 text-xs text-slate-500">หากยังไม่มีโลโก้ จะใช้โลโก้ MIDA</p>
         {message && (
           <p role="status" className="mt-2 text-xs text-brand-primary">
