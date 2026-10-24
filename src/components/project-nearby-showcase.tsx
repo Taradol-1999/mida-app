@@ -63,17 +63,17 @@ export function ProjectNearbyShowcase({ places, media, location, title, titleEn,
   return (
     <section className="overflow-hidden bg-page-sky py-14 sm:py-16 lg:py-24">
       <div className="project-container">
-        <div className="grid min-w-0 grid-cols-1 items-center gap-10 lg:grid-cols-[310px_minmax(0,1fr)] lg:gap-12 xl:grid-cols-[600px_minmax(0,1fr)] xl:gap-14">
+        <div className="grid min-w-0 grid-cols-1 items-center gap-7 sm:gap-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.4fr)] lg:gap-12 xl:gap-14">
           {/* LEFT CONTENT */}
-          <div className="relative z-10">
-            <h2 className="whitespace-pre-line text-3xl font-black leading-[1.16] tracking-tight text-brand-primary sm:text-4xl">
+          <div className="relative z-10 min-w-0">
+            <h2 className="whitespace-pre-line break-words text-2xl font-black leading-snug tracking-tight text-brand-primary sm:text-3xl xl:text-4xl">
               {t({
                 th: title ?? `ตอบทุกโจทย์\nความต้องการบ้านใหม่ทุกทำเล\n${location || "ในทำเลที่ใช่"}`,
                 en: titleEn || title || "Everything you need, close to home",
               })}
             </h2>
 
-            <p className="mt-6 text-sm leading-7 text-location-text sm:text-base">
+            <p className="mt-4 break-words text-sm leading-7 text-location-text sm:mt-6 sm:text-base">
               {t({
                 th:
                   description ??

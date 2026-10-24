@@ -81,12 +81,22 @@ export function ProjectFacilitiesShowcase({
   if (!facilities.length) return null;
 
   return (
-    <section id="facilities" className="relative overflow-hidden bg-facility py-14 text-white sm:py-16 lg:py-20">
+    <section id="facilities" className="relative overflow-hidden bg-brand-primary py-14 text-white sm:py-16 lg:py-20">
+      <div
+        className="pointer-events-none absolute -top-40 right-[8%] size-150 rounded-full bg-brand-deep/60 blur-3xl"
+        aria-hidden="true"
+      />
+      <div
+        className="pointer-events-none absolute -bottom-64 -left-20 size-150 rounded-full bg-banner-blue/55 blur-3xl"
+        aria-hidden="true"
+      />
       {/* HEADER */}
       <div className="project-container relative z-10">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           {/* TITLE */}
-          <h2 className="text-3xl font-black tracking-tight sm:text-4xl">{title}</h2>
+          <h2 className="break-words text-2xl font-black leading-snug tracking-tight sm:text-3xl xl:text-4xl">
+            {title}
+          </h2>
 
           {/* CATEGORY FILTER */}
           <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
@@ -97,8 +107,8 @@ export function ProjectFacilitiesShowcase({
                   onClick={() => selectCategory(index)}
                   aria-pressed={activeCategory === index}
                   className={`
-                    text-[10px] font-bold uppercase
-                    tracking-[0.12em]
+                    min-h-11 text-xs font-bold uppercase
+                    tracking-wide sm:tracking-[0.12em]
                     transition-all duration-300
                     ${activeCategory === index ? "text-white opacity-100" : "text-white/60 hover:text-white"}
                   `}
@@ -116,7 +126,7 @@ export function ProjectFacilitiesShowcase({
                 type="button"
                 onClick={nextCategory}
                 aria-label="Next category"
-                className="ml-1 grid size-8 place-items-center rounded-full border border-white/40 transition-all duration-300 hover:bg-white hover:text-facility-ink"
+                className="ml-1 grid size-8 place-items-center rounded-full border border-white/40 transition-all duration-300 hover:bg-white hover:text-brand-primary"
               >
                 <i className="fa-solid fa-chevron-right text-xs" />
               </button>
@@ -193,7 +203,7 @@ export function ProjectFacilitiesShowcase({
                           className={`
                             pointer-events-none
                             absolute inset-0
-                            bg-facility
+                            bg-brand-primary
                             transition-opacity duration-700
                             ${isActive ? "opacity-0" : "opacity-15"}
                           `}
@@ -217,7 +227,7 @@ export function ProjectFacilitiesShowcase({
             h-56 w-[155%]
             -translate-x-1/2
             rounded-[0_0_100%_100%]
-            bg-facility
+            bg-brand-primary
             sm:-top-30 sm:h-60
             lg:-top-32 lg:h-64
           "
@@ -231,7 +241,7 @@ export function ProjectFacilitiesShowcase({
             h-32 w-[165%]
             -translate-x-1/2
             rounded-[100%_100%_0_0]
-            bg-facility
+            bg-brand-primary
             sm:-bottom-20 sm:h-36
             lg:-bottom-22 lg:h-40
           "
@@ -253,7 +263,7 @@ export function ProjectFacilitiesShowcase({
                 type="button"
                 onClick={() => move(-1)}
                 aria-label="Previous image"
-                className="grid size-8 place-items-center rounded-full border border-white/50 transition-all duration-300 hover:bg-white hover:text-facility-ink"
+                className="grid size-8 place-items-center rounded-full border border-white/50 transition-all duration-300 hover:bg-white hover:text-brand-primary"
               >
                 <i className="fa-solid fa-chevron-left text-xs" />
               </button>
@@ -270,7 +280,7 @@ export function ProjectFacilitiesShowcase({
                 type="button"
                 onClick={() => move(1)}
                 aria-label="Next image"
-                className="grid size-8 place-items-center rounded-full border border-white/50 transition-all duration-300 hover:bg-white hover:text-facility-ink"
+                className="grid size-8 place-items-center rounded-full border border-white/50 transition-all duration-300 hover:bg-white hover:text-brand-primary"
               >
                 <i className="fa-solid fa-chevron-right text-xs" />
               </button>

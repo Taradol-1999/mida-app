@@ -157,11 +157,11 @@ export function HeroImageSlider({
       />
 
       <div
-        className={`container-page relative flex items-center text-white ${homeStyle ? "min-h-140 pb-28 pt-28 sm:min-h-160 sm:pb-36 lg:min-h-svh" : "min-h-112 py-16 sm:min-h-120 sm:py-24 lg:min-h-svh"}`}
+        className={`container-page relative flex items-center text-white ${homeStyle ? "min-h-140 pb-28 pt-28 sm:min-h-160 sm:pb-36 lg:min-h-svh" : "min-h-112 pb-20 pt-24 sm:min-h-120 sm:pb-24 sm:pt-28 lg:min-h-svh"}`}
       >
         <div className={homeStyle ? "w-full max-w-2xl" : "w-full max-w-5xl"}>
           <h1
-            className={`${homeStyle ? "text-[clamp(1.75rem,8vw,2.25rem)] sm:text-5xl lg:text-7xl" : "text-3xl sm:text-4xl md:text-6xl"} leading-tight font-extrabold drop-shadow-md`}
+            className={`${homeStyle ? "text-[clamp(1.75rem,8vw,2.25rem)] sm:text-5xl lg:text-7xl" : "text-[clamp(1.5rem,7vw,1.875rem)] sm:text-4xl lg:text-6xl"} break-words leading-snug font-extrabold drop-shadow-md`}
           >
             {t({ th: title, en: titleEn ?? "" })}
           </h1>
@@ -192,15 +192,15 @@ export function HeroImageSlider({
             type="button"
             onClick={() => move(-1)}
             aria-label={t({ th: "แบนเนอร์ก่อนหน้า", en: "Previous banner" })}
-            className="absolute inset-y-0 left-0 w-10 cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-white sm:w-16"
+            className="absolute inset-y-0 left-0 w-3 cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-white md:w-6 lg:w-16"
           />
           <button
             type="button"
             onClick={() => move(1)}
             aria-label={t({ th: "แบนเนอร์ถัดไป", en: "Next banner" })}
-            className="absolute inset-y-0 right-0 w-10 cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-white sm:w-16"
+            className="absolute inset-y-0 right-0 w-3 cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-white md:w-6 lg:w-16"
           />
-          <div className="absolute inset-x-0 bottom-6 flex justify-center gap-2">
+          <div className="absolute inset-x-4 bottom-4 flex flex-wrap justify-center gap-1 sm:bottom-6 sm:gap-2">
             {images.map((image, index) => (
               <button
                 key={`${image.src}-dot`}
@@ -208,8 +208,12 @@ export function HeroImageSlider({
                 onClick={() => setActive(index)}
                 aria-label={t({ th: `เลือกแบนเนอร์รูปที่ ${index + 1}`, en: `Select banner ${index + 1}` })}
                 aria-current={index === active ? "true" : undefined}
-                className={`h-2.5 rounded-full transition-all ${index === active ? "w-8 bg-white" : "w-2.5 bg-white/55 hover:bg-white"}`}
-              />
+                className="grid size-6 shrink-0 place-items-center rounded-full focus-visible:outline-2 focus-visible:outline-white"
+              >
+                <span
+                  className={`h-2 rounded-full transition-all ${index === active ? "w-6 bg-white" : "w-2 bg-white/55 hover:bg-white"}`}
+                />
+              </button>
             ))}
           </div>
         </>

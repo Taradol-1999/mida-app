@@ -181,10 +181,10 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
                 <div className="absolute inset-x-0 bottom-0 p-4 text-white sm:p-5 md:p-7">
                   <p className="text-[0.65rem] font-bold tracking-[0.2em] text-brand-accent">HOUSE TYPE</p>
                   <div className="mt-1 flex flex-wrap items-end justify-between gap-3">
-                    <h3 className="text-2xl font-black sm:text-3xl md:text-4xl">
+                    <h3 className="min-w-0 break-words text-xl font-black leading-snug sm:text-2xl lg:text-4xl">
                       {t({ th: house.name, en: house.nameEn ?? "" })}
                     </h3>
-                    <p className="rounded-full bg-brand-accent px-3 py-1.5 text-sm font-extrabold text-brand-primary shadow-lg">
+                    <p className="max-w-full rounded-full bg-brand-accent px-3 py-1.5 text-xs font-extrabold text-brand-primary shadow-lg sm:text-sm">
                       {house.startingPrice === null
                         ? t({ th: "สอบถามราคา", en: "Price on request" })
                         : language === "en"

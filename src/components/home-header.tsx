@@ -68,7 +68,7 @@ export function HomeHeader({
             onError={() => {
               if (logoUrl) setFailedLogo(logoUrl);
             }}
-            className={`w-auto max-w-40 object-contain transition-[height] duration-400 sm:max-w-48 ${compact ? "h-9 sm:h-10" : "h-11 sm:h-13"}`}
+            className={`w-auto max-w-32 object-contain transition-[height] duration-400 sm:max-w-48 ${compact ? "h-9 sm:h-10" : "h-11 sm:h-13"}`}
             priority
           />
         </Link>

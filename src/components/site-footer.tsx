@@ -45,8 +45,8 @@ export function SiteFooter({
 
   return (
     <footer className="bg-brand-primary text-white">
-      <div className="container-page mx-auto grid w-full gap-7 py-8 sm:grid-cols-2 md:min-h-42 md:grid-cols-[minmax(0,1.45fr)_minmax(0,0.7fr)_minmax(0,0.85fr)] md:gap-8 md:py-7 lg:gap-12">
-        <div className="min-w-0">
+      <div className="container-page mx-auto grid w-full gap-7 py-8 sm:grid-cols-2 lg:min-h-42 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,0.7fr)_minmax(0,0.85fr)] lg:gap-8 lg:py-7 xl:gap-12">
+        <div className="min-w-0 break-words sm:col-span-2 lg:col-span-1">
           <Link href="/" className="inline-flex items-center gap-5 font-bold tracking-[0.02em]">
             <Image src={midaLogo} alt="BY MIDA" className="h-7 w-auto shrink-0 brightness-0 invert" />
             <span className="text-lg whitespace-nowrap lg:text-xl">MIDA PROPERTY</span>
@@ -86,9 +86,7 @@ export function SiteFooter({
         </div>
 
         <div>
-          <p className="text-xs font-extrabold tracking-[0.18em] text-footer-accent sm:text-sm">
-            FOLLOW MIDA PROPERTY
-          </p>
+          <p className="text-xs font-extrabold tracking-[0.18em] text-footer-accent sm:text-sm">FOLLOW MIDA PROPERTY</p>
           <p className="mt-2 text-sm leading-relaxed text-white/80">
             {t({
               th: "ติดตามข่าวสาร โครงการใหม่ และกิจกรรมพิเศษของเรา",
