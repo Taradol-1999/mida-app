@@ -9,6 +9,7 @@ import { Input, Select } from "@/components/ui/form-controls";
 import { leadAgeRanges, leadOccupations, occupationEnglish } from "@/lib/lead-options";
 import { T } from "@/components/language-provider";
 import { HomeHeader } from "@/components/home-header";
+import { SiteFooter } from "@/components/site-footer";
 import { FloatingContactWidget } from "@/components/floating-contact-widget";
 import { projectContactKey } from "@/lib/project-contact";
 import { contactOptionsKey, readContactOptions } from "@/lib/contact-widget-options";
@@ -723,6 +724,21 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           </div>
         </div>
       </section>
+      <SiteFooter
+        projectName={project.name}
+        projectNameEn={project.name_en}
+        logoUrl={project.logoUrl}
+        navigation={projectNavigation}
+        contact={projectAddressText || project.location}
+        contactEn={project.location_en}
+        facebookUrl={safeContactUrl(project.settings.facebook_url)}
+        lineUrl={safeContactUrl(project.settings.line_url)}
+        messengerUrl={safeContactUrl(contactContent?.body)}
+        tiktokUrl={safeContactUrl(contactContent?.body_en)}
+        youtubeUrl={safeContactUrl(contactOptions.youtube)}
+        phone={project.settings.phone}
+        email={project.settings.email}
+      />
       <FloatingContactWidget
         lineUrl={safeContactUrl(project.settings.line_url)}
         messengerUrl={safeContactUrl(contactContent?.body)}
