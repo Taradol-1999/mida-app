@@ -21,12 +21,14 @@ export function MobileHeaderMenu({
   label,
   desktopBreakpoint = "lg",
   homeStyle = false,
+  projectName,
 }: {
   items: NavItem[];
   showAdmin?: boolean;
   label: BilingualText;
   desktopBreakpoint?: "lg" | "xl" | "always";
   homeStyle?: boolean;
+  projectName?: BilingualText;
 }) {
   const [open, setOpen] = useState(false);
   const [closing, setClosing] = useState(false);
@@ -130,36 +132,71 @@ export function MobileHeaderMenu({
                   </div>
 
                   <div className="border-b border-slate-100 px-6 py-6 sm:px-8">
+                    {projectName ? (
+                      <p className="mb-4 break-words text-lg font-bold leading-snug text-brand-primary">
+                        {t(projectName)}
+                      </p>
+                    ) : (
+                      <p className="mb-4 text-lg font-bold text-brand-primary">MIDA PROPERTY</p>
+                    )}
                     <p className="mb-3 text-[11px] font-extrabold tracking-[0.16em] text-section-label">
-                      {t({ th: "เมนู", en: "MENU" })}
+                      {projectName
+                        ? t({ th: "สำรวจโครงการ", en: "EXPLORE THIS PROJECT" })
+                        : t({ th: "สำรวจ MIDA Property", en: "EXPLORE MIDA PROPERTY" })}
                     </p>
                     <nav aria-label={t(label)} className="grid gap-1">
                       <HeaderNav items={items} variant="mobile" onNavigate={closeMenu} />
-                      <Link href="/projects" onClick={closeMenu} className="header-nav-link header-nav-link-mobile">
-                        {t({ th: "โครงการทั้งหมด", en: "All projects" })}
-                      </Link>
                     </nav>
                   </div>
                   <div className="px-6 pb-7 pt-7 sm:px-8">
-                    <p className="mb-3 text-[11px] font-extrabold tracking-[0.16em] text-section-label">
-                      {t({ th: "ประเภทบ้าน", en: "HOME TYPE" })}
-                    </p>
-                    <nav aria-label={t({ th: "ประเภทบ้าน", en: "Home types" })} className="grid">
-                      {propertyTypes.map((item) => (
-                        <Link
-                          key={item.value}
-                          href={{ pathname: "/projects", query: { type: item.value } }}
-                          onClick={closeMenu}
-                          className="group home-sidebar-primary-link"
-                        >
-                          {t(item.label)}
-                          <i
-                            className="fa-solid fa-arrow-up-right-from-square text-xs opacity-0 transition group-hover:opacity-100"
-                            aria-hidden="true"
-                          />
-                        </Link>
-                      ))}
-                    </nav>
+                    {projectName ? (
+                      <>
+                        <p className="mb-3 text-[11px] font-extrabold tracking-[0.16em] text-section-label">
+                          MIDA PROPERTY
+                        </p>
+                        <nav aria-label={t({ th: "เว็บไซต์ส่วนกลาง", en: "MIDA website" })} className="grid">
+                          <Link href="/" onClick={closeMenu} className="home-sidebar-primary-link">
+                            {t({ th: "หน้าแรก MIDA Property", en: "MIDA Property Home" })}
+                          </Link>
+                          <Link href="/projects" onClick={closeMenu} className="home-sidebar-primary-link">
+                            {t({ th: "โครงการทั้งหมด", en: "All Projects" })}
+                          </Link>
+                        </nav>
+                      </>
+                    ) : (
+                      <>
+                        <p className="mb-3 text-[11px] font-extrabold tracking-[0.16em] text-section-label">
+                          {t({ th: "ดูเพิ่มเติม", en: "EXPLORE MORE" })}
+                        </p>
+                        <nav aria-label={t({ th: "หน้าเพิ่มเติม", en: "More pages" })} className="mb-6 grid">
+                          <Link href="/projects" onClick={closeMenu} className="home-sidebar-primary-link">
+                            {t({ th: "โครงการทั้งหมด", en: "All Projects" })}
+                          </Link>
+                          <Link href="/blog" onClick={closeMenu} className="home-sidebar-primary-link">
+                            {t({ th: "บทความทั้งหมด", en: "All Stories" })}
+                          </Link>
+                        </nav>
+                        <p className="mb-3 text-[11px] font-extrabold tracking-[0.16em] text-section-label">
+                          {t({ th: "ประเภทบ้าน", en: "HOME TYPE" })}
+                        </p>
+                        <nav aria-label={t({ th: "ประเภทบ้าน", en: "Home types" })} className="grid">
+                          {propertyTypes.map((item) => (
+                            <Link
+                              key={item.value}
+                              href={{ pathname: "/projects", query: { type: item.value } }}
+                              onClick={closeMenu}
+                              className="group home-sidebar-primary-link"
+                            >
+                              {t(item.label)}
+                              <i
+                                className="fa-solid fa-arrow-up-right-from-square text-xs opacity-0 transition group-hover:opacity-100"
+                                aria-hidden="true"
+                              />
+                            </Link>
+                          ))}
+                        </nav>
+                      </>
+                    )}
                   </div>
                   <div className="mt-auto border-t border-slate-100 px-6 py-6 sm:px-8">
                     <div className="flex items-center justify-between gap-4">

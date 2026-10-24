@@ -44,7 +44,7 @@ export function SiteFooter({
   ];
 
   return (
-    <footer className="bg-brand-primary text-white">
+    <footer id="contact" className="bg-brand-primary text-white">
       <div className="container-page mx-auto grid w-full gap-7 py-8 sm:grid-cols-2 lg:min-h-42 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,0.7fr)_minmax(0,0.85fr)] lg:gap-8 lg:py-7 xl:gap-12">
         <div className="min-w-0 break-words sm:col-span-2 lg:col-span-1">
           <Link href="/" className="inline-flex items-center gap-5 font-bold tracking-[0.02em]">

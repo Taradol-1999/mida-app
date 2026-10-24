@@ -61,7 +61,7 @@ export function ProjectNearbyShowcase({ places, media, location, title, titleEn,
   };
 
   return (
-    <section className="overflow-hidden bg-page-sky py-14 sm:py-16 lg:py-24">
+    <section id="location-highlights" className="overflow-hidden bg-page-sky py-14 sm:py-16 lg:py-24">
       <div className="project-container">
         <div className="grid min-w-0 grid-cols-1 items-center gap-7 sm:gap-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.4fr)] lg:gap-12 xl:gap-14">
           {/* LEFT CONTENT */}

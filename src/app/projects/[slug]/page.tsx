@@ -325,13 +325,15 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   ];
   const projectNavigation = [
     { href: "#project-top", label: { th: "ภาพรวมโครงการ", en: "Overview" } },
-    ...(project.houseTypes.length > 0 ? [{ href: "#house-types", label: { th: "แบบบ้าน", en: "House Types" } }] : []),
-    ...(project.facilities.length > 0 ? [{ href: "#facilities", label: { th: "ส่วนกลาง", en: "Facilities" } }] : []),
-    ...(projectUpdates.length > 0
-      ? [{ href: "#project-promo-news", label: { th: "โปรโมชั่น", en: "Promotions" } }]
+    ...(showcase && showcase.items.length > 0
+      ? [{ href: "#location-highlights", label: { th: "จุดเด่นทำเลโครงการ", en: "Location Highlights" } }]
       : []),
-    { href: "#map", label: { th: "ทำเลที่ตั้ง", en: "Location" } },
-    { href: "#mida-care", label: { th: "บริการหลังการขาย", en: "After-sales" } },
+    ...(project.houseTypes.length > 0
+      ? [{ href: "#house-types", label: { th: "รูปแบบบ้านและราคา", en: "House Types & Prices" } }]
+      : []),
+    ...(facilities.length > 0 ? [{ href: "#facilities", label: { th: "สิ่งอำนวยความสะดวก", en: "Facilities" } }] : []),
+    { href: "#map", label: { th: "แผนที่และสถานที่ใกล้เคียง", en: "Map & Nearby Places" } },
+    { href: "#register", label: { th: "ลงทะเบียนรับข้อเสนอพิเศษ", en: "Register for Special Offers" } },
   ];
   return (
     <main id="project-top" className="bg-white">
@@ -339,6 +341,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         logoUrl={project.logoUrl}
         logoLabel={{ th: project.name, en: project.name_en ?? "" }}
         showAdmin={false}
+        projectName={{ th: project.name, en: project.name_en || project.name }}
         items={projectNavigation}
         menuLabel={{ th: "เมนูโครงการ", en: "Project menu" }}
         searchHref="/#projects"

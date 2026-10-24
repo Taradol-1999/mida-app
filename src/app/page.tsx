@@ -129,7 +129,7 @@ async function homeData() {
 export default async function HomePage() {
   const { content, updates, heroImages, homepageProjectIds, livingItems } = await homeData();
   return (
-    <MidaPageLayout>
+    <MidaPageLayout showLiving={livingItems.length > 0}>
       <HeroImageSlider
         variant="home"
         images={heroImages}
