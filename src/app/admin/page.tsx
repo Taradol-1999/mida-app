@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { DashboardBarChart, DashboardDoughnutChart, DashboardLineChart } from "@/components/dashboard-charts";
+import { DashboardExport } from "@/components/dashboard-export";
 import { DashboardPeriodFilter } from "@/components/dashboard-period-filter";
 import { formatNumber } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
@@ -197,6 +198,40 @@ export default async function AdminPage({
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <DashboardPeriodFilter month={selectedMonth} year={selectedYear} months={thaiMonths} years={years} />
+          <DashboardExport
+            title="Dashboard MD"
+            periodLabel={`ภาพรวมโครงการ · ${thaiMonths[selectedMonth - 1]} ${selectedYear + 543}`}
+            fileStem={`mida-dashboard-md-${selectedYear}-${String(selectedMonth).padStart(2, "0")}`}
+            metrics={metrics.map((metric) => ({ label: metric.label, value: metric.value, unit: metric.note }))}
+            sections={[
+              {
+                title: "จำนวนการลงทะเบียนรายสัปดาห์",
+                rows: data.weeklyLeads.map((value, index) => ({ label: `สัปดาห์ ${index + 1}`, value })),
+              },
+              {
+                title: "ยอดเข้าชมตามโครงการ",
+                rows: data.viewsByProject.map((row) => ({ label: row.name, value: row.total })),
+              },
+              {
+                title: "ประเภทที่อยู่อาศัยของผู้สนใจ",
+                rows: data.residence.map((row) => ({ label: row.label, value: row.value })),
+              },
+              {
+                title: "เวลาเข้าชมเฉลี่ยตามโครงการ",
+                rows: data.durationByProject.map((row) => ({ label: row.name, value: row.seconds, detail: "วินาที" })),
+              },
+              {
+                title: "ข้อมูลเชิงลึก Demographics",
+                rows: demographicPanels.flatMap((panel) =>
+                  panel.rows.map((row) => ({
+                    label: `${panel.title}: ${row.label}`,
+                    value: row.value,
+                    detail: `${row.percent}%`,
+                  })),
+                ),
+              },
+            ]}
+          />
           <Link
             href="/api/admin/leads?format=csv"
             className="rounded-lg bg-brand-accent shrink-0 mt-1 px-4 py-3 text-sm font-bold text-brand-primary shadow-sm transition hover:bg-brand-accent-soft"

@@ -4,6 +4,7 @@ import { AdminFeedback, useAdminFeedback } from "@/components/admin-feedback";
 
 import { BannerMediaUpload } from "@/components/banner-media-upload";
 import { DashboardBarChart, DashboardDoughnutChart } from "@/components/dashboard-charts";
+import { DashboardExport } from "@/components/dashboard-export";
 import { FileDropzone } from "@/components/file-dropzone";
 
 import { Input, Textarea, Select } from "@/components/ui/form-controls";
@@ -493,6 +494,30 @@ export function ProjectWorkspace({
             <i className="fa-solid fa-circle-info text-brand-accent" />
             ข้อมูลอ้างอิงจากการใช้งานที่ระบบบันทึกไว้
           </p>
+          <DashboardExport
+            title={`Dashboard HP · ${projectName}`}
+            periodLabel="ข้อมูลสะสมตามที่ระบบบันทึกไว้"
+            fileStem={`mida-dashboard-hp-${projectId}`}
+            metrics={[
+              { label: "จำนวนการเข้าชม", value: summary.views.toLocaleString("th-TH"), unit: "ครั้ง" },
+              { label: "จำนวนการลงทะเบียน", value: summary.leads.toLocaleString("th-TH"), unit: "รายชื่อ" },
+              { label: "ข้อมูลเฉลี่ยเวลาเข้าชม", value: duration, unit: "นาที:วินาที" },
+            ]}
+            sections={[
+              { title: "จำนวนการเข้าชมแบบบ้าน", rows: summary.houseTypeViews },
+              { title: "ข้อมูลที่ผู้ใช้งานเข้าชมแต่ละหัวข้อ", rows: summary.contentViews },
+              {
+                title: "ข้อมูลเชิงลึก Demographics",
+                rows: demographicPanels.flatMap((panel) =>
+                  panel.rows.map((row) => ({
+                    label: `${panel.title}: ${row.label}`,
+                    value: row.value,
+                    detail: `${row.percent}%`,
+                  })),
+                ),
+              },
+            ]}
+          />
         </header>
 
         <div className="mt-6 grid gap-6 xl:grid-cols-[18rem_1fr]">
