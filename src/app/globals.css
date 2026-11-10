@@ -382,6 +382,69 @@ body {
   }
 }
 
+.facility-panorama {
+  --facility-slide-width: 56vw;
+  --facility-focus-extension: 14vw;
+}
+
+@media (min-width: 40rem) {
+  .facility-panorama {
+    --facility-slide-width: 32vw;
+    --facility-focus-extension: 10vw;
+  }
+}
+
+@media (min-width: 64rem) {
+  .facility-panorama {
+    --facility-slide-width: 17vw;
+    --facility-focus-extension: 12vw;
+  }
+}
+
+.facility-panorama .facility-panorama-slide {
+  width: var(--facility-slide-width);
+  height: clamp(15rem, 25vw, 30rem);
+}
+
+/* Swiper measures equal slots. Expand the active photo and move its neighbors clear of it. */
+.facility-panorama-image {
+  position: absolute;
+  inset-block: 0;
+  left: 50%;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 0.375rem;
+  background-color: var(--color-facility);
+  translate: calc(-50% + var(--facility-slide-offset, 0px));
+  transition: width 750ms ease, translate 750ms ease;
+}
+
+.facility-panorama-slide:has(~ .swiper-slide-active) {
+  --facility-slide-offset: calc(var(--facility-focus-extension) / -2);
+}
+
+.swiper-slide-active ~ .facility-panorama-slide {
+  --facility-slide-offset: calc(var(--facility-focus-extension) / 2);
+}
+
+.swiper-slide-active > .facility-panorama-image {
+  width: calc(100% + var(--facility-focus-extension));
+}
+
+.facility-panorama-image::after {
+  position: absolute;
+  inset: 0;
+  background-color: var(--color-facility);
+  opacity: 0.4;
+  pointer-events: none;
+  transition: opacity 750ms ease;
+  content: "";
+}
+
+.swiper-slide-active > .facility-panorama-image::after {
+  opacity: 0;
+}
+
 @utility section-title {
   font-size: clamp(1.5rem, 3vw, 2.25rem);
   font-weight: 800;
