@@ -85,23 +85,11 @@ export function FloatingContactWidget({
         className={`absolute bottom-full right-0 mb-3 flex flex-col items-end gap-2 transition-all duration-300 motion-reduce:transition-none ${open ? "visible translate-y-0 opacity-100" : "invisible translate-y-3 opacity-0"}`}
       >
         {contacts.map((contact, index) => {
-          const content = (
-            <>
-              <span className="hidden rounded-lg text-nowrap bg-white px-3 py-1.5 text-xs font-semibold text-brand-primary shadow-md sm:block">
-                {contact.label}
-              </span>
-              <span
-                className={`grid size-10 shrink-0 place-items-center rounded-full ${contact.color} text-xl text-white shadow-lg`}
-              >
-                <i className={contact.icon} aria-hidden="true" />
-              </span>
-            </>
-          );
           return (
             <div
               key={contact.label}
               style={{ transitionDelay: open ? `${(contacts.length - 1 - index) * 55}ms` : "0ms" }}
-              className={`whitespace-nowrap transition-[transform,opacity] duration-300 ease-out motion-reduce:transition-none ${open ? "translate-y-0 scale-100 opacity-100" : "translate-y-4 scale-90 opacity-0"}`}
+              className={`transition-[transform,opacity] duration-300 ease-out motion-reduce:transition-none ${open ? "translate-y-0 scale-100 opacity-100" : "translate-y-4 scale-90 opacity-0"}`}
             >
               {contact.href && (
                 <a
@@ -112,9 +100,9 @@ export function FloatingContactWidget({
                   rel={contact.href.startsWith("https://") ? "noopener noreferrer" : undefined}
                   tabIndex={open ? 0 : -1}
                   onClick={() => setOpen(false)}
-                  className="flex items-center gap-2 transition hover:-translate-x-1"
+                  className={`grid size-10 place-items-center rounded-full ${contact.color} text-xl text-white shadow-lg transition hover:-translate-x-1`}
                 >
-                  {content}
+                  <i className={contact.icon} aria-hidden="true" />
                 </a>
               )}
             </div>

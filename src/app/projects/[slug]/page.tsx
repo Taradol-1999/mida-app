@@ -566,160 +566,70 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           <div className="w-full rounded-2xl border border-white/30 bg-white p-5 text-left text-slate-700 shadow-registration sm:p-7 lg:p-9">
             <LeadRegistrationForm>
               {project.id && <Input type="hidden" name="projectId" value={project.id} />}
-              <section className="border-b border-slate-100 pb-6">
-                <h3 className="mb-5 flex items-center gap-3 font-bold text-brand-primary">
-                  <span className="grid size-8 place-items-center rounded-xl bg-brand-accent-soft text-xs">01</span>
-                  <T th="ข้อมูลส่วนตัว" en="Personal information" />
-                </h3>
-                <div className="grid gap-x-5 gap-y-4 sm:grid-cols-2 xl:grid-cols-4">
-                  <RegistrationField name="firstName" th="ชื่อ" en="First name" autoComplete="given-name" />
-                  <RegistrationField name="lastName" th="นามสกุล" en="Last name" autoComplete="family-name" />
-                  <RegistrationField name="email" type="email" th="อีเมล" en="Email" autoComplete="email" />
-                  <RegistrationField name="phone" type="tel" th="เบอร์โทรศัพท์" en="Phone" autoComplete="tel" />
-                  <RegistrationField
-                    name="familyMembers"
-                    type="number"
-                    th="จำนวนสมาชิกในครอบครัว"
-                    en="Number of family members"
-                  />
-                  <label className="text-sm font-semibold">
-                    <T th="ช่วงอายุ" en="Age range" /> <span className="text-red-500">*</span>
-                    <Select name="ageRange" required defaultValue="">
-                      <option value="" disabled>
-                        —
+              <div className="grid gap-x-5 gap-y-4 sm:grid-cols-2 lg:grid-cols-4">
+                <RegistrationField name="firstName" th="ชื่อ" en="First name" autoComplete="given-name" required />
+                <RegistrationField name="lastName" th="นามสกุล" en="Last name" autoComplete="family-name" required />
+                <RegistrationField name="phone" type="tel" th="เบอร์โทรศัพท์" en="Phone" autoComplete="tel" required />
+                <label className="min-w-0 text-sm font-semibold">
+                  <T th="อาชีพ" en="Occupation" /> <span className="text-red-500">*</span>
+                  <Select name="occupation" required defaultValue="">
+                    <option value="" disabled>
+                      —
+                    </option>
+                    {leadOccupations.map((occupation) => (
+                      <option key={occupation} value={occupation}>
+                        <T th={occupation} en={occupationEnglish[occupation]} />
                       </option>
-                      {leadAgeRanges.map((age) => (
-                        <option key={age} value={age}>
-                          <T
-                            th={age === "ไม่ระบุ" || age === "มากกว่า 60" ? age : `ช่วงอายุ ${age}`}
-                            en={age === "มากกว่า 60" ? "Over 60" : age === "ไม่ระบุ" ? "Prefer not to disclose" : age}
-                          />
-                        </option>
-                      ))}
-                    </Select>
-                  </label>
-                  <label className="text-sm font-semibold sm:col-span-2">
-                    <T th="อาชีพ" en="Occupation" /> <span className="text-red-500">*</span>
-                    <Select name="occupation" required defaultValue="">
-                      <option value="" disabled>
-                        —
-                      </option>
-                      {leadOccupations.map((occupation) => (
-                        <option key={occupation} value={occupation}>
-                          <T th={occupation} en={occupationEnglish[occupation]} />
-                        </option>
-                      ))}
-                    </Select>
-                  </label>
-                </div>
-              </section>
-              <section className="border-b border-slate-100 pb-6">
-                <h3 className="mb-5 flex items-center gap-3 font-bold text-brand-primary">
-                  <span className="grid size-8 place-items-center rounded-xl bg-brand-accent-soft text-xs">02</span>
-                  <T th="ที่อยู่ปัจจุบัน" en="Current address" />
-                </h3>
-                <div className="grid gap-5 md:grid-cols-3">
-                  <RegistrationField name="province" th="จังหวัด" en="Province" autoComplete="address-level1" />
-                  <RegistrationField name="district" th="เขต / อำเภอ" en="District" autoComplete="address-level2" />
-                  <RegistrationField
-                    name="subdistrict"
-                    th="ตำบล / แขวง"
-                    en="Subdistrict"
-                    autoComplete="address-level3"
-                  />
-                </div>
-              </section>
-              <div className="grid gap-6 md:grid-cols-2">
-                <fieldset className="rounded-2xl border border-slate-100 p-4 sm:p-5">
-                  <legend className="px-1 text-sm font-semibold">
-                    <T th="ประเภทที่อยู่อาศัยปัจจุบัน" en="Current residence type" />{" "}
-                    <span className="text-red-500">*</span>
-                  </legend>
-                  <div className="mt-3 grid gap-3 lg:grid-cols-3">
-                    {[
-                      { value: "HOUSE", th: "บ้าน", en: "House" },
-                      { value: "CONDO", th: "คอนโดมิเนียม", en: "Condominium" },
-                      { value: "DORMITORY", th: "อพาร์ทเม้น", en: "Apartment" },
-                    ].map((item) => (
-                      <label
-                        key={item.value}
-                        className="flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm transition hover:border-brand-primary/40 has-checked:border-brand-primary has-checked:bg-brand-soft has-checked:text-brand-primary"
-                      >
-                        <Input
-                          type="radio"
-                          name="residenceType"
-                          value={item.value}
-                          required
-                          className="accent-brand-primary"
-                        />
-                        <T th={item.th} en={item.en} />
-                      </label>
                     ))}
-                  </div>
-                </fieldset>
-                <div className="space-y-5 rounded-2xl border border-slate-100 p-4 sm:p-5">
-                  <label className="block text-sm font-semibold">
-                    <T th="งบประมาณ" en="Budget" /> <span className="text-red-500">*</span>
-                    <Select name="budget" required defaultValue="">
-                      <option value="" disabled>
-                        —
+                  </Select>
+                </label>
+                <label className="min-w-0 text-sm font-semibold">
+                  <T th="ช่วงอายุ" en="Age range" />
+                  <Select name="ageRange" defaultValue="">
+                    <option value="">—</option>
+                    {leadAgeRanges.map((age) => (
+                      <option key={age} value={age}>
+                        <T
+                          th={age === "ไม่ระบุ" || age === "มากกว่า 60" ? age : `ช่วงอายุ ${age}`}
+                          en={age === "มากกว่า 60" ? "Over 60" : age === "ไม่ระบุ" ? "Prefer not to disclose" : age}
+                        />
                       </option>
-                      {[
-                        { th: "1-2 ล้านบาท", en: "THB 1–2 million" },
-                        { th: "2-3 ล้านบาท", en: "THB 2–3 million" },
-                        { th: "3-5 ล้านบาท", en: "THB 3–5 million" },
-                        { th: "มากกว่า 5 ล้านบาท", en: "More than THB 5 million" },
-                      ].map((item) => (
-                        <option key={item.th} value={item.th}>
-                          <T {...item} />
-                        </option>
-                      ))}
-                    </Select>
-                  </label>
-                  <div className="grid gap-5 sm:grid-cols-2">
-                    <RegistrationField
-                      name="preferredContactDate"
-                      type="date"
-                      th="วันที่สะดวกให้ติดต่อกลับ"
-                      en="Preferred contact date"
-                    />
-                    <RegistrationField
-                      name="preferredContactTime"
-                      type="time"
-                      th="ช่วงเวลาที่สะดวก"
-                      en="Preferred contact time"
-                    />
-                  </div>
-                </div>
+                    ))}
+                  </Select>
+                </label>
+                <RegistrationField name="province" th="จังหวัด" en="Province" autoComplete="address-level1" />
+                <RegistrationField name="district" th="เขต / อำเภอ" en="District" autoComplete="address-level2" />
+                <label className="min-w-0 text-sm font-semibold">
+                  <T th="งบประมาณ" en="Budget" />
+                  <Select name="budget" defaultValue="">
+                    <option value="">—</option>
+                    {[
+                      { th: "1-2 ล้านบาท", en: "THB 1–2 million" },
+                      { th: "2-3 ล้านบาท", en: "THB 2–3 million" },
+                      { th: "3-5 ล้านบาท", en: "THB 3–5 million" },
+                      { th: "มากกว่า 5 ล้านบาท", en: "More than THB 5 million" },
+                    ].map((item) => (
+                      <option key={item.th} value={item.th}>
+                        <T {...item} />
+                      </option>
+                    ))}
+                  </Select>
+                </label>
+                <RegistrationField
+                  name="preferredContactDate"
+                  className="lg:col-span-2"
+                  type="date"
+                  th="วันที่สะดวกให้ติดต่อกลับ"
+                  en="Preferred contact date"
+                />
+                <RegistrationField
+                  name="preferredContactTime"
+                  className="lg:col-span-2"
+                  type="time"
+                  th="ช่วงเวลาที่สะดวก"
+                  en="Preferred contact time"
+                />
               </div>
-              <fieldset className="rounded-2xl border border-brand-primary/10 bg-brand-soft/40 p-4 sm:p-5">
-                <legend className="px-1 text-sm font-semibold">
-                  <T th="การรับข่าวสาร" en="News updates" />
-                </legend>
-                <div className="space-y-3 text-sm text-slate-600">
-                  <label className="flex items-start gap-2">
-                    <Input type="checkbox" name="consentNews" value="true" className="mt-1 accent-brand-primary" />
-                    <T
-                      th="ท่านต้องการรับข่าวสารจาก Mida Property"
-                      en="I would like to receive news from MIDA Property."
-                    />
-                  </label>
-                  <label className="flex items-start gap-2">
-                    <Input
-                      type="checkbox"
-                      name="consentContact"
-                      value="true"
-                      required
-                      className="mt-1 accent-brand-primary"
-                    />
-                    <T
-                      th="ท่านยินยอมให้เจ้าหน้าที่ติดต่อกลับในช่วงเวลาที่ท่านกำหนด"
-                      en="I consent to being contacted during my preferred time."
-                    />
-                    <span className="text-red-500">*</span>
-                  </label>
-                </div>
-              </fieldset>
             </LeadRegistrationForm>
           </div>
         </div>
@@ -758,23 +668,25 @@ function RegistrationField({
   en,
   type = "text",
   autoComplete,
+  className,
+  required = false,
 }: {
   name: string;
   th: string;
   en: string;
   type?: string;
   autoComplete?: string;
+  className?: string;
+  required?: boolean;
 }) {
   return (
-    <label className="text-sm font-semibold">
-      <T th={th} en={en} /> <span className="text-red-500">*</span>
+    <label className={`min-w-0 text-sm font-semibold ${className ?? ""}`}>
+      <T th={th} en={en} /> {required && <span className="text-red-500">*</span>}
       <Input
         name={name}
         type={type}
         autoComplete={autoComplete}
-        required
-        min={type === "number" ? 1 : undefined}
-        max={type === "number" ? 99 : undefined}
+        required={required}
         className="mt-1.5 w-full rounded-xl border border-slate-200 p-3 outline-none focus:border-brand-primary"
       />
     </label>

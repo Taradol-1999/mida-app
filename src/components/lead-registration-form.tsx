@@ -11,12 +11,15 @@ export function LeadRegistrationForm({ children }: { children: ReactNode }) {
     event.preventDefault();
     if (status === "sending") return;
     const form = event.currentTarget;
+    const fields = Object.fromEntries(
+      Array.from(new FormData(form)).filter(([, value]) => typeof value !== "string" || value.trim() !== ""),
+    );
     setStatus("sending");
     try {
       const response = await fetch("/api/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(Object.fromEntries(new FormData(form))),
+        body: JSON.stringify(fields),
       });
       if (!response.ok) throw new Error("Registration failed");
       form.reset();
