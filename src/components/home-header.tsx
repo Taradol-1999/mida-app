@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { GoogleAnalytics } from "@/components/google-analytics";
 import { MobileHeaderMenu } from "@/components/mobile-header-menu";
 import { type BilingualText } from "@/components/language-provider";
 import midaLogo from "@/assets/logos/png/01-mida-property.png";
@@ -58,6 +59,7 @@ export function HomeHeader({
 
   return (
     <header className={`home-page-header fixed inset-x-0 top-0 z-80 ${scrolled || innerPage ? "is-scrolled" : ""}`}>
+      <GoogleAnalytics />
       <div
         className={`home-page-header-bar mx-auto grid grid-cols-[1fr_auto_1fr] items-center px-3 sm:px-5 ${compact ? "h-12 sm:h-14" : "h-15 sm:h-18"}`}
       >
