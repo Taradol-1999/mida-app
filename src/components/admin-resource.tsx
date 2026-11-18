@@ -30,6 +30,7 @@ type Config = {
   columns: [string, string][];
   canCreate?: boolean;
   exportUrl?: string;
+  exportExcelUrl?: string;
 };
 
 const configs: Record<AdminResource, Config> = {
@@ -181,33 +182,22 @@ const configs: Record<AdminResource, Config> = {
     eyebrow: "CUSTOMER RELATION",
     title: "รายชื่อผู้ลงทะเบียน",
     intro: "ติดตามผลลูกค้าที่ส่งข้อมูลจากแบบฟอร์มหน้าเว็บไซต์",
-    formTitle: "บันทึกสถานะการติดตาม",
-    fields: [
-      {
-        name: "status",
-        label: "สถานะติดตาม",
-        type: "select",
-        required: true,
-        options: [
-          ["NEW", "รอดำเนินการ"],
-          ["CONTACTED", "ติดต่อแล้ว"],
-          ["QUALIFIED", "มีโอกาสปิดการขาย"],
-          ["CLOSED", "ปิดการขาย"],
-        ],
-      },
-    ],
+    formTitle: "ข้อมูลผู้ลงทะเบียน",
+    fields: [],
     columns: [
-      ["created_at", "วันที่ / เวลา"],
       ["name", "ชื่อ-นามสกุล"],
-      ["phone", "เบอร์ติดต่อ"],
+      ["phone", "เบอร์โทรศัพท์"],
+      ["age_range", "ช่วงอายุ"],
+      ["occupation", "อาชีพ"],
       ["province", "จังหวัด"],
-      ["project_name", "โครงการ"],
+      ["district", "เขต / อำเภอ"],
       ["budget", "งบประมาณ"],
-      ["preferred_contact_date", "วันที่สะดวก"],
-      ["status", "สถานะติดตาม"],
+      ["preferred_contact_date", "วันที่สะดวกให้ติดต่อกลับ"],
+      ["preferred_contact_time", "ช่วงเวลาที่สะดวก"],
     ],
     canCreate: false,
     exportUrl: "/api/admin/leads?format=csv",
+    exportExcelUrl: "/api/admin/leads?format=excel",
   },
   content: {
     eyebrow: "WEBSITE CMS",
@@ -275,6 +265,11 @@ function display(field: string, value: unknown) {
   if (field === "is_published" || field === "is_active")
     return value === true || value === 1 ? "เปิดใช้งาน" : "แบบร่าง / ปิด";
   if (!value) return "-";
+  if (field === "preferred_contact_date") return new Date(String(value)).toLocaleDateString("th-TH");
+  if (field === "preferred_contact_time") {
+    const date = new Date(String(value));
+    return Number.isNaN(date.valueOf()) ? String(value).slice(0, 5) : `${date.toISOString().slice(11, 16)} น.`;
+  }
   if (field.includes("price") && Number.isFinite(Number(value))) return `${Number(value).toLocaleString("th-TH")} บาท`;
   if (field.endsWith("_at") || field === "created_at" || field === "updated_at")
     return new Date(String(value)).toLocaleDateString("th-TH");
@@ -608,12 +603,24 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
           <p className="mt-1 text-sm text-slate-500">{config.intro}</p>
         </div>
         {config.exportUrl && (
-          <a
-            href={config.exportUrl}
-            className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-700"
-          >
-            ⇩ ส่งออกข้อมูลลูกค้า (CSV)
-          </a>
+          <div className="flex flex-wrap gap-2">
+            <a
+              href={config.exportUrl}
+              className="rounded-lg border border-emerald-600 px-4 py-2 text-sm font-bold text-emerald-700 shadow-sm transition hover:bg-emerald-50"
+            >
+              <i className="fa-solid fa-file-csv mr-2" aria-hidden="true" />
+              Export CSV
+            </a>
+            {config.exportExcelUrl && (
+              <a
+                href={config.exportExcelUrl}
+                className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-700"
+              >
+                <i className="fa-solid fa-file-excel mr-2" aria-hidden="true" />
+                Export Excel
+              </a>
+            )}
+          </div>
         )}
         {resource === "users" && (
           <button type="button" onClick={openCreateUser} className="admin-button-primary">
@@ -667,12 +674,14 @@ export function AdminResourceManager({ resource }: { resource: AdminResource }) 
                       </td>
                     ))}
                     <td className="whitespace-nowrap p-3 text-right">
-                      <button
-                        onClick={() => void edit(row)}
-                        className="mr-3 font-bold text-brand-primary hover:underline"
-                      >
-                        แก้ไข
-                      </button>
+                      {resource !== "leads" && (
+                        <button
+                          onClick={() => void edit(row)}
+                          className="mr-3 font-bold text-brand-primary hover:underline"
+                        >
+                          แก้ไข
+                        </button>
+                      )}
                       <button
                         onClick={() => remove(String(row.id))}
                         className="font-bold text-rose-600 hover:underline"

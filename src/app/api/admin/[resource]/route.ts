@@ -359,65 +359,116 @@ function csvEscape(input: unknown) {
   return `"${String(input ?? "").replaceAll('"', '""')}"`;
 }
 
+function xmlEscape(input: unknown) {
+  return String(input ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&apos;");
+}
+
+function exportDate(input: unknown) {
+  if (!input) return "";
+  const date = new Date(String(input));
+  return Number.isNaN(date.valueOf()) ? String(input) : date.toISOString().slice(0, 10);
+}
+
+function exportTime(input: unknown) {
+  if (!input) return "";
+  const date = new Date(String(input));
+  return Number.isNaN(date.valueOf()) ? String(input).slice(0, 5) : date.toISOString().slice(11, 16);
+}
+
+const leadExportHeader = [
+  "ชื่อ-นามสกุล",
+  "เบอร์โทรศัพท์",
+  "ช่วงอายุ",
+  "อาชีพ",
+  "จังหวัด",
+  "เขต / อำเภอ",
+  "งบประมาณ",
+  "วันที่สะดวกให้ติดต่อกลับ",
+  "ช่วงเวลาที่สะดวก",
+];
+
+function leadExportRow(row: Record<string, unknown>) {
+  return [
+    row.name,
+    row.phone,
+    row.age_range,
+    row.occupation,
+    row.province,
+    row.district,
+    row.budget,
+    exportDate(row.preferred_contact_date),
+    exportTime(row.preferred_contact_time),
+  ];
+}
+
+function excelWorkbook(rows: Record<string, unknown>[]) {
+  const rowXml = [leadExportHeader, ...rows.map(leadExportRow)]
+    .map(
+      (row, index) =>
+        `<Row${index === 0 ? ' ss:StyleID="Header"' : ""}>${row
+          .map((value) => `<Cell><Data ss:Type="String">${xmlEscape(value)}</Data></Cell>`)
+          .join("")}</Row>`,
+    )
+    .join("");
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+ <Styles><Style ss:ID="Header"><Font ss:Bold="1"/><Interior ss:Color="#D9EAF7" ss:Pattern="Solid"/></Style></Styles>
+ <Worksheet ss:Name="Customer Leads"><Table>${rowXml}</Table></Worksheet>
+</Workbook>`;
+}
+
+function exportFilename(projectName: string | null, extension: "csv" | "xls") {
+  const baseName = `${projectName?.trim() || "Mida Property"}-customer-leads`;
+  const encodedName = encodeURIComponent(`${baseName}.${extension}`);
+  return `attachment; filename="mida-customer-leads.${extension}"; filename*=UTF-8''${encodedName}`;
+}
+
 export async function GET(request: Request, context: RouteContext) {
   const { resource: resourceParam } = await context.params;
   const access = await authorise(resourceParam);
   if ("error" in access) return access.error;
-  if (access.resource === "leads" && new URL(request.url).searchParams.get("format") === "csv") {
-    const projectId = new URL(request.url).searchParams.get("projectId");
+  const searchParams = new URL(request.url).searchParams;
+  const exportFormat = searchParams.get("format");
+  if (access.resource === "leads" && (exportFormat === "csv" || exportFormat === "excel")) {
+    const projectId = searchParams.get("projectId");
     const listed = await listLeads(access.user);
     const rows = projectId ? listed.rows.filter((row) => String(row.project_id) === projectId) : listed.rows;
-    const header = [
-      "ชื่อ",
-      "โทรศัพท์",
-      "อีเมล",
-      "สมาชิกครอบครัว",
-      "จังหวัด",
-      "อำเภอ",
-      "ตำบล",
-      "ประเภทที่พัก",
-      "โครงการ",
-      "งบประมาณ",
-      "วันที่สะดวก",
-      "เวลาที่สะดวก",
-      "รับข่าวสาร",
-      "ยินยอมให้ติดต่อ",
-      "สถานะ",
-      "วันที่ลงทะเบียน",
-    ];
-    const lines = rows.map((row) =>
-      [
-        row.name,
-        row.phone,
-        row.email,
-        row.family_members,
-        row.province,
-        row.district,
-        row.subdistrict,
-        row.residence_type,
-        row.project_name,
-        row.budget,
-        row.preferred_contact_date,
-        row.preferred_contact_time,
-        row.consent_news,
-        row.consent_contact,
-        row.status,
-        row.created_at,
-      ]
-        .map(csvEscape)
-        .join(","),
-    );
+    const projectName = projectId
+      ? (
+          await prisma.project.findFirst({
+            where: { id: projectId, ...projectScope(access.user) },
+            select: { name_th: true },
+          })
+        )?.name_th ?? null
+      : null;
     await recordAdminActivity({
       request,
       user: access.user,
       action: "LEADS_EXPORT",
-      detail: "ส่งออกรายชื่อผู้สนใจ (CSV)",
+      detail: `ส่งออกรายชื่อผู้สนใจ (${exportFormat === "excel" ? "Excel" : "CSV"})`,
       projectId,
     });
-    return new Response(`\uFEFF${header.map(csvEscape).join(",")}\n${lines.join("\n")}`, {
+    if (exportFormat === "excel")
+      return new Response(excelWorkbook(rows), {
+        headers: {
+          "Content-Type": "application/vnd.ms-excel; charset=utf-8",
+          "Content-Disposition": exportFilename(projectName, "xls"),
+        },
+      });
+    const lines = rows.map((row) => leadExportRow(row).map(csvEscape).join(","));
+    return new Response(`\uFEFF${leadExportHeader.map(csvEscape).join(",")}\n${lines.join("\n")}`, {
       headers: {
         "Content-Type": "text/csv; charset=utf-8",
-        "Content-Disposition": "attachment; filename=mida-leads.csv",
+        "Content-Disposition": exportFilename(projectName, "csv"),
       },
     });
   }

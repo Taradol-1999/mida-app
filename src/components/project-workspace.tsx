@@ -136,20 +136,7 @@ const configs: Partial<Record<Section, DataConfig>> = {
     resource: "leads",
     title: "รายชื่อผู้ลงทะเบียนรับสิทธิ์",
     intro: "ติดตามผลลูกค้าที่สนใจโครงการนี้",
-    fields: [
-      {
-        key: "status",
-        label: "สถานะติดตาม",
-        type: "select",
-        required: true,
-        options: [
-          ["NEW", "รอดำเนินการ"],
-          ["CONTACTED", "ติดต่อแล้ว"],
-          ["QUALIFIED", "มีโอกาสปิดการขาย"],
-          ["CLOSED", "ปิดการขาย"],
-        ],
-      },
-    ],
+    fields: [],
     readOnlyCreate: true,
   },
 };
@@ -192,13 +179,6 @@ function tableValue(field: string, value: unknown) {
   return value === null || value === "" || value === undefined ? "-" : String(value);
 }
 
-const leadStatus: Record<string, { label: string; className: string }> = {
-  NEW: { label: "รอดำเนินการ", className: "bg-amber-100 text-amber-800" },
-  CONTACTED: { label: "ติดต่อแล้ว", className: "bg-emerald-100 text-emerald-700" },
-  QUALIFIED: { label: "มีโอกาสปิดการขาย", className: "bg-blue-100 text-blue-700" },
-  CLOSED: { label: "ปิดการขาย", className: "bg-slate-200 text-slate-700" },
-};
-
 function leadDate(value: unknown, includeTime = false) {
   if (!value) return "-";
   const date = new Date(String(value));
@@ -209,6 +189,13 @@ function leadDate(value: unknown, includeTime = false) {
     year: "numeric",
     ...(includeTime ? { hour: "2-digit", minute: "2-digit" } : {}),
   }).format(date);
+}
+
+function leadContactTime(value: unknown) {
+  if (!value) return "-";
+  const date = new Date(String(value));
+  if (Number.isNaN(date.valueOf())) return String(value).slice(0, 5);
+  return `${date.toISOString().slice(11, 16)} น.`;
 }
 
 export function ProjectWorkspace({
@@ -441,28 +428,6 @@ export function ProjectWorkspace({
       setBusy(false);
     }
   };
-  const updateLeadStatus = async (id: string, status: string) => {
-    setBusy(true);
-    setMessage("");
-    try {
-      const response = await fetch("/api/admin/leads", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, status }),
-      });
-      const result = await response.json();
-      if (!response.ok) {
-        setMessage(result.message ?? "บันทึกสถานะไม่สำเร็จ");
-        return;
-      }
-      setRows((current) => current.map((row) => (String(row.id) === id ? { ...row, status } : row)));
-      setMessage("บันทึกสถานะติดตามเรียบร้อย", "success");
-    } catch {
-      setMessage("ไม่สามารถเชื่อมต่อระบบบันทึกสถานะได้");
-    } finally {
-      setBusy(false);
-    }
-  };
   if (section === "dashboard") {
     const summary = dashboard ?? {
       views: 0,
@@ -641,85 +606,57 @@ export function ProjectWorkspace({
             <h1 className="mt-1 text-xl font-bold text-slate-800">รายชื่อผู้ลงทะเบียนสนใจโครงการ (Customer Leads)</h1>
             <p className="mt-1 text-sm text-slate-500">ข้อมูลสำคัญจากแบบฟอร์มรับข้อเสนอพิเศษของโครงการนี้</p>
           </div>
-          <a
-            href={`/api/admin/leads?format=csv&projectId=${projectId}`}
-            className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-bold text-white"
-          >
-            <i className="fa-solid fa-file-csv mr-2" />
-            ส่งออกข้อมูลลูกค้า (CSV)
-          </a>
+          <div className="flex flex-wrap gap-2">
+            <a
+              href={`/api/admin/leads?format=csv&projectId=${projectId}`}
+              className="rounded-lg border border-emerald-600 px-4 py-2 text-sm font-bold text-emerald-700 transition hover:bg-emerald-50"
+            >
+              <i className="fa-solid fa-file-csv mr-2" aria-hidden="true" />
+              Export CSV
+            </a>
+            <a
+              href={`/api/admin/leads?format=excel&projectId=${projectId}`}
+              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-emerald-700"
+            >
+              <i className="fa-solid fa-file-excel mr-2" aria-hidden="true" />
+              Export Excel
+            </a>
+          </div>
         </header>
         <AdminFeedback notice={message} />
         <section className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="overflow-x-auto">
-            <table className="admin-table min-w-295">
+            <table className="admin-table min-w-330">
               <thead className="bg-slate-50 text-xs font-bold uppercase tracking-wide text-slate-600">
                 <tr>
-                  <th className="px-4 py-4">วันที่/เวลา</th>
-                  <th className="px-4 py-4">ชื่อและช่องทางติดต่อ</th>
-                  <th className="px-4 py-4">ที่อยู่ปัจจุบัน</th>
-                  <th className="px-4 py-4">ข้อมูลความสนใจ</th>
-                  <th className="px-4 py-4">เวลาที่สะดวก</th>
-                  <th className="px-4 py-4">สถานะ</th>
+                  <th className="px-4 py-4">ชื่อ-นามสกุล</th>
+                  <th className="px-4 py-4">เบอร์โทรศัพท์</th>
+                  <th className="px-4 py-4">ช่วงอายุ</th>
+                  <th className="px-4 py-4">อาชีพ</th>
+                  <th className="px-4 py-4">จังหวัด</th>
+                  <th className="px-4 py-4">เขต / อำเภอ</th>
+                  <th className="px-4 py-4">งบประมาณ</th>
+                  <th className="px-4 py-4">วันที่สะดวกให้ติดต่อกลับ</th>
+                  <th className="px-4 py-4">ช่วงเวลาที่สะดวก</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-600">
-                {rows.map((row) => {
-                  const status = leadStatus[String(row.status)] ?? leadStatus.NEW;
-                  return (
-                    <tr key={String(row.id)} className="align-top hover:bg-slate-50/70">
-                      <td className="whitespace-nowrap px-4 py-4 text-xs">{leadDate(row.created_at, true)}</td>
-                      <td className="px-4 py-4">
-                        <p className="font-bold text-slate-800">{String(row.name ?? "-")}</p>
-                        <p className="mt-1 text-xs">
-                          <i className="fa-solid fa-phone mr-1" />
-                          {String(row.phone ?? "-")}
-                        </p>
-                        <p className="mt-1 text-xs">
-                          <i className="fa-solid fa-envelope mr-1" />
-                          {String(row.email ?? "-")}
-                        </p>
-                      </td>
-                      <td className="max-w-56 px-4 py-4 text-xs leading-5">
-                        {[row.subdistrict, row.district, row.province].filter(Boolean).join(" · ") || "-"}
-                      </td>
-                      <td className="px-4 py-4 text-xs leading-5">
-                        <p>
-                          <b>งบ:</b> {String(row.budget ?? "-")}
-                        </p>
-                        <p>
-                          <b>สมาชิก:</b> {String(row.family_members ?? "-")} คน
-                        </p>
-                        <p>
-                          <b>ที่พัก:</b> {String(row.residence_type ?? "-")}
-                        </p>
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-4 text-xs leading-5">
-                        <p>{leadDate(row.preferred_contact_date)}</p>
-                        <p>{String(row.preferred_contact_time ?? "-").slice(0, 5)} น.</p>
-                      </td>
-                      <td className="px-4 py-4">
-                        <Select
-                          variant="plain"
-                          value={String(row.status ?? "NEW")}
-                          disabled={busy}
-                          onChange={(event) => void updateLeadStatus(String(row.id), event.target.value)}
-                          aria-label={`สถานะของ ${String(row.name ?? "Lead")}`}
-                          className={`rounded-lg border-0 px-3 py-2 text-xs font-bold outline-none ring-1 ring-inset ring-black/5 disabled:opacity-60 ${status.className}`}
-                        >
-                          {configs.leads?.fields[0].options?.map(([value, label]) => (
-                            <option key={value} value={value}>
-                              {label}
-                            </option>
-                          ))}
-                        </Select>
-                      </td>
-                    </tr>
-                  );
-                })}
+                {rows.map((row) => (
+                  <tr key={String(row.id)} className="align-top hover:bg-slate-50/70">
+                    <td className="whitespace-nowrap px-4 py-4 font-bold text-slate-800">{String(row.name ?? "-")}</td>
+                    <td className="whitespace-nowrap px-4 py-4">{String(row.phone ?? "-")}</td>
+                    <td className="whitespace-nowrap px-4 py-4">{String(row.age_range ?? "-")}</td>
+                    <td className="whitespace-nowrap px-4 py-4">{String(row.occupation ?? "-")}</td>
+                    <td className="whitespace-nowrap px-4 py-4">{String(row.province ?? "-")}</td>
+                    <td className="whitespace-nowrap px-4 py-4">{String(row.district ?? "-")}</td>
+                    <td className="whitespace-nowrap px-4 py-4">{String(row.budget ?? "-")}</td>
+                    <td className="whitespace-nowrap px-4 py-4">{leadDate(row.preferred_contact_date)}</td>
+                    <td className="whitespace-nowrap px-4 py-4">{leadContactTime(row.preferred_contact_time)}</td>
+                  </tr>
+                ))}
                 {!rows.length && (
                   <tr>
-                    <td colSpan={6} className="px-4 py-12 text-center text-slate-400">
+                    <td colSpan={9} className="px-4 py-12 text-center text-slate-400">
                       ยังไม่มีผู้ลงทะเบียนในโครงการนี้
                     </td>
                   </tr>
