@@ -19,7 +19,7 @@ import { ProjectNearbyShowcase } from "@/components/project-nearby-showcase";
 import { projectShowcaseSchema, showcaseKey } from "@/lib/project-showcase";
 import { findProject } from "@/data/projects";
 import { prisma } from "@/lib/prisma";
-import { directionsUrl, googleMapsEmbedUrl, type MapProject } from "@/lib/project-map";
+import { directionsUrl, googleMapsEmbedUrl, nearbyDirectionsUrl, type MapProject } from "@/lib/project-map";
 import { FacilityCategory, ProjectFacilitiesShowcase } from "@/components/project-facilities-showcase";
 import backgroundImageFile from "@/assets/background/city-3.jpg";
 
@@ -497,7 +497,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                     </span>
                     {place.url ? (
                       <a
-                        href={place.url}
+                        href={nearbyDirectionsUrl(mapProject, place)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="min-w-0 text-sm font-medium text-brand-primary hover:underline"

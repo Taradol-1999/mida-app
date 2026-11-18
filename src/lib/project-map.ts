@@ -44,3 +44,45 @@ export function directionsUrl(project: MapProject) {
       : `${project.name} ${project.location}`;
   return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
 }
+
+function projectDirectionsPoint(project: MapProject) {
+  if (
+    project.latitude !== null &&
+    project.longitude !== null &&
+    Number.isFinite(project.latitude) &&
+    Number.isFinite(project.longitude)
+  ) {
+    return `${project.latitude},${project.longitude}`;
+  }
+
+  return `${project.name} ${project.location}`;
+}
+
+function savedPlacePoint(urlValue: string, fallbackName: string) {
+  try {
+    const url = new URL(urlValue);
+    const placeId = url.searchParams.get("query_place_id");
+    if (placeId) return `place_id:${placeId}`;
+
+    const destination = url.searchParams.get("destination") || url.searchParams.get("query");
+    if (destination) return destination;
+
+    const coordinate = url.pathname.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
+    if (coordinate) return `${coordinate[1]},${coordinate[2]}`;
+  } catch {
+    /* The saved place name is a stable destination fallback. */
+  }
+
+  return fallbackName.replace(/\s+\d+(?:\.\d+)?\s*(?:กม\.?|km\.?)$/i, "").trim();
+}
+
+export function nearbyDirectionsUrl(project: MapProject, place: { name: string; url: string }) {
+  const search = new URLSearchParams({
+    api: "1",
+    origin: projectDirectionsPoint(project),
+    destination: savedPlacePoint(place.url, place.name),
+    travelmode: "driving",
+  });
+
+  return `https://www.google.com/maps/dir/?${search.toString()}`;
+}
