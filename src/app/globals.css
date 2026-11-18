@@ -77,13 +77,13 @@ div.swal2-popup.admin-alert-popup {
   --color-location-cyan: #1aa7dc;
   --color-location-blue: #075a9b;
   --color-section-label: #168cc5;
-  --color-brand-deep: #063f82;
+  --color-brand-deep: #06264e;
   --color-banner-blue: #003f7d;
   --color-social-facebook: #1789e9;
   --color-social-youtube: #ff1717;
   --color-social-line-footer: #52be42;
   --color-social-tiktok: #1b202d;
-  --color-footer-accent: #f3b54d;
+  --color-footer-accent: #d19734;
   --color-social-line: #06c755;
   --color-social-messenger: #0084ff;
   --color-brand-navy: #002d62;
@@ -643,7 +643,7 @@ body {
 @utility background-news-feature {
   background-image:
     radial-gradient(circle at top right, rgba(252, 176, 64, 0.95), transparent 38%),
-    linear-gradient(135deg, #002d62, #063f82);
+    linear-gradient(135deg, #002d62, #06264e);
 }
 @utility shadow-project-filter {
   box-shadow: 0 18px 45px rgba(0, 45, 98, 0.16);

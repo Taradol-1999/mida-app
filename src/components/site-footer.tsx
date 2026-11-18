@@ -66,7 +66,7 @@ export function SiteFooter({
   return (
     <footer id="contact" className="bg-brand-primary text-white">
       <div className="container-page mx-auto grid w-full gap-7 py-8 sm:grid-cols-2 lg:min-h-42 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,0.7fr)_minmax(0,0.85fr)] lg:gap-8 lg:py-7 xl:gap-12">
-        <div className="min-w-0 break-words sm:col-span-2 lg:col-span-1">
+        <div className="min-w-0 wrap-break-word sm:col-span-2 lg:col-span-1">
           <Link
             href={projectName ? "#project-top" : "/"}
             className="inline-flex max-w-full items-center gap-4 font-bold tracking-[0.02em]"
@@ -86,7 +86,7 @@ export function SiteFooter({
                   : "h-7 w-auto shrink-0 brightness-0 invert"
               }
             />
-            <span className="min-w-0 break-words text-lg leading-snug lg:text-xl">{displayName}</span>
+            <span className="min-w-0 wrap-break-word text-lg leading-snug lg:text-xl">{displayName}</span>
           </Link>
           <p className="mt-3 max-w-md text-sm leading-6 text-white/75">
             {projectName
