@@ -338,6 +338,8 @@ export function ProjectFilter({
                   <img
                     src={`/api/admin/media?entityType=projects&entityId=${project.id}`}
                     alt={`${t({ th: "ภาพ", en: "Image" })} ${projectText(project, "name")}`}
+                    loading="lazy"
+                    decoding="async"
                     className="size-full object-cover transition duration-700 group-hover:scale-105"
                   />
                 ) : (

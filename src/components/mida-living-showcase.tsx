@@ -116,6 +116,7 @@ export function MidaLivingShowcase({ items = [] }: { items?: MidaLivingItem[] })
                     src={brand.imageUrl}
                     alt={name}
                     fill
+                    loading="lazy"
                     className="object-cover"
                     sizes="(min-width: 1024px) 20vw, (min-width: 640px) 94vw, 82vw"
                   />

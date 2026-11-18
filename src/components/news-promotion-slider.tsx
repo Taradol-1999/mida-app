@@ -40,6 +40,7 @@ function HomeNewsSlider({ items }: { items: NewsPromotionItem[] }) {
             src={image.src}
             alt={image.alt}
             fill
+            loading="lazy"
             unoptimized
             sizes={featured ? "(min-width: 1024px) 42vw, 92vw" : "(min-width: 1024px) 18vw, 40vw"}
             className="object-cover transition duration-700 group-hover:scale-[1.025]"
@@ -280,6 +281,7 @@ function NewsPromotionCards({
                     src={firstImage.src}
                     alt={firstImage.alt}
                     fill
+                    loading="lazy"
                     unoptimized
                     sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 92vw"
                     className="object-cover transition duration-500 group-hover:scale-105"
@@ -472,7 +474,7 @@ function NewsPromotionCards({
                         src={image.src}
                         alt={image.alt}
                         fill
-                        priority={imageIndex === selected.imageIndex}
+                        loading="lazy"
                         unoptimized
                         sizes="100vw"
                         className="object-contain"
@@ -580,6 +582,7 @@ function NewsPromotionCards({
                             src={image.src}
                             alt={image.alt}
                             fill
+                            loading="lazy"
                             unoptimized
                             sizes="(min-width: 640px) 12rem, 45vw"
                             className="object-cover transition group-hover:scale-105"

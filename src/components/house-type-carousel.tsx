@@ -168,6 +168,7 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
                     src={house.imageUrl}
                     alt={`${t({ th: "แบบบ้าน", en: "House type" })} ${t({ th: house.name, en: house.nameEn ?? "" })}`}
                     fill
+                    loading="lazy"
                     unoptimized
                     sizes="(min-width: 768px) 55vw, 90vw"
                     className="object-cover"
@@ -230,7 +231,15 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
               >
                 <span className="relative size-9 overflow-hidden rounded-lg bg-brand-muted">
                   {house.imageUrl ? (
-                    <Image src={house.imageUrl} alt="" fill unoptimized sizes="36px" className="object-cover" />
+                    <Image
+                      src={house.imageUrl}
+                      alt=""
+                      fill
+                      loading="lazy"
+                      unoptimized
+                      sizes="36px"
+                      className="object-cover"
+                    />
                   ) : (
                     <i className="fa-solid fa-house absolute inset-0 grid place-items-center text-brand-primary" />
                   )}

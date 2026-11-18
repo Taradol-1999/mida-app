@@ -98,7 +98,7 @@ export function ProjectGallery({ items }: { items: ProjectGalleryItem[] }) {
                 src={item.src}
                 alt={item.alt}
                 fill
-                priority={index < 3}
+                loading="lazy"
                 unoptimized={item.src.includes("?")}
                 sizes="(min-width: 1024px) 50vw, (min-width: 640px) 50vw, 100vw"
                 className="object-cover transition duration-500 group-hover:scale-105"
@@ -180,7 +180,7 @@ export function ProjectGallery({ items }: { items: ProjectGalleryItem[] }) {
                         src={item.src}
                         alt={item.alt}
                         fill
-                        priority={index === selected}
+                        loading="lazy"
                         unoptimized={item.src.includes("?")}
                         sizes="100vw"
                         className="object-contain"

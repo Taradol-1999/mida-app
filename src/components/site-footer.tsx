@@ -76,6 +76,7 @@ export function SiteFooter({
               alt={customLogo ? displayName : "BY MIDA"}
               width={112}
               height={64}
+              loading="lazy"
               unoptimized={Boolean(customLogo)}
               onError={() => {
                 if (logoUrl) setFailedLogo(logoUrl);

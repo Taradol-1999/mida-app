@@ -100,6 +100,7 @@ export function ProjectMapTabs({
                 src={imageUrl}
                 alt={`${t({ th: "แผนที่", en: "Map" })} ${projectName}`}
                 fill
+                loading="lazy"
                 sizes="100vw"
                 unoptimized
                 className="object-contain"

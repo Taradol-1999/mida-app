@@ -166,6 +166,7 @@ export function ProjectNearbyShowcase({ places, media, location, title, titleEn,
                                   src={item.src}
                                   alt={name}
                                   fill
+                                  loading="lazy"
                                   unoptimized={item.src.includes("?")}
                                   sizes="(min-width: 1280px) 225px, (min-width: 640px) 220px, 72vw"
                                   className="object-cover transition-transform duration-700 group-hover:scale-105"

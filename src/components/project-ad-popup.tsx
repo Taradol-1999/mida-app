@@ -56,6 +56,8 @@ export function ProjectAdPopup({ items }: Props) {
         <img
           src={items[activeIndex].imageUrl}
           alt={`Popup โฆษณา ${activeIndex + 1}`}
+          loading="lazy"
+          decoding="async"
           className="max-h-[84vh] w-auto max-w-full object-contain"
         />
         <button

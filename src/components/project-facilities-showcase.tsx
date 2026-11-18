@@ -172,6 +172,7 @@ export function ProjectFacilitiesShowcase({
                         src={item.url}
                         alt={item.alt || category.name}
                         fill
+                        loading="lazy"
                         unoptimized={item.url.includes("?")}
                         sizes="(min-width: 1024px) 29vw, (min-width: 640px) 42vw, 70vw"
                         className="object-cover"

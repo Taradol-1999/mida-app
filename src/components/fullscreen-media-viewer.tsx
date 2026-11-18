@@ -98,6 +98,7 @@ export function FullscreenMediaViewer({
               src={item.src}
               alt={item.alt}
               fill
+              loading="lazy"
               unoptimized
               sizes="100vw"
               className="object-contain px-12 sm:px-16"

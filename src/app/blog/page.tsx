@@ -50,6 +50,7 @@ export default async function BlogListPage() {
                           src={`/api/admin/media?entityType=mida-blog&entityId=${article.id}&mediaKind=${image.media_kind}&mediaId=${image.id}`}
                           alt={article.name_th}
                           fill
+                          loading="lazy"
                           unoptimized
                           sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                           className="object-cover transition duration-500 group-hover:scale-105"
