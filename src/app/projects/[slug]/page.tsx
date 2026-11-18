@@ -21,6 +21,8 @@ import { findProject } from "@/data/projects";
 import { prisma } from "@/lib/prisma";
 import { directionsUrl, googleMapsEmbedUrl, nearbyDirectionsUrl, type MapProject } from "@/lib/project-map";
 import { FacilityCategory, ProjectFacilitiesShowcase } from "@/components/project-facilities-showcase";
+import { ProjectAdPopup } from "@/components/project-ad-popup";
+import { projectPopupKey, readProjectPopup } from "@/lib/project-popup";
 import backgroundImageFile from "@/assets/background/city-3.jpg";
 
 export const dynamic = "force-dynamic";
@@ -185,6 +187,30 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   const { slug } = await params;
   const project = await getProject(slug);
   if (!project) notFound();
+  const popupContent = project.id
+    ? await prisma.siteContent.findUnique({ where: { content_key: projectPopupKey(project.id) } }).catch(() => null)
+    : null;
+  const popupSettings = (() => {
+    try {
+      return readProjectPopup(JSON.parse(popupContent?.body || "null"));
+    } catch {
+      return { items: [] };
+    }
+  })();
+  const activePopupItems = popupSettings.items.filter((item) => item.isActive);
+  const popupImages =
+    project.id && activePopupItems.length
+      ? await prisma.mediaAsset.findMany({
+          where: {
+            id: { in: activePopupItems.map((item) => item.imageId) },
+            entity_type: "projects",
+            entity_id: project.id,
+            media_kind: "popup",
+            mime_type: { in: ["image/jpeg", "image/png", "image/webp"] },
+          },
+          select: { id: true },
+        })
+      : [];
   const contactContent = project.id
     ? await prisma.siteContent.findUnique({ where: { content_key: projectContactKey(project.id) } })
     : null;
@@ -658,6 +684,15 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         phone={project.settings.phone ?? ""}
         email={project.settings.email ?? ""}
       />
+      {project.id && popupImages.length > 0 && popupContent && (
+        <ProjectAdPopup
+          items={activePopupItems
+            .filter((item) => popupImages.some((image) => image.id === item.imageId))
+            .map((item) => ({
+              imageUrl: `/api/admin/media?entityType=projects&entityId=${project.id}&mediaKind=popup&mediaId=${item.imageId}`,
+            }))}
+        />
+      )}
     </main>
   );
 }

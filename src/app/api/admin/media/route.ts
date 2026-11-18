@@ -35,7 +35,9 @@ function isEntityType(value: string): value is EntityType {
   return entityTypes.includes(value as EntityType);
 }
 function isKind(value: string) {
-  return ["cover", "hero", "gallery", "brochure", "portrait", "nearby", "map-image", "logo"].includes(value);
+  return ["cover", "hero", "gallery", "brochure", "portrait", "nearby", "map-image", "logo", "popup"].includes(
+    value,
+  );
 }
 async function mediaProjectId(entityType: EntityType, entityId: string) {
   switch (entityType) {
@@ -166,7 +168,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "ข้อมูลอัปโหลดไม่ถูกต้อง" }, { status: 400 });
   const extension = mimeExtensions[file.type];
   if (
-    (mediaKind === "map-image" || mediaKind === "logo") &&
+    (mediaKind === "map-image" || mediaKind === "logo" || mediaKind === "popup") &&
     !["image/jpeg", "image/png", "image/webp"].includes(file.type)
   )
     return NextResponse.json({ message: "รองรับรูปภาพ JPG, PNG และ WEBP เท่านั้น" }, { status: 400 });
@@ -201,7 +203,12 @@ export async function POST(request: Request) {
   try {
     await mkdir(uploadsDirectory, { recursive: true });
     await writeFile(storedFilePath(storageKey), Buffer.from(await file.arrayBuffer()));
-    if (mediaKind === "cover" || mediaKind === "brochure" || mediaKind === "portrait" || mediaKind === "logo") {
+    if (
+      mediaKind === "cover" ||
+      mediaKind === "brochure" ||
+      mediaKind === "portrait" ||
+      mediaKind === "logo"
+    ) {
       const oldRows = await prisma.mediaAsset.findMany({
         where: { entity_type: entityType, entity_id: entityId, media_kind: mediaKind },
         select: { storage_key: true },
@@ -265,6 +272,7 @@ export async function DELETE(request: Request) {
       mediaKind !== "nearby" &&
       mediaKind !== "map-image" &&
       mediaKind !== "logo" &&
+      mediaKind !== "popup" &&
       !(entityType === "mida-blog" && mediaKind === "cover"))
   )
     return NextResponse.json({ message: "คำขอลบรูปภาพไม่ถูกต้อง" }, { status: 400 });

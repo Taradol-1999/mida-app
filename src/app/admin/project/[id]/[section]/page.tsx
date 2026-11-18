@@ -3,6 +3,7 @@ import { ProjectEditor } from "@/components/project-editor";
 import { ProjectWorkspace } from "@/components/project-workspace";
 import { ProjectShowcaseManager } from "@/components/project-showcase-manager";
 import { ProjectLocationManager } from "@/components/project-location-manager";
+import { ProjectPopupManager } from "@/components/project-popup-manager";
 import { requireUser } from "@/lib/auth";
 import { canAccessProject } from "@/lib/project-access";
 import { prisma } from "@/lib/prisma";
@@ -16,6 +17,7 @@ const sections = [
   "news",
   "showcase",
   "location",
+  "popup",
   "contact",
   "after-sales",
   "leads",
@@ -130,13 +132,14 @@ export default async function ProjectSectionPage({ params }: { params: Promise<{
   if (!project) notFound();
   if (section === "showcase") return <ProjectShowcaseManager projectId={id} />;
   if (section === "location") return <ProjectLocationManager projectId={id} />;
+  if (section === "popup") return <ProjectPopupManager projectId={id} />;
   if (section === "project-info") return <ProjectEditor selectedProjectId={id} mode="edit" />;
   const dashboard = section === "dashboard" ? await getProjectDashboardData(id) : undefined;
   return (
     <ProjectWorkspace
       projectId={id}
       projectName={project.name_th}
-      section={section as Exclude<Section, "project-info" | "showcase" | "location">}
+      section={section as Exclude<Section, "project-info" | "showcase" | "location" | "popup">}
       dashboard={dashboard}
     />
   );

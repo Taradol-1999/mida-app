@@ -15,6 +15,7 @@ const projectMenus = [
   ["house-types", "จัดการแบบบ้าน (House Types)", "fa-bed"],
   ["facilities", "จัดการสิ่งอำนวยความสะดวก", "fa-dumbbell"],
   ["location", "แผนที่และสถานที่ใกล้เคียง", "fa-map-location-dot"],
+  ["popup", "Popup โฆษณา", "fa-rectangle-ad"],
   // ["contact", "จัดการข้อมูลติดต่อ & แผนที่", "fa-map-location-dot"],
   // ["promotions", "จัดการข้อมูลโปรโมชั่น", "fa-tags"],
   // ["news", "จัดการข้อมูลข่าวสาร", "fa-newspaper"],
