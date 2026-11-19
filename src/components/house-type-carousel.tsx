@@ -187,10 +187,10 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
                     </h3>
                     <button
                       type="button"
-                      disabled={!house.floorplans.length}
+                      disabled={!house.imageUrl && !house.floorplans.length}
                       onClick={(event) => {
                         event.stopPropagation();
-                        if (!house.floorplans.length) return;
+                        if (!house.imageUrl && !house.floorplans.length) return;
                         setActive(index);
                         setFloorplanOpen(true);
                       }}

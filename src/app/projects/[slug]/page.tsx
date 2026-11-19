@@ -377,10 +377,9 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
     imageUrl: house.image_id
       ? `/api/admin/media?entityType=house-types&entityId=${house.id}&mediaKind=cover&mediaId=${house.image_id}`
       : null,
-    floorplans: floorplanRows(house.floorplans).map((floorplan, index) => ({
+    floorplans: floorplanRows(house.floorplans).map((floorplan) => ({
       src: `/api/admin/media?entityType=house-types&entityId=${house.id}&mediaKind=floorplan&mediaId=${floorplan.id}`,
-      title: floorplan.name.replace(/\.[^.]+$/, "") || `Floor Plan ${index + 1}`,
-      description: floorplan.description || `แปลนแบบบ้าน ${house.name} รูปที่ ${index + 1}`,
+      description: floorplan.description,
       descriptionEn: floorplan.descriptionEn,
     })),
   }));
