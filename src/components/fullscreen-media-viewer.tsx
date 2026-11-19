@@ -90,7 +90,7 @@ export function FullscreenMediaViewer({
               src={item.src}
               controls
               playsInline
-              className="size-full object-contain px-12 sm:px-16"
+              className="size-full object-contain px-3 sm:px-16"
             />
           ) : (
             <Image
@@ -101,7 +101,7 @@ export function FullscreenMediaViewer({
               loading="lazy"
               unoptimized
               sizes="100vw"
-              className="object-contain px-12 sm:px-16"
+              className="object-contain px-3 sm:px-16"
             />
           )}
           {items.length > 1 && (

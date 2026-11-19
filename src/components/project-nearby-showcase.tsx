@@ -203,7 +203,7 @@ export function ProjectNearbyShowcase({ places, media, location, title, titleEn,
 
             {/* NAVIGATION */}
             {total > 1 && (
-              <div className="mt-5 flex items-center justify-center gap-4 sm:mt-6">
+              <div className="mt-5 flex min-w-0 items-center justify-center gap-3 sm:mt-6 sm:gap-4">
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
@@ -230,9 +230,9 @@ export function ProjectNearbyShowcase({ places, media, location, title, titleEn,
                   </button>
                 </div>
 
-                <span className="h-px min-w-8 max-w-62.5 flex-1 bg-location-cyan/60" />
+                <span className="h-px min-w-4 max-w-62.5 flex-1 bg-location-cyan/60" />
 
-                <span className="whitespace-nowrap text-3xl font-light tabular-nums text-location-blue sm:text-4xl">
+                <span className="shrink-0 whitespace-nowrap text-2xl font-light tabular-nums text-location-blue sm:text-4xl">
                   {String(activeIndex + 1).padStart(2, "0")}
                   <small className="ml-0.5 text-[0.38em]">/{String(total).padStart(2, "0")}</small>
                 </span>

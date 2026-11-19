@@ -298,14 +298,14 @@ export function ProjectFilter({
           </div>
         </div>
         {tagOptions.length > 0 && (
-          <div className="mt-4 flex gap-2 overflow-x-auto pt-2 pb-2">
+          <div className="scrollbar-none -mx-4 mt-4 flex snap-x snap-mandatory gap-2 overflow-x-auto px-4 pt-2 pb-2 overscroll-x-contain sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
             {tagOptions.map((label) => (
               <button
                 key={label}
                 type="button"
                 onClick={() => setTag((current) => (current === label ? "all" : label))}
                 aria-pressed={tag === label}
-                className={`inline-flex shrink-0 items-center gap-2 rounded-full px-5 py-2.5 text-xs font-bold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent ${tag === label ? "bg-brand-primary text-white shadow-sm ring-2 ring-brand-accent" : "border border-slate-200 bg-white text-slate-600 hover:border-brand-accent"}`}
+                className={`inline-flex min-h-11 shrink-0 snap-start items-center gap-2 rounded-full px-5 py-2.5 text-xs font-bold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent ${tag === label ? "bg-brand-primary text-white shadow-sm ring-2 ring-brand-accent" : "border border-slate-200 bg-white text-slate-600 hover:border-brand-accent"}`}
               >
                 <i
                   className={`fa-solid ${
@@ -331,7 +331,7 @@ export function ProjectFilter({
           {visible.map((project) => (
             <article
               key={project.slug}
-              className={`group mt-5 flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white p-1.5 shadow-project-card transition duration-300 hover:-translate-y-1.5 hover:border-brand-accent hover:shadow-project-card-hover ${standalone ? "" : "min-w-[86%] snap-start sm:min-w-[47%] lg:min-w-[calc(33.333%-1rem)]"}`}
+              className={`group mt-5 flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white p-1.5 shadow-project-card transition duration-300 hover:-translate-y-1.5 hover:border-brand-accent hover:shadow-project-card-hover ${standalone ? "" : "w-full flex-none snap-start sm:w-[47%] lg:w-[calc(33.333%-1rem)]"}`}
             >
               <div className="project-card-cool relative h-56 overflow-hidden rounded-xl sm:h-64 lg:h-72">
                 {project.has_cover && project.id ? (
@@ -417,7 +417,7 @@ export function ProjectFilter({
           ))}
         </div>
         {!standalone && visible.length > 1 && (
-          <div className="pointer-events-none absolute inset-x-0 top-24 flex justify-between sm:top-28 lg:top-32">
+          <div className="pointer-events-none absolute inset-x-0 top-1/2 flex -translate-y-1/2 justify-between">
             <button
               type="button"
               onClick={() => moveCards(-1)}

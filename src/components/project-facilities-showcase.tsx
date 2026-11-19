@@ -86,22 +86,22 @@ export function ProjectFacilitiesShowcase({
     <section id="facilities" className="relative overflow-hidden bg-facility py-14 text-white sm:py-16 lg:py-20">
       {/* HEADER */}
       <div className="project-container relative z-10">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between lg:gap-8">
           {/* TITLE */}
           <h2 className="wrap-break-word text-2xl font-black leading-snug tracking-tight sm:text-3xl xl:text-5xl">
             {title}
           </h2>
 
           {/* CATEGORY FILTER */}
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+          <div className="scrollbar-none -mx-4 flex snap-x items-center gap-3 overflow-x-auto px-4 pb-1 overscroll-x-contain sm:mx-0 sm:px-0 lg:justify-end [&::-webkit-scrollbar]:hidden">
             {facilities.map((item, index) => (
-              <div key={item.id} className="flex items-center gap-4">
+              <div key={item.id} className="flex shrink-0 snap-start items-center gap-3 sm:gap-4">
                 <button
                   type="button"
                   onClick={() => selectCategory(index)}
                   aria-pressed={activeCategory === index}
                   className={`
-                    min-h-11 text-xs font-bold uppercase
+                    min-h-11 whitespace-nowrap text-xs font-bold uppercase
                     tracking-wide sm:tracking-[0.12em]
                     transition-all duration-300
                     ${activeCategory === index ? "text-white opacity-100" : "text-white/60 hover:text-white"}
@@ -120,7 +120,7 @@ export function ProjectFacilitiesShowcase({
                 type="button"
                 onClick={nextCategory}
                 aria-label="Next category"
-                className="ml-1 grid size-8 place-items-center rounded-full border border-white/40 transition-all duration-300 hover:bg-white hover:text-facility-ink"
+                className="ml-1 grid size-9 shrink-0 place-items-center rounded-full border border-white/40 transition-all duration-300 hover:bg-white hover:text-facility-ink"
               >
                 <i className="fa-solid fa-chevron-right text-xs" />
               </button>

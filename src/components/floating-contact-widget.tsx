@@ -78,7 +78,10 @@ export function FloatingContactWidget({
   if (!contacts.length) return null;
 
   return (
-    <div ref={widget} className="fixed bottom-5 right-4 z-999 sm:bottom-7 sm:right-7">
+    <div
+      ref={widget}
+      className="fixed right-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-999 sm:right-7 sm:bottom-7"
+    >
       <div
         id={menuId}
         aria-hidden={!open}
@@ -119,10 +122,10 @@ export function FloatingContactWidget({
             : t({ th: "ช่องทางติดต่อ", en: "Contact us" })
         }
         onClick={() => setOpen((value) => !value)}
-        className="grid size-14 cursor-pointer place-items-center rounded-full border-2 border-white bg-brand-primary text-white shadow-contact-widget transition duration-300 hover:scale-105 hover:bg-brand-accent active:scale-95 motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
+        className="grid size-12 cursor-pointer place-items-center rounded-full border-2 border-white bg-brand-primary text-white shadow-contact-widget transition duration-300 hover:scale-105 hover:bg-brand-accent active:scale-95 motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary sm:size-14"
       >
         <i
-          className={`fa-solid ${open ? "fa-xmark rotate-90" : "fa-comments rotate-0"} text-xl transition-transform duration-300 motion-reduce:transition-none `}
+          className={`fa-solid ${open ? "fa-xmark rotate-90" : "fa-comments rotate-0"} text-lg transition-transform duration-300 motion-reduce:transition-none sm:text-xl`}
           aria-hidden="true"
         />
       </button>

@@ -87,7 +87,7 @@ export function BlogImageSlider({ images }: { images: { src: string; alt: string
         className="m-auto h-dvh max-h-none w-screen max-w-none bg-transparent p-0 backdrop:bg-slate-950/90"
       >
         <div
-          className="relative flex h-full w-full items-center justify-center p-12 sm:p-16"
+          className="relative flex h-full w-full items-center justify-center p-3 sm:p-8 lg:p-12"
           onClick={() => setExpanded(false)}
         >
           <Image
@@ -96,7 +96,7 @@ export function BlogImageSlider({ images }: { images: { src: string; alt: string
             fill
             unoptimized
             sizes="100vw"
-            className="object-contain p-12 sm:p-16"
+            className="object-contain p-3 sm:p-8 lg:p-12"
           />
           <button
             type="button"
