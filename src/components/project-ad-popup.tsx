@@ -9,12 +9,45 @@ export function ProjectAdPopup({ items }: Props) {
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const firstImageUrl = items[0]?.imageUrl;
 
   useEffect(() => {
-    if (!items.length) return;
-    const timer = window.setTimeout(() => setOpen(true), 500);
-    return () => window.clearTimeout(timer);
-  }, [items.length]);
+    if (!firstImageUrl) return;
+
+    let disposed = false;
+    let idleId: number | undefined;
+    let fallbackTimer: ReturnType<typeof setTimeout> | undefined;
+    let preloadImage: HTMLImageElement | undefined;
+
+    const preloadFirstPopup = () => {
+      preloadImage = new Image();
+      preloadImage.decoding = "async";
+      preloadImage.fetchPriority = "low";
+      preloadImage.onload = preloadImage.onerror = () => {
+        if (!disposed) setOpen(true);
+      };
+      preloadImage.src = firstImageUrl;
+    };
+
+    const schedulePreload = () => {
+      if (typeof window.requestIdleCallback === "function") {
+        idleId = window.requestIdleCallback(preloadFirstPopup, { timeout: 2_500 });
+      } else {
+        fallbackTimer = globalThis.setTimeout(preloadFirstPopup, 1_200);
+      }
+    };
+
+    if (document.readyState === "complete") schedulePreload();
+    else window.addEventListener("load", schedulePreload, { once: true });
+
+    return () => {
+      disposed = true;
+      window.removeEventListener("load", schedulePreload);
+      if (idleId !== undefined) window.cancelIdleCallback(idleId);
+      if (fallbackTimer !== undefined) globalThis.clearTimeout(fallbackTimer);
+      if (preloadImage) preloadImage.onload = preloadImage.onerror = null;
+    };
+  }, [firstImageUrl]);
 
   useEffect(() => {
     if (!open) return;
@@ -54,10 +87,12 @@ export function ProjectAdPopup({ items }: Props) {
         {/* Popup images use their natural ratio so transparent PNG artwork is never cropped. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
+          key={items[activeIndex].imageUrl}
           src={items[activeIndex].imageUrl}
           alt={`Popup โฆษณา ${activeIndex + 1}`}
           loading="lazy"
           decoding="async"
+          fetchPriority="low"
           className="max-h-[84vh] w-auto max-w-full object-contain"
         />
         <button
