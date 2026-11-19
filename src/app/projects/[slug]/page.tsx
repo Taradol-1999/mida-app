@@ -23,6 +23,7 @@ import { directionsUrl, googleMapsEmbedUrl, nearbyDirectionsUrl, type MapProject
 import { FacilityCategory, ProjectFacilitiesShowcase } from "@/components/project-facilities-showcase";
 import { ProjectAdPopup } from "@/components/project-ad-popup";
 import { projectPopupKey, readProjectPopup } from "@/lib/project-popup";
+import { houseFloorplanKey, readHouseFloorplan } from "@/lib/house-floorplan";
 import backgroundImageFile from "@/assets/background/city-3.jpg";
 
 export const dynamic = "force-dynamic";
@@ -65,6 +66,22 @@ function updateImages(value: unknown): NewsPromotionImage[] {
       (item.type === "image" || item.type === "video"),
   );
 }
+function floorplanRows(
+  value: unknown,
+): Array<{ id: string; name: string; description: string; descriptionEn?: string }> {
+  if (!Array.isArray(value)) return [];
+  return value.filter(
+    (item): item is { id: string; name: string; description: string; descriptionEn?: string } =>
+      Boolean(item) &&
+      typeof item === "object" &&
+      "id" in item &&
+      typeof item.id === "string" &&
+      "name" in item &&
+      typeof item.name === "string" &&
+      "description" in item &&
+      typeof item.description === "string",
+  );
+}
 
 async function getProject(slug: string) {
   const fallback = findProject(slug);
@@ -97,7 +114,7 @@ async function getProject(slug: string) {
       },
     });
     if (!row) return fallbackData;
-    const [mediaRows, houseMedia, updateMedia] = await Promise.all([
+    const [mediaRows, houseMedia, updateMedia, houseFloorplanContent] = await Promise.all([
       prisma.mediaAsset.findMany({
         where: {
           entity_type: "projects",
@@ -110,9 +127,9 @@ async function getProject(slug: string) {
         where: {
           entity_type: "house-types",
           entity_id: { in: row.house_types.map((house) => house.id) },
-          media_kind: "cover",
+          media_kind: { in: ["cover", "floorplan"] },
         },
-        orderBy: { created_at: "asc" },
+        orderBy: [{ media_kind: "asc" }, { created_at: "asc" }],
       }),
       prisma.mediaAsset.findMany({
         where: {
@@ -124,9 +141,50 @@ async function getProject(slug: string) {
         },
         orderBy: [{ sort_order: "asc" }, { created_at: "asc" }],
       }),
+      prisma.siteContent.findMany({
+        where: { content_key: { in: row.house_types.map((house) => houseFloorplanKey(house.id)) } },
+        select: { body: true },
+      }),
     ]);
-    const houseImages = new Map(houseMedia.map((item) => [item.entity_id, item.id]));
-    const houseTypeRows = row.house_types.map((house) => ({ ...house, image_id: houseImages.get(house.id) ?? null }));
+    const houseImages = new Map(
+      houseMedia.filter((item) => item.media_kind === "cover").map((item) => [item.entity_id, item.id]),
+    );
+    const floorplanDescriptions = new Map<string, { description: string; descriptionEn?: string }>();
+    for (const content of houseFloorplanContent) {
+      let saved = readHouseFloorplan(null);
+      try {
+        saved = readHouseFloorplan(JSON.parse(content.body || "null"));
+      } catch {
+        // Ignore malformed legacy content and continue rendering the uploaded floor plans.
+      }
+      for (const item of saved.items) {
+        floorplanDescriptions.set(item.mediaId, {
+          description: item.description,
+          descriptionEn: item.descriptionEn,
+        });
+      }
+    }
+    const houseFloorplans = new Map<
+      string,
+      Array<{ id: string; name: string; description: string; descriptionEn?: string }>
+    >();
+    for (const item of houseMedia.filter((mediaItem) => mediaItem.media_kind === "floorplan")) {
+      const saved = floorplanDescriptions.get(item.id);
+      houseFloorplans.set(item.entity_id, [
+        ...(houseFloorplans.get(item.entity_id) ?? []),
+        {
+          id: item.id,
+          name: item.original_name,
+          description: saved?.description ?? "",
+          descriptionEn: saved?.descriptionEn,
+        },
+      ]);
+    }
+    const houseTypeRows = row.house_types.map((house) => ({
+      ...house,
+      image_id: houseImages.get(house.id) ?? null,
+      floorplans: houseFloorplans.get(house.id) ?? [],
+    }));
     const media = mediaRows.map((item) => ({
       src: `/api/admin/media?entityType=projects&entityId=${row.id}&mediaKind=${item.media_kind}&mediaId=${item.id}`,
       alt: String(item.original_name || `ภาพโครงการ ${row.name_th}`),
@@ -313,15 +371,18 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
     id: String(house.id),
     name: String(house.name),
     nameEn: typeof house.name_en === "string" ? house.name_en : null,
-    description: String(house.description ?? ""),
-    descriptionEn: typeof house.description_en === "string" ? house.description_en : null,
     bedrooms: String(house.bedrooms ?? "-"),
     bathrooms: String(house.bathrooms ?? "-"),
     usableArea: String(house.usable_area_sqm ?? "-"),
-    startingPrice: house.starting_price === null ? null : Number(house.starting_price),
     imageUrl: house.image_id
       ? `/api/admin/media?entityType=house-types&entityId=${house.id}&mediaKind=cover&mediaId=${house.image_id}`
       : null,
+    floorplans: floorplanRows(house.floorplans).map((floorplan, index) => ({
+      src: `/api/admin/media?entityType=house-types&entityId=${house.id}&mediaKind=floorplan&mediaId=${floorplan.id}`,
+      title: floorplan.name.replace(/\.[^.]+$/, "") || `Floor Plan ${index + 1}`,
+      description: floorplan.description || `แปลนแบบบ้าน ${house.name} รูปที่ ${index + 1}`,
+      descriptionEn: floorplan.descriptionEn,
+    })),
   }));
   const projectAddress = [project.province, project.district, project.subdistrict].filter((value): value is string =>
     Boolean(value),
@@ -361,7 +422,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
       ? [{ href: "#location-highlights", label: { th: "จุดเด่นทำเลโครงการ", en: "Location Highlights" } }]
       : []),
     ...(project.houseTypes.length > 0
-      ? [{ href: "#house-types", label: { th: "รูปแบบบ้านและราคา", en: "House Types & Prices" } }]
+      ? [{ href: "#house-types", label: { th: "รูปแบบบ้าน", en: "House Types" } }]
       : []),
     ...(facilities.length > 0 ? [{ href: "#facilities", label: { th: "สิ่งอำนวยความสะดวก", en: "Facilities" } }] : []),
     { href: "#map", label: { th: "แผนที่และสถานที่ใกล้เคียง", en: "Map & Nearby Places" } },
@@ -418,12 +479,12 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           <div className="project-container relative z-10">
             <div className="gold-rule mb-3" />
             <h2 className="section-title">
-              <T th="รูปแบบบ้านและราคาเริ่มต้น (House Types)" en="House Types & Starting Prices" />
+              <T th="รูปแบบบ้าน (House Types)" en="House Types" />
             </h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
               <T
-                th="สำรวจพื้นที่ใช้สอย ฟังก์ชัน และราคาเริ่มต้นของแบบบ้านในโครงการนี้"
-                en="Explore layouts, features, and starting prices for every home type in this project."
+                th="สำรวจพื้นที่ใช้สอย ฟังก์ชัน และ Floor Plan ของแบบบ้านในโครงการนี้"
+                en="Explore the space, functions, and floor plan of every home type in this project."
               />
             </p>
             <HouseTypeCarousel items={houseTypeItems} />

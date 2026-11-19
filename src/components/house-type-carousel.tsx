@@ -4,24 +4,24 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useTranslation } from "@/components/language-provider";
+import { HouseFloorplanModal, type FloorplanImage } from "@/components/house-floorplan-modal";
 import backgroundImageFile from "@/assets/background/city-5.jpg";
 
 export type HouseTypeItem = {
   id: string;
   name: string;
   nameEn?: string | null;
-  description: string;
-  descriptionEn?: string | null;
   bedrooms: number | string;
   bathrooms: number | string;
   usableArea: number | string;
-  startingPrice: number | null;
   imageUrl: string | null;
+  floorplans: FloorplanImage[];
 };
 
 export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
   const [active, setActive] = useState(0);
-  const { language, t } = useTranslation();
+  const [floorplanOpen, setFloorplanOpen] = useState(false);
+  const { t } = useTranslation();
   const pathname = usePathname();
   const dragStartX = useRef<number | null>(null);
   const didDrag = useRef(false);
@@ -185,19 +185,21 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
                     <h3 className="min-w-0 break-words text-xl font-black leading-snug sm:text-2xl lg:text-4xl">
                       {t({ th: house.name, en: house.nameEn ?? "" })}
                     </h3>
-                    <p className="max-w-full rounded-full bg-brand-accent px-3 py-1.5 text-xs font-extrabold text-brand-primary shadow-lg sm:text-sm">
-                      {house.startingPrice === null
-                        ? t({ th: "สอบถามราคา", en: "Price on request" })
-                        : language === "en"
-                          ? `From THB ${house.startingPrice.toLocaleString("en-US")}`
-                          : `เริ่ม ${house.startingPrice.toLocaleString("th-TH")} บาท`}
-                    </p>
+                    <button
+                      type="button"
+                      disabled={!house.floorplans.length}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        if (!house.floorplans.length) return;
+                        setActive(index);
+                        setFloorplanOpen(true);
+                      }}
+                      className="inline-flex min-h-10 items-center gap-2 rounded-full bg-brand-accent px-4 text-xs font-extrabold tracking-[0.08em] text-brand-primary shadow-lg transition hover:-translate-y-0.5 hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 sm:text-sm"
+                    >
+                      <i className="fa-solid fa-compass-drafting" aria-hidden="true" />
+                      FLOOR PLAN
+                    </button>
                   </div>
-                  {house.description && (
-                    <p className="mt-2 line-clamp-2 max-w-2xl text-xs leading-5 text-white/85 sm:text-sm sm:leading-6">
-                      {t({ th: house.description, en: house.descriptionEn ?? "" })}
-                    </p>
-                  )}
                   <div className="mt-3 grid grid-cols-3 gap-2 rounded-xl border border-white/15 bg-black/25 p-2 text-center text-xs font-semibold backdrop-blur-sm sm:max-w-md">
                     <span>
                       <b className="block text-sm text-white">{house.bedrooms}</b>
@@ -250,6 +252,9 @@ export function HouseTypeCarousel({ items }: { items: HouseTypeItem[] }) {
           </div>
         )}
       </div>
+      {floorplanOpen && items[active] && (
+        <HouseFloorplanModal items={items} initialHouseIndex={active} onClose={() => setFloorplanOpen(false)} />
+      )}
     </section>
   );
 }

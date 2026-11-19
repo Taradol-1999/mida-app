@@ -196,7 +196,7 @@ export default async function AdminPage({
           </p>
           <h1 className="mt-1 text-xl font-bold text-slate-800">Dashboard MD</h1>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end">
           <DashboardPeriodFilter month={selectedMonth} year={selectedYear} months={thaiMonths} years={years} />
           <DashboardExport
             title="Dashboard MD"
@@ -234,9 +234,12 @@ export default async function AdminPage({
           />
           <Link
             href="/api/admin/leads?format=csv"
-            className="rounded-lg bg-brand-accent shrink-0 mt-1 px-4 py-3 text-sm font-bold text-brand-primary shadow-sm transition hover:bg-brand-accent-soft"
+            className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl bg-brand-accent px-4 text-sm font-extrabold text-brand-primary shadow-sm transition duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-md"
           >
-            ⇩ สร้างรายงาน Leads
+            <span className="grid size-7 place-items-center rounded-lg bg-white/55">
+              <i className="fa-solid fa-file-arrow-down" aria-hidden="true" />
+            </span>
+            สร้างรายงาน Leads
           </Link>
         </div>
       </header>

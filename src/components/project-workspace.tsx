@@ -6,6 +6,7 @@ import { BannerMediaUpload } from "@/components/banner-media-upload";
 import { DashboardBarChart, DashboardDoughnutChart } from "@/components/dashboard-charts";
 import { DashboardExport } from "@/components/dashboard-export";
 import { FileDropzone } from "@/components/file-dropzone";
+import { HouseFloorplanEditor } from "@/components/house-floorplan-editor";
 
 import { Input, Textarea, Select } from "@/components/ui/form-controls";
 import { confirmDelete } from "@/lib/admin-alert";
@@ -31,6 +32,8 @@ type DataConfig = {
   columns?: [string, string][];
   readOnlyCreate?: boolean;
 };
+type UploadedMedia = { id: string; name: string; mimeType: string; url: string };
+const floorplanFileKey = (file: File) => `${file.name}-${file.size}-${file.lastModified}`;
 type ProjectDashboard = {
   views: number;
   leads: number;
@@ -225,8 +228,12 @@ export function ProjectWorkspace({
   const [busy, setBusy] = useState(false);
   const [houseTypeImage, setHouseTypeImage] = useState<File | null>(null);
   const [existingHouseTypeImage, setExistingHouseTypeImage] = useState<string | null>(null);
+  const [houseTypeFloorplans, setHouseTypeFloorplans] = useState<File[]>([]);
+  const [existingHouseTypeFloorplans, setExistingHouseTypeFloorplans] = useState<UploadedMedia[]>([]);
+  const [floorplanDescriptions, setFloorplanDescriptions] = useState<Record<string, string>>({});
+  const [pendingFloorplanDescriptions, setPendingFloorplanDescriptions] = useState<Record<string, string>>({});
   const [contentMediaFiles, setContentMediaFiles] = useState<File[]>([]);
-  const [contentMedia, setContentMedia] = useState<{ id: string; name: string; mimeType: string; url: string }[]>([]);
+  const [contentMedia, setContentMedia] = useState<UploadedMedia[]>([]);
   const load = useCallback(async () => {
     if (section === "dashboard") {
       return;
@@ -246,6 +253,12 @@ export function ProjectWorkspace({
     void load();
   }, [load]);
   const setField = (key: string, value: unknown) => setForm((current) => ({ ...current, [key]: value }));
+  const updateHouseFloorplanFiles = (files: File[]) => {
+    setHouseTypeFloorplans(files);
+    setPendingFloorplanDescriptions((current) =>
+      Object.fromEntries(files.map((file) => [floorplanFileKey(file), current[floorplanFileKey(file)] ?? ""])),
+    );
+  };
   const setMapUrl = (value: string) => {
     const coordinates = coordinatesFromGoogleMaps(value);
     setForm((current) => ({
@@ -297,16 +310,52 @@ export function ProjectWorkspace({
       return;
     }
     const savedId = editingId ?? String(result.id ?? "");
-    if (section === "house-types" && houseTypeImage && savedId) {
-      const upload = new FormData();
-      upload.set("entityType", "house-types");
-      upload.set("entityId", savedId);
-      upload.set("mediaKind", "cover");
-      upload.set("file", houseTypeImage);
-      const imageResponse = await fetch("/api/admin/media", { method: "POST", body: upload });
-      if (!imageResponse.ok) {
+    if (!editingId && savedId) setEditingId(savedId);
+    if (section === "house-types" && savedId) {
+      if (houseTypeImage) {
+        const upload = new FormData();
+        upload.set("entityType", "house-types");
+        upload.set("entityId", savedId);
+        upload.set("mediaKind", "cover");
+        upload.set("file", houseTypeImage);
+        const imageResponse = await fetch("/api/admin/media", { method: "POST", body: upload });
+        if (!imageResponse.ok) {
+          const imageResult = await imageResponse.json();
+          setMessage(imageResult.message ?? "บันทึกแบบบ้านแล้ว แต่อัปโหลดภาพแบบบ้านไม่สำเร็จ");
+          setBusy(false);
+          return;
+        }
+      }
+      const floorplanItems = existingHouseTypeFloorplans.map((item) => ({
+        mediaId: item.id,
+        description: floorplanDescriptions[item.id] ?? "",
+      }));
+      for (const file of houseTypeFloorplans) {
+        const upload = new FormData();
+        upload.set("entityType", "house-types");
+        upload.set("entityId", savedId);
+        upload.set("mediaKind", "floorplan");
+        upload.set("file", file);
+        const imageResponse = await fetch("/api/admin/media", { method: "POST", body: upload });
         const imageResult = await imageResponse.json();
-        setMessage(imageResult.message ?? "บันทึกแบบบ้านแล้ว แต่อัปโหลดรูปไม่สำเร็จ");
+        if (!imageResponse.ok) {
+          setMessage(imageResult.message ?? "บันทึกแบบบ้านแล้ว แต่อัปโหลด Floor Plan ไม่สำเร็จ");
+          setBusy(false);
+          return;
+        }
+        floorplanItems.push({
+          mediaId: String(imageResult.id),
+          description: pendingFloorplanDescriptions[floorplanFileKey(file)] ?? "",
+        });
+      }
+      const floorplanResponse = await fetch("/api/admin/house-floorplans", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ houseTypeId: savedId, data: { items: floorplanItems } }),
+      });
+      if (!floorplanResponse.ok) {
+        const floorplanResult = await floorplanResponse.json();
+        setMessage(floorplanResult.message ?? "บันทึกคำอธิบาย Floor Plan ไม่สำเร็จ");
         setBusy(false);
         return;
       }
@@ -333,6 +382,10 @@ export function ProjectWorkspace({
     setBusy(false);
     setHouseTypeImage(null);
     setExistingHouseTypeImage(null);
+    setHouseTypeFloorplans([]);
+    setExistingHouseTypeFloorplans([]);
+    setFloorplanDescriptions({});
+    setPendingFloorplanDescriptions({});
     setContentMediaFiles([]);
     setContentMedia([]);
     if (!settingMode) {
@@ -353,11 +406,29 @@ export function ProjectWorkspace({
       ),
     );
     setHouseTypeImage(null);
+    setHouseTypeFloorplans([]);
+    setFloorplanDescriptions({});
+    setPendingFloorplanDescriptions({});
     setContentMediaFiles([]);
     if (section === "house-types") {
-      const response = await fetch(`/api/admin/media?entityType=house-types&entityId=${row.id}&mediaKind=cover&list=1`);
-      const data = response.ok ? await response.json() : { rows: [] };
-      setExistingHouseTypeImage(data.rows?.[0]?.url ?? null);
+      const [imageResponse, floorplanResponse, floorplanCopyResponse] = await Promise.all([
+        fetch(`/api/admin/media?entityType=house-types&entityId=${row.id}&mediaKind=cover&list=1`),
+        fetch(`/api/admin/media?entityType=house-types&entityId=${row.id}&mediaKind=floorplan&list=1`),
+        fetch(`/api/admin/house-floorplans?houseTypeId=${row.id}`),
+      ]);
+      const imageData = imageResponse.ok ? await imageResponse.json() : { rows: [] };
+      const floorplanData = floorplanResponse.ok ? await floorplanResponse.json() : { rows: [] };
+      const floorplanCopy = floorplanCopyResponse.ok ? await floorplanCopyResponse.json() : { data: { items: [] } };
+      setExistingHouseTypeImage(imageData.rows?.[0]?.url ?? null);
+      setExistingHouseTypeFloorplans(floorplanData.rows ?? []);
+      setFloorplanDescriptions(
+        Object.fromEntries(
+          (floorplanCopy.data?.items ?? []).map((item: { mediaId: string; description: string }) => [
+            item.mediaId,
+            item.description,
+          ]),
+        ),
+      );
     }
     if (section === "promotions" || section === "news" || section === "facilities") {
       const response = await fetch(
@@ -375,6 +446,10 @@ export function ProjectWorkspace({
     setForm(empty(fields));
     setHouseTypeImage(null);
     setExistingHouseTypeImage(null);
+    setHouseTypeFloorplans([]);
+    setExistingHouseTypeFloorplans([]);
+    setFloorplanDescriptions({});
+    setPendingFloorplanDescriptions({});
     setContentMediaFiles([]);
     setContentMedia([]);
     setMessage("");
@@ -387,6 +462,10 @@ export function ProjectWorkspace({
     setForm(empty(fields));
     setHouseTypeImage(null);
     setExistingHouseTypeImage(null);
+    setHouseTypeFloorplans([]);
+    setExistingHouseTypeFloorplans([]);
+    setFloorplanDescriptions({});
+    setPendingFloorplanDescriptions({});
     setContentMediaFiles([]);
     setContentMedia([]);
   };
@@ -401,6 +480,36 @@ export function ProjectWorkspace({
       setContentMedia((items) => items.filter((item) => item.id !== id));
       setMessage("ลบรูปภาพเรียบร้อย", "success");
     } else setMessage("ลบรูปภาพไม่สำเร็จ");
+  };
+  const removeHouseFloorplan = async (id: string) => {
+    if (!editingId || section !== "house-types") return;
+    if (!(await confirmDelete("ต้องการลบ Floor Plan รูปนี้ใช่หรือไม่?", "ยืนยันการลบ Floor Plan"))) return;
+    const response = await fetch(
+      `/api/admin/media?entityType=house-types&entityId=${editingId}&mediaKind=floorplan&mediaId=${id}`,
+      { method: "DELETE" },
+    );
+    if (response.ok) {
+      const nextItems = existingHouseTypeFloorplans.filter((item) => item.id !== id);
+      const copyResponse = await fetch("/api/admin/house-floorplans", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          houseTypeId: editingId,
+          data: {
+            items: nextItems.map((item) => ({
+              mediaId: item.id,
+              description: floorplanDescriptions[item.id] ?? "",
+            })),
+          },
+        }),
+      });
+      setExistingHouseTypeFloorplans(nextItems);
+      setFloorplanDescriptions((items) => Object.fromEntries(Object.entries(items).filter(([key]) => key !== id)));
+      setMessage(
+        copyResponse.ok ? "ลบ Floor Plan เรียบร้อย" : "ลบรูปแล้ว แต่บันทึกคำอธิบาย Floor Plan ไม่สำเร็จ",
+        copyResponse.ok ? "success" : "error",
+      );
+    } else setMessage("ลบ Floor Plan ไม่สำเร็จ");
   };
   const removeFacility = async (row: Record<string, unknown>) => {
     if (busy || section !== "facilities") return;
@@ -775,7 +884,7 @@ export function ProjectWorkspace({
               role="dialog"
               aria-modal="true"
               aria-label={editingId ? `แก้ไข ${dataConfig.title}` : `เพิ่ม ${dataConfig.title}`}
-              className="my-8 w-full max-w-3xl rounded-2xl bg-white shadow-2xl"
+              className={`my-8 w-full rounded-2xl bg-white shadow-2xl ${section === "house-types" ? "max-w-6xl" : "max-w-3xl"}`}
             >
               <div className="flex items-start justify-between gap-4 border-b border-slate-200 px-5 py-4 md:px-6">
                 <div>
@@ -849,25 +958,42 @@ export function ProjectWorkspace({
                 </div>
 
                 {section === "house-types" && (
-                  <div className="mt-5">
-                    <p className="text-sm font-semibold text-slate-700">รูปแบบบ้าน</p>
-                    <FileDropzone
-                      title="ลากและวางรูปแบบบ้านที่นี่"
-                      hint="JPG, PNG, WEBP · ไม่เกิน 5 MB"
-                      accept="image/jpeg,image/png,image/webp"
-                      fileName={houseTypeImage?.name}
-                      file={houseTypeImage}
-                      onFilesChange={(files) => setHouseTypeImage(files[0] ?? null)}
-                      className="mt-2 min-h-32 overflow-hidden"
-                      preview={
-                        existingHouseTypeImage && !houseTypeImage ? (
-                          <img
-                            src={existingHouseTypeImage}
-                            alt="รูปแบบบ้านปัจจุบัน"
-                            className="mb-3 h-28 max-w-full rounded-lg object-cover"
-                          />
-                        ) : undefined
+                  <div className="mt-5 grid gap-6">
+                    <div className="max-w-full">
+                      <p className="text-sm font-semibold text-slate-700">ภาพแบบบ้าน</p>
+                      <FileDropzone
+                        title="ลากและวางภาพแบบบ้านที่นี่"
+                        hint="JPG, PNG, WEBP · ไม่เกิน 5 MB"
+                        accept="image/jpeg,image/png,image/webp"
+                        fileName={houseTypeImage?.name}
+                        file={houseTypeImage}
+                        onFilesChange={(files) => setHouseTypeImage(files[0] ?? null)}
+                        className="mt-2 min-h-32 overflow-hidden"
+                        preview={
+                          existingHouseTypeImage && !houseTypeImage ? (
+                            <img
+                              src={existingHouseTypeImage}
+                              alt="ภาพแบบบ้านปัจจุบัน"
+                              className="mb-3 h-28 max-w-full rounded-lg object-contain"
+                            />
+                          ) : undefined
+                        }
+                      />
+                    </div>
+                    <HouseFloorplanEditor
+                      media={existingHouseTypeFloorplans}
+                      files={houseTypeFloorplans}
+                      descriptions={floorplanDescriptions}
+                      pendingDescriptions={pendingFloorplanDescriptions}
+                      disabled={busy}
+                      onFilesChange={updateHouseFloorplanFiles}
+                      onDescriptionChange={(id, value) =>
+                        setFloorplanDescriptions((current) => ({ ...current, [id]: value }))
                       }
+                      onPendingDescriptionChange={(key, value) =>
+                        setPendingFloorplanDescriptions((current) => ({ ...current, [key]: value }))
+                      }
+                      onRemove={removeHouseFloorplan}
                     />
                   </div>
                 )}
@@ -992,25 +1118,42 @@ export function ProjectWorkspace({
             </p>
           )}
           {section === "house-types" && (
-            <div className="mt-5">
-              <p className="text-sm font-semibold text-slate-700">รูปแบบบ้าน</p>
-              <FileDropzone
-                title="ลากและวางรูปแบบบ้านที่นี่"
-                hint="JPG, PNG, WEBP · ไม่เกิน 5 MB"
-                accept="image/jpeg,image/png,image/webp"
-                fileName={houseTypeImage?.name}
-                file={houseTypeImage}
-                onFilesChange={(files) => setHouseTypeImage(files[0] ?? null)}
-                className="mt-2 min-h-28 overflow-hidden"
-                preview={
-                  existingHouseTypeImage && !houseTypeImage ? (
-                    <img
-                      src={existingHouseTypeImage}
-                      alt="รูปแบบบ้านปัจจุบัน"
-                      className="mb-3 h-24 max-w-full rounded-lg object-cover"
-                    />
-                  ) : undefined
+            <div className="mt-5 grid gap-6">
+              <div className="w-full">
+                <p className="text-sm font-semibold text-slate-700">ภาพแบบบ้าน</p>
+                <FileDropzone
+                  title="ลากและวางภาพแบบบ้านที่นี่"
+                  hint="JPG, PNG, WEBP · ไม่เกิน 5 MB"
+                  accept="image/jpeg,image/png,image/webp"
+                  fileName={houseTypeImage?.name}
+                  file={houseTypeImage}
+                  onFilesChange={(files) => setHouseTypeImage(files[0] ?? null)}
+                  className="mt-2 min-h-28 overflow-hidden"
+                  preview={
+                    existingHouseTypeImage && !houseTypeImage ? (
+                      <img
+                        src={existingHouseTypeImage}
+                        alt="ภาพแบบบ้านปัจจุบัน"
+                        className="mb-3 h-24 max-w-full rounded-lg object-contain"
+                      />
+                    ) : undefined
+                  }
+                />
+              </div>
+              <HouseFloorplanEditor
+                media={existingHouseTypeFloorplans}
+                files={houseTypeFloorplans}
+                descriptions={floorplanDescriptions}
+                pendingDescriptions={pendingFloorplanDescriptions}
+                disabled={busy}
+                onFilesChange={updateHouseFloorplanFiles}
+                onDescriptionChange={(id, value) =>
+                  setFloorplanDescriptions((current) => ({ ...current, [id]: value }))
                 }
+                onPendingDescriptionChange={(key, value) =>
+                  setPendingFloorplanDescriptions((current) => ({ ...current, [key]: value }))
+                }
+                onRemove={removeHouseFloorplan}
               />
             </div>
           )}
@@ -1028,6 +1171,10 @@ export function ProjectWorkspace({
                   setForm(empty(fields));
                   setHouseTypeImage(null);
                   setExistingHouseTypeImage(null);
+                  setHouseTypeFloorplans([]);
+                  setExistingHouseTypeFloorplans([]);
+                  setFloorplanDescriptions({});
+                  setPendingFloorplanDescriptions({});
                 }}
                 className="text-sm font-semibold text-slate-500"
               >

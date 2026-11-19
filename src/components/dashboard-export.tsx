@@ -171,18 +171,22 @@ export function DashboardExport({ title, periodLabel, fileStem, metrics, section
         type="button"
         onClick={exportExcel}
         disabled={exporting !== null}
-        className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-brand-primary/20 bg-white px-4 py-3 text-sm font-bold text-brand-primary shadow-sm transition hover:bg-brand-soft disabled:cursor-wait disabled:opacity-60"
+        className="group inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 text-sm font-bold text-brand-primary shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-brand-primary/25 hover:bg-brand-soft hover:shadow-md disabled:cursor-wait disabled:opacity-60 disabled:hover:translate-y-0"
       >
-        <i className="fa-solid fa-file-excel" aria-hidden="true" />
+        <span className="grid size-7 place-items-center rounded-lg bg-emerald-50 text-emerald-700 transition group-hover:bg-emerald-100">
+          <i className="fa-solid fa-file-excel" aria-hidden="true" />
+        </span>
         {exporting === "excel" ? "กำลังสร้าง Excel..." : "Export Excel"}
       </button>
       <button
         type="button"
         onClick={exportImage}
         disabled={exporting !== null}
-        className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-brand-primary/20 bg-white px-4 py-3 text-sm font-bold text-brand-primary shadow-sm transition hover:bg-brand-soft disabled:cursor-wait disabled:opacity-60"
+        className="group inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 text-sm font-bold text-brand-primary shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-brand-primary/25 hover:bg-brand-soft hover:shadow-md disabled:cursor-wait disabled:opacity-60 disabled:hover:translate-y-0"
       >
-        <i className="fa-solid fa-image" aria-hidden="true" />
+        <span className="grid size-7 place-items-center rounded-lg bg-sky-50 text-sky-700 transition group-hover:bg-sky-100">
+          <i className="fa-solid fa-image" aria-hidden="true" />
+        </span>
         {exporting === "image" ? "กำลังสร้างรูปภาพ..." : "Export รูปภาพ"}
       </button>
     </div>
