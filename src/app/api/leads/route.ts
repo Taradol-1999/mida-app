@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { z } from "zod";
 import { getClientIp } from "@/lib/client-ip";
 import { prisma } from "@/lib/prisma";
 import { leadAgeRanges, leadOccupations } from "@/lib/lead-options";
+import { sendLeadNotificationEmail } from "@/lib/lead-notification-email";
 
 const leadSchema = z
   .object({
@@ -73,5 +74,23 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Unable to write lead activity log", error);
   }
+  after(async () => {
+    try {
+      await sendLeadNotificationEmail({
+        projectId: value.projectId,
+        name: `${value.firstName} ${value.lastName}`.trim(),
+        phone: value.phone,
+        ageRange: value.ageRange,
+        occupation: value.occupation,
+        province: value.province,
+        district: value.district,
+        budget: value.budget,
+        preferredContactDate: value.preferredContactDate,
+        preferredContactTime: value.preferredContactTime,
+      });
+    } catch (error) {
+      console.error("Unable to send lead notification email", error);
+    }
+  });
   return NextResponse.json({ ok: true }, { status: 201 });
 }
