@@ -1,17 +1,9 @@
 import type { Metadata } from "next";
-import { Noto_Sans_Thai } from "next/font/google";
 import "leaflet/dist/leaflet.css";
 import "./globals.css";
 import { LanguageProvider } from "@/components/language-provider";
 import { UsageTracker } from "@/components/usage-tracker";
 import midaLogo from "@/assets/logos/svg/01-mida-property.svg";
-
-const notoSansThai = Noto_Sans_Thai({
-  variable: "--font-noto-sans-thai",
-  subsets: ["latin", "thai"],
-  weight: "variable",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: "MIDA Property",
@@ -29,7 +21,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           referrerPolicy="no-referrer"
         />
       </head>
-      <body className={notoSansThai.variable} suppressHydrationWarning>
+      <body suppressHydrationWarning>
         <LanguageProvider>
           <UsageTracker />
           {children}

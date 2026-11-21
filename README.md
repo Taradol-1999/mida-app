@@ -72,4 +72,56 @@ scripts/              utility สำหรับสร้างบัญชี�
 - เปลี่ยน `AUTH_SECRET` เป็น random secret ที่ยาวอย่างน้อย 32 ตัวอักษร
 - ใช้รหัสผ่านฐานข้อมูลที่ไม่ใช่ root และจำกัดสิทธิ์ตามหลัก least privilege
 - ตรวจสอบพิกัด OpenStreetMap, เชื่อมระบบส่งอีเมล/Google Sheets และ media storage ด้วยค่า production
-- เพิ่ม CSRF/rate limit สำหรับ endpoint สาธารณะ และตั้งค่า HTTPS
+- ตั้งค่า HTTPS และให้ reverse proxy เขียนทับ `X-Forwarded-For` ด้วย IP จริงของผู้ใช้ เพื่อให้ rate limit ทำงานถูกต้อง
+
+## Deploy ด้วย Docker
+
+โปรเจกต์เก็บไฟล์ที่อัปโหลดลงดิสก์ จึงต้องใช้ persistent volume และไม่ควร deploy แบบ serverless ที่ filesystem
+หายเมื่อ instance restart ไฟล์ `docker-compose.prod.yml` เตรียมทั้งแอป, MariaDB, volume ฐานข้อมูล และ volume รูปภาพไว้แล้ว
+
+1. เตรียมค่า production:
+
+   ```bash
+   cp .env.production.example .env.production
+   openssl rand -base64 48
+   ```
+
+   นำค่าที่สุ่มได้ไปใส่ `AUTH_SECRET` และเปลี่ยนรหัสผ่านฐานข้อมูลทั้งสองค่า ห้าม commit `.env.production`
+
+2. Build image และเปิดฐานข้อมูล:
+
+   ```bash
+   docker compose --env-file .env.production -f docker-compose.prod.yml build
+   docker compose --env-file .env.production -f docker-compose.prod.yml up -d db
+   ```
+
+3. ครั้งแรกหรือหลังแก้ Prisma Schema ให้ตรวจการเปลี่ยนแปลงก่อน แล้วค่อยสร้าง/อัปเดตตาราง:
+
+   ```bash
+   docker compose --env-file .env.production -f docker-compose.prod.yml --profile tools run --rm db-init
+   ```
+
+   คำสั่งนี้ใช้ `prisma db push` และไม่ควรรันโดยไม่สำรองฐานข้อมูล production ก่อน
+
+4. เปิดแอป:
+
+   ```bash
+   docker compose --env-file .env.production -f docker-compose.prod.yml up -d app
+   docker compose --env-file .env.production -f docker-compose.prod.yml ps
+   ```
+
+5. ตรวจ Health Check ที่ `http://SERVER:3000/api/health` ต้องได้ HTTP 200 และ `database: connected`
+
+Compose bind แอปไว้ที่ `127.0.0.1:3000` เท่านั้น ให้คัดลอก `deploy/nginx.conf.example` ไปตั้งค่า Nginx เปลี่ยน
+`server_name` เป็นโดเมนจริง แล้วเพิ่ม HTTPS ด้วย Certbot หรือระบบ TLS ของผู้ให้บริการ ตัวอย่าง Nginx ตั้ง upload limit ไว้ 55 MB
+และเขียนทับ IP header เพื่อให้ rate limit เชื่อถือได้ ห้ามเปิด port 3000 ต่ออินเทอร์เน็ตโดยตรง
+
+สำรอง volume `mida-db-data` กับ `mida-uploads` เป็นประจำ หากใช้ฐานข้อมูลภายนอกให้เปลี่ยน `DB_HOST` และนำ service
+`db`/`depends_on` ออกจากไฟล์ Compose ตามระบบปลายทาง Rate limit ปัจจุบันเก็บใน memory ของ app instance เดียว หากขยายหลาย
+instance ให้ย้าย state ไป Redis หรือ rate limit ที่ reverse proxy
+
+ตรวจความพร้อมก่อน deploy โดยไม่แก้ข้อมูล:
+
+```bash
+pnpm deploy:check
+```

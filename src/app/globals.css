@@ -1,5 +1,25 @@
 @import "tailwindcss";
 
+/* Loaded by the browser instead of next/font so production builds do not require Google Fonts network access. */
+@font-face {
+  font-family: "Noto Sans Thai";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("https://fonts.gstatic.com/s/notosansthai/v29/iJWQBXeUZi_OHPqn4wq6hQ2_hbJ1xyN9wd43SofNWcdfKI2hTWsb-P2c.woff2") format("woff2");
+  unicode-range: U+02D7, U+0303, U+0331, U+0E01-0E5B, U+200C-200D, U+25CC;
+}
+
+@font-face {
+  font-family: "Noto Sans Thai";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("https://fonts.gstatic.com/s/notosansthai/v29/iJWQBXeUZi_OHPqn4wq6hQ2_hbJ1xyN9wd43SofNWcdfPI2hTWsb-A.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 @utility admin-card {
   @apply min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6;
 }
@@ -110,6 +130,7 @@ div.swal2-popup.admin-alert-popup {
 }
 
 :root {
+  --font-noto-sans-thai: "Noto Sans Thai", "Leelawadee UI", Tahoma, Arial, sans-serif;
   --mida-blue: var(--color-brand-primary);
   --mida-navy: var(--color-brand-primary);
   --mida-gold: var(--color-brand-primary);

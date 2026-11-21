@@ -4,6 +4,7 @@ import { getClientIp } from "@/lib/client-ip";
 import { prisma } from "@/lib/prisma";
 import { leadAgeRanges, leadOccupations } from "@/lib/lead-options";
 import { sendLeadNotificationEmail } from "@/lib/lead-notification-email";
+import { takeRateLimit } from "@/lib/rate-limit";
 
 const leadSchema = z
   .object({
@@ -31,6 +32,13 @@ const leadSchema = z
   .refine(({ firstName, lastName }) => Array.from(`${firstName} ${lastName}`).length <= 120);
 
 export async function POST(request: Request) {
+  const rateLimit = takeRateLimit(`lead:${getClientIp(request) ?? "unknown"}`, 5, 10 * 60 * 1_000);
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { message: "ส่งข้อมูลบ่อยเกินไป กรุณารอสักครู่แล้วลองใหม่" },
+      { status: 429, headers: { "Retry-After": String(rateLimit.retryAfter) } },
+    );
+  }
   const parsed = leadSchema.safeParse(await request.json());
   if (!parsed.success) return NextResponse.json({ message: "กรุณาตรวจสอบข้อมูลที่กรอก" }, { status: 400 });
   const value = parsed.data;

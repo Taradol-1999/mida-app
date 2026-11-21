@@ -6,7 +6,14 @@ import { isUserRole, type UserRole } from "@/lib/user-roles";
 export type { UserRole } from "@/lib/user-roles";
 
 const cookieName = "mida_session";
-const secret = new TextEncoder().encode(process.env.AUTH_SECRET ?? "development-secret-change-me-before-production");
+
+function authSecret() {
+  const value = process.env.AUTH_SECRET?.trim();
+  if (process.env.NODE_ENV === "production" && (!value || value.length < 32)) {
+    throw new Error("AUTH_SECRET must contain at least 32 characters in production");
+  }
+  return new TextEncoder().encode(value || "development-secret-change-me-before-production");
+}
 
 export type SessionUser = { id: string; name: string; email: string; role: UserRole; projectIds: string[] };
 
@@ -15,7 +22,7 @@ export async function createSession(user: Omit<SessionUser, "projectIds">) {
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("8h")
-    .sign(secret);
+    .sign(authSecret());
   const store = await cookies();
   store.set(cookieName, token, {
     httpOnly: true,
@@ -35,7 +42,7 @@ export async function getSession(): Promise<SessionUser | null> {
   const token = (await cookies()).get(cookieName)?.value;
   if (!token) return null;
   try {
-    const { payload } = await jwtVerify(token, secret);
+    const { payload } = await jwtVerify(token, authSecret());
     if (!payload.id || !payload.email || !payload.role || !payload.name) return null;
     // Use current account permissions, including sessions created before a role change.
     const user = await prisma.user.findUnique({

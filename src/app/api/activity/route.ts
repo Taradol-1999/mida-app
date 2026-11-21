@@ -3,6 +3,7 @@ import { z } from "zod";
 import { getSession } from "@/lib/auth";
 import { getClientIp } from "@/lib/client-ip";
 import { prisma } from "@/lib/prisma";
+import { takeRateLimit } from "@/lib/rate-limit";
 
 const activitySchema = z.object({
   action: z.enum(["PAGE_VISIT", "PAGE_DURATION", "HOUSE_TYPE_VIEW", "SECTION_VIEW", "SECTION_DURATION", "ADMIN_VIEW"]),
@@ -52,6 +53,10 @@ function activityDetail(
 
 /** Public endpoint: records only anonymous session activity and never accepts account identity from the browser. */
 export async function POST(request: Request) {
+  const rateLimit = takeRateLimit(`activity:${getClientIp(request) ?? "unknown"}`, 240, 60 * 1_000);
+  if (!rateLimit.allowed) {
+    return NextResponse.json({ ok: false }, { status: 429, headers: { "Retry-After": String(rateLimit.retryAfter) } });
+  }
   const parsed = activitySchema.safeParse(await activityBody(request));
   if (!parsed.success) return NextResponse.json({ ok: false }, { status: 400 });
 
